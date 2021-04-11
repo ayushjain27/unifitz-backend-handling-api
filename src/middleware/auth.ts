@@ -23,7 +23,7 @@ export default function (
   // Verify token
   try {
     /* eslint-disable */
-    const payload: Payload | any = jwt.verify(token, config.get('jwtSecret'));
+    const payload: Payload | any = jwt.verify(token, config.get('JWT_SECRET'));
     req.userId = payload.userId;
     next();
   } catch (err) {

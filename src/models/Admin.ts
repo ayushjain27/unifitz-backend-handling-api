@@ -1,29 +1,35 @@
 import { Document, Model, model, Schema } from 'mongoose';
 
 /**
- * Interface to model the User Schema for TypeScript.
- * @param email:string
+ * Interface to model the Admin Schema for TypeScript.
+ * @param userName:string
  * @param password:string
- * @param avatar:string
+ * @param role:string
+ * @param createdDate:Date
  */
 export interface IAdmin extends Document {
-  email: string;
+  userName: string;
   password: string;
-  avatar: string;
+  role: string;
+  createdDate: Date;
 }
 
-const userSchema: Schema = new Schema({
+const adminSchema: Schema = new Schema({
   userName: {
     type: String,
     required: true,
     unique: true,
     index: { unique: true }
   },
+  password: {
+    type: String,
+    required: true
+  },
   role: {
     type: String,
     required: true,
-    enum: ['user', 'admin'],
-    default: 'admin'
+    enum: ['ADMIN'],
+    default: 'ADMIN'
   },
   createdDate: {
     type: Date,
@@ -31,6 +37,6 @@ const userSchema: Schema = new Schema({
   }
 });
 
-const Admin: Model<IAdmin> = model('Admin', userSchema);
+const Admin: Model<IAdmin> = model('admin_user', adminSchema);
 
 export default Admin;

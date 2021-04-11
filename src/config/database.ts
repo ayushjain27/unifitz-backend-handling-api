@@ -5,7 +5,7 @@ import Logger from './winston';
 
 const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI: string = config.get('mongoURI');
+    const mongoURI: string = config.get('MONGO_URI');
     const options: ConnectionOptions = {
       useNewUrlParser: true,
       useCreateIndex: true,

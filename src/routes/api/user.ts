@@ -1,82 +1,121 @@
-import bcrypt from 'bcryptjs';
-import config from 'config';
-import { Router, Response } from 'express';
-import { check, validationResult } from 'express-validator';
+import { Response, Router } from 'express';
 import HttpStatusCodes from 'http-status-codes';
-import jwt from 'jsonwebtoken';
-
-import Payload from '../../types/Payload';
-import Request from '../../types/Request';
-import User, { IUser } from '../../models/User';
+import { defaultCodeLength } from '../../config/constants';
 import Logger from '../../config/winston';
+import { TwilioLoginPayload, TwilioVerifyPayload } from '../../interfaces';
+import auth from '../../middleware/auth';
+import User, { IUser } from '../../models/User';
+import twilioCLient from '../../services/twilio-service';
+import Request from '../../types/Request';
+import { generateToken } from '../../utils';
 
 const router: Router = Router();
 
-// @route   POST api/user
-// @desc    Register user given their email and password, returns the token upon successful registration
-// @access  Public
-router.post(
-  '/',
-  [
-    check('email', 'Please include a valid email').isEmail(),
-    check(
-      'password',
-      'Please enter a password with 6 or more characters'
-    ).isLength({ min: 6 })
-  ],
-  async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
-    }
-
-    const { email, password } = req.body;
-    try {
-      let user: IUser = await User.findOne({ email });
-
-      if (user) {
-        return res.status(HttpStatusCodes.BAD_REQUEST).json({
-          errors: [
-            {
-              msg: 'User already exists'
-            }
-          ]
-        });
-      }
-
-      const salt = await bcrypt.genSalt(10);
-      const hashed = await bcrypt.hash(password, salt);
-
-      // Build user object based on IUser
-      const userFields = {
-        email,
-        password: hashed
-      };
-
-      user = new User(userFields);
-
-      await user.save();
-
-      const payload: Payload = {
-        userId: user.id
-      };
-
-      jwt.sign(
-        payload,
-        config.get('jwtSecret'),
-        { expiresIn: config.get('jwtExpiration') },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
-        }
-      );
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
-    }
+// @route   GET user/auth
+// @desc    Get authenticated user given the token
+// @access  Private
+router.get('/', auth, async (req: Request, res: Response) => {
+  try {
+    const user: IUser = await User.findById(req.userId).select('-password');
+    res.json(user);
+  } catch (err) {
+    Logger.error(err.message);
+    res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
   }
-);
+});
+
+// @route   GET user/otp/send
+// @desc    Send otp
+// @access  Public
+router.post('/otp/send', async (req: Request, res: Response) => {
+  try {
+    const { phoneNumber, channel } = req.body;
+    const loginPayload: TwilioLoginPayload = {
+      phoneNumber,
+      channel
+    };
+    if (loginPayload.phoneNumber) {
+      const result = await twilioCLient.sendVerificationCode(
+        loginPayload.phoneNumber,
+        loginPayload.channel
+      );
+      res.status(HttpStatusCodes.OK).send({
+        message: 'Verification is sent!!',
+        phoneNumber,
+        result
+      });
+      Logger.debug(`Twilio verification sent to ${loginPayload.phoneNumber}`);
+    } else {
+      res.status(HttpStatusCodes.BAD_REQUEST).send({
+        message: 'Invalid phone number :(',
+        phoneNumber
+      });
+    }
+  } catch (err) {
+    Logger.error(err.message);
+    res
+      .status(HttpStatusCodes.SERVICE_UNAVAILABLE)
+      .send('Twilio Service Error');
+  }
+});
+
+/**
+ * @route   GET /user/otp/login
+ * @desc    Verify otp
+ * @access  Private
+ */
+router.post('/otp/login', async (req: Request, res: Response) => {
+  try {
+    const { phoneNumber, code } = req.body;
+    const verifyPayload: TwilioVerifyPayload = {
+      phoneNumber,
+      code
+    };
+    if (
+      verifyPayload.phoneNumber &&
+      verifyPayload.code.length === defaultCodeLength
+    ) {
+      const { phoneNumber } = verifyPayload;
+      const result = await twilioCLient.verifyCode(
+        phoneNumber,
+        verifyPayload.code
+      );
+      Logger.debug(`Twilio verification completed for ${phoneNumber}`);
+      const user: IUser = await User.findOne({ phoneNumber: phoneNumber });
+
+      if (!user) {
+        Logger.debug(`User registration started for ${phoneNumber}`);
+        // Build user object based on IUser
+        const userFields = {
+          phoneNumber
+        };
+
+        const newUser = new User(userFields);
+
+        await newUser.save();
+      }
+      const payload = {
+        userId: phoneNumber,
+        role: 'STORE_OWNER' //right now we have only one role for user
+      };
+      const token = await generateToken(payload);
+      res.status(HttpStatusCodes.OK).send({
+        message: 'Login Successful',
+        token,
+        result
+      });
+    } else {
+      res.status(HttpStatusCodes.BAD_REQUEST).send({
+        message: 'Invalid phone number or code :(',
+        phoneNumber
+      });
+    }
+  } catch (err) {
+    Logger.error(err.message);
+    res
+      .status(HttpStatusCodes.SERVICE_UNAVAILABLE)
+      .send('Twilio Service Error');
+  }
+});
 
 export default router;

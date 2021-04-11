@@ -1,17 +1,16 @@
 import express from 'express';
 
 import connectDB from './config/database';
-import auth from './routes/api/auth';
 import user from './routes/api/user';
+import admin from './routes/api/admin';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
 
 const app = express();
-
 // Connect to MongoDB
 connectDB();
 
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 8080);
 // Middlewares configuration
 app.use(express.json());
 app.use(express.urlencoded());
@@ -33,8 +32,8 @@ app.get('/logger', (_, res) => {
   res.send('Hello world');
 });
 
-app.use('/api/auth', auth);
-app.use('/api/user', user);
+app.use(`/user`, user);
+app.use(`/admin`, admin);
 
 const port = app.get('port');
 const server = app.listen(port, () =>

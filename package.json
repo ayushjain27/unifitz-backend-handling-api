@@ -8,16 +8,16 @@
     "lint-fix": "eslint . --ext .ts --fix",
     "prettier": "prettier --check **/*.ts",
     "prettier:fix": "prettier --config .prettierrc --write **/*.ts",
-    "tsc": "tsc",
+    "tsc": "tsc  && echo ok || echo not ok",
     "watch-tsc": "tsc -w",
-    "deploy": "node dist/src/server.js",
-    "watch-deploy": "nodemon dist/src/server.js",
+    "deploy": "node dist/server.js",
+    "watch-deploy": "nodemon dist/server.js",
     "server": "concurrently \"npm run watch-tsc\" \"npm run watch-deploy\"",
-    "start": "npm run deploy"
+    "start-js": "npm run deploy",
+    "start": "ts-node src/server.ts"
   },
   "dependencies": {
     "@types/morgan": "^1.9.2",
-    "@types/winston": "^2.4.4",
     "bcryptjs": "^2.4.3",
     "config": "^3.3.6",
     "express": "^4.17.1",
@@ -26,6 +26,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",
     "morgan": "^1.10.0",
+    "ts-node": "^9.1.1",
+    "twilio": "^3.60.0",
     "typescript": "^4.2.3",
     "winston": "^3.3.3"
   },

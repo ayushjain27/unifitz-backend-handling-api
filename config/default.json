@@ -1,5 +1,9 @@
 {
-  "mongoURI": "",
-  "jwtSecret": "",
-  "jwtExpiration": 360000
+  "MONGO_URI": "",
+  "JWT_SECRET": "",
+  "JWT_EXPIRATION": "",
+  "ACCOUNT_SID": "",
+  "AUTH_TOKEN": "",
+  "SERVICE_ID": "",
+  "ISS": ""
 }

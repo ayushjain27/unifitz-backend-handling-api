@@ -2,18 +2,18 @@ import { Document, Model, model, Schema } from 'mongoose';
 
 /**
  * Interface to model the User Schema for TypeScript.
- * @param email:string
- * @param password:string
- * @param avatar:string
+ * @param phoneNumber:string
+ * @param role:string
+ * @param createdDate:Date
  */
 export interface IUser extends Document {
-  email: string;
-  password: string;
-  avatar: string;
+  phoneNumber: string;
+  role: string;
+  createdDate: Date;
 }
 
 const userSchema: Schema = new Schema({
-  mobileNumber: {
+  phoneNumber: {
     type: String,
     required: true,
     unique: true,
@@ -22,8 +22,8 @@ const userSchema: Schema = new Schema({
   role: {
     type: String,
     required: true,
-    enum: ['user', 'admin'],
-    default: 'user'
+    enum: ['STORE_OWNER'],
+    default: 'STORE_OWNER'
   },
   createdDate: {
     type: Date,
@@ -31,6 +31,6 @@ const userSchema: Schema = new Schema({
   }
 });
 
-const User: Model<IUser> = model('User', userSchema);
+const User: Model<IUser> = model('users', userSchema);
 
 export default User;
