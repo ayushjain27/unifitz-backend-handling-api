@@ -11,31 +11,29 @@ export interface IAdmin extends Document {
   userName: string;
   password: string;
   role: string;
-  createdDate: Date;
 }
 
-const adminSchema: Schema = new Schema({
-  userName: {
-    type: String,
-    required: true,
-    unique: true,
-    index: { unique: true }
+const adminSchema: Schema = new Schema(
+  {
+    userName: {
+      type: String,
+      required: true,
+      unique: true,
+      index: { unique: true }
+    },
+    password: {
+      type: String,
+      required: true
+    },
+    role: {
+      type: String,
+      required: true,
+      enum: ['ADMIN'],
+      default: 'ADMIN'
+    }
   },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String,
-    required: true,
-    enum: ['ADMIN'],
-    default: 'ADMIN'
-  },
-  createdDate: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamps: true }
+);
 
 const Admin: Model<IAdmin> = model('admin_user', adminSchema);
 
