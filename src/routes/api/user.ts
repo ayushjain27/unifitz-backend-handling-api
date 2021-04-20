@@ -1,16 +1,19 @@
 import { Response, Router } from 'express';
 import HttpStatusCodes from 'http-status-codes';
+
+import Request from '../../types/Request';
 import { defaultCodeLength } from '../../config/constants';
 import Logger from '../../config/winston';
 import { TwilioLoginPayload, TwilioVerifyPayload } from '../../interfaces';
 import auth from '../../middleware/auth';
 import User, { IUser } from '../../models/User';
-import twilioCLient from '../../services/twilio-service';
-import Request from '../../types/Request';
+import container from '../../config/inversify.container';
+import { TYPES } from '../../config/inversify.types';
 import { generateToken } from '../../utils';
+import { TwilioService } from '../../services/twilio-service';
 
 const router: Router = Router();
-
+const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
 // @route   GET user/auth
 // @desc    Get authenticated user given the token
 // @access  Private

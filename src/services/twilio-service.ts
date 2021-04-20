@@ -1,11 +1,14 @@
 import { Twilio } from 'twilio';
-import config from 'config';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../config/inversify.types';
+import { twilioConfig } from '../config/constants';
 
-class TwilioService {
+@injectable()
+export class TwilioService {
   private client: Twilio;
-  private readonly twilioServiceId: string = config.get('SERVICE_ID');
-  constructor(accountId: string, authToken: string) {
-    this.client = new Twilio(accountId, authToken);
+  private readonly twilioServiceId: string = twilioConfig.SERVICE_ID;
+  constructor(@inject(TYPES.Twilio) client: Twilio) {
+    this.client = client;
   }
 
   async sendVerificationCode(phoneNumber: string, channel: string) {
@@ -26,9 +29,3 @@ class TwilioService {
       });
   }
 }
-
-const twilioCLient = new TwilioService(
-  config.get('ACCOUNT_SID'),
-  config.get('AUTH_TOKEN')
-);
-export default twilioCLient;
