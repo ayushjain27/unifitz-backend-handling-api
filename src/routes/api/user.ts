@@ -69,7 +69,7 @@ router.post('/otp/send', async (req: Request, res: Response) => {
  */
 router.post('/otp/login', async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, code } = req.body;
+    const { phoneNumber, code, role } = req.body;
     const verifyPayload: TwilioVerifyPayload = {
       phoneNumber,
       code
@@ -83,6 +83,12 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         phoneNumber,
         verifyPayload.code
       );
+      if(!result){
+        res.status(HttpStatusCodes.BAD_REQUEST).send({
+          message: 'Invalid verification code :(',
+          phoneNumber
+        });
+      }
       Logger.debug(`Twilio verification completed for ${phoneNumber}`);
       const user: IUser = await User.findOne({ phoneNumber: phoneNumber });
 
@@ -99,17 +105,16 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       }
       const payload = {
         userId: phoneNumber,
-        role: 'STORE_OWNER' //right now we have only one role for user
+        role: role
       };
       const token = await generateToken(payload);
       res.status(HttpStatusCodes.OK).send({
         message: 'Login Successful',
-        token,
-        result
+        token
       });
     } else {
       res.status(HttpStatusCodes.BAD_REQUEST).send({
-        message: 'Invalid phone number or code :(',
+        message: 'Invalid phone number or verification code :(',
         phoneNumber
       });
     }

@@ -10,7 +10,7 @@ export class TwilioService {
   constructor(@inject(TYPES.Twilio) client: Twilio) {
     this.client = client;
   }
-
+  /* eslint-disable */
   async sendVerificationCode(phoneNumber: string, channel: string) {
     return await this.client.verify
       .services(this.twilioServiceId)
@@ -20,12 +20,13 @@ export class TwilioService {
       });
   }
 
-  async verifyCode(phoneNumber: string, code: string) {
-    return await this.client.verify
+  async verifyCode(phoneNumber: string, code: string):Promise<boolean> {
+    const res = await this.client.verify
       .services(this.twilioServiceId)
       .verificationChecks.create({
         to: `+${phoneNumber}`,
         code: code
       });
+      return res.valid;
   }
 }

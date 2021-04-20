@@ -1,10 +1,13 @@
 import express from 'express';
+import helmet from 'helmet';
 
 import connectDB from './config/database';
 import user from './routes/api/user';
 import admin from './routes/api/admin';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
+import { roleAuth } from './middleware/rbac';
+import { ACL } from './enum/rbac.enum';
 
 const app = express();
 // Connect to MongoDB
@@ -12,6 +15,7 @@ connectDB();
 
 app.set('port', process.env.PORT || 8080);
 // Middlewares configuration
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(morganMiddleware);
@@ -34,7 +38,10 @@ app.get('/logger', (_, res) => {
 
 app.use(`/user`, user);
 app.use(`/admin`, admin);
-
+// test RBAC
+app.post('/customer', roleAuth(ACL.STORE_CREATE), (req, res) => {
+  res.send('Customer Information');
+});
 const port = app.get('port');
 const server = app.listen(port, () =>
   Logger.debug(`Server started on port ${port}`)
