@@ -20,13 +20,13 @@ export class TwilioService {
       });
   }
 
-  async verifyCode(phoneNumber: string, code: string):Promise<boolean> {
+  async verifyCode(phoneNumber: string, code: string): Promise<boolean> {
     const res = await this.client.verify
       .services(this.twilioServiceId)
       .verificationChecks.create({
         to: `+${phoneNumber}`,
         code: code
       });
-      return res.valid;
+    return res.valid;
   }
 }

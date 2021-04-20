@@ -83,7 +83,7 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         phoneNumber,
         verifyPayload.code
       );
-      if(!result){
+      if (!result) {
         res.status(HttpStatusCodes.BAD_REQUEST).send({
           message: 'Invalid verification code :(',
           phoneNumber
