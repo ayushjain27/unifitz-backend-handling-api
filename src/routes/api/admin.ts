@@ -3,8 +3,8 @@ import { Router, Response } from 'express';
 import { validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 
-import Payload from '../../types/Payload';
-import Request from '../../types/Request';
+import Payload from '../../types/payload';
+import Request from '../../types/request';
 import Admin, { IAdmin } from '../../models/Admin';
 import Logger from '../../config/winston';
 import { generateToken } from '../../utils';

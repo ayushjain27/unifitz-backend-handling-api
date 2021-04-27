@@ -7,8 +7,7 @@ import admin from './routes/api/admin';
 import store from './routes/api/store';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
-import { roleAuth } from './middleware/rbac';
-import { ACL } from './enum/rbac.enum';
+import Catalog, { ICatalog } from './models/Catalog';
 
 const app = express();
 // Connect to MongoDB
@@ -21,41 +20,51 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(morganMiddleware);
 // @route   GET /
-// @desc    Test Base API
+// @desc    Liveliness base API
 // @access  Public
-app.get('/', (_req, res) => {
-  res.send('API Running');
-});
-
-app.get('/logger', (_, res) => {
-  Logger.error('This is an error log');
-  Logger.warn('This is a warn log');
-  Logger.info('This is a info log');
-  Logger.http('This is a http log');
-  Logger.debug('This is a debug log');
-
-  res.send('Hello world');
+app.get('/', async (_req, res) => {
+  res.send('ok');
 });
 
 app.use(`/user`, user);
 app.use(`/admin`, admin);
-// test RBAC
-app.use('/store', roleAuth(ACL.STORE_CREATE), store);
-app.get('/category', (req, res) => {
+
+app.use('/store', store);
+
+app.get('/category', async (req, res) => {
+  const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
+  const result = categoryList.map(({ _id, catalogName }) => {
+    return { _id, catalogName };
+  });
   res.json({
-    name: 'Two-Wheelers'
+    list: result
   });
 });
-app.get('/suCategory', (req, res) => {
+
+app.get('/subCategory', async (req, res) => {
+  const categoryList: ICatalog[] = await Catalog.find({
+    tree: `root/${req.query.category}`
+  });
+  const result = categoryList.map(({ _id, catalogName }) => {
+    return { _id, catalogName };
+  });
   res.json({
-    name: 'Tyres'
+    list: result
   });
 });
-app.get('/brand', (req, res) => {
+
+app.get('/brand', async (req, res) => {
+  const categoryList: ICatalog[] = await Catalog.find({
+    tree: `root/${req.query.category}/${req.query.subCategory}`
+  });
+  const result = categoryList.map(({ _id, catalogName }) => {
+    return { _id, catalogName };
+  });
   res.json({
-    name: 'TVS'
+    list: result
   });
 });
+
 const port = app.get('port');
 const server = app.listen(port, () =>
   Logger.debug(`Server started on port ${port}`)

@@ -1,15 +1,15 @@
 import { Document, Model, model, ObjectId, Schema, Types } from 'mongoose';
 
-export interface IMasterDataMap extends Document {
-  //_id: ObjectId;
+export interface ICatalogMap extends Document {
+  _id: ObjectId;
   name: string;
 }
 
-const storeMasterDataMapSchema: Schema = new Schema({
-  // _id: {
-  //   type: Types.ObjectId,
-  //   required: true
-  // },
+const storeCatalogMapSchema: Schema = new Schema({
+  _id: {
+    type: Types.ObjectId,
+    required: true
+  },
   name: {
     type: String,
     required: true
@@ -21,9 +21,9 @@ export interface IBasicInfo extends Document {
   ownerName: string; //<String> {required},
   businessName: string; //<String> {required},
   registrationDate: Date; //<localeDate>{required},(NO TIME)
-  brand: IMasterDataMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
-  category: IMasterDataMap; //<Object> {_id:, name:} {required}, - (MD)
-  subCategory: IMasterDataMap[]; //<Object> {_id:, name:}{required}  - (MD),
+  brand: ICatalogMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
+  category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
+  subCategory: ICatalogMap; //<Object> {_id:, name:}{required}  - (MD),
   // businessHours for the different
   openTime: Date; //<TIME>,
   closeTime: Date; //<TIME>
@@ -47,15 +47,15 @@ const storeBasicInfoSchema: Schema = new Schema({
     required: true
   },
   brand: {
-    type: storeMasterDataMapSchema,
+    type: storeCatalogMapSchema,
     required: true
   },
   category: {
-    type: storeMasterDataMapSchema,
+    type: storeCatalogMapSchema,
     required: true
   },
   subCategory: {
-    type: [storeMasterDataMapSchema],
+    type: storeCatalogMapSchema,
     required: true
   },
   openTime: {
@@ -87,39 +87,31 @@ const storeContactSchema: Schema = new Schema({
     type: {
       callingCode: String,
       countryCode: String
-    },
-    required: true
+    }
   },
   phoneNumber: {
-    type: { primary: String, secondary: String },
-    required: true
+    type: { primary: String, secondary: String }
   },
   email: {
-    type: String,
-    required: true
+    type: String
   },
   address: {
-    type: String,
-    required: true
+    type: String
   },
   geoLocation: {
     type: {
       kind: String,
       coordinates: { longitude: String, latitude: String }
-    },
-    required: true
+    }
   },
   state: {
-    type: String,
-    required: true
+    type: String
   },
   city: {
-    type: String,
-    required: true
+    type: String
   },
   pincode: {
-    type: String,
-    required: true
+    type: String
   }
 });
 
@@ -146,9 +138,8 @@ const storeDocumentsSchema: Schema = new Schema({
  * @param profileStatus:string
  */
 export interface IStore extends Document {
-  uuid: string;
   userId: ObjectId;
-  storeId: number; // 6 digit unique value
+  storeId: string; // 6 digit unique value
   profileStatus: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
@@ -162,13 +153,8 @@ const storeSchema: Schema = new Schema(
       type: Types.ObjectId,
       required: true
     },
-    uuid: {
-      type: String,
-      required: true,
-      unique: true
-    },
     storeId: {
-      type: Number,
+      type: String,
       required: true,
       unique: true
     },
@@ -180,15 +166,12 @@ const storeSchema: Schema = new Schema(
     },
     basicInfo: {
       type: storeBasicInfoSchema
-      //required: true
     },
     contactInfo: {
       type: storeContactSchema
-      //required: true
     },
     documents: {
       type: storeDocumentsSchema
-      //required: true
     }
   },
   { timestamps: true }

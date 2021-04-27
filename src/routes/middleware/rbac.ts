@@ -3,10 +3,10 @@ import { Response, NextFunction } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
-import Payload from '../types/Payload';
-import Request from '../types/Request';
-import Logger from '../config/winston';
-import { RBAC_MAP } from '../config/rbac-mapping';
+import Payload from '../../types/payload';
+import Request from '../../types/request';
+import Logger from '../../config/winston';
+import { RBAC_MAP } from '../../config/rbac-mapping';
 
 export const roleAuth = (credentials: string | string[]) => {
   return (req: Request, res: Response, next: NextFunction): Response => {
