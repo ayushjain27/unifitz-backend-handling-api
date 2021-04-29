@@ -27,7 +27,7 @@ app.get('/', async (_req, res) => {
 });
 
 app.get('/test', async (req, res) => {
-  res.send({ message: 'Server is started successfully' });
+  res.send({ message: 'Server is started successfully again' });
 });
 
 app.use(`/user`, user);
