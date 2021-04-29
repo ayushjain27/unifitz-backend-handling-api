@@ -26,6 +26,10 @@ app.get('/', async (_req, res) => {
   res.send('ok');
 });
 
+app.get('/test', async (req, res) => {
+  res.send({ message: 'Server is started successfully' });
+});
+
 app.use(`/user`, user);
 app.use(`/admin`, admin);
 

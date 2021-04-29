@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "ServicePlug",
   "author": "JSH",
+  "license": "Service Plug",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
