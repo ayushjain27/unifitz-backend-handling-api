@@ -1,0 +1,182 @@
+import { Document, Model, model, ObjectId, Schema, Types } from 'mongoose';
+
+export interface ICatalogMap extends Document {
+  _id: ObjectId;
+  name: string;
+}
+
+const storeCatalogMapSchema: Schema = new Schema({
+  _id: {
+    type: Types.ObjectId,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  }
+});
+
+export interface IBasicInfo extends Document {
+  nameSalutation: string;
+  ownerName: string; //<String> {required},
+  businessName: string; //<String> {required},
+  registrationDate: Date; //<localeDate>{required},(NO TIME)
+  brand: ICatalogMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
+  category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
+  subCategory: ICatalogMap; //<Object> {_id:, name:}{required}  - (MD),
+  // businessHours for the different
+  openTime: Date; //<TIME>,
+  closeTime: Date; //<TIME>
+}
+
+const storeBasicInfoSchema: Schema = new Schema({
+  nameSalutation: {
+    type: String,
+    required: true
+  },
+  ownerName: {
+    type: String,
+    required: true
+  },
+  businessName: {
+    type: String,
+    required: true
+  },
+  registrationDate: {
+    type: Date,
+    required: true
+  },
+  brand: {
+    type: storeCatalogMapSchema,
+    required: true
+  },
+  category: {
+    type: storeCatalogMapSchema,
+    required: true
+  },
+  subCategory: {
+    type: storeCatalogMapSchema,
+    required: true
+  },
+  openTime: {
+    type: Date,
+    required: true
+  },
+  closeTime: {
+    type: Date,
+    required: true
+  }
+});
+
+export interface IContactInfo extends Document {
+  country: { callingCode: string; coountryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
+  phoneNumber: { primary: string; secondary: string }; //{primary:String.,secondary:[String]},   // for multiple phone numbers
+  email: string; //<String> {required},
+  address: string; //<String>: {required},
+  geoLocation: {
+    kind: string;
+    coordinates: { longitude: string; latitude: string };
+  }; //<Object>: { } {not required},  // this should be in the format of {type:Point,coordinates:[longitude,latitude]}
+  state: string; //<String>
+  city: string;
+  pincode: string; //<string>
+}
+
+const storeContactSchema: Schema = new Schema({
+  country: {
+    type: {
+      callingCode: String,
+      countryCode: String
+    }
+  },
+  phoneNumber: {
+    type: { primary: String, secondary: String }
+  },
+  email: {
+    type: String
+  },
+  address: {
+    type: String
+  },
+  geoLocation: {
+    type: {
+      kind: String,
+      coordinates: { longitude: String, latitude: String }
+    }
+  },
+  state: {
+    type: String
+  },
+  city: {
+    type: String
+  },
+  pincode: {
+    type: String
+  }
+});
+
+export interface IDocuments extends Document {
+  storeDocuments: { docURL: string }[];
+  storeImages: { imageURL: string }[];
+}
+
+const storeDocumentsSchema: Schema = new Schema({
+  storeDocuments: {
+    type: [{ docURL: String }],
+    required: true
+  },
+  storeImages: {
+    type: [{ imageURL: String }],
+    required: true
+  }
+});
+
+/**
+ * Interface to model the Admin Schema for TypeScript.
+ * @param userId:ObjectId
+ * @param storeId:string
+ * @param profileStatus:string
+ */
+export interface IStore extends Document {
+  userId: ObjectId;
+  storeId: string; // 6 digit unique value
+  profileStatus: string;
+  basicInfo: IBasicInfo;
+  contactInfo: IContactInfo;
+  documents: IDocuments;
+  phoneNumber: string;
+}
+
+const storeSchema: Schema = new Schema(
+  {
+    userId: {
+      type: Types.ObjectId,
+      required: true
+    },
+    storeId: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    profileStatus: {
+      type: String,
+      required: true,
+      enum: ['PENDING', 'REJECTED', 'ONBOARDED', 'COMPLETED', 'ELIGIBLE'],
+      default: 'PENDING'
+    },
+    basicInfo: {
+      type: storeBasicInfoSchema
+    },
+    contactInfo: {
+      type: storeContactSchema
+    },
+    documents: {
+      type: storeDocumentsSchema
+    }
+  },
+  { timestamps: true }
+);
+
+const Store: Model<IStore> = model('stores', storeSchema);
+
+export default Store;

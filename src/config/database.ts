@@ -17,6 +17,7 @@ const connectDB = async (): Promise<void> => {
   } catch (err) {
     Logger.error(err.message);
     // Exit process with failure
+    //TO-DO - reconnect
     process.exit(1);
   }
 };

@@ -3,8 +3,8 @@ import { Response, NextFunction } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
-import Payload from '../types/Payload';
-import Request from '../types/Request';
+import Payload from '../../types/payload';
+import Request from '../../types/request';
 
 export default function (
   req: Request,
