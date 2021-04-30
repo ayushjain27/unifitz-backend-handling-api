@@ -12,6 +12,7 @@
     "tsc": "tsc  && echo ok || echo not ok",
     "watch-tsc": "tsc -w",
     "deploy": "node dist/server.js",
+    "postinstall": "npm run tsc",
     "watch-deploy": "nodemon dist/server.js",
     "server": "concurrently \"npm run watch-tsc\" \"npm run watch-deploy\"",
     "start-js": "npm run deploy",
