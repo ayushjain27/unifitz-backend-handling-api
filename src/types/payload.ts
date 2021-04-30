@@ -4,4 +4,4 @@
  */
 type payload = { userId: string; role: string };
 
-export default payload;
+export default payload; 
