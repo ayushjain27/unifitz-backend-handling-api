@@ -10,6 +10,9 @@ const storeController = container.get<StoreController>(TYPES.StoreController);
 // @route   POST v1/store/
 // @desc    Onboard store
 // @access  Private
-router.post('/', roleAuth(ACL.STORE_CREATE),storeController.createStore);
+router.post('/', roleAuth(ACL.STORE_CREATE), storeController.createStore);
+router.put('/',roleAuth(ACL.STORE_CREATE), storeController.updateStore);
+router.get('/', storeController.getStores);
+router.get('/:userId', storeController.getStoresByOwner);
 
 export default router;
