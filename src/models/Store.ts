@@ -138,7 +138,7 @@ const storeDocumentsSchema: Schema = new Schema({
  * @param profileStatus:string
  */
 export interface IStore extends Document {
-  userId: ObjectId;
+  userId: Types.ObjectId;
   storeId: string; // 6 digit unique value
   profileStatus: string;
   basicInfo: IBasicInfo;
