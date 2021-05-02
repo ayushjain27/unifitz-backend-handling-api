@@ -29,7 +29,6 @@ container.bind<AWS.S3>(TYPES.S3Client).toConstantValue(
   })
 );
 
-
 container.bind<StoreService>(TYPES.StoreService).to(StoreService);
 container.bind<StoreController>(TYPES.StoreController).to(StoreController);
 
