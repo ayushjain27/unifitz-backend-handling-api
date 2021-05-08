@@ -1,15 +1,23 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import { StoreRequest } from '../interfaces';
+import {
+  StoreDocUploadRequest,
+  StoreRequest,
+  StoreResponse
+} from '../interfaces';
 import Logger from '../config/winston';
 import Catalog, { ICatalog } from '../models/Catalog';
-import Store, { IStore } from '../models/Store';
+import Store, { IDocuments, IStore } from '../models/Store';
 import User, { IUser } from '../models/User';
+import container from '../config/inversify.container';
+import { TYPES } from '../config/inversify.types';
+import { S3Service } from './s3.service';
 
 @injectable()
 export class StoreService {
+  private s3Client = container.get<S3Service>(TYPES.S3Service);
   async create(storeRequest: StoreRequest): Promise<IStore> {
-    const {storePayload,phoneNumber} = storeRequest;
+    const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
     const ownerDetails: IUser = await User.findOne({
       phoneNumber
@@ -41,20 +49,26 @@ export class StoreService {
       .select('storeId')
       .limit(1)
       .exec();
-    
-    const storeId:number= !lastCreatedStoreId[0]?(new Date().getFullYear())*100:+lastCreatedStoreId[0].storeId + 1;
-    Logger.info('<Route>:<StoreService>: <Store onboarding: creating new store>');
+
+    const storeId: number = !lastCreatedStoreId[0]
+      ? new Date().getFullYear() * 100
+      : +lastCreatedStoreId[0].storeId + 1;
+    Logger.info(
+      '<Route>:<StoreService>: <Store onboarding: creating new store>'
+    );
     storePayload.storeId = '' + storeId;
     const newStore = new Store(storePayload);
     newStore.save();
-    Logger.info('<Service>:<StoreService>: <Store onboarding: created new store successfully>');
+    Logger.info(
+      '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
+    );
     return newStore;
   }
   async update(storeRequest: StoreRequest): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store service initiated>');
-    const {storePayload} = storeRequest;
+    const { storePayload } = storeRequest;
     const { category, subCategory, brand } = storePayload.basicInfo;
-    if(category &&  subCategory && brand){
+    if (category && subCategory && brand) {
       const getCategory: ICatalog = await Catalog.findOne({
         catalogName: category.name,
         parent: 'root'
@@ -77,29 +91,138 @@ export class StoreService {
       }
     }
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
-    await Store.findOneAndUpdate({storeId:storePayload.storeId},storePayload);
+    await Store.findOneAndUpdate(
+      { storeId: storePayload.storeId },
+      storePayload
+    );
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
-    const updatedStore = await Store.findOne({storeId:storePayload.storeId})
+    const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
   }
-  async getById(storeId: string): Promise<IStore[]> {
+  async getById(storeId: string): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by Id service initiated>'
     );
-    const stores = await Store.find({ storeId:storeId });
-    return stores;
+    const storeResponse: StoreResponse[] = await Store.find({
+      storeId: storeId
+    });
+    for (let i = 0; i < storeResponse.length; i++) {
+      const docResponse = await this.getS3Files(storeResponse[i].documents);
+      storeResponse[i].docsResponse = docResponse;
+    }
+    return storeResponse;
   }
-  async getAll(): Promise<IStore[]> {
+  async getAll(): Promise<StoreResponse[]> {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
     const stores = await Store.find({});
     return stores;
   }
-  async getByOwner(userId: string): Promise<IStore[]> {
+
+  async getByOwner(userId: string): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by owner service initiated>'
     );
     const objId = new Types.ObjectId(userId);
-    const stores = await Store.find({userId:objId});
+    const stores = await Store.find({ userId: objId });
     return stores;
+  }
+
+  async uploadFile(
+    storeDocUploadRequest: StoreDocUploadRequest
+  ): Promise<{ message: string }> {
+    const {
+      storeId,
+      fileName,
+      fileBuffer,
+      fileExtension,
+      fileType,
+      oldFileKey
+    } = storeDocUploadRequest;
+    let store: IStore;
+    Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
+    if (storeDocUploadRequest.storeId) {
+      store = await Store.findOne({ storeId });
+    }
+    if (!store) {
+      Logger.error(
+        '<Service>:<StoreService>:<Upload file - store id not found>'
+      );
+      throw new Error('Store not found');
+    }
+    if (oldFileKey) {
+      await this.removePreviousFileRef(oldFileKey, fileType, store);
+    }
+    const fileKey = await this.s3Client.uploadFile(
+      storeId,
+      fileName,
+      fileBuffer,
+      fileExtension
+    );
+    Logger.info('<Service>:<StoreService>:<Upload file - successful>');
+    //initializing documents document if absent in store details
+    if (!store.documents) {
+      await Store.findOneAndUpdate(
+        { storeId },
+        {
+          documents: {
+            storeDocuments: fileType === 'DOC' ? [{ docURL: fileKey }] : [],
+            storeImages: fileType === 'IMG' ? [{ imageURL: fileKey }] : []
+          }
+        }
+      );
+    } else {
+      fileType === 'DOC'
+        ? store.documents.storeDocuments.push({ docURL: fileKey })
+        : store.documents.storeImages.push({ imageURL: fileKey });
+      await Store.findOneAndUpdate(
+        { storeId },
+        {
+          documents: {
+            storeDocuments: store.documents.storeDocuments,
+            storeImages: store.documents.storeImages
+          }
+        }
+      );
+    }
+    return {
+      message: 'File upload successful'
+    };
+  }
+  private async removePreviousFileRef(
+    oldFileKey: string,
+    fileType: string,
+    store: IStore
+  ) {
+    await this.s3Client.deleteFile(oldFileKey);
+    Logger.info('<Service>:<StoreService>:<Delete file - successful>');
+    if (fileType === 'DOC') {
+      if (store.documents && oldFileKey) {
+        store.documents.storeDocuments = store.documents.storeDocuments.filter(
+          (doc) => doc.docURL !== oldFileKey
+        );
+      }
+    } else if (fileType === 'IMG') {
+      if (store.documents && oldFileKey) {
+        store.documents.storeImages = store.documents.storeImages.filter(
+          (img) => img.imageURL !== oldFileKey
+        );
+      }
+    } else {
+      Logger.error('<Service>:<StoreService>:<Upload file - Unknown doc type>');
+      throw new Error('Invalid document type');
+    }
+  }
+
+  private async getS3Files(documents: IDocuments) {
+    const docBuffer: any = [];
+    for (const doc of documents.storeDocuments) {
+      const s3Response = await this.s3Client.getFile(doc.docURL);
+      docBuffer.push(s3Response);
+    }
+    for (const img of documents.storeImages) {
+      const s3Response = await this.s3Client.getFile(img.imageURL);
+      docBuffer.push(s3Response);
+    }
+    return docBuffer;
   }
 }

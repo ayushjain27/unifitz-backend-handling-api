@@ -11,8 +11,9 @@ const storeController = container.get<StoreController>(TYPES.StoreController);
 // @desc    Onboard store
 // @access  Private
 router.post('/', roleAuth(ACL.STORE_CREATE), storeController.createStore);
-router.put('/',roleAuth(ACL.STORE_CREATE), storeController.updateStore);
+router.put('/', roleAuth(ACL.STORE_CREATE), storeController.updateStore);
 router.get('/', storeController.getStores);
 router.get('/:userId', storeController.getStoresByOwner);
+router.post('/uploadFile', storeController.uploadFile);
 
 export default router;
