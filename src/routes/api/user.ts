@@ -91,7 +91,7 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       }
       Logger.debug(`Twilio verification completed for ${phoneNumber}`);
       const user: IUser = await User.findOne({ phoneNumber: phoneNumber });
-
+      let userId: string;
       if (!user) {
         Logger.debug(`User registration started for ${phoneNumber}`);
         // Build user object based on IUser
@@ -102,7 +102,9 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         const newUser = new User(userFields);
 
         await newUser.save();
+        userId = newUser._id;
       }
+      userId = user._id;
       const payload = {
         userId: phoneNumber,
         role: role
@@ -110,7 +112,8 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       const token = await generateToken(payload);
       res.status(HttpStatusCodes.OK).send({
         message: 'Login Successful',
-        token
+        token,
+        userId
       });
     } else {
       res.status(HttpStatusCodes.BAD_REQUEST).send({
