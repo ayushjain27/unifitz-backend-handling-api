@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
-
 import { TYPES } from './inversify.types';
 import { TwilioService, S3Service } from '../services';
 import { s3Config, twilioConfig } from './constants';

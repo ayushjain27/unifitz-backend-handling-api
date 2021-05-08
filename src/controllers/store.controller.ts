@@ -91,7 +91,10 @@ export class StoreController {
       '<Controller>:<StoreController>:<Upload file request controller initiated>'
     );
     try {
-      const result = await this.storeService.uploadFile(storeDocUploadRequest);
+      const result = await this.storeService.uploadFile(
+        storeDocUploadRequest,
+        req
+      );
       res.send({
         result
       });
