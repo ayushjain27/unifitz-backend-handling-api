@@ -1,5 +1,7 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
+import Request from '../types/request';
+
 import {
   StoreDocUploadRequest,
   StoreRequest,
@@ -128,16 +130,11 @@ export class StoreService {
   }
 
   async uploadFile(
-    storeDocUploadRequest: StoreDocUploadRequest
+    storeDocUploadRequest: StoreDocUploadRequest,
+    req: Request
   ): Promise<{ message: string }> {
-    const {
-      storeId,
-      fileName,
-      fileBuffer,
-      fileExtension,
-      fileType,
-      oldFileKey
-    } = storeDocUploadRequest;
+    const { storeId, fileType } = storeDocUploadRequest;
+    const file = req.file;
     let store: IStore;
     Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
     if (storeDocUploadRequest.storeId) {
@@ -149,14 +146,13 @@ export class StoreService {
       );
       throw new Error('Store not found');
     }
-    if (oldFileKey) {
-      await this.removePreviousFileRef(oldFileKey, fileType, store);
-    }
+    // if (oldFileKey) {
+    //   await this.removePreviousFileRef(oldFileKey, fileType, store);
+    // }
     const fileKey = await this.s3Client.uploadFile(
       storeId,
-      fileName,
-      fileBuffer,
-      fileExtension
+      file.originalname,
+      file.buffer
     );
     Logger.info('<Service>:<StoreService>:<Upload file - successful>');
     //initializing documents document if absent in store details
