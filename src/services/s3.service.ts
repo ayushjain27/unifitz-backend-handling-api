@@ -4,7 +4,6 @@ import { S3 } from 'aws-sdk';
 import { TYPES } from '../config/inversify.types';
 import { s3Config } from '../config/constants';
 import Logger from '../config/winston';
-import { String } from 'aws-sdk/clients/appstream';
 
 @injectable()
 export class S3Service {
@@ -13,19 +12,38 @@ export class S3Service {
   constructor(@inject(TYPES.S3Client) client: S3) {
     this.client = client;
   }
-  /* eslint-disable */
   async uploadFile(
     storeId: string,
     fileName: string,
-    base64EncodedFile: Buffer,
-    fileExtension: String
-  ) {
+    fileBuffer: Buffer,
+    fileExtension: string
+  ): Promise<string> {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
     const params = {
       Bucket: this.bucketName,
-      Key: `${storeId}-${fileName}.${fileExtension}`,
-      Body: base64EncodedFile
+      Key: `${storeId}-${fileName}-${new Date().getTime()}.${fileExtension}`,
+      Body: fileBuffer
     };
-    return await this.client.upload(params).promise();
+    await this.client.upload(params).promise();
+    Logger.info('<Service>:<S3-Service>:<Doc upload successful>');
+    return params.Key;
+  }
+  /* eslint-disable */
+  async deleteFile(oldFileKey: string) {
+    Logger.info('<Service>:<S3-Service>:<Doc delete starting>');
+    const params = {
+      Bucket: this.bucketName,
+      Key: oldFileKey
+    };
+    return await this.client.deleteObject(params).promise();
+  }
+  /* eslint-disable */
+  async getFile(fileKey: string) {
+    Logger.info('<Service>:<S3-Service>:<Doc get starting>');
+    const params = {
+      Bucket: this.bucketName,
+      Key: fileKey
+    };
+    return await this.client.getObject(params).promise();
   }
 }
