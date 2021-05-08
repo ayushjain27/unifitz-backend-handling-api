@@ -11,9 +11,9 @@ export interface StoreResponse extends IStore {
 
 export interface StoreDocUploadRequest {
   storeId: string;
-  fileName: string;
-  fileBuffer: Buffer;
-  fileExtension: string;
+  fileName?: string;
+  fileBuffer?: Buffer;
+  fileExtension?: string;
   fileType: 'DOC' | 'IMG';
   oldFileKey?: string;
 }
