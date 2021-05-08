@@ -1,9 +1,9 @@
 import { inject, injectable } from 'inversify';
 import { S3 } from 'aws-sdk';
-
 import { TYPES } from '../config/inversify.types';
 import { s3Config } from '../config/constants';
 import Logger from '../config/winston';
+
 
 @injectable()
 export class S3Service {
@@ -15,13 +15,12 @@ export class S3Service {
   async uploadFile(
     storeId: string,
     fileName: string,
-    fileBuffer: Buffer,
-    fileExtension: string
+    fileBuffer: Buffer
   ): Promise<string> {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
     const params = {
       Bucket: this.bucketName,
-      Key: `${storeId}-${fileName}-${new Date().getTime()}.${fileExtension}`,
+      Key: `${storeId}-${new Date().getTime()}-${fileName}`,
       Body: fileBuffer
     };
     await this.client.upload(params).promise();
