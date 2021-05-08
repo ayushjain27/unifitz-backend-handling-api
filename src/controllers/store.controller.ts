@@ -3,10 +3,13 @@ import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { StoreService } from '../services/store.service';
 import Logger from '../config/winston';
-import { IStore } from '../models/Store';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
-import { StoreRequest } from '../interfaces';
+import {
+  StoreDocUploadRequest,
+  StoreRequest,
+  StoreResponse
+} from '../interfaces';
 
 @injectable()
 export class StoreController {
@@ -39,7 +42,7 @@ export class StoreController {
     try {
       const result = await this.storeService.update(storeRequest);
       res.send({
-        message: 'Store Onboarding Successful',
+        message: 'Store Updation Successful',
         result
       });
     } catch (err) {
@@ -48,16 +51,15 @@ export class StoreController {
     }
   };
   getStores = async (req: Request, res: Response) => {
-    const storeId = req.query.storeId
+    const storeId = req.query.storeId;
     Logger.info(
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
     try {
-      let result: IStore[];
-      if(storeId){
-        result = await this.storeService.getById(storeId as  string);
-      }
-      else{
+      let result: StoreResponse[];
+      if (storeId) {
+        result = await this.storeService.getById(storeId as string);
+      } else {
         result = await this.storeService.getAll();
       }
       res.send({
@@ -75,6 +77,21 @@ export class StoreController {
     );
     try {
       const result = await this.storeService.getByOwner(userId);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
+    }
+  };
+  uploadFile = async (req: Request, res: Response) => {
+    const storeDocUploadRequest: StoreDocUploadRequest = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Upload file request controller initiated>'
+    );
+    try {
+      const result = await this.storeService.uploadFile(storeDocUploadRequest);
       res.send({
         result
       });

@@ -29,44 +29,49 @@ export interface IBasicInfo extends Document {
   closeTime: Date; //<TIME>
 }
 
-const storeBasicInfoSchema: Schema = new Schema({
-  nameSalutation: {
-    type: String,
-    required: true
+const storeBasicInfoSchema: Schema = new Schema(
+  {
+    nameSalutation: {
+      type: String,
+      required: true
+    },
+    ownerName: {
+      type: String,
+      required: true
+    },
+    businessName: {
+      type: String,
+      required: true
+    },
+    registrationDate: {
+      type: Date,
+      required: true
+    },
+    brand: {
+      type: storeCatalogMapSchema,
+      required: true
+    },
+    category: {
+      type: storeCatalogMapSchema,
+      required: true
+    },
+    subCategory: {
+      type: storeCatalogMapSchema,
+      required: true
+    },
+    openTime: {
+      type: Date,
+      required: true
+    },
+    closeTime: {
+      type: Date,
+      required: true
+    }
   },
-  ownerName: {
-    type: String,
-    required: true
-  },
-  businessName: {
-    type: String,
-    required: true
-  },
-  registrationDate: {
-    type: Date,
-    required: true
-  },
-  brand: {
-    type: storeCatalogMapSchema,
-    required: true
-  },
-  category: {
-    type: storeCatalogMapSchema,
-    required: true
-  },
-  subCategory: {
-    type: storeCatalogMapSchema,
-    required: true
-  },
-  openTime: {
-    type: Date,
-    required: true
-  },
-  closeTime: {
-    type: Date,
-    required: true
+  {
+    _id: false
   }
-});
+);
 
 export interface IContactInfo extends Document {
   country: { callingCode: string; coountryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
@@ -82,54 +87,64 @@ export interface IContactInfo extends Document {
   pincode: string; //<string>
 }
 
-const storeContactSchema: Schema = new Schema({
-  country: {
-    type: {
-      callingCode: String,
-      countryCode: String
+const storeContactSchema: Schema = new Schema(
+  {
+    country: {
+      type: {
+        callingCode: String,
+        countryCode: String
+      }
+    },
+    phoneNumber: {
+      type: { primary: String, secondary: String }
+    },
+    email: {
+      type: String
+    },
+    address: {
+      type: String
+    },
+    geoLocation: {
+      type: {
+        kind: String,
+        coordinates: { longitude: String, latitude: String }
+      }
+    },
+    state: {
+      type: String
+    },
+    city: {
+      type: String
+    },
+    pincode: {
+      type: String
     }
   },
-  phoneNumber: {
-    type: { primary: String, secondary: String }
-  },
-  email: {
-    type: String
-  },
-  address: {
-    type: String
-  },
-  geoLocation: {
-    type: {
-      kind: String,
-      coordinates: { longitude: String, latitude: String }
-    }
-  },
-  state: {
-    type: String
-  },
-  city: {
-    type: String
-  },
-  pincode: {
-    type: String
+  {
+    _id: false
   }
-});
+);
 
 export interface IDocuments extends Document {
   storeDocuments: { docURL: string }[];
   storeImages: { imageURL: string }[];
 }
 
-const storeDocumentsSchema: Schema = new Schema({
-  storeDocuments: {
-    type: [{ docURL: String }],
-    required: true
+const storeDocumentsSchema: Schema = new Schema(
+  {
+    storeDocuments: {
+      type: [{ docURL: String }],
+      required: true
+    },
+    storeImages: {
+      type: [{ imageURL: String }],
+      required: true
+    }
   },
-  storeImages: {
-    type: [{ imageURL: String }],
-    required: true
+  {
+    _id: false
   }
-});
+);
 
 /**
  * Interface to model the Admin Schema for TypeScript.
@@ -144,7 +159,8 @@ export interface IStore extends Document {
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
   documents: IDocuments;
-  phoneNumber: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const storeSchema: Schema = new Schema(
