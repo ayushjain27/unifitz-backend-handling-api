@@ -1,5 +1,4 @@
-import { Router, Response } from 'express';
-import Request from '../../types/request';
+import { Router } from 'express';
 
 import { StoreController } from '../../controllers';
 import container from '../../config/inversify.container';
@@ -23,6 +22,7 @@ router.get('/:userId', storeController.getStoresByOwner);
 router.post(
   '/uploadFile',
   uploadFile.single('file'),
+  roleAuth(ACL.STORE_CREATE),
   storeController.uploadFile
 );
 

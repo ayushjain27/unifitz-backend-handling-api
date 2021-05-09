@@ -4,7 +4,6 @@ import { TYPES } from '../config/inversify.types';
 import { s3Config } from '../config/constants';
 import Logger from '../config/winston';
 
-
 @injectable()
 export class S3Service {
   private client: S3;
@@ -12,20 +11,27 @@ export class S3Service {
   constructor(@inject(TYPES.S3Client) client: S3) {
     this.client = client;
   }
+
   async uploadFile(
     storeId: string,
     fileName: string,
     fileBuffer: Buffer
-  ): Promise<string> {
+  ): Promise<{
+    key: string;
+    url: string;
+  }> {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
     const params = {
       Bucket: this.bucketName,
       Key: `${storeId}-${new Date().getTime()}-${fileName}`,
-      Body: fileBuffer
+      Body: fileBuffer,
+      ACL: 'public-read'
     };
-    await this.client.upload(params).promise();
-    Logger.info('<Service>:<S3-Service>:<Doc upload successful>');
-    return params.Key;
+    const { Location } = await this.client.upload(params).promise();
+    return {
+      key: params.Key,
+      url: Location
+    };
   }
   /* eslint-disable */
   async deleteFile(oldFileKey: string) {
