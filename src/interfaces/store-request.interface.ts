@@ -6,7 +6,7 @@ export interface StoreRequest {
 }
 
 export interface StoreResponse extends IStore {
-  docsResponse?: any;
+  docsResponse?: unknown;
 }
 
 export interface StoreDocUploadRequest {

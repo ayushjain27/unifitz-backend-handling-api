@@ -135,18 +135,18 @@ const storeTimingSchema: Schema = new Schema(
 );
 
 export interface IDocuments extends Document {
-  storeDocuments: { docURL: string }[];
-  storeImages: { imageURL: string }[];
+  storeDocuments: { key: string; docURL: string }[];
+  storeImages: { key: string; imageURL: string }[];
 }
 
 const storeDocumentsSchema: Schema = new Schema(
   {
     storeDocuments: {
-      type: [{ docURL: String }],
+      type: [{ key: String, docURL: String }],
       required: true
     },
     storeImages: {
-      type: [{ imageURL: String }],
+      type: [{ key: String, imageURL: String }],
       required: true
     }
   },
