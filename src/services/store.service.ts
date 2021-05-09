@@ -109,8 +109,10 @@ export class StoreService {
       storeId: storeId
     });
     for (let i = 0; i < storeResponse.length; i++) {
+      if(storeResponse[i].documents){
       const docResponse = await this.getS3Files(storeResponse[i].documents);
       storeResponse[i].docsResponse = docResponse;
+    }
     }
     return storeResponse;
   }
