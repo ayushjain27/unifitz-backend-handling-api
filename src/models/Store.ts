@@ -64,7 +64,7 @@ const storeBasicInfoSchema: Schema = new Schema(
 );
 
 export interface IContactInfo extends Document {
-  country: { callingCode: string; coountryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
+  country: { callingCode: string; countryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
   phoneNumber: { primary: string; secondary: string }; //{primary:String.,secondary:[String]},   // for multiple phone numbers
   email: string; //<String> {required},
   address: string; //<String>: {required},

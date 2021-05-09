@@ -11,7 +11,6 @@ export class S3Service {
   constructor(@inject(TYPES.S3Client) client: S3) {
     this.client = client;
   }
-
   async uploadFile(
     storeId: string,
     fileName: string,
