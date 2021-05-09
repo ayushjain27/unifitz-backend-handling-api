@@ -115,12 +115,12 @@ const storeContactSchema: Schema = new Schema(
   }
 );
 
-export interface IStoreTimings extends Document {
+export interface IStoreTiming extends Document {
   openTime: Date; //<TIME>,
   closeTime: Date; //<TIME>
 }
 
-const storeTimingsSchema: Schema = new Schema(
+const storeTimingSchema: Schema = new Schema(
   {
     openTime: {
       type: Date,
@@ -167,7 +167,7 @@ export interface IStore extends Document {
   profileStatus: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
-  storeTimings: IStoreTimings;
+  storeTiming: IStoreTiming;
   documents: IDocuments;
   createdAt?: Date;
   updatedAt?: Date;
@@ -196,8 +196,8 @@ const storeSchema: Schema = new Schema(
     contactInfo: {
       type: storeContactSchema
     },
-    storeTimings: {
-      type: storeTimingsSchema
+    storeTiming: {
+      type: storeTimingSchema
     },
     documents: {
       type: storeDocumentsSchema
