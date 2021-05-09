@@ -25,8 +25,6 @@ export interface IBasicInfo extends Document {
   category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap; //<Object> {_id:, name:}{required}  - (MD),
   // businessHours for the different
-  openTime: Date; //<TIME>,
-  closeTime: Date; //<TIME>
 }
 
 const storeBasicInfoSchema: Schema = new Schema(
@@ -57,14 +55,6 @@ const storeBasicInfoSchema: Schema = new Schema(
     },
     subCategory: {
       type: storeCatalogMapSchema,
-      required: true
-    },
-    openTime: {
-      type: Date,
-      required: true
-    },
-    closeTime: {
-      type: Date,
       required: true
     }
   },
@@ -125,6 +115,25 @@ const storeContactSchema: Schema = new Schema(
   }
 );
 
+export interface IStoreTimings extends Document {
+  openTime: Date; //<TIME>,
+  closeTime: Date; //<TIME>
+}
+
+const storeTimingsSchema: Schema = new Schema(
+  {
+    openTime: {
+      type: Date,
+      required: true
+    },
+    closeTime: {
+      type: Date,
+      required: true
+    }
+  },
+  { _id: false }
+);
+
 export interface IDocuments extends Document {
   storeDocuments: { docURL: string }[];
   storeImages: { imageURL: string }[];
@@ -158,6 +167,7 @@ export interface IStore extends Document {
   profileStatus: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
+  storeTimings: IStoreTimings;
   documents: IDocuments;
   createdAt?: Date;
   updatedAt?: Date;
@@ -185,6 +195,9 @@ const storeSchema: Schema = new Schema(
     },
     contactInfo: {
       type: storeContactSchema
+    },
+    storeTimings: {
+      type: storeTimingsSchema
     },
     documents: {
       type: storeDocumentsSchema
