@@ -23,6 +23,7 @@ router.get('/:userId', storeController.getStoresByOwner);
 router.post(
   '/uploadFile',
   uploadFile.single('file'),
+  roleAuth(ACL.STORE_CREATE),
   storeController.uploadFile
 );
 

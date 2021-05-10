@@ -109,12 +109,6 @@ export class StoreService {
     const storeResponse: StoreResponse[] = await Store.find({
       storeId: storeId
     });
-    for (let i = 0; i < storeResponse.length; i++) {
-      if(storeResponse[i].documents){
-      const docResponse = await this.getS3Files(storeResponse[i].documents);
-      storeResponse[i].docsResponse = docResponse;
-    }
-    }
     return storeResponse;
   }
   async getAll(): Promise<StoreResponse[]> {
@@ -152,7 +146,7 @@ export class StoreService {
     // if (oldFileKey) {
     //   await this.removePreviousFileRef(oldFileKey, fileType, store);
     // }
-    const fileKey = await this.s3Client.uploadFile(
+    const { key, url } = await this.s3Client.uploadFile(
       storeId,
       file.originalname,
       file.buffer
@@ -164,15 +158,21 @@ export class StoreService {
         { storeId },
         {
           documents: {
-            storeDocuments: fileType === 'DOC' ? [{ docURL: fileKey }] : [],
-            storeImages: fileType === 'IMG' ? [{ imageURL: fileKey }] : []
+            storeDocuments: fileType === 'DOC' ? [{ key, docURL: url }] : [],
+            storeImages: fileType === 'IMG' ? [{ key, imageURL: url }] : []
           }
         }
       );
     } else {
       fileType === 'DOC'
-        ? store.documents.storeDocuments.push({ docURL: fileKey })
-        : store.documents.storeImages.push({ imageURL: fileKey });
+        ? store.documents.storeDocuments.push({
+            key,
+            docURL: url
+          })
+        : store.documents.storeImages.push({
+            key,
+            imageURL: url
+          });
       await Store.findOneAndUpdate(
         { storeId },
         {
@@ -213,13 +213,13 @@ export class StoreService {
   }
 
   private async getS3Files(documents: IDocuments) {
-    const docBuffer: any = [];
+    const docBuffer = [];
     for (const doc of documents.storeDocuments) {
-      const s3Response = await this.s3Client.getFile(doc.docURL);
+      const s3Response = await this.s3Client.getFile(doc.key);
       docBuffer.push(s3Response);
     }
     for (const img of documents.storeImages) {
-      const s3Response = await this.s3Client.getFile(img.imageURL);
+      const s3Response = await this.s3Client.getFile(img.key);
       docBuffer.push(s3Response);
     }
     return docBuffer;
