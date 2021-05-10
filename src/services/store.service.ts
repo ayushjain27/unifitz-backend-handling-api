@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import Request from '../types/request';
+import fs from 'fs';
 
 import {
   StoreDocUploadRequest,
