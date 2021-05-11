@@ -26,7 +26,14 @@ export class S3Service {
       Body: fileBuffer,
       ACL: 'public-read'
     };
+    console.log("---------------------");
+    console.log("upload file is filereq body is", params);
+    console.log("---------------------")
+    try{
     const { Location } = await this.client.upload(params).promise();
+  } catch(err) {
+    console.log("err in s3", err);
+  }
     return {
       key: params.Key,
       url: Location
