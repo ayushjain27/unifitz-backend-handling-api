@@ -60,8 +60,8 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
     storePayload.storeId = '' + storeId;
-    const newStore = new Store(storePayload);
-    await newStore.save();
+    // const newStore = new Store(storePayload);
+    const newStore = await Store.create(storePayload);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
