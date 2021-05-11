@@ -132,6 +132,9 @@ export class StoreService {
   ): Promise<{ message: string }> {
     const { storeId, fileType } = storeDocUploadRequest;
     const file = req.file;
+    console.log("---------------------");
+    console.log("inside store s3 filereq body is", req.body, req.file);
+    console.log("---------------------")
     let store: IStore;
     Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
     if (storeDocUploadRequest.storeId) {
