@@ -88,7 +88,7 @@ export class StoreController {
   uploadFile = async (req: Request, res: Response) => {
     const storeDocUploadRequest: StoreDocUploadRequest = req.body;
     console.log("---------------------");
-    console.log("req body is", req.body);
+    console.log("req body is", req.body, req.file);
     console.log("---------------------");
     Logger.info(
       '<Controller>:<StoreController>:<Upload file request controller initiated>'
