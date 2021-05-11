@@ -61,7 +61,7 @@ export class StoreService {
     );
     storePayload.storeId = '' + storeId;
     const newStore = new Store(storePayload);
-    newStore.save();
+    await newStore.save();
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -134,6 +134,7 @@ export class StoreService {
     const file = req.file;
     console.log("---------------------");
     console.log("inside store s3 filereq body is", req.body, req.file);
+    console.log("storeDocUploadReg is -------", storeDocUploadRequest);
     console.log("---------------------")
     let store: IStore;
     Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
@@ -141,6 +142,8 @@ export class StoreService {
       store = await Store.findOne({ storeId });
     }
     if (!store) {
+      console.log("no store found.... so bad is -------");
+
       Logger.error(
         '<Service>:<StoreService>:<Upload file - store id not found>'
       );
