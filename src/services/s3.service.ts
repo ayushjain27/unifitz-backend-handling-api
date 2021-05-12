@@ -37,10 +37,7 @@ export class S3Service {
       };
     } catch (err) {
       console.log('err in s3', err);
-      throw new Error(
-        'There is some problem with file uploading',
-        JSON.stringify(err)
-      );
+      throw new Error('There is some problem with file uploading', err);
     }
   }
   /* eslint-disable */
