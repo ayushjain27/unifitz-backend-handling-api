@@ -38,13 +38,12 @@ export class StoreService {
       tree: `root/${category.name}/${subCategory.name}`,
       catalogName: brand.name
     });
-    try {
+    if (getCategory && getSubCategory && getBrand) {
       storePayload.basicInfo.category._id = getCategory._id;
       storePayload.basicInfo.subCategory._id = getSubCategory._id;
       storePayload.basicInfo.brand._id = getBrand._id;
-    } catch (err) {
-      Logger.error(`Wrong Catalog Details`);
-      throw err;
+    } else {
+      throw new Error(`Wrong Catalog Details`);
     }
     const lastCreatedStoreId = await Store.find({})
       .sort({ createdAt: 'desc' })
@@ -83,13 +82,12 @@ export class StoreService {
         tree: `root/${category.name}/${subCategory.name}`,
         catalogName: brand.name
       });
-      try {
+      if (getCategory && getSubCategory && getBrand) {
         storePayload.basicInfo.category._id = getCategory._id;
         storePayload.basicInfo.subCategory._id = getSubCategory._id;
         storePayload.basicInfo.brand._id = getBrand._id;
-      } catch (err) {
-        Logger.error(`Wrong Catalog Details`);
-        throw err;
+      } else {
+        throw new Error(`Wrong Catalog Details`);
       }
     }
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');

@@ -1,5 +1,4 @@
-import { Router, Response } from 'express';
-import Request from '../../types/request';
+import { Router } from 'express';
 
 import { StoreController } from '../../controllers';
 import container from '../../config/inversify.container';
