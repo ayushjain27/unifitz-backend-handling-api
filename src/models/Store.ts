@@ -123,12 +123,10 @@ export interface IStoreTiming extends Document {
 const storeTimingSchema: Schema = new Schema(
   {
     openTime: {
-      type: Date,
-      required: true
+      type: Date
     },
     closeTime: {
-      type: Date,
-      required: true
+      type: Date
     }
   },
   { _id: false }
@@ -143,11 +141,9 @@ const storeDocumentsSchema: Schema = new Schema(
   {
     storeDocuments: {
       type: [{ key: String, docURL: String }],
-      required: true
     },
     storeImages: {
       type: [{ key: String, imageURL: String }],
-      required: true
     }
   },
   {

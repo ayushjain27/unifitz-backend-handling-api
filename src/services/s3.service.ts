@@ -26,11 +26,19 @@ export class S3Service {
       Body: fileBuffer,
       ACL: 'public-read'
     };
-    const { Location } = await this.client.upload(params).promise();
-    return {
-      key: params.Key,
-      url: Location
-    };
+    console.log('---------------------');
+    console.log('upload file is filereq body is', params);
+    console.log('---------------------');
+    try {
+      const { Location } = await this.client.upload(params).promise();
+      return {
+        key: params.Key,
+        url: Location
+      };
+    } catch (err) {
+      console.log('err in s3', err);
+      throw new Error('There is some problem with file uploading');
+    }
   }
   /* eslint-disable */
   async deleteFile(oldFileKey: string) {

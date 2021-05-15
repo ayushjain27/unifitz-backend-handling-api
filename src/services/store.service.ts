@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import Request from '../types/request';
+import fs from 'fs';
 
 import {
   OverallStoreRatingResponse,
@@ -61,8 +62,8 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
     storePayload.storeId = '' + storeId;
-    const newStore = new Store(storePayload);
-    await newStore.save();
+    // const newStore = new Store(storePayload);
+    const newStore = await Store.create(storePayload);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -132,12 +133,18 @@ export class StoreService {
   ): Promise<{ message: string }> {
     const { storeId, fileType } = storeDocUploadRequest;
     const file = req.file;
+    console.log("---------------------");
+    console.log("inside store s3 filereq body is", req.body, req.file);
+    console.log("storeDocUploadReg is -------", storeDocUploadRequest);
+    console.log("---------------------")
     let store: IStore;
     Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
     if (storeDocUploadRequest.storeId) {
       store = await Store.findOne({ storeId });
     }
     if (!store) {
+      console.log("no store found.... so bad is -------");
+
       Logger.error(
         '<Service>:<StoreService>:<Upload file - store id not found>'
       );
