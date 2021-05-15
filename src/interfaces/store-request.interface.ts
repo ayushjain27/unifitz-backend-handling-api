@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { IStore } from '../models/Store';
 
 export interface StoreRequest {
@@ -16,4 +17,23 @@ export interface StoreDocUploadRequest {
   fileExtension?: string;
   fileType: 'DOC' | 'IMG';
   oldFileKey?: string;
+}
+
+export interface StoreReviewRequest {
+  userId: Types.ObjectId;
+  storeId: string;
+  review: string;
+  rating: number;
+}
+
+export interface OverallStoreRatingResponse {
+  allRatings: { [key: number]: number };
+  averageRating: number;
+}
+
+export interface StoreReviewResponse {
+  userId: Types.ObjectId;
+  storeId: string;
+  review: string;
+  rating: number;
 }

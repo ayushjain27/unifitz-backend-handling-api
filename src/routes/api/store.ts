@@ -25,5 +25,7 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   storeController.uploadFile
 );
-
+router.post('/review', storeController.addStoreReview);
+router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
+router.get('/:storeId/reviews', storeController.getOverallStoreRatings);
 export default router;

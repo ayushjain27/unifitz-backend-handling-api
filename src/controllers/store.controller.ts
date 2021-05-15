@@ -8,7 +8,8 @@ import { TYPES } from '../config/inversify.types';
 import {
   StoreDocUploadRequest,
   StoreRequest,
-  StoreResponse
+  StoreResponse,
+  StoreReviewRequest
 } from '../interfaces';
 
 @injectable()
@@ -95,6 +96,32 @@ export class StoreController {
         storeDocUploadRequest,
         req
       );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  getOverallStoreRatings = async (req: Request, res: Response) => {
+    const storeId = req.params.storeId;
+    Logger.info('<Controller>:<StoreController>:<Get stores ratings>');
+    try {
+      const result = await this.storeService.getOverallRatings(storeId);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  addStoreReview = async (req: Request, res: Response) => {
+    const storeReview: StoreReviewRequest = req.body;
+    Logger.info('<Controller>:<StoreController>:<Create store ratings>');
+    try {
+      const result = await this.storeService.addReview(storeReview);
       res.send({
         result
       });

@@ -3,9 +3,11 @@ import { Types } from 'mongoose';
 import Request from '../types/request';
 
 import {
+  OverallStoreRatingResponse,
   StoreDocUploadRequest,
   StoreRequest,
-  StoreResponse
+  StoreResponse,
+  StoreReviewRequest
 } from '../interfaces';
 import Logger from '../config/winston';
 import Catalog, { ICatalog } from '../models/Catalog';
@@ -14,6 +16,7 @@ import User, { IUser } from '../models/User';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import { S3Service } from './s3.service';
+import StoreReview from '../models/Store-Review';
 
 @injectable()
 export class StoreService {
@@ -59,7 +62,7 @@ export class StoreService {
     );
     storePayload.storeId = '' + storeId;
     const newStore = new Store(storePayload);
-    newStore.save();
+    await newStore.save();
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -220,5 +223,67 @@ export class StoreService {
       docBuffer.push(s3Response);
     }
     return docBuffer;
+  }
+
+  async addReview(
+    storeReview: StoreReviewRequest
+  ): Promise<StoreReviewRequest> {
+    Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
+    const newStoreReview = new StoreReview(storeReview);
+    await newStoreReview.save();
+    Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
+    return newStoreReview;
+  }
+
+  async getOverallRatings(
+    storeId: string
+  ): Promise<OverallStoreRatingResponse> {
+    Logger.info('<Service>:<StoreService>:<Get Overall Ratings initiate>');
+    const storeReviews = await StoreReview.find({ storeId });
+    let ratingsCount = 0;
+    const allRatings: { [key: number]: number } = {};
+
+    storeReviews.forEach(({ rating }) => {
+      ratingsCount = ratingsCount + rating;
+      if (!allRatings[rating]) {
+        allRatings[rating] = 1;
+      } else {
+        allRatings[rating]++;
+      }
+    });
+
+    for (const key in allRatings) {
+      allRatings[key] = Math.trunc(
+        (allRatings[key] * 100) / storeReviews.length
+      );
+    }
+
+    const averageRating = ratingsCount / 5;
+    Logger.info(
+      '<Service>:<StoreService>:<Get Overall Ratings performed successfully>'
+    );
+    return {
+      allRatings,
+      averageRating
+    };
+  }
+
+  async getReviews(storeId: Types.ObjectId): Promise<any[]> {
+    Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
+    Logger.info(
+      '<Service>:<StoreService>:<Get Ratings performed successfully>'
+    );
+    return [
+      {
+        user: {
+          phoneNumber: '123',
+          role: 'User'
+        },
+        storeId,
+        rating: 4,
+        review: 'Good Store',
+        averageRating: 4
+      }
+    ];
   }
 }
