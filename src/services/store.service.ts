@@ -265,7 +265,7 @@ export class StoreService {
       );
     }
 
-    const averageRating = ratingsCount / 5;
+    const averageRating = ratingsCount / storeReviews.length;
     Logger.info(
       '<Service>:<StoreService>:<Get Overall Ratings performed successfully>'
     );
