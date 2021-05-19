@@ -27,5 +27,5 @@ router.post(
 );
 router.post('/review', storeController.addStoreReview);
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
-router.get('/:storeId/reviews', storeController.getOverallStoreRatings);
+router.get('/:storeId/reviews', storeController.getStoreReviews);
 export default router;

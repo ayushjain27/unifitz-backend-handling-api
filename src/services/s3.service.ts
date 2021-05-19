@@ -26,9 +26,9 @@ export class S3Service {
       Body: fileBuffer,
       ACL: 'public-read'
     };
-    console.log('---------------------');
-    console.log('upload file is filereq body is', params);
-    console.log('---------------------');
+    Logger.info('---------------------');
+    Logger.info('upload file is filereq body is', params);
+    Logger.info('---------------------');
     try {
       const { Location } = await this.client.upload(params).promise();
       return {
@@ -36,7 +36,7 @@ export class S3Service {
         url: Location
       };
     } catch (err) {
-      console.log('err in s3', err);
+      Logger.error('err in s3', err);
       throw new Error('There is some problem with file uploading');
     }
   }

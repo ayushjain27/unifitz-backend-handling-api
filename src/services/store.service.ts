@@ -1,7 +1,6 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import Request from '../types/request';
-import fs from 'fs';
 
 import {
   OverallStoreRatingResponse,
@@ -12,7 +11,7 @@ import {
 } from '../interfaces';
 import Logger from '../config/winston';
 import Catalog, { ICatalog } from '../models/Catalog';
-import Store, { IDocuments, IStore } from '../models/Store';
+import Store, { IStore } from '../models/Store';
 import User, { IUser } from '../models/User';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -139,8 +138,6 @@ export class StoreService {
       store = await Store.findOne({ storeId });
     }
     if (!store) {
-      console.log('no store found.... so bad is -------');
-
       Logger.error(
         '<Service>:<StoreService>:<Upload file - store id not found>'
       );
@@ -258,10 +255,24 @@ export class StoreService {
   ): Promise<OverallStoreRatingResponse> {
     Logger.info('<Service>:<StoreService>:<Get Overall Ratings initiate>');
     const storeReviews = await StoreReview.find({ storeId });
+    if (storeReviews.length === 0) {
+      return {
+        allRatings: {
+          5: 100
+        },
+        averageRating: 5,
+        totalRatings: 1,
+        totalReviews: 1
+      };
+    }
     let ratingsCount = 0;
+    let totalRatings = 0;
+    let totalReviews = 0;
     const allRatings: { [key: number]: number } = {};
 
-    storeReviews.forEach(({ rating }) => {
+    storeReviews.forEach(({ rating, review }) => {
+      if (rating) totalRatings++;
+      if (review) totalReviews++;
       ratingsCount = ratingsCount + rating;
       if (!allRatings[rating]) {
         allRatings[rating] = 1;
@@ -282,26 +293,31 @@ export class StoreService {
     );
     return {
       allRatings,
-      averageRating
+      averageRating,
+      totalRatings,
+      totalReviews
     };
   }
 
-  async getReviews(storeId: Types.ObjectId): Promise<any[]> {
+  async getReviews(storeId: string): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
+    const storeReviews = await StoreReview.find({ storeId });
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
-    return [
-      {
-        user: {
-          phoneNumber: '123',
-          role: 'User'
-        },
-        storeId,
-        rating: 4,
-        review: 'Good Store',
-        averageRating: 4
-      }
-    ];
+    if (storeReviews.length === 0) {
+      return [
+        {
+          user: {
+            name: 'ServicePlug',
+            profilePhoto: ''
+          },
+          storeId,
+          rating: 5,
+          review:
+            'Thank you for onboarding with us. May you have a wonderful experience.'
+        }
+      ];
+    }
   }
 }
