@@ -16,6 +16,7 @@ export interface StoreDocUploadRequest {
   fileBuffer?: Buffer;
   fileExtension?: string;
   fileType: 'DOC' | 'IMG';
+  placement: 'primary' | 'secondary';
   oldFileKey?: string;
 }
 

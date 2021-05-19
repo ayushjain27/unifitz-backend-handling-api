@@ -131,19 +131,15 @@ export class StoreService {
     storeDocUploadRequest: StoreDocUploadRequest,
     req: Request
   ): Promise<{ message: string }> {
-    const { storeId, fileType } = storeDocUploadRequest;
+    const { storeId, fileType, placement } = storeDocUploadRequest;
     const file = req.file;
-    console.log("---------------------");
-    console.log("inside store s3 filereq body is", req.body, req.file);
-    console.log("storeDocUploadReg is -------", storeDocUploadRequest);
-    console.log("---------------------")
     let store: IStore;
     Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
     if (storeDocUploadRequest.storeId) {
       store = await Store.findOne({ storeId });
     }
     if (!store) {
-      console.log("no store found.... so bad is -------");
+      console.log('no store found.... so bad is -------');
 
       Logger.error(
         '<Service>:<StoreService>:<Upload file - store id not found>'
@@ -165,20 +161,35 @@ export class StoreService {
         { storeId },
         {
           documents: {
-            storeDocuments: fileType === 'DOC' ? [{ key, docURL: url }] : [],
-            storeImages: fileType === 'IMG' ? [{ key, imageURL: url }] : []
+            storeDocuments: fileType === 'DOC' && {
+              primary: {
+                key: placement === 'primary' ? key : '',
+                docURL: placement === 'primary' ? url : ''
+              },
+              secondary: {
+                key: placement === 'secondary' ? key : '',
+                docURL: placement === 'secondary' ? url : ''
+              }
+            },
+            storeImages: fileType === 'IMG' && {
+              primary: {
+                key: placement === 'primary' ? key : '',
+                docURL: placement === 'primary' ? url : ''
+              },
+              secondary: {
+                key: placement === 'secondary' ? key : '',
+                docURL: placement === 'secondary' ? url : ''
+              }
+            }
           }
         }
       );
     } else {
       fileType === 'DOC'
-        ? store.documents.storeDocuments.push({
+        ? (store.documents.storeDocuments[placement] = { key, docURL: url })
+        : (store.documents.storeImages[placement] = {
             key,
             docURL: url
-          })
-        : store.documents.storeImages.push({
-            key,
-            imageURL: url
           });
       await Store.findOneAndUpdate(
         { storeId },
@@ -194,43 +205,43 @@ export class StoreService {
       message: 'File upload successful'
     };
   }
-  private async removePreviousFileRef(
-    oldFileKey: string,
-    fileType: string,
-    store: IStore
-  ) {
-    await this.s3Client.deleteFile(oldFileKey);
-    Logger.info('<Service>:<StoreService>:<Delete file - successful>');
-    if (fileType === 'DOC') {
-      if (store.documents && oldFileKey) {
-        store.documents.storeDocuments = store.documents.storeDocuments.filter(
-          (doc) => doc.docURL !== oldFileKey
-        );
-      }
-    } else if (fileType === 'IMG') {
-      if (store.documents && oldFileKey) {
-        store.documents.storeImages = store.documents.storeImages.filter(
-          (img) => img.imageURL !== oldFileKey
-        );
-      }
-    } else {
-      Logger.error('<Service>:<StoreService>:<Upload file - Unknown doc type>');
-      throw new Error('Invalid document type');
-    }
-  }
+  // private async removePreviousFileRef(
+  //   oldFileKey: string,
+  //   fileType: string,
+  //   store: IStore
+  // ) {
+  //   await this.s3Client.deleteFile(oldFileKey);
+  //   Logger.info('<Service>:<StoreService>:<Delete file - successful>');
+  //   if (fileType === 'DOC') {
+  //     if (store.documents && oldFileKey) {
+  //       store.documents.storeDocuments = store.documents.storeDocuments.filter(
+  //         (doc) => doc.docURL !== oldFileKey
+  //       );
+  //     }
+  //   } else if (fileType === 'IMG') {
+  //     if (store.documents && oldFileKey) {
+  //       store.documents.storeImages = store.documents.storeImages.filter(
+  //         (img) => img.imageURL !== oldFileKey
+  //       );
+  //     }
+  //   } else {
+  //     Logger.error('<Service>:<StoreService>:<Upload file - Unknown doc type>');
+  //     throw new Error('Invalid document type');
+  //   }
+  // }
 
-  private async getS3Files(documents: IDocuments) {
-    const docBuffer = [];
-    for (const doc of documents.storeDocuments) {
-      const s3Response = await this.s3Client.getFile(doc.key);
-      docBuffer.push(s3Response);
-    }
-    for (const img of documents.storeImages) {
-      const s3Response = await this.s3Client.getFile(img.key);
-      docBuffer.push(s3Response);
-    }
-    return docBuffer;
-  }
+  // private async getS3Files(documents: IDocuments) {
+  //   const docBuffer = [];
+  //   for (const doc of documents.storeDocuments) {
+  //     const s3Response = await this.s3Client.getFile(doc.key);
+  //     docBuffer.push(s3Response);
+  //   }
+  //   for (const img of documents.storeImages) {
+  //     const s3Response = await this.s3Client.getFile(img.key);
+  //     docBuffer.push(s3Response);
+  //   }
+  //   return docBuffer;
+  // }
 
   async addReview(
     storeReview: StoreReviewRequest
