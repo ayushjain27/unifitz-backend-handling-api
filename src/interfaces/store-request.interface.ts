@@ -30,6 +30,8 @@ export interface StoreReviewRequest {
 export interface OverallStoreRatingResponse {
   allRatings: { [key: number]: number };
   averageRating: number;
+  totalRatings: number;
+  totalReviews: number;
 }
 
 export interface StoreReviewResponse {

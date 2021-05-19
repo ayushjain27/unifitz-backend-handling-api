@@ -88,9 +88,9 @@ export class StoreController {
   };
   uploadFile = async (req: Request, res: Response) => {
     const storeDocUploadRequest: StoreDocUploadRequest = req.body;
-    console.log("---------------------");
-    console.log("req body is", req.body, req.file);
-    console.log("---------------------");
+    Logger.info('---------------------');
+    Logger.info('req body is', req.body, req.file);
+    Logger.info('---------------------');
     Logger.info(
       '<Controller>:<StoreController>:<Upload file request controller initiated>'
     );
@@ -125,6 +125,19 @@ export class StoreController {
     Logger.info('<Controller>:<StoreController>:<Create store ratings>');
     try {
       const result = await this.storeService.addReview(storeReview);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  getStoreReviews = async (req: Request, res: Response) => {
+    const storeId = req.params.storeId;
+    Logger.info('<Controller>:<StoreController>:<Get stores reviews>');
+    try {
+      const result = await this.storeService.getReviews(storeId);
       res.send({
         result
       });
