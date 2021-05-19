@@ -309,7 +309,7 @@ export class StoreService {
       return [
         {
           user: {
-            name: 'ServicePlug',
+            name: 'Service Plug',
             profilePhoto: ''
           },
           storeId,
