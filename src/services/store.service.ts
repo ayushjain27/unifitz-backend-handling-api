@@ -158,26 +158,38 @@ export class StoreService {
         { storeId },
         {
           documents: {
-            storeDocuments: fileType === 'DOC' && {
-              primary: {
-                key: placement === 'primary' ? key : '',
-                docURL: placement === 'primary' ? url : ''
-              },
-              secondary: {
-                key: placement === 'secondary' ? key : '',
-                docURL: placement === 'secondary' ? url : ''
-              }
-            },
-            storeImages: fileType === 'IMG' && {
-              primary: {
-                key: placement === 'primary' ? key : '',
-                docURL: placement === 'primary' ? url : ''
-              },
-              secondary: {
-                key: placement === 'secondary' ? key : '',
-                docURL: placement === 'secondary' ? url : ''
-              }
-            }
+            storeDocuments:
+              fileType === 'DOC'
+                ? {
+                    primary: {
+                      key: placement === 'primary' ? key : '',
+                      docURL: placement === 'primary' ? url : ''
+                    },
+                    secondary: {
+                      key: placement === 'secondary' ? key : '',
+                      docURL: placement === 'secondary' ? url : ''
+                    }
+                  }
+                : {
+                    primary: { key: '', docURL: '' },
+                    secondary: { key: '', docURL: '' }
+                  },
+            storeImages:
+              fileType === 'IMG'
+                ? {
+                    primary: {
+                      key: placement === 'primary' ? key : '',
+                      docURL: placement === 'primary' ? url : ''
+                    },
+                    secondary: {
+                      key: placement === 'secondary' ? key : '',
+                      docURL: placement === 'secondary' ? url : ''
+                    }
+                  }
+                : {
+                    primary: { key: '', docURL: '' },
+                    secondary: { key: '', docURL: '' }
+                  }
           }
         }
       );
