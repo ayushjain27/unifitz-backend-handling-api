@@ -24,7 +24,7 @@ const Catalog_1 = __importDefault(require("./models/Catalog"));
 const app = express_1.default();
 // Connect to MongoDB
 database_1.default();
-app.set('port', process.env.PORT || 8080);
+app.set('port', process.env.PORT || 3005);
 // Middlewares configuration
 app.use(helmet_1.default());
 app.use(express_1.default.json());

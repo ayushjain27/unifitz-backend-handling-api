@@ -13,7 +13,7 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-app.set('port', process.env.PORT || 8080);
+app.set('port', process.env.PORT || 3005);
 // Middlewares configuration
 app.use(helmet());
 app.use(express.json());
