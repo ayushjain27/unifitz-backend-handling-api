@@ -99,12 +99,13 @@ router.post('/otp/login', async (req: Request, res: Response) => {
           phoneNumber
         };
 
-        const newUser = new User(userFields);
+        const newUser = await User.create(userFields);
 
-        await newUser.save();
+        // await newUser.save();
         userId = newUser._id;
+      } else {
+        userId = user._id;
       }
-      userId = user._id;
       const payload = {
         userId: phoneNumber,
         role: role
