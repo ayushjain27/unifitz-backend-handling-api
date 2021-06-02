@@ -100,11 +100,13 @@ router.post('/otp/login', (req, res) => __awaiter(void 0, void 0, void 0, functi
                 const userFields = {
                     phoneNumber
                 };
-                const newUser = new User_1.default(userFields);
-                yield newUser.save();
+                const newUser = yield User_1.default.create(userFields);
+                // await newUser.save();
                 userId = newUser._id;
             }
-            userId = user._id;
+            else {
+                userId = user._id;
+            }
             const payload = {
                 userId: phoneNumber,
                 role: role
