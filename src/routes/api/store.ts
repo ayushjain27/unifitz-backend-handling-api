@@ -17,15 +17,23 @@ const storeController = container.get<StoreController>(TYPES.StoreController);
 // @access  Private
 router.post('/', roleAuth(ACL.STORE_CREATE), storeController.createStore);
 router.put('/', roleAuth(ACL.STORE_CREATE), storeController.updateStore);
-router.get('/', storeController.getStores);
-router.get('/:userId', storeController.getStoresByOwner);
+router.get('/', roleAuth(ACL.STORE_GET), storeController.getStores);
+router.get(
+  '/:userId',
+  roleAuth(ACL.STORE_GET_OWNER),
+  storeController.getStoresByOwner
+);
 router.post(
   '/uploadFile',
   uploadFile.single('file'),
   roleAuth(ACL.STORE_CREATE),
   storeController.uploadFile
 );
-router.post('/review', storeController.addStoreReview);
+router.post(
+  '/review',
+  roleAuth(ACL.STORE_REVIEW_CREATE),
+  storeController.addStoreReview
+);
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
 router.get('/:storeId/reviews', storeController.getStoreReviews);
 export default router;
