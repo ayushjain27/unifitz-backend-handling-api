@@ -51,17 +51,32 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-  getStores = async (req: Request, res: Response) => {
+  getAllStores = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
     Logger.info(
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
     try {
+      const result: StoreResponse[] = await this.storeService.getAll();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  getStoreByStoreId = async (req: Request, res: Response) => {
+    const storeId = req.query.storeId;
+    Logger.info(
+      '<Controller>:<StoreController>:<Get stores by storeID request controller initiated>'
+    );
+    try {
       let result: StoreResponse[];
-      if (storeId) {
-        result = await this.storeService.getById(storeId as string);
+      if (!storeId) {
+        throw new Error('storeId required');
       } else {
-        result = await this.storeService.getAll();
+        result = await this.storeService.getById(storeId as string);
       }
       res.send({
         result
