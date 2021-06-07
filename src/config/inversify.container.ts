@@ -5,8 +5,8 @@ import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
 import { TwilioService, S3Service } from '../services';
 import { s3Config, twilioConfig } from './constants';
-import { StoreController } from '../controllers';
-import { StoreService } from '../services/store.service';
+import { StoreController, AdminController } from '../controllers';
+import { StoreService, AdminService } from '../services';
 
 const container = new Container();
 
@@ -30,5 +30,8 @@ container.bind<AWS.S3>(TYPES.S3Client).toConstantValue(
 
 container.bind<StoreService>(TYPES.StoreService).to(StoreService);
 container.bind<StoreController>(TYPES.StoreController).to(StoreController);
+
+container.bind<AdminService>(TYPES.AdminService).to(AdminService);
+container.bind<AdminController>(TYPES.AdminController).to(AdminController);
 
 export default container;

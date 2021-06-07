@@ -1,6 +1,8 @@
 export const TYPES = {
   StoreController: Symbol('StoreController'),
   StoreService: Symbol('StoreService'),
+  AdminService: Symbol('AdminService'),
+  AdminController: Symbol('AdminController'),
 
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),

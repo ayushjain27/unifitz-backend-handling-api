@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { StoreService } from '../services/store.service';
+import { StoreService } from '../services';
 import Logger from '../config/winston';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
