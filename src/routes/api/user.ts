@@ -7,6 +7,7 @@ import Logger from '../../config/winston';
 import { TwilioLoginPayload, TwilioVerifyPayload } from '../../interfaces';
 import auth from '../middleware/auth';
 import User, { IUser } from '../../models/User';
+import DeviceFcm, { IDeviceFcm } from '../../models/DeviceFcm';
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { generateToken } from '../../utils';
@@ -69,7 +70,7 @@ router.post('/otp/send', async (req: Request, res: Response) => {
  */
 router.post('/otp/login', async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, code, role } = req.body;
+    const { phoneNumber, code, role, deviceId } = req.body;
     const verifyPayload: TwilioVerifyPayload = {
       phoneNumber,
       code
@@ -96,7 +97,8 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         Logger.debug(`User registration started for ${phoneNumber}`);
         // Build user object based on IUser
         const userFields = {
-          phoneNumber
+          phoneNumber,
+          deviceId
         };
 
         const newUser = await User.create(userFields);
@@ -121,6 +123,32 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         message: 'Invalid phone number or verification code :(',
         phoneNumber
       });
+    }
+  } catch (err) {
+    Logger.error(err.message);
+    res
+      .status(HttpStatusCodes.SERVICE_UNAVAILABLE)
+      .send('Twilio Service Error');
+  }
+});
+
+/**
+ * @route   POST /user/fcmToken
+ * @desc    Store FCM Token
+ * @access  Private
+ */
+router.post('/fcmToken', async (req: Request, res: Response) => {
+  try {
+    const { deviceId, fcmToken } = req.body;
+    Logger.debug(
+      `Storing FCM token into database for  ${deviceId} - ${fcmToken}`
+    );
+
+    if (deviceId && fcmToken) {
+      const deviceFcmRecord: IDeviceFcm = await DeviceFcm.findOne({ deviceId });
+      if (!deviceFcmRecord) {
+        await DeviceFcm.create({ deviceId, fcmToken });
+      }
     }
   } catch (err) {
     Logger.error(err.message);
