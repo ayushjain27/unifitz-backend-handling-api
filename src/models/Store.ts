@@ -173,6 +173,7 @@ export interface IStore extends Document {
   userId: Types.ObjectId;
   storeId: string; // 6 digit unique value
   profileStatus: string;
+  rejectionReason: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
   storeTiming: IStoreTiming;
@@ -195,8 +196,12 @@ const storeSchema: Schema = new Schema(
     profileStatus: {
       type: String,
       required: true,
-      enum: ['PENDING', 'REJECTED', 'ONBOARDED', 'COMPLETED', 'ELIGIBLE'],
-      default: 'PENDING'
+      enum: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'],
+      default: 'DRAFT'
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
     },
     basicInfo: {
       type: storeBasicInfoSchema

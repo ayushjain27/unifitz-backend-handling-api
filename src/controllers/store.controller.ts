@@ -52,7 +52,6 @@ export class StoreController {
     }
   };
   getAllStores = async (req: Request, res: Response) => {
-    const storeId = req.query.storeId;
     Logger.info(
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
