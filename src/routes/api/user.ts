@@ -147,7 +147,15 @@ router.post('/fcmToken', async (req: Request, res: Response) => {
     if (deviceId && fcmToken) {
       const deviceFcmRecord: IDeviceFcm = await DeviceFcm.findOne({ deviceId });
       if (!deviceFcmRecord) {
-        await DeviceFcm.create({ deviceId, fcmToken });
+        const deviceFcm = await DeviceFcm.create({ deviceId, fcmToken });
+        res.status(HttpStatusCodes.OK).send({
+          message: 'Token Saved successfully',
+          ...deviceFcm
+        });
+      } else {
+        res.status(HttpStatusCodes.OK).send({
+          message: 'Token Already present in Database'
+        });
       }
     }
   } catch (err) {
