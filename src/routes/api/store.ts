@@ -17,9 +17,18 @@ const storeController = container.get<StoreController>(TYPES.StoreController);
 // @access  Private
 router.post('/', roleAuth(ACL.STORE_CREATE), storeController.createStore);
 router.put('/', roleAuth(ACL.STORE_CREATE), storeController.updateStore);
-router.get('/', roleAuth(ACL.STORE_GET), storeController.getStores);
 router.get(
-  '/:userId',
+  '/',
+  roleAuth(ACL.STORE_GET_SINGLE),
+  storeController.getStoreByStoreId
+);
+router.get(
+  '/allStores',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.getAllStores
+);
+router.get(
+  '/owner/:userId',
   roleAuth(ACL.STORE_GET_OWNER),
   storeController.getStoresByOwner
 );
