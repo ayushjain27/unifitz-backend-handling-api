@@ -7,31 +7,24 @@ const customerVehicleInfoSchema: Schema = new Schema(
     },
     vehicleNumber: {
       type: String,
-      required: true
     },
     category: {
       type: String,
-      required: true
     },
     brand: {
       type: String,
-      required: true
     },
     model: {
       type: String,
-      required: true
     },
     fuel: {
-      type: String,
-      required: true
+      type: String
     },
     year: {
-      type: String,
-      required: true
+      type: String
     },
     ownership: {
-      type: String,
-      required: true
+      type: String
     }
   },
   {
