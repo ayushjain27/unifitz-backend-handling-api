@@ -1,11 +1,11 @@
 import { Router } from 'express';
+import multer from 'multer';
 
 import { StoreController } from '../../controllers';
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../../routes/middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
-import multer from 'multer';
 
 const storage = multer.memoryStorage();
 const uploadFile = multer({ storage: storage });
