@@ -310,7 +310,7 @@ export class StoreService {
       totalReviews
     };
   }
-
+  /* eslint-disable */
   async getReviews(storeId: string): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
     const storeReviews = await StoreReview.find({ storeId });

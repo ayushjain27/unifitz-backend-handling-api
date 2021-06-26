@@ -5,8 +5,12 @@ import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
 import { TwilioService, S3Service } from '../services';
 import { s3Config, twilioConfig } from './constants';
-import { StoreController, AdminController } from '../controllers';
-import { StoreService, AdminService } from '../services';
+import {
+  StoreController,
+  AdminController,
+  CustomerController
+} from '../controllers';
+import { StoreService, AdminService, CustomerService } from '../services';
 
 const container = new Container();
 
@@ -33,5 +37,10 @@ container.bind<StoreController>(TYPES.StoreController).to(StoreController);
 
 container.bind<AdminService>(TYPES.AdminService).to(AdminService);
 container.bind<AdminController>(TYPES.AdminController).to(AdminController);
+
+container.bind<CustomerService>(TYPES.CustomerService).to(CustomerService);
+container
+  .bind<CustomerController>(TYPES.CustomerController)
+  .to(CustomerController);
 
 export default container;
