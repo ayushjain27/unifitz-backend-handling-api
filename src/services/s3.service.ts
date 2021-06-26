@@ -12,7 +12,7 @@ export class S3Service {
     this.client = client;
   }
   async uploadFile(
-    storeId: string,
+    keySalt: string,
     fileName: string,
     fileBuffer: Buffer
   ): Promise<{
@@ -22,7 +22,7 @@ export class S3Service {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
     const params = {
       Bucket: this.bucketName,
-      Key: `${storeId}-${new Date().getTime()}-${fileName}`,
+      Key: `${keySalt}-${new Date().getTime()}-${fileName}`,
       Body: fileBuffer,
       ACL: 'public-read'
     };

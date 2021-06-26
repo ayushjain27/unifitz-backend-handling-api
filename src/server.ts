@@ -2,12 +2,14 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import connectDB from './config/database';
-import user from './routes/api/user';
-import admin from './routes/api/admin';
-import store from './routes/api/store';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
 import Catalog, { ICatalog } from './models/Catalog';
+import file from './routes/api/file';
+import admin from './routes/api/admin';
+import store from './routes/api/store';
+import user from './routes/api/user';
+import customer from './routes/api/customer';
 
 const app = express();
 // Connect to MongoDB
@@ -35,6 +37,10 @@ app.use(`/user`, user);
 app.use(`/admin`, admin);
 
 app.use('/store', store);
+
+app.use('/file', file);
+
+app.use('/customer', customer);
 
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
