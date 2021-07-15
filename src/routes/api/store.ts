@@ -45,4 +45,9 @@ router.post(
 );
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
 router.get('/:storeId/reviews', storeController.getStoreReviews);
+router.put(
+  '/updateStatus',
+  roleAuth(ACL.STORE_UPDATE_STATUS),
+  storeController.updateStoreStatus
+);
 export default router;

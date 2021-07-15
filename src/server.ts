@@ -14,6 +14,7 @@ import customer from './routes/api/customer';
 const app = express();
 // Connect to MongoDB
 connectDB();
+
 app.use(cors());
 app.set('port', process.env.PORT || 3005);
 // Middlewares configuration
