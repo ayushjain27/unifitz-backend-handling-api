@@ -65,9 +65,16 @@ app.get('/subCategory', async (req, res) => {
 });
 
 app.get('/brand', async (req, res) => {
-  const categoryList: ICatalog[] = await Catalog.find({
-    tree: `root/${req.query.category}/${req.query.subCategory}`
-  });
+  const { subCategoryList, category } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(subCategoryList)) {
+    subCategoryList.forEach((subCat) => {
+      treeVal.push(`root/${category}/${subCat}`);
+    });
+  }
+  query = { tree: { $in: treeVal } };
+  const categoryList: ICatalog[] = await Catalog.find(query);
   const result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
   });
