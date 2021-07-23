@@ -1,5 +1,5 @@
 {
-  "MONGO_URI": "mongodb+srv://service_plug:stfpnmYijE1MKbJ4@serviceplugdev.f9iij.mongodb.net/serviceplug_dev?retryWrites=true&w=majority",
+  "MONGO_URI": "mongodb+srv://serviceplug_prod:bafQS0xDizKR3HFT@serviceplug-prod.5iiva.mongodb.net/serviceplugProduction?retryWrites=true&w=majority",
   "JWT_SECRET": "test-secret",
   "JWT_EXPIRATION": "20d",
   "ACCOUNT_SID": "ACc9c1b7efd10252d71b1308f206b39c5c",
@@ -8,5 +8,5 @@
   "ISS": "Service_Plug",
   "AWS_KEY_ID": "AKIA3HHZ3WRZ5CBDGFRW",
   "ACCESS_KEY": "E2p4+ErfZZ4QGSuDipP3Cp0R132Lldd6zjnZKLCq",
-  "BUCKET_NAME": "service-plug-dev"
+  "BUCKET_NAME": "serviceplug-prod"
 }
