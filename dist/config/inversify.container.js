@@ -31,5 +31,9 @@ container.bind(inversify_types_1.TYPES.StoreService).to(services_2.StoreService)
 container.bind(inversify_types_1.TYPES.StoreController).to(controllers_1.StoreController);
 container.bind(inversify_types_1.TYPES.AdminService).to(services_2.AdminService);
 container.bind(inversify_types_1.TYPES.AdminController).to(controllers_1.AdminController);
+container.bind(inversify_types_1.TYPES.CustomerService).to(services_2.CustomerService);
+container
+    .bind(inversify_types_1.TYPES.CustomerController)
+    .to(controllers_1.CustomerController);
 exports.default = container;
 //# sourceMappingURL=inversify.container.js.map

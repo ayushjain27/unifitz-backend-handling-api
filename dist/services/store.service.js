@@ -298,6 +298,7 @@ let StoreService = class StoreService {
             };
         });
     }
+    /* eslint-disable */
     getReviews(storeId) {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Get Store Ratings initiate>');

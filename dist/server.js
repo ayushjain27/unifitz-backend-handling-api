@@ -15,13 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
+const lodash_1 = __importDefault(require("lodash"));
 const database_1 = __importDefault(require("./config/database"));
-const user_1 = __importDefault(require("./routes/api/user"));
-const admin_1 = __importDefault(require("./routes/api/admin"));
-const store_1 = __importDefault(require("./routes/api/store"));
 const morgan_1 = __importDefault(require("./config/morgan"));
 const winston_1 = __importDefault(require("./config/winston"));
 const Catalog_1 = __importDefault(require("./models/Catalog"));
+const file_1 = __importDefault(require("./routes/api/file"));
+const admin_1 = __importDefault(require("./routes/api/admin"));
+const store_1 = __importDefault(require("./routes/api/store"));
+const user_1 = __importDefault(require("./routes/api/user"));
+const customer_1 = __importDefault(require("./routes/api/customer"));
 const app = express_1.default();
 // Connect to MongoDB
 database_1.default();
@@ -44,6 +47,8 @@ app.get('/test', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 app.use(`/user`, user_1.default);
 app.use(`/admin`, admin_1.default);
 app.use('/store', store_1.default);
+app.use('/file', file_1.default);
+app.use('/customer', customer_1.default);
 app.get('/category', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const categoryList = yield Catalog_1.default.find({ parent: 'root' });
     const result = categoryList.map(({ _id, catalogName }) => {
@@ -64,12 +69,25 @@ app.get('/subCategory', (req, res) => __awaiter(void 0, void 0, void 0, function
         list: result
     });
 }));
-app.get('/brand', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const categoryList = yield Catalog_1.default.find({
-        tree: `root/${req.query.category}/${req.query.subCategory}`
-    });
-    const result = categoryList.map(({ _id, catalogName }) => {
+app.post('/brand', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { subCategoryList, category } = req.body;
+    let query = {};
+    const treeVal = [];
+    if (Array.isArray(subCategoryList)) {
+        subCategoryList.forEach((subCat) => {
+            treeVal.push(`root/${category}/${subCat}`);
+        });
+    }
+    else {
+        treeVal.push(`root/${category}/${subCategoryList}`);
+    }
+    query = { tree: { $in: treeVal } };
+    const categoryList = yield Catalog_1.default.find(query);
+    let result = categoryList.map(({ _id, catalogName }) => {
         return { _id, catalogName };
+    });
+    result = lodash_1.default.uniqBy(result, (e) => {
+        return e.catalogName;
     });
     res.json({
         list: result

@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const multer_1 = __importDefault(require("multer"));
 const inversify_container_1 = __importDefault(require("../../config/inversify.container"));
 const inversify_types_1 = require("../../config/inversify.types");
 const rbac_1 = require("../../routes/middleware/rbac");
 const rbac_enum_1 = require("../../enum/rbac.enum");
-const multer_1 = __importDefault(require("multer"));
 const storage = multer_1.default.memoryStorage();
 const uploadFile = multer_1.default({ storage: storage });
 const router = express_1.Router();

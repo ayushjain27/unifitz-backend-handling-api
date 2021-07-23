@@ -5,7 +5,18 @@ const rbac_enum_1 = require("../enum/rbac.enum");
 /* eslint-disable */
 exports.RBAC_MAP = {
     admin: [rbac_enum_1.ACL.STORE_CREATE, rbac_enum_1.ACL.STORE_GET_ALL, rbac_enum_1.ACL.STORE_GET_SINGLE],
-    store_owner: [rbac_enum_1.ACL.STORE_CREATE, rbac_enum_1.ACL.STORE_GET_OWNER, rbac_enum_1.ACL.STORE_GET_SINGLE],
-    user: [rbac_enum_1.ACL.STORE_GET_ALL, rbac_enum_1.ACL.STORE_REVIEW_CREATE, rbac_enum_1.ACL.STORE_GET_SINGLE]
+    store_owner: [
+        rbac_enum_1.ACL.STORE_CREATE,
+        rbac_enum_1.ACL.STORE_GET_OWNER,
+        rbac_enum_1.ACL.STORE_GET_SINGLE,
+        rbac_enum_1.ACL.FILE_UPLOAD
+    ],
+    user: [
+        rbac_enum_1.ACL.STORE_GET_ALL,
+        rbac_enum_1.ACL.STORE_REVIEW_CREATE,
+        rbac_enum_1.ACL.STORE_GET_SINGLE,
+        rbac_enum_1.ACL.CUSTOMER_CREATE,
+        rbac_enum_1.ACL.FILE_UPLOAD
+    ]
 };
 //# sourceMappingURL=rbac-mapping.js.map

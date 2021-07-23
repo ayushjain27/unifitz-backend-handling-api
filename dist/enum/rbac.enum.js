@@ -8,5 +8,7 @@ var ACL;
     ACL["STORE_GET_OWNER"] = "store:read_owner";
     ACL["STORE_GET_SINGLE"] = "store:read_single";
     ACL["STORE_REVIEW_CREATE"] = "store_review:create";
+    ACL["CUSTOMER_CREATE"] = "customer:create";
+    ACL["FILE_UPLOAD"] = "file:upload";
 })(ACL = exports.ACL || (exports.ACL = {}));
 //# sourceMappingURL=rbac.enum.js.map

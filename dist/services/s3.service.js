@@ -35,12 +35,12 @@ let S3Service = class S3Service {
         this.bucketName = constants_1.s3Config.BUCKET_NAME;
         this.client = client;
     }
-    uploadFile(storeId, fileName, fileBuffer) {
+    uploadFile(keySalt, fileName, fileBuffer) {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<S3-Service>:<Doc upload starting>');
             const params = {
                 Bucket: this.bucketName,
-                Key: `${storeId}-${new Date().getTime()}-${fileName}`,
+                Key: `${keySalt}-${new Date().getTime()}-${fileName}`,
                 Body: fileBuffer,
                 ACL: 'public-read'
             };
