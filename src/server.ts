@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import _ from 'lodash';
 import connectDB from './config/database';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
@@ -10,6 +11,7 @@ import admin from './routes/api/admin';
 import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
+import { ObjectId } from 'mongoose';
 
 const app = express();
 // Connect to MongoDB
@@ -64,7 +66,7 @@ app.get('/subCategory', async (req, res) => {
   });
 });
 
-app.get('/brand', async (req, res) => {
+app.post('/brand', async (req, res) => {
   const { subCategoryList, category } = req.body;
   let query = {};
   const treeVal: string[] = [];
@@ -72,11 +74,16 @@ app.get('/brand', async (req, res) => {
     subCategoryList.forEach((subCat) => {
       treeVal.push(`root/${category}/${subCat}`);
     });
+  } else {
+    treeVal.push(`root/${category}/${subCategoryList}`);
   }
   query = { tree: { $in: treeVal } };
   const categoryList: ICatalog[] = await Catalog.find(query);
-  const result = categoryList.map(({ _id, catalogName }) => {
+  let result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
+  });
+  result = _.uniqBy(result, (e: { catalogName: string; _id: ObjectId }) => {
+    return e.catalogName;
   });
   res.json({
     list: result
