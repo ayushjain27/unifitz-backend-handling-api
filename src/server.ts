@@ -1,13 +1,17 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import _ from 'lodash';
 import connectDB from './config/database';
-import user from './routes/api/user';
-import admin from './routes/api/admin';
-import store from './routes/api/store';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
 import Catalog, { ICatalog } from './models/Catalog';
+import file from './routes/api/file';
+import admin from './routes/api/admin';
+import store from './routes/api/store';
+import user from './routes/api/user';
+import customer from './routes/api/customer';
+import { ObjectId } from 'mongoose';
 
 const app = express();
 // Connect to MongoDB
@@ -36,6 +40,10 @@ app.use(`/admin`, admin);
 
 app.use('/store', store);
 
+app.use('/file', file);
+
+app.use('/customer', customer);
+
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
   const result = categoryList.map(({ _id, catalogName }) => {
@@ -58,12 +66,24 @@ app.get('/subCategory', async (req, res) => {
   });
 });
 
-app.get('/brand', async (req, res) => {
-  const categoryList: ICatalog[] = await Catalog.find({
-    tree: `root/${req.query.category}/${req.query.subCategory}`
-  });
-  const result = categoryList.map(({ _id, catalogName }) => {
+app.post('/brand', async (req, res) => {
+  const { subCategoryList, category } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(subCategoryList)) {
+    subCategoryList.forEach((subCat) => {
+      treeVal.push(`root/${category}/${subCat}`);
+    });
+  } else {
+    treeVal.push(`root/${category}/${subCategoryList}`);
+  }
+  query = { tree: { $in: treeVal } };
+  const categoryList: ICatalog[] = await Catalog.find(query);
+  let result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
+  });
+  result = _.uniqBy(result, (e: { catalogName: string; _id: ObjectId }) => {
+    return e.catalogName;
   });
   res.json({
     list: result
