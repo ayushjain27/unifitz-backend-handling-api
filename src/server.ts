@@ -66,6 +66,19 @@ app.get('/subCategory', async (req, res) => {
   });
 });
 
+// TODO: Remove this api once app is launched to  production
+app.get('/brand', async (req, res) => {
+  const categoryList: ICatalog[] = await Catalog.find({
+    tree: `root/${req.query.category}/${req.query.subCategory}`
+  });
+  const result = categoryList.map(({ _id, catalogName }) => {
+    return { _id, catalogName };
+  });
+  res.json({
+    list: result
+  });
+});
+
 app.post('/brand', async (req, res) => {
   const { subCategoryList, category } = req.body;
   let query = {};
