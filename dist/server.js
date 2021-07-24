@@ -69,6 +69,18 @@ app.get('/subCategory', (req, res) => __awaiter(void 0, void 0, void 0, function
         list: result
     });
 }));
+// TODO: Remove this api once app is launched to  production
+app.get('/brand', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const categoryList = yield Catalog_1.default.find({
+        tree: `root/${req.query.category}/${req.query.subCategory}`
+    });
+    const result = categoryList.map(({ _id, catalogName }) => {
+        return { _id, catalogName };
+    });
+    res.json({
+        list: result
+    });
+}));
 app.post('/brand', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { subCategoryList, category } = req.body;
     let query = {};
