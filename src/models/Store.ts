@@ -23,7 +23,7 @@ export interface IBasicInfo extends Document {
   registrationDate: Date; //<localeDate>{required},(NO TIME)
   brand: ICatalogMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
   category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
-  subCategory: ICatalogMap; //<Object> {_id:, name:}{required}  - (MD),
+  subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   // businessHours for the different
 }
 
@@ -54,8 +54,8 @@ const storeBasicInfoSchema: Schema = new Schema(
       required: true
     },
     subCategory: {
-      type: storeCatalogMapSchema,
-      required: true
+      type: [storeCatalogMapSchema],
+      required: false
     }
   },
   {
