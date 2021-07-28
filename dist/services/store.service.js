@@ -22,7 +22,6 @@ exports.StoreService = void 0;
 const inversify_1 = require("inversify");
 const mongoose_1 = require("mongoose");
 const winston_1 = __importDefault(require("../config/winston"));
-const Catalog_1 = __importDefault(require("../models/Catalog"));
 const Store_1 = __importDefault(require("../models/Store"));
 const User_1 = __importDefault(require("../models/User"));
 const inversify_container_1 = __importDefault(require("../config/inversify.container"));
@@ -40,27 +39,26 @@ let StoreService = class StoreService {
                 phoneNumber
             });
             storePayload.userId = ownerDetails._id;
-            const { category, subCategory, brand } = storePayload.basicInfo;
-            const getCategory = yield Catalog_1.default.findOne({
-                catalogName: category.name,
-                parent: 'root'
-            });
-            const getSubCategory = yield Catalog_1.default.findOne({
-                tree: `root/${category.name}`,
-                catalogName: subCategory.name
-            });
-            const getBrand = yield Catalog_1.default.findOne({
-                tree: `root/${category.name}/${subCategory.name}`,
-                catalogName: brand.name
-            });
-            if (getCategory && getSubCategory && getBrand) {
-                storePayload.basicInfo.category._id = getCategory._id;
-                storePayload.basicInfo.subCategory._id = getSubCategory._id;
-                storePayload.basicInfo.brand._id = getBrand._id;
-            }
-            else {
-                throw new Error(`Wrong Catalog Details`);
-            }
+            // const { category, subCategory, brand } = storePayload.basicInfo;
+            // const getCategory: ICatalog = await Catalog.findOne({
+            //   catalogName: category.name,
+            //   parent: 'root'
+            // });
+            // const getSubCategory: ICatalog = await Catalog.findOne({
+            //   tree: `root/${category.name}`,
+            //   catalogName: subCategory.name
+            // });
+            // const getBrand: ICatalog = await Catalog.findOne({
+            //   tree: `root/${category.name}/${subCategory.name}`,
+            //   catalogName: brand.name
+            // });
+            // if (getCategory && getBrand) {
+            //   storePayload.basicInfo.category._id = getCategory._id;
+            //   storePayload.basicInfo.subCategory = subCategory;
+            //   storePayload.basicInfo.brand._id = getBrand._id;
+            // } else {
+            //   throw new Error(`Wrong Catalog Details`);
+            // }
             const lastCreatedStoreId = yield Store_1.default.find({})
                 .sort({ createdAt: 'desc' })
                 .select('storeId')
@@ -81,29 +79,28 @@ let StoreService = class StoreService {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Update store service initiated>');
             const { storePayload } = storeRequest;
-            const { category, subCategory, brand } = storePayload.basicInfo;
-            if (category && subCategory && brand) {
-                const getCategory = yield Catalog_1.default.findOne({
-                    catalogName: category.name,
-                    parent: 'root'
-                });
-                const getSubCategory = yield Catalog_1.default.findOne({
-                    tree: `root/${category.name}`,
-                    catalogName: subCategory.name
-                });
-                const getBrand = yield Catalog_1.default.findOne({
-                    tree: `root/${category.name}/${subCategory.name}`,
-                    catalogName: brand.name
-                });
-                if (getCategory && getSubCategory && getBrand) {
-                    storePayload.basicInfo.category._id = getCategory._id;
-                    storePayload.basicInfo.subCategory._id = getSubCategory._id;
-                    storePayload.basicInfo.brand._id = getBrand._id;
-                }
-                else {
-                    throw new Error(`Wrong Catalog Details`);
-                }
-            }
+            // const { category, subCategory, brand } = storePayload.basicInfo;
+            // if (category && subCategory && brand) {
+            //   const getCategory: ICatalog = await Catalog.findOne({
+            //     catalogName: category.name,
+            //     parent: 'root'
+            //   });
+            //   const getSubCategory: ICatalog = await Catalog.findOne({
+            //     tree: `root/${category.name}`,
+            //     catalogName: subCategory.name
+            //   });
+            //   const getBrand: ICatalog = await Catalog.findOne({
+            //     tree: `root/${category.name}/${subCategory.name}`,
+            //     catalogName: brand.name
+            //   });
+            //   if (getCategory && getSubCategory && getBrand) {
+            //     storePayload.basicInfo.category._id = getCategory._id;
+            //     storePayload.basicInfo.subCategory._id = getSubCategory._id;
+            //     storePayload.basicInfo.brand._id = getBrand._id;
+            //   } else {
+            //     throw new Error(`Wrong Catalog Details`);
+            //   }
+            // }
             winston_1.default.info('<Service>:<StoreService>: <Store: updating new store>');
             yield Store_1.default.findOneAndUpdate({ storeId: storePayload.storeId }, storePayload);
             winston_1.default.info('<Service>:<StoreService>: <Store: update store successfully>');
@@ -124,6 +121,29 @@ let StoreService = class StoreService {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Get all stores service initiated>');
             const stores = yield Store_1.default.find({});
+            return stores;
+        });
+    }
+    searchAndFilter(storeName, category, subCategory, brand) {
+        return __awaiter(this, void 0, void 0, function* () {
+            winston_1.default.info('<Service>:<StoreService>:<Search and Filter stores service initiated>');
+            let query = {
+                'basicInfo.businessName': new RegExp(storeName, "i"),
+                'basicInfo.brand.name': brand,
+                'basicInfo.category.name': category,
+                'basicInfo.subCategory.name': { $in: subCategory }
+            };
+            if (!brand) {
+                delete query['basicInfo.brand.name'];
+            }
+            if (!category) {
+                delete query['basicInfo.category.name'];
+            }
+            if (!subCategory || subCategory.length === 0) {
+                delete query['basicInfo.subCategory.name'];
+            }
+            winston_1.default.debug(query);
+            const stores = yield Store_1.default.find(query);
             return stores;
         });
     }

@@ -6,16 +6,16 @@ const customerVehicleInfoSchema = new mongoose_1.Schema({
         type: String
     },
     vehicleNumber: {
-        type: String,
+        type: String
     },
     category: {
-        type: String,
+        type: String
     },
     brand: {
-        type: String,
+        type: String
     },
     model: {
-        type: String,
+        type: String
     },
     fuel: {
         type: String

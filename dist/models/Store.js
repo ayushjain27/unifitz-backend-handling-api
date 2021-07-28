@@ -37,8 +37,8 @@ const storeBasicInfoSchema = new mongoose_1.Schema({
         required: true
     },
     subCategory: {
-        type: storeCatalogMapSchema,
-        required: true
+        type: [storeCatalogMapSchema],
+        required: false
     }
 }, {
     _id: false

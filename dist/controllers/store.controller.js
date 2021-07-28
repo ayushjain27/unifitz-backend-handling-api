@@ -75,6 +75,27 @@ let StoreController = class StoreController {
                 res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
             }
         });
+        this.searchStores = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let { category, subCategory, brand } = req.query;
+            let storeName = req.params.storeName;
+            if (subCategory) {
+                subCategory = subCategory.split(',');
+            }
+            else {
+                subCategory = [];
+            }
+            winston_1.default.info('<Controller>:<StoreController>:<Search and Filter Stores request controller initiated>');
+            try {
+                const result = yield this.storeService.searchAndFilter(storeName, category, subCategory, brand);
+                res.send({
+                    result
+                });
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
         this.getStoreByStoreId = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const storeId = req.query.storeId;
             winston_1.default.info('<Controller>:<StoreController>:<Get stores by storeID request controller initiated>');

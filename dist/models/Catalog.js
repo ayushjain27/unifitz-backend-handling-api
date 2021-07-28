@@ -17,6 +17,10 @@ const catalogSchema = new mongoose_1.Schema({
     catalogType: {
         type: String,
         required: true
+    },
+    catalogIcon: {
+        type: String,
+        required: false
     }
 }, { timestamps: true });
 const Catalog = mongoose_1.model('catalog', catalogSchema);
