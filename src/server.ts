@@ -46,8 +46,8 @@ app.use('/customer', customer);
 
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
-  const result = categoryList.map(({ _id, catalogName }) => {
-    return { _id, catalogName };
+  const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
+    return { _id, catalogName, catalogIcon };
   });
   res.json({
     list: result
