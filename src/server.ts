@@ -17,7 +17,7 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 app.use(cors());
-app.set('port', process.env.PORT || 3005);
+app.set('port', process.env.PORT || 8080);
 // Middlewares configuration
 app.use(helmet());
 

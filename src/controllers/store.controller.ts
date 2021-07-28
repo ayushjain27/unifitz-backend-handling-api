@@ -66,8 +66,8 @@ export class StoreController {
     }
   };
   searchStores = async (req: Request, res: Response) => {
-    let { category, subCategory, brand } = req.query;
-    let storeName = req.params.storeName;
+    const { category, brand, storeName } = req.query;
+    let { subCategory } = req.query;
     if (subCategory) {
       subCategory = (subCategory as string).split(',');
     } else {
@@ -78,9 +78,9 @@ export class StoreController {
     );
     try {
       const result: StoreResponse[] = await this.storeService.searchAndFilter(
-        storeName,
+        storeName as string,
         category as string,
-        subCategory as  string[],
+        subCategory as string[],
         brand as string
       );
       res.send({
