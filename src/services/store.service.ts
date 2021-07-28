@@ -28,26 +28,26 @@ export class StoreService {
       phoneNumber
     });
     storePayload.userId = ownerDetails._id;
-    const { category, subCategory, brand } = storePayload.basicInfo;
-    const getCategory: ICatalog = await Catalog.findOne({
-      catalogName: category.name,
-      parent: 'root'
-    });
-    const getSubCategory: ICatalog = await Catalog.findOne({
-      tree: `root/${category.name}`,
-      catalogName: subCategory.name
-    });
-    const getBrand: ICatalog = await Catalog.findOne({
-      tree: `root/${category.name}/${subCategory.name}`,
-      catalogName: brand.name
-    });
-    if (getCategory && getSubCategory && getBrand) {
-      storePayload.basicInfo.category._id = getCategory._id;
-      storePayload.basicInfo.subCategory._id = getSubCategory._id;
-      storePayload.basicInfo.brand._id = getBrand._id;
-    } else {
-      throw new Error(`Wrong Catalog Details`);
-    }
+    // const { category, subCategory, brand } = storePayload.basicInfo;
+    // const getCategory: ICatalog = await Catalog.findOne({
+    //   catalogName: category.name,
+    //   parent: 'root'
+    // });
+    // const getSubCategory: ICatalog = await Catalog.findOne({
+    //   tree: `root/${category.name}`,
+    //   catalogName: subCategory.name
+    // });
+    // const getBrand: ICatalog = await Catalog.findOne({
+    //   tree: `root/${category.name}/${subCategory.name}`,
+    //   catalogName: brand.name
+    // });
+    // if (getCategory && getBrand) {
+    //   storePayload.basicInfo.category._id = getCategory._id;
+    //   storePayload.basicInfo.subCategory = subCategory;
+    //   storePayload.basicInfo.brand._id = getBrand._id;
+    // } else {
+    //   throw new Error(`Wrong Catalog Details`);
+    // }
     const lastCreatedStoreId = await Store.find({})
       .sort({ createdAt: 'desc' })
       .select('storeId')
@@ -71,28 +71,28 @@ export class StoreService {
   async update(storeRequest: StoreRequest): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store service initiated>');
     const { storePayload } = storeRequest;
-    const { category, subCategory, brand } = storePayload.basicInfo;
-    if (category && subCategory && brand) {
-      const getCategory: ICatalog = await Catalog.findOne({
-        catalogName: category.name,
-        parent: 'root'
-      });
-      const getSubCategory: ICatalog = await Catalog.findOne({
-        tree: `root/${category.name}`,
-        catalogName: subCategory.name
-      });
-      const getBrand: ICatalog = await Catalog.findOne({
-        tree: `root/${category.name}/${subCategory.name}`,
-        catalogName: brand.name
-      });
-      if (getCategory && getSubCategory && getBrand) {
-        storePayload.basicInfo.category._id = getCategory._id;
-        storePayload.basicInfo.subCategory._id = getSubCategory._id;
-        storePayload.basicInfo.brand._id = getBrand._id;
-      } else {
-        throw new Error(`Wrong Catalog Details`);
-      }
-    }
+    // const { category, subCategory, brand } = storePayload.basicInfo;
+    // if (category && subCategory && brand) {
+    //   const getCategory: ICatalog = await Catalog.findOne({
+    //     catalogName: category.name,
+    //     parent: 'root'
+    //   });
+    //   const getSubCategory: ICatalog = await Catalog.findOne({
+    //     tree: `root/${category.name}`,
+    //     catalogName: subCategory.name
+    //   });
+    //   const getBrand: ICatalog = await Catalog.findOne({
+    //     tree: `root/${category.name}/${subCategory.name}`,
+    //     catalogName: brand.name
+    //   });
+    //   if (getCategory && getSubCategory && getBrand) {
+    //     storePayload.basicInfo.category._id = getCategory._id;
+    //     storePayload.basicInfo.subCategory._id = getSubCategory._id;
+    //     storePayload.basicInfo.brand._id = getBrand._id;
+    //   } else {
+    //     throw new Error(`Wrong Catalog Details`);
+    //   }
+    // }
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
     await Store.findOneAndUpdate(
       { storeId: storePayload.storeId },
