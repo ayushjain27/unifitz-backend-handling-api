@@ -65,6 +65,32 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+  searchStores = async (req: Request, res: Response) => {
+    let { category, subCategory, brand } = req.query;
+    let storeName = req.params.storeName;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores request controller initiated>'
+    );
+    try {
+      const result: StoreResponse[] = await this.storeService.searchAndFilter(
+        storeName,
+        category as string,
+        subCategory as  string[],
+        brand as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   getStoreByStoreId = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
     Logger.info(

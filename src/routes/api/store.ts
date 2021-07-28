@@ -28,6 +28,11 @@ router.get(
   storeController.getAllStores
 );
 router.get(
+  '/search/:storeName',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.searchStores
+);
+router.get(
   '/owner/:userId',
   roleAuth(ACL.STORE_GET_OWNER),
   storeController.getStoresByOwner
