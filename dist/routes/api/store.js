@@ -20,7 +20,7 @@ router.post('/', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.
 router.put('/', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.updateStore);
 router.get('/', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_SINGLE), storeController.getStoreByStoreId);
 router.get('/allStores', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_ALL), storeController.getAllStores);
-router.get('/search/:storeName', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStores);
+router.get('/search', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStores);
 router.get('/owner/:userId', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_OWNER), storeController.getStoresByOwner);
 router.post('/uploadFile', uploadFile.single('file'), rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.uploadFile);
 router.post('/review', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_REVIEW_CREATE), storeController.addStoreReview);

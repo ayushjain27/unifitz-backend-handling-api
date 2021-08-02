@@ -48,7 +48,7 @@ const customerContactSchema = new mongoose_1.Schema({
     _id: false
 });
 const customerSchema = new mongoose_1.Schema({
-    salutationName: {
+    nameSalutation: {
         type: String,
         required: true
     },

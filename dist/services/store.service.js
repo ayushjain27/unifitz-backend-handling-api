@@ -127,8 +127,8 @@ let StoreService = class StoreService {
     searchAndFilter(storeName, category, subCategory, brand) {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Search and Filter stores service initiated>');
-            let query = {
-                'basicInfo.businessName': new RegExp(storeName, "i"),
+            const query = {
+                'basicInfo.businessName': new RegExp(storeName, 'i'),
                 'basicInfo.brand.name': brand,
                 'basicInfo.category.name': category,
                 'basicInfo.subCategory.name': { $in: subCategory }
@@ -141,6 +141,9 @@ let StoreService = class StoreService {
             }
             if (!subCategory || subCategory.length === 0) {
                 delete query['basicInfo.subCategory.name'];
+            }
+            if (!storeName) {
+                delete query['basicInfo.businessName'];
             }
             winston_1.default.debug(query);
             const stores = yield Store_1.default.find(query);

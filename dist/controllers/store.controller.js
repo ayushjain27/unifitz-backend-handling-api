@@ -76,8 +76,8 @@ let StoreController = class StoreController {
             }
         });
         this.searchStores = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            let { category, subCategory, brand } = req.query;
-            let storeName = req.params.storeName;
+            const { category, brand, storeName } = req.query;
+            let { subCategory } = req.query;
             if (subCategory) {
                 subCategory = subCategory.split(',');
             }

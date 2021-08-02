@@ -4,7 +4,7 @@ const mongoose_1 = require("mongoose");
 const storeCatalogMapSchema = new mongoose_1.Schema({
     _id: {
         type: mongoose_1.Types.ObjectId,
-        required: true
+        required: false
     },
     name: {
         type: String,

@@ -51,8 +51,8 @@ app.use('/file', file_1.default);
 app.use('/customer', customer_1.default);
 app.get('/category', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const categoryList = yield Catalog_1.default.find({ parent: 'root' });
-    const result = categoryList.map(({ _id, catalogName }) => {
-        return { _id, catalogName };
+    const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
+        return { _id, catalogName, catalogIcon };
     });
     res.json({
         list: result
