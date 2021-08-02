@@ -65,7 +65,7 @@ const customerContactSchema: Schema = new Schema(
  * Interface to model the Customer Schema for TypeScript.
  */
 export interface ICustomer extends Document {
-  salutationName: string;
+  nameSalutation: string;
   fullName: string;
   email: string;
   profileImageUrl: string;
@@ -79,7 +79,7 @@ export interface ICustomer extends Document {
 
 const customerSchema: Schema = new Schema(
   {
-    salutationName: {
+    nameSalutation: {
       type: String,
       required: true
     },

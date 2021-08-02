@@ -28,7 +28,7 @@ router.get(
   storeController.getAllStores
 );
 router.get(
-  '/search/:storeName',
+  '/search',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.searchStores
 );

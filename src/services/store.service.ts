@@ -125,20 +125,23 @@ export class StoreService {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
-    let query = {
-      'basicInfo.businessName': new RegExp(storeName,"i"),
+    const query = {
+      'basicInfo.businessName': new RegExp(storeName, 'i'),
       'basicInfo.brand.name': brand,
       'basicInfo.category.name': category,
       'basicInfo.subCategory.name': { $in: subCategory }
     };
-    if(!brand){
-      delete query['basicInfo.brand.name']
+    if (!brand) {
+      delete query['basicInfo.brand.name'];
     }
-    if(!category){
-      delete query['basicInfo.category.name']
+    if (!category) {
+      delete query['basicInfo.category.name'];
     }
-    if(!subCategory || subCategory.length === 0){
-      delete query['basicInfo.subCategory.name']
+    if (!subCategory || subCategory.length === 0) {
+      delete query['basicInfo.subCategory.name'];
+    }
+    if (!storeName) {
+      delete query['basicInfo.businessName'];
     }
     Logger.debug(query);
     const stores = await Store.find(query);

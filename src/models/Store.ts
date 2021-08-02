@@ -8,7 +8,7 @@ export interface ICatalogMap extends Document {
 const storeCatalogMapSchema: Schema = new Schema({
   _id: {
     type: Types.ObjectId,
-    required: true
+    required: false
   },
   name: {
     type: String,
