@@ -180,6 +180,7 @@ export interface IStore extends Document {
   documents: IDocuments;
   createdAt?: Date;
   updatedAt?: Date;
+  overAllRating?: any;
 }
 
 const storeSchema: Schema = new Schema(
