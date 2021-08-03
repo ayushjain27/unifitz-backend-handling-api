@@ -144,14 +144,17 @@ export class StoreService {
       delete query['basicInfo.businessName'];
     }
     Logger.debug(query);
-    let stores: any = await Store.find(query);
+    let stores: any = await Store.find(query).lean();
     if (stores && Array.isArray(stores)) {
-      stores = stores.map(async (store) => {
-        const updatedStore = { ...store };
-        updatedStore.overAllRating = await this.getOverallRatings(
-          updatedStore.storeId
-        );
-      });
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
     }
     return stores;
   }
