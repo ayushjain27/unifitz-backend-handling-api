@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import Request from '../types/request';
-
+import container from '../config/inversify.container';
+import { TYPES } from '../config/inversify.types';
+import Logger from '../config/winston';
 import {
   OverallStoreRatingResponse,
   StoreDocUploadRequest,
@@ -9,14 +10,12 @@ import {
   StoreResponse,
   StoreReviewRequest
 } from '../interfaces';
-import Logger from '../config/winston';
-import Catalog, { ICatalog } from '../models/Catalog';
 import Store, { IStore } from '../models/Store';
-import User, { IUser } from '../models/User';
-import container from '../config/inversify.container';
-import { TYPES } from '../config/inversify.types';
-import { S3Service } from './s3.service';
 import StoreReview from '../models/Store-Review';
+import User, { IUser } from '../models/User';
+import Request from '../types/request';
+import { S3Service } from './s3.service';
+
 
 @injectable()
 export class StoreService {
@@ -129,7 +128,8 @@ export class StoreService {
       'basicInfo.businessName': new RegExp(storeName, 'i'),
       'basicInfo.brand.name': brand,
       'basicInfo.category.name': category,
-      'basicInfo.subCategory.name': { $in: subCategory }
+      'basicInfo.subCategory.name': { $in: subCategory },
+      profileStatus: 'ONBOARDED'
     };
     if (!brand) {
       delete query['basicInfo.brand.name'];
