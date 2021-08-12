@@ -16,7 +16,6 @@ import User, { IUser } from '../models/User';
 import Request from '../types/request';
 import { S3Service } from './s3.service';
 
-
 @injectable()
 export class StoreService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
