@@ -180,6 +180,7 @@ export interface IStore extends Document {
   documents: IDocuments;
   createdAt?: Date;
   updatedAt?: Date;
+  overAllRating?: any;
 }
 
 const storeSchema: Schema = new Schema(
@@ -196,7 +197,7 @@ const storeSchema: Schema = new Schema(
     profileStatus: {
       type: String,
       required: true,
-      enum: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'],
+      enum: ['DRAFT', 'PENDING', 'ONBOARDED', 'REJECTED'],
       default: 'DRAFT'
     },
     rejectionReason: {
