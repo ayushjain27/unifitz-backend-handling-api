@@ -114,7 +114,7 @@ const storeSchema = new mongoose_1.Schema({
     profileStatus: {
         type: String,
         required: true,
-        enum: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'],
+        enum: ['DRAFT', 'PENDING', 'ONBOARDED', 'REJECTED'],
         default: 'DRAFT'
     },
     rejectionReason: {

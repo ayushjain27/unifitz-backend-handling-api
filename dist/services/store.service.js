@@ -21,12 +21,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StoreService = void 0;
 const inversify_1 = require("inversify");
 const mongoose_1 = require("mongoose");
-const winston_1 = __importDefault(require("../config/winston"));
-const Store_1 = __importDefault(require("../models/Store"));
-const User_1 = __importDefault(require("../models/User"));
 const inversify_container_1 = __importDefault(require("../config/inversify.container"));
 const inversify_types_1 = require("../config/inversify.types");
+const winston_1 = __importDefault(require("../config/winston"));
+const Store_1 = __importDefault(require("../models/Store"));
 const Store_Review_1 = __importDefault(require("../models/Store-Review"));
+const User_1 = __importDefault(require("../models/User"));
 let StoreService = class StoreService {
     constructor() {
         this.s3Client = inversify_container_1.default.get(inversify_types_1.TYPES.S3Service);
@@ -131,7 +131,8 @@ let StoreService = class StoreService {
                 'basicInfo.businessName': new RegExp(storeName, 'i'),
                 'basicInfo.brand.name': brand,
                 'basicInfo.category.name': category,
-                'basicInfo.subCategory.name': { $in: subCategory }
+                'basicInfo.subCategory.name': { $in: subCategory },
+                profileStatus: 'ONBOARDED'
             };
             if (!brand) {
                 delete query['basicInfo.brand.name'];
@@ -146,7 +147,14 @@ let StoreService = class StoreService {
                 delete query['basicInfo.businessName'];
             }
             winston_1.default.debug(query);
-            const stores = yield Store_1.default.find(query);
+            let stores = yield Store_1.default.find(query).lean();
+            if (stores && Array.isArray(stores)) {
+                stores = yield Promise.all(stores.map((store) => __awaiter(this, void 0, void 0, function* () {
+                    const updatedStore = Object.assign({}, store);
+                    updatedStore.overAllRating = yield this.getOverallRatings(updatedStore.storeId);
+                    return updatedStore;
+                })));
+            }
             return stores;
         });
     }
