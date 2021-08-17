@@ -353,7 +353,7 @@ export class StoreService {
   /* eslint-disable */
   async getReviews(storeId: string): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId });
+    const storeReviews = await StoreReview.find({ storeId }).lean();
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
@@ -370,6 +370,8 @@ export class StoreService {
             'Thank you for onboarding with us. May you have a wonderful experience.'
         }
       ];
+    } else {
+      return storeReviews;
     }
   }
 }
