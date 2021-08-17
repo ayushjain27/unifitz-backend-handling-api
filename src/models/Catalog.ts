@@ -13,6 +13,7 @@ export interface ICatalog extends Document {
   parent: string;
   catalogType: string;
   catalogIcon?: string;
+  displayOrder: number;
 }
 
 const catalogSchema: Schema = new Schema(
@@ -20,6 +21,9 @@ const catalogSchema: Schema = new Schema(
     catalogName: {
       type: String,
       required: true
+    },
+    displayOrder: {
+      type: Number
     },
     tree: {
       type: String,
