@@ -51,9 +51,18 @@ app.use('/file', file_1.default);
 app.use('/customer', customer_1.default);
 app.get('/category', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const categoryList = yield Catalog_1.default.find({ parent: 'root' });
-    const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
+    const result = categoryList
+        .sort((a, b) => a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+            ? -1
+            : 0)
+        .map(({ _id, catalogName, catalogIcon }) => {
         return { _id, catalogName, catalogIcon };
     });
+    // const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
+    //   return { _id, catalogName, catalogIcon };
+    // });
     res.json({
         list: result
     });

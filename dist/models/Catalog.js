@@ -6,6 +6,9 @@ const catalogSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
+    displayOrder: {
+        type: Number
+    },
     tree: {
         type: String,
         required: true

@@ -333,7 +333,7 @@ let StoreService = class StoreService {
     getReviews(storeId) {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
-            const storeReviews = yield Store_Review_1.default.find({ storeId });
+            const storeReviews = yield Store_Review_1.default.find({ storeId }).lean();
             winston_1.default.info('<Service>:<StoreService>:<Get Ratings performed successfully>');
             if (storeReviews.length === 0) {
                 return [
@@ -347,6 +347,9 @@ let StoreService = class StoreService {
                         review: 'Thank you for onboarding with us. May you have a wonderful experience.'
                     }
                 ];
+            }
+            else {
+                return storeReviews;
             }
         });
     }
