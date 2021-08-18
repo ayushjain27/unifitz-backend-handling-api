@@ -67,6 +67,7 @@ const customerContactSchema: Schema = new Schema(
 export interface ICustomer extends Document {
   nameSalutation: string;
   fullName: string;
+  phoneNumber: string;
   email: string;
   profileImageUrl: string;
   dob: Date;
@@ -84,6 +85,10 @@ const customerSchema: Schema = new Schema(
       required: true
     },
     fullName: {
+      type: String,
+      required: true
+    },
+    phoneNumber: {
       type: String,
       required: true
     },

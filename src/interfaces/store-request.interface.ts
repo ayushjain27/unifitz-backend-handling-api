@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { IUser } from 'src/models/Store-Review';
+import { IUser } from '../models/Store-Review';
 import { IStore } from '../models/Store';
 
 export interface StoreRequest {

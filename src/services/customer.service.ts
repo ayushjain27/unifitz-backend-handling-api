@@ -33,4 +33,14 @@ export class CustomerService {
     Logger.info('<Service>:<CustomerService>:<Customer updated successfully>');
     return updatedCustomerPayload;
   }
+
+  async getByPhoneNumber(phoneNumber: string): Promise<ICustomer> {
+    Logger.info(
+      '<Service>:<StoreService>:<Get stores by Id service initiated>'
+    );
+    const customerResponse: ICustomer = await Customer.findOne({
+      phoneNumber
+    }).lean();
+    return customerResponse;
+  }
 }
