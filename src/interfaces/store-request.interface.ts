@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { IUser } from 'src/models/Store-Review';
 import { IStore } from '../models/Store';
 
 export interface StoreRequest {
@@ -22,6 +23,7 @@ export interface StoreDocUploadRequest {
 
 export interface StoreReviewRequest {
   userId: Types.ObjectId;
+  user: IUser;
   storeId: string;
   review: string;
   rating: number;
