@@ -59,7 +59,7 @@ export class CustomerController {
   };
 
   getCustomerByPhoneNo = async (req: Request, res: Response) => {
-    const phoneNumber = req.query.phoneNumber;
+    const phoneNumber = req.body.phoneNumber;
     Logger.info(
       '<Controller>:<StoreController>:<Get customer by phone number request controller initiated>'
     );

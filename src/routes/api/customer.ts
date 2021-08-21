@@ -19,8 +19,8 @@ router.put(
   customerController.update
 );
 
-router.get(
-  '/',
+router.post(
+  '/customerByPhoneNo',
   roleAuth(ACL.CUSTOMER_CREATE),
   customerController.getCustomerByPhoneNo
 );
