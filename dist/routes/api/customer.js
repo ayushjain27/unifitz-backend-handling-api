@@ -14,5 +14,6 @@ const customerController = inversify_container_1.default.get(inversify_types_1.T
 // @access  Private
 router.post('/', rbac_1.roleAuth(rbac_enum_1.ACL.CUSTOMER_CREATE), customerController.create);
 router.put('/:customerId', rbac_1.roleAuth(rbac_enum_1.ACL.CUSTOMER_CREATE), customerController.update);
+router.post('/customerByPhoneNo', rbac_1.roleAuth(rbac_enum_1.ACL.CUSTOMER_CREATE), customerController.getCustomerByPhoneNo);
 exports.default = router;
 //# sourceMappingURL=customer.js.map

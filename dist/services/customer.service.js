@@ -43,6 +43,15 @@ let CustomerService = class CustomerService {
             return updatedCustomerPayload;
         });
     }
+    getByPhoneNumber(phoneNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            winston_1.default.info('<Service>:<StoreService>:<Get stores by Id service initiated>');
+            const customerResponse = yield Customer_1.default.findOne({
+                phoneNumber
+            }).lean();
+            return customerResponse;
+        });
+    }
 };
 CustomerService = __decorate([
     inversify_1.injectable()
