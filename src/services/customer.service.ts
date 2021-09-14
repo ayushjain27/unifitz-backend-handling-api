@@ -43,4 +43,10 @@ export class CustomerService {
     }).lean();
     return customerResponse;
   }
+
+  async getAll(): Promise<ICustomer[]> {
+    Logger.info('<Service>:<StoreService>:<Get all customers>');
+    const customerResponse: ICustomer[] = await Customer.find({});
+    return customerResponse;
+  }
 }

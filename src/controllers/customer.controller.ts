@@ -80,4 +80,19 @@ export class CustomerController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<StoreController>:<Get all customers request controller initiated>'
+    );
+    try {
+      const result = await this.customerService.getAll();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }

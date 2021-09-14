@@ -5,5 +5,6 @@ export enum ACL {
   STORE_GET_SINGLE = 'store:read_single',
   STORE_REVIEW_CREATE = 'store_review:create',
   CUSTOMER_CREATE = 'customer:create',
-  FILE_UPLOAD = 'file:upload'
+  FILE_UPLOAD = 'file:upload',
+  CUSTOMER_GET_ALL = 'customer:get_all'
 }
