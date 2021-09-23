@@ -25,4 +25,6 @@ router.post(
   customerController.getCustomerByPhoneNo
 );
 
+router.get('/all', roleAuth(ACL.CUSTOMER_GET_ALL), customerController.getAll);
+
 export default router;
