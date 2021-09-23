@@ -4,7 +4,12 @@ exports.RBAC_MAP = void 0;
 const rbac_enum_1 = require("../enum/rbac.enum");
 /* eslint-disable */
 exports.RBAC_MAP = {
-    admin: [rbac_enum_1.ACL.STORE_CREATE, rbac_enum_1.ACL.STORE_GET_ALL, rbac_enum_1.ACL.STORE_GET_SINGLE],
+    admin: [
+        rbac_enum_1.ACL.STORE_CREATE,
+        rbac_enum_1.ACL.STORE_GET_ALL,
+        rbac_enum_1.ACL.STORE_GET_SINGLE,
+        rbac_enum_1.ACL.CUSTOMER_GET_ALL
+    ],
     store_owner: [
         rbac_enum_1.ACL.STORE_CREATE,
         rbac_enum_1.ACL.STORE_GET_OWNER,

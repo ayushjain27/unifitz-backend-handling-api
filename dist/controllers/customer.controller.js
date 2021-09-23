@@ -90,6 +90,19 @@ let CustomerController = class CustomerController {
                 res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
             }
         });
+        this.getAll = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            winston_1.default.info('<Controller>:<StoreController>:<Get all customers request controller initiated>');
+            try {
+                const result = yield this.customerService.getAll();
+                res.send({
+                    result
+                });
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
         this.customerService = customerService;
     }
 };

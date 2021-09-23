@@ -52,6 +52,13 @@ let CustomerService = class CustomerService {
             return customerResponse;
         });
     }
+    getAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            winston_1.default.info('<Service>:<StoreService>:<Get all customers>');
+            const customerResponse = yield Customer_1.default.find({});
+            return customerResponse;
+        });
+    }
 };
 CustomerService = __decorate([
     inversify_1.injectable()
