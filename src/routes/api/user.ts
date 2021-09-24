@@ -91,23 +91,22 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         });
       }
       Logger.debug(`Twilio verification completed for ${phoneNumber}`);
-      const user: IUser = await User.findOne({ phoneNumber: phoneNumber });
-      let userId: string;
-      if (!user) {
-        Logger.debug(`User registration started for ${phoneNumber}`);
-        // Build user object based on IUser
-        const userFields = {
-          phoneNumber,
-          deviceId
-        };
+      Logger.debug(`User registration started for ${phoneNumber}`);
+      // Build user object based on IUser
+      const userFields = {
+        phoneNumber,
+        deviceId
+      };
 
-        const newUser = await User.create(userFields);
+      const newUser = await User.findOneAndUpdate(
+        { phoneNumber: phoneNumber },
+        userFields,
+        { upsert: true, new: true }
+      );
 
-        // await newUser.save();
-        userId = newUser._id;
-      } else {
-        userId = user._id;
-      }
+      // await newUser.save();
+      const userId = newUser._id;
+
       const payload = {
         userId: phoneNumber,
         role: role

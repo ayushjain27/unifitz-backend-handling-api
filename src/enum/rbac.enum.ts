@@ -6,5 +6,6 @@ export enum ACL {
   STORE_REVIEW_CREATE = 'store_review:create',
   STORE_UPDATE_STATUS = 'store:update_status',
   CUSTOMER_CREATE = 'customer:create',
-  FILE_UPLOAD = 'file:upload'
+  FILE_UPLOAD = 'file:upload',
+  NOTIFICATION_SEND = 'notification:send_owner',
 }
