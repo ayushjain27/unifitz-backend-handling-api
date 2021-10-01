@@ -186,4 +186,17 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  updateStoreStatus = async (req: Request, res: Response) => {
+    const { storeId, status, message, userId } = req.body;
+    Logger.info('<Controller>:<StoreController>:<Update Store Status>');
+
+    try {
+      const result  = "Lets see what we need to do here"; 
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+
+  };
 }

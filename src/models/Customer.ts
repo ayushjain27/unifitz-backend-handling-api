@@ -14,7 +14,7 @@ const customerVehicleInfoSchema: Schema = new Schema(
     brand: {
       type: String
     },
-    model: {
+    modelName: {
       type: String
     },
     fuel: {
@@ -31,6 +31,17 @@ const customerVehicleInfoSchema: Schema = new Schema(
     _id: false
   }
 );
+
+export interface IVehiclesInfo extends Document {
+  vehicleImage: string;
+  vehicleNumber: string;
+  category: string;
+  brand: string;
+  modelName: string;
+  fuel: string;
+  year: string;
+  ownership: string;
+}
 
 export interface IContactInfo extends Document {
   address: string;
@@ -73,7 +84,7 @@ export interface ICustomer extends Document {
   dob: Date;
   contactInfo: IContactInfo;
   /* eslint-disable */
-  vehiclesInfo: any;
+  vehiclesInfo: [IVehiclesInfo];
   createdAt?: Date;
   updatedAt?: Date;
 }

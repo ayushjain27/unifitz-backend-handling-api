@@ -5,6 +5,8 @@ export const TYPES = {
   AdminController: Symbol('AdminController'),
   CustomerService: Symbol('CustomerService'),
   CustomerController: Symbol('CustomerController'),
+  NotificationController: Symbol('NotificationController'),
+  NotificationService: Symbol('NotificationService'),
 
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
