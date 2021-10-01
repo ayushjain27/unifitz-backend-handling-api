@@ -2,7 +2,12 @@ import { ACL } from '../enum/rbac.enum';
 
 /* eslint-disable */
 export const RBAC_MAP: any = {
-  admin: [ACL.STORE_CREATE, ACL.STORE_GET_ALL, ACL.STORE_GET_SINGLE, ACL.STORE_UPDATE_STATUS],
+  admin: [
+    ACL.STORE_CREATE,
+    ACL.STORE_GET_ALL,
+    ACL.STORE_GET_SINGLE,
+    ACL.CUSTOMER_GET_ALL
+  ],
   store_owner: [
     ACL.STORE_CREATE,
     ACL.STORE_GET_OWNER,

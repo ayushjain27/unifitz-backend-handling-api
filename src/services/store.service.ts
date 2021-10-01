@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import Request from '../types/request';
-
+import container from '../config/inversify.container';
+import { TYPES } from '../config/inversify.types';
+import Logger from '../config/winston';
 import {
   OverallStoreRatingResponse,
   StoreDocUploadRequest,
@@ -9,14 +10,11 @@ import {
   StoreResponse,
   StoreReviewRequest
 } from '../interfaces';
-import Logger from '../config/winston';
-import Catalog, { ICatalog } from '../models/Catalog';
 import Store, { IStore } from '../models/Store';
-import User, { IUser } from '../models/User';
-import container from '../config/inversify.container';
-import { TYPES } from '../config/inversify.types';
-import { S3Service } from './s3.service';
 import StoreReview from '../models/Store-Review';
+import User, { IUser } from '../models/User';
+import Request from '../types/request';
+import { S3Service } from './s3.service';
 
 @injectable()
 export class StoreService {
@@ -28,26 +26,26 @@ export class StoreService {
       phoneNumber
     });
     storePayload.userId = ownerDetails._id;
-    const { category, subCategory, brand } = storePayload.basicInfo;
-    const getCategory: ICatalog = await Catalog.findOne({
-      catalogName: category.name,
-      parent: 'root'
-    });
-    const getSubCategory: ICatalog = await Catalog.findOne({
-      tree: `root/${category.name}`,
-      catalogName: subCategory.name
-    });
-    const getBrand: ICatalog = await Catalog.findOne({
-      tree: `root/${category.name}/${subCategory.name}`,
-      catalogName: brand.name
-    });
-    if (getCategory && getSubCategory && getBrand) {
-      storePayload.basicInfo.category._id = getCategory._id;
-      storePayload.basicInfo.subCategory._id = getSubCategory._id;
-      storePayload.basicInfo.brand._id = getBrand._id;
-    } else {
-      throw new Error(`Wrong Catalog Details`);
-    }
+    // const { category, subCategory, brand } = storePayload.basicInfo;
+    // const getCategory: ICatalog = await Catalog.findOne({
+    //   catalogName: category.name,
+    //   parent: 'root'
+    // });
+    // const getSubCategory: ICatalog = await Catalog.findOne({
+    //   tree: `root/${category.name}`,
+    //   catalogName: subCategory.name
+    // });
+    // const getBrand: ICatalog = await Catalog.findOne({
+    //   tree: `root/${category.name}/${subCategory.name}`,
+    //   catalogName: brand.name
+    // });
+    // if (getCategory && getBrand) {
+    //   storePayload.basicInfo.category._id = getCategory._id;
+    //   storePayload.basicInfo.subCategory = subCategory;
+    //   storePayload.basicInfo.brand._id = getBrand._id;
+    // } else {
+    //   throw new Error(`Wrong Catalog Details`);
+    // }
     const lastCreatedStoreId = await Store.find({})
       .sort({ createdAt: 'desc' })
       .select('storeId')
@@ -71,28 +69,28 @@ export class StoreService {
   async update(storeRequest: StoreRequest): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store service initiated>');
     const { storePayload } = storeRequest;
-    const { category, subCategory, brand } = storePayload.basicInfo;
-    if (category && subCategory && brand) {
-      const getCategory: ICatalog = await Catalog.findOne({
-        catalogName: category.name,
-        parent: 'root'
-      });
-      const getSubCategory: ICatalog = await Catalog.findOne({
-        tree: `root/${category.name}`,
-        catalogName: subCategory.name
-      });
-      const getBrand: ICatalog = await Catalog.findOne({
-        tree: `root/${category.name}/${subCategory.name}`,
-        catalogName: brand.name
-      });
-      if (getCategory && getSubCategory && getBrand) {
-        storePayload.basicInfo.category._id = getCategory._id;
-        storePayload.basicInfo.subCategory._id = getSubCategory._id;
-        storePayload.basicInfo.brand._id = getBrand._id;
-      } else {
-        throw new Error(`Wrong Catalog Details`);
-      }
-    }
+    // const { category, subCategory, brand } = storePayload.basicInfo;
+    // if (category && subCategory && brand) {
+    //   const getCategory: ICatalog = await Catalog.findOne({
+    //     catalogName: category.name,
+    //     parent: 'root'
+    //   });
+    //   const getSubCategory: ICatalog = await Catalog.findOne({
+    //     tree: `root/${category.name}`,
+    //     catalogName: subCategory.name
+    //   });
+    //   const getBrand: ICatalog = await Catalog.findOne({
+    //     tree: `root/${category.name}/${subCategory.name}`,
+    //     catalogName: brand.name
+    //   });
+    //   if (getCategory && getSubCategory && getBrand) {
+    //     storePayload.basicInfo.category._id = getCategory._id;
+    //     storePayload.basicInfo.subCategory._id = getSubCategory._id;
+    //     storePayload.basicInfo.brand._id = getBrand._id;
+    //   } else {
+    //     throw new Error(`Wrong Catalog Details`);
+    //   }
+    // }
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
     await Store.findOneAndUpdate(
       { storeId: storePayload.storeId },
@@ -116,7 +114,49 @@ export class StoreService {
     const stores = await Store.find({});
     return stores;
   }
-
+  async searchAndFilter(
+    storeName: string,
+    category: string,
+    subCategory: string[],
+    brand: string
+  ): Promise<StoreResponse[]> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated>'
+    );
+    const query = {
+      'basicInfo.businessName': new RegExp(storeName, 'i'),
+      'basicInfo.brand.name': brand,
+      'basicInfo.category.name': category,
+      'basicInfo.subCategory.name': { $in: subCategory },
+      profileStatus: 'ONBOARDED'
+    };
+    if (!brand) {
+      delete query['basicInfo.brand.name'];
+    }
+    if (!category) {
+      delete query['basicInfo.category.name'];
+    }
+    if (!subCategory || subCategory.length === 0) {
+      delete query['basicInfo.subCategory.name'];
+    }
+    if (!storeName) {
+      delete query['basicInfo.businessName'];
+    }
+    Logger.debug(query);
+    let stores: any = await Store.find(query).lean();
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
+    }
+    return stores;
+  }
   async getByOwner(userId: string): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by owner service initiated>'
@@ -313,7 +353,7 @@ export class StoreService {
   /* eslint-disable */
   async getReviews(storeId: string): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId });
+    const storeReviews = await StoreReview.find({ storeId }).lean();
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
@@ -330,6 +370,8 @@ export class StoreService {
             'Thank you for onboarding with us. May you have a wonderful experience.'
         }
       ];
+    } else {
+      return storeReviews;
     }
   }
 }

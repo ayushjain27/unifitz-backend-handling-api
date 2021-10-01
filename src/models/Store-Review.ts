@@ -1,11 +1,30 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 
+export interface IUser extends Document {
+  name: string;
+  profilePhoto: string;
+}
 export interface IStoreReview extends Document {
   userId: Types.ObjectId;
+  user: IUser;
   storeId: string;
   review: string;
   rating: number;
 }
+
+const userSchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    },
+    profilePhoto: {
+      type: String
+    }
+  },
+  {
+    _id: false
+  }
+);
 
 const storeReviewSchema: Schema = new Schema(
   {
@@ -13,6 +32,10 @@ const storeReviewSchema: Schema = new Schema(
       type: Types.ObjectId,
       required: true,
       unique: true
+    },
+    user: {
+      type: userSchema,
+      requried: true
     },
     storeId: {
       type: String,

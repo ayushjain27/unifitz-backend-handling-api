@@ -57,4 +57,42 @@ export class CustomerController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getCustomerByPhoneNo = async (req: Request, res: Response) => {
+    const phoneNumber = req.body.phoneNumber;
+    Logger.info(
+      '<Controller>:<StoreController>:<Get customer by phone number request controller initiated>'
+    );
+    try {
+      let result: ICustomer;
+      if (!phoneNumber) {
+        throw new Error('phoneNumber required');
+      } else {
+        result = await this.customerService.getByPhoneNumber(
+          phoneNumber as string
+        );
+      }
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<StoreController>:<Get all customers request controller initiated>'
+    );
+    try {
+      const result = await this.customerService.getAll();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }

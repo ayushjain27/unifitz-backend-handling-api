@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import _ from 'lodash';
 import connectDB from './config/database';
 import { connectFirebaseAdmin } from './config/firebase-config';
 import morganMiddleware from './config/morgan';
@@ -12,6 +13,7 @@ import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
+import { ObjectId } from 'mongoose';
 
 const app = express();
 // Connect to MongoDB
@@ -51,9 +53,21 @@ app.use('/notification', notification);
 
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
-  const result = categoryList.map(({ _id, catalogName }) => {
-    return { _id, catalogName };
-  });
+  const result = categoryList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, catalogIcon }) => {
+      return { _id, catalogName, catalogIcon };
+    });
+
+  // const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
+  //   return { _id, catalogName, catalogIcon };
+  // });
   res.json({
     list: result
   });
@@ -71,12 +85,37 @@ app.get('/subCategory', async (req, res) => {
   });
 });
 
+// TODO: Remove this api once app is launched to  production
 app.get('/brand', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({
     tree: `root/${req.query.category}/${req.query.subCategory}`
   });
   const result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
+  });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/brand', async (req, res) => {
+  const { subCategoryList, category } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(subCategoryList)) {
+    subCategoryList.forEach((subCat) => {
+      treeVal.push(`root/${category}/${subCat}`);
+    });
+  } else {
+    treeVal.push(`root/${category}/${subCategoryList}`);
+  }
+  query = { tree: { $in: treeVal } };
+  const categoryList: ICatalog[] = await Catalog.find(query);
+  let result = categoryList.map(({ _id, catalogName }) => {
+    return { _id, catalogName };
+  });
+  result = _.uniqBy(result, (e: { catalogName: string; _id: ObjectId }) => {
+    return e.catalogName;
   });
   res.json({
     list: result

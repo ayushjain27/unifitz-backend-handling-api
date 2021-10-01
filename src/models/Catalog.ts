@@ -12,6 +12,8 @@ export interface ICatalog extends Document {
   tree: string;
   parent: string;
   catalogType: string;
+  catalogIcon?: string;
+  displayOrder: number;
 }
 
 const catalogSchema: Schema = new Schema(
@@ -19,6 +21,9 @@ const catalogSchema: Schema = new Schema(
     catalogName: {
       type: String,
       required: true
+    },
+    displayOrder: {
+      type: Number
     },
     tree: {
       type: String,
@@ -31,6 +36,10 @@ const catalogSchema: Schema = new Schema(
     catalogType: {
       type: String,
       required: true
+    },
+    catalogIcon: {
+      type: String,
+      required: false
     }
   },
   { timestamps: true }

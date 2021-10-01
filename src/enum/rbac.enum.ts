@@ -8,4 +8,5 @@ export enum ACL {
   CUSTOMER_CREATE = 'customer:create',
   FILE_UPLOAD = 'file:upload',
   NOTIFICATION_SEND = 'notification:send_owner',
+  CUSTOMER_GET_ALL = 'customer:get_all'
 }

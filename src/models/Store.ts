@@ -8,7 +8,7 @@ export interface ICatalogMap extends Document {
 const storeCatalogMapSchema: Schema = new Schema({
   _id: {
     type: Types.ObjectId,
-    required: true
+    required: false
   },
   name: {
     type: String,
@@ -23,7 +23,7 @@ export interface IBasicInfo extends Document {
   registrationDate: Date; //<localeDate>{required},(NO TIME)
   brand: ICatalogMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
   category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
-  subCategory: ICatalogMap; //<Object> {_id:, name:}{required}  - (MD),
+  subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   // businessHours for the different
 }
 
@@ -54,8 +54,8 @@ const storeBasicInfoSchema: Schema = new Schema(
       required: true
     },
     subCategory: {
-      type: storeCatalogMapSchema,
-      required: true
+      type: [storeCatalogMapSchema],
+      required: false
     }
   },
   {
@@ -180,6 +180,7 @@ export interface IStore extends Document {
   documents: IDocuments;
   createdAt?: Date;
   updatedAt?: Date;
+  overAllRating?: any;
 }
 
 const storeSchema: Schema = new Schema(
@@ -196,7 +197,7 @@ const storeSchema: Schema = new Schema(
     profileStatus: {
       type: String,
       required: true,
-      enum: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED'],
+      enum: ['DRAFT', 'PENDING', 'ONBOARDED', 'REJECTED'],
       default: 'DRAFT'
     },
     rejectionReason: {

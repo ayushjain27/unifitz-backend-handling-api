@@ -19,4 +19,12 @@ router.put(
   customerController.update
 );
 
+router.post(
+  '/customerByPhoneNo',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.getCustomerByPhoneNo
+);
+
+router.get('/all', roleAuth(ACL.CUSTOMER_GET_ALL), customerController.getAll);
+
 export default router;
