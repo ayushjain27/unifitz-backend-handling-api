@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
+// import { validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
-import { AdminService } from '../services/admin.service';
+import { NotificationService } from '../services/notification.service';
 import Request from '../types/request';
 
 @injectable()
@@ -32,7 +32,7 @@ export class NotificationController {
     try {
       const result = await this.notificationService.sendNotification(payload);
 
-      res.json({
+      return res.json({
         message: 'Notification Sent Successfully',
         userName: result
       });
