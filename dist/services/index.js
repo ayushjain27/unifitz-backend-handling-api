@@ -15,4 +15,5 @@ __exportStar(require("./twilio.service"), exports);
 __exportStar(require("./admin.service"), exports);
 __exportStar(require("./store.service"), exports);
 __exportStar(require("./customer.service"), exports);
+__exportStar(require("./notification.service"), exports);
 //# sourceMappingURL=index.js.map

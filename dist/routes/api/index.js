@@ -15,4 +15,5 @@ __exportStar(require("./customer"), exports);
 __exportStar(require("./file"), exports);
 __exportStar(require("./store"), exports);
 __exportStar(require("./user"), exports);
+__exportStar(require("./notification"), exports);
 //# sourceMappingURL=index.js.map

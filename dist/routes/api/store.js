@@ -26,5 +26,6 @@ router.post('/uploadFile', uploadFile.single('file'), rbac_1.roleAuth(rbac_enum_
 router.post('/review', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_REVIEW_CREATE), storeController.addStoreReview);
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
 router.get('/:storeId/reviews', storeController.getStoreReviews);
+router.put('/updateStatus', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_UPDATE_STATUS), storeController.updateStoreStatus);
 exports.default = router;
 //# sourceMappingURL=store.js.map

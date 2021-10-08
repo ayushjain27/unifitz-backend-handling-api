@@ -35,5 +35,11 @@ container.bind(inversify_types_1.TYPES.CustomerService).to(services_2.CustomerSe
 container
     .bind(inversify_types_1.TYPES.CustomerController)
     .to(controllers_1.CustomerController);
+container
+    .bind(inversify_types_1.TYPES.NotificationController)
+    .to(controllers_1.NotificationController);
+container
+    .bind(inversify_types_1.TYPES.NotificationService)
+    .to(services_2.NotificationService);
 exports.default = container;
 //# sourceMappingURL=inversify.container.js.map

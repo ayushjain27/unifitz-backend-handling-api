@@ -93,22 +93,15 @@ router.post('/otp/login', (req, res) => __awaiter(void 0, void 0, void 0, functi
                 });
             }
             winston_1.default.debug(`Twilio verification completed for ${phoneNumber}`);
-            const user = yield User_1.default.findOne({ phoneNumber: phoneNumber });
-            let userId;
-            if (!user) {
-                winston_1.default.debug(`User registration started for ${phoneNumber}`);
-                // Build user object based on IUser
-                const userFields = {
-                    phoneNumber,
-                    deviceId
-                };
-                const newUser = yield User_1.default.create(userFields);
-                // await newUser.save();
-                userId = newUser._id;
-            }
-            else {
-                userId = user._id;
-            }
+            winston_1.default.debug(`User registration started for ${phoneNumber}`);
+            // Build user object based on IUser
+            const userFields = {
+                phoneNumber,
+                deviceId
+            };
+            const newUser = yield User_1.default.findOneAndUpdate({ phoneNumber: phoneNumber }, userFields, { upsert: true, new: true });
+            // await newUser.save();
+            const userId = newUser._id;
             const payload = {
                 userId: phoneNumber,
                 role: role

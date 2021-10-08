@@ -189,6 +189,17 @@ let StoreController = class StoreController {
                 res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
             }
         });
+        this.updateStoreStatus = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { storeId, status, message, userId } = req.body;
+            winston_1.default.info('<Controller>:<StoreController>:<Update Store Status>');
+            try {
+                const result = "Lets see what we need to do here";
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
         this.storeService = storeService;
     }
 };

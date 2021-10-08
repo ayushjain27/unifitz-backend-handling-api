@@ -23,13 +23,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationController = void 0;
+// import { validationResult } from 'express-validator';
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const inversify_1 = require("inversify");
 const inversify_types_1 = require("../config/inversify.types");
 const winston_1 = __importDefault(require("../config/winston"));
+const notification_service_1 = require("../services/notification.service");
 let NotificationController = class NotificationController {
     constructor(notificationService) {
         this.sendNotification = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -43,7 +44,7 @@ let NotificationController = class NotificationController {
             winston_1.default.info('<Controller>:<NotificationController>:<Send notification controller initiated>');
             try {
                 const result = yield this.notificationService.sendNotification(payload);
-                res.json({
+                return res.json({
                     message: 'Notification Sent Successfully',
                     userName: result
                 });
@@ -59,7 +60,7 @@ let NotificationController = class NotificationController {
 NotificationController = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject(inversify_types_1.TYPES.NotificationService)),
-    __metadata("design:paramtypes", [typeof (_a = typeof NotificationService !== "undefined" && NotificationService) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [notification_service_1.NotificationService])
 ], NotificationController);
 exports.NotificationController = NotificationController;
 //# sourceMappingURL=notification.controller.js.map

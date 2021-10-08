@@ -14,7 +14,7 @@ const customerVehicleInfoSchema = new mongoose_1.Schema({
     brand: {
         type: String
     },
-    model: {
+    modelName: {
         type: String
     },
     fuel: {
@@ -41,8 +41,7 @@ const customerContactSchema = new mongoose_1.Schema({
         type: String
     },
     pincode: {
-        type: String,
-        required: true
+        type: String
     }
 }, {
     _id: false
@@ -50,7 +49,6 @@ const customerContactSchema = new mongoose_1.Schema({
 const customerSchema = new mongoose_1.Schema({
     nameSalutation: {
         type: String,
-        required: true
     },
     fullName: {
         type: String,
@@ -58,7 +56,6 @@ const customerSchema = new mongoose_1.Schema({
     },
     phoneNumber: {
         type: String,
-        required: true
     },
     email: {
         type: String
@@ -68,7 +65,6 @@ const customerSchema = new mongoose_1.Schema({
     },
     dob: {
         type: String,
-        required: true
     },
     contactInfo: {
         type: customerContactSchema
