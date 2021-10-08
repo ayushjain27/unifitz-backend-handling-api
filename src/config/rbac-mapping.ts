@@ -6,7 +6,8 @@ export const RBAC_MAP: any = {
     ACL.STORE_CREATE,
     ACL.STORE_GET_ALL,
     ACL.STORE_GET_SINGLE,
-    ACL.CUSTOMER_GET_ALL
+    ACL.CUSTOMER_GET_ALL,
+    ACL.NOTIFICATION_SEND
   ],
   store_owner: [
     ACL.STORE_CREATE,

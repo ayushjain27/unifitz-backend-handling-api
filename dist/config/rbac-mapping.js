@@ -8,7 +8,8 @@ exports.RBAC_MAP = {
         rbac_enum_1.ACL.STORE_CREATE,
         rbac_enum_1.ACL.STORE_GET_ALL,
         rbac_enum_1.ACL.STORE_GET_SINGLE,
-        rbac_enum_1.ACL.CUSTOMER_GET_ALL
+        rbac_enum_1.ACL.CUSTOMER_GET_ALL,
+        rbac_enum_1.ACL.NOTIFICATION_SEND
     ],
     store_owner: [
         rbac_enum_1.ACL.STORE_CREATE,
