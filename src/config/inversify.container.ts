@@ -8,9 +8,15 @@ import { s3Config, twilioConfig } from './constants';
 import {
   StoreController,
   AdminController,
-  CustomerController
+  CustomerController,
+  NotificationController
 } from '../controllers';
-import { StoreService, AdminService, CustomerService } from '../services';
+import {
+  StoreService,
+  AdminService,
+  CustomerService,
+  NotificationService
+} from '../services';
 
 const container = new Container();
 
@@ -42,5 +48,13 @@ container.bind<CustomerService>(TYPES.CustomerService).to(CustomerService);
 container
   .bind<CustomerController>(TYPES.CustomerController)
   .to(CustomerController);
+
+container
+  .bind<NotificationController>(TYPES.NotificationController)
+  .to(NotificationController);
+
+container
+  .bind<NotificationService>(TYPES.NotificationService)
+  .to(NotificationService);
 
 export default container;

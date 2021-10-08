@@ -14,7 +14,7 @@ const customerVehicleInfoSchema: Schema = new Schema(
     brand: {
       type: String
     },
-    model: {
+    modelName: {
       type: String
     },
     fuel: {
@@ -31,6 +31,17 @@ const customerVehicleInfoSchema: Schema = new Schema(
     _id: false
   }
 );
+
+export interface IVehiclesInfo extends Document {
+  vehicleImage: string;
+  vehicleNumber: string;
+  category: string;
+  brand: string;
+  modelName: string;
+  fuel: string;
+  year: string;
+  ownership: string;
+}
 
 export interface IContactInfo extends Document {
   address: string;
@@ -52,8 +63,7 @@ const customerContactSchema: Schema = new Schema(
       type: String
     },
     pincode: {
-      type: String,
-      required: true
+      type: String
     }
   },
   {
@@ -73,7 +83,7 @@ export interface ICustomer extends Document {
   dob: Date;
   contactInfo: IContactInfo;
   /* eslint-disable */
-  vehiclesInfo: any;
+  vehiclesInfo: [IVehiclesInfo];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -82,7 +92,6 @@ const customerSchema: Schema = new Schema(
   {
     nameSalutation: {
       type: String,
-      required: true
     },
     fullName: {
       type: String,
@@ -90,7 +99,6 @@ const customerSchema: Schema = new Schema(
     },
     phoneNumber: {
       type: String,
-      required: true
     },
     email: {
       type: String
@@ -100,7 +108,6 @@ const customerSchema: Schema = new Schema(
     },
     dob: {
       type: String,
-      required: true
     },
     contactInfo: {
       type: customerContactSchema

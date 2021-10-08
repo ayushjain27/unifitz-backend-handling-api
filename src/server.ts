@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import _ from 'lodash';
 import connectDB from './config/database';
+import { connectFirebaseAdmin } from './config/firebase-config';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
 import Catalog, { ICatalog } from './models/Catalog';
@@ -11,11 +12,15 @@ import admin from './routes/api/admin';
 import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
+import notification from './routes/api/notification';
 import { ObjectId } from 'mongoose';
 
 const app = express();
 // Connect to MongoDB
 connectDB();
+// Connect with firebase admin
+connectFirebaseAdmin();
+
 app.use(cors());
 app.set('port', process.env.PORT || 3005);
 // Middlewares configuration
@@ -43,6 +48,8 @@ app.use('/store', store);
 app.use('/file', file);
 
 app.use('/customer', customer);
+
+app.use('/notification', notification);
 
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
