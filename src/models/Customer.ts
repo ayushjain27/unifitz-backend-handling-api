@@ -63,8 +63,7 @@ const customerContactSchema: Schema = new Schema(
       type: String
     },
     pincode: {
-      type: String,
-      required: true
+      type: String
     }
   },
   {
@@ -93,7 +92,6 @@ const customerSchema: Schema = new Schema(
   {
     nameSalutation: {
       type: String,
-      required: true
     },
     fullName: {
       type: String,
@@ -101,7 +99,6 @@ const customerSchema: Schema = new Schema(
     },
     phoneNumber: {
       type: String,
-      required: true
     },
     email: {
       type: String
@@ -111,7 +108,6 @@ const customerSchema: Schema = new Schema(
     },
     dob: {
       type: String,
-      required: true
     },
     contactInfo: {
       type: customerContactSchema
