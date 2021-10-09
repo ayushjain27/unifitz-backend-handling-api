@@ -4,9 +4,7 @@ const mongoose_1 = require("mongoose");
 const userSchema = new mongoose_1.Schema({
     phoneNumber: {
         type: String,
-        required: true,
-        unique: true,
-        index: { unique: true }
+        required: true
     },
     role: {
         type: String,
@@ -18,6 +16,7 @@ const userSchema = new mongoose_1.Schema({
         type: String
     }
 }, { timestamps: true });
+userSchema.index({ phoneNumber: 1, role: 1 }, { unique: true });
 const User = mongoose_1.model('users', userSchema);
 exports.default = User;
 //# sourceMappingURL=User.js.map
