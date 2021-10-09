@@ -95,11 +95,12 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       // Build user object based on IUser
       const userFields = {
         phoneNumber,
-        deviceId
+        deviceId,
+        role
       };
 
       const newUser = await User.findOneAndUpdate(
-        { phoneNumber: phoneNumber },
+        { phoneNumber, role },
         userFields,
         { upsert: true, new: true }
       );

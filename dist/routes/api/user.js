@@ -97,9 +97,10 @@ router.post('/otp/login', (req, res) => __awaiter(void 0, void 0, void 0, functi
             // Build user object based on IUser
             const userFields = {
                 phoneNumber,
-                deviceId
+                deviceId,
+                role
             };
-            const newUser = yield User_1.default.findOneAndUpdate({ phoneNumber: phoneNumber }, userFields, { upsert: true, new: true });
+            const newUser = yield User_1.default.findOneAndUpdate({ phoneNumber, role }, userFields, { upsert: true, new: true });
             // await newUser.save();
             const userId = newUser._id;
             const payload = {
