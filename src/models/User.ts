@@ -17,9 +17,7 @@ const userSchema: Schema = new Schema(
   {
     phoneNumber: {
       type: String,
-      required: true,
-      unique: true,
-      index: { unique: true }
+      required: true
     },
     role: {
       type: String,
@@ -33,6 +31,7 @@ const userSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+userSchema.index({ phoneNumber: 1, role: 1 }, { unique: true });
 
 const User: Model<IUser> = model('users', userSchema);
 
