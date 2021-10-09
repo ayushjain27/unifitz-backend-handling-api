@@ -15,7 +15,8 @@ exports.RBAC_MAP = {
         rbac_enum_1.ACL.STORE_CREATE,
         rbac_enum_1.ACL.STORE_GET_OWNER,
         rbac_enum_1.ACL.STORE_GET_SINGLE,
-        rbac_enum_1.ACL.FILE_UPLOAD
+        rbac_enum_1.ACL.FILE_UPLOAD,
+        rbac_enum_1.ACL.NOTIFICATION_SEND
     ],
     user: [
         rbac_enum_1.ACL.STORE_GET_ALL,
