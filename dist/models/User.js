@@ -9,7 +9,7 @@ const userSchema = new mongoose_1.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['STORE_OWNER'],
+        enum: ['STORE_OWNER', 'USER'],
         default: 'STORE_OWNER'
     },
     deviceId: {

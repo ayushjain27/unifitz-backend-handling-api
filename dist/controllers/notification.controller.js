@@ -40,7 +40,7 @@ let NotificationController = class NotificationController {
             //     .status(HttpStatusCodes.BAD_REQUEST)
             //     .json({ errors: errors.array() });
             // }
-            const { payload } = req.body;
+            const payload = req.body;
             winston_1.default.info('<Controller>:<NotificationController>:<Send notification controller initiated>');
             try {
                 const result = yield this.notificationService.sendNotification(payload);
