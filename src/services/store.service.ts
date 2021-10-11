@@ -13,12 +13,17 @@ import {
 import Store, { IStore } from '../models/Store';
 import StoreReview from '../models/Store-Review';
 import User, { IUser } from '../models/User';
+import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
 import Request from '../types/request';
 import { S3Service } from './s3.service';
+import { NotificationService } from './notification.service';
 
 @injectable()
 export class StoreService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private notificationService = container.get<NotificationService>(
+    TYPES.NotificationService
+  );
   async create(storeRequest: StoreRequest): Promise<IStore> {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
@@ -69,28 +74,7 @@ export class StoreService {
   async update(storeRequest: StoreRequest): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store service initiated>');
     const { storePayload } = storeRequest;
-    // const { category, subCategory, brand } = storePayload.basicInfo;
-    // if (category && subCategory && brand) {
-    //   const getCategory: ICatalog = await Catalog.findOne({
-    //     catalogName: category.name,
-    //     parent: 'root'
-    //   });
-    //   const getSubCategory: ICatalog = await Catalog.findOne({
-    //     tree: `root/${category.name}`,
-    //     catalogName: subCategory.name
-    //   });
-    //   const getBrand: ICatalog = await Catalog.findOne({
-    //     tree: `root/${category.name}/${subCategory.name}`,
-    //     catalogName: brand.name
-    //   });
-    //   if (getCategory && getSubCategory && getBrand) {
-    //     storePayload.basicInfo.category._id = getCategory._id;
-    //     storePayload.basicInfo.subCategory._id = getSubCategory._id;
-    //     storePayload.basicInfo.brand._id = getBrand._id;
-    //   } else {
-    //     throw new Error(`Wrong Catalog Details`);
-    //   }
-    // }
+
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
     await Store.findOneAndUpdate(
       { storeId: storePayload.storeId },
@@ -100,6 +84,82 @@ export class StoreService {
     const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
   }
+
+  async updateStoreStatus(statusRequest: any): Promise<IStore> {
+    Logger.info('<Service>:<StoreService>:<Update store status>');
+
+    await Store.findOneAndUpdate(
+      { storeId: statusRequest.storeId },
+      {
+        $set: {
+          profileStatus: statusRequest.profileStatus,
+          rejectionReason: statusRequest.rejectionReason
+        }
+      }
+    );
+    Logger.info(
+      '<Service>:<StoreService>: <Store: store status updated successfully>'
+    );
+    const updatedStore = await Store.findOne({
+      storeId: statusRequest.storeId
+    });
+    return updatedStore;
+  }
+
+  async sendNotificationToStore(store: IStore) {
+    Logger.info(
+      '<Service>:<StoreService>:<Sending notification to store owner>'
+    );
+    // const ownerDetails: IUser = await User.findOne({
+    //   _id: store.userId
+    // }).lean();
+    // if (ownerDetails) {
+    //   const deviceFcmDetails: IDeviceFcm = await DeviceFcm.findOne({
+    //     deviceId: ownerDetails.deviceId
+    //   }).lean();
+    // }
+    const deviceFcmRecord = await User.aggregate([
+      { $match: { _id: store.userId } },
+      {
+        $lookup: {
+          from: 'device_fcms',
+          localField: 'deviceId',
+          foreignField: 'deviceId',
+          as: 'deviceFcm'
+        }
+      },
+      {
+        $unwind: '$deviceFcm'
+      }
+    ]);
+    Logger.info(JSON.stringify(deviceFcmRecord));
+    if (Array.isArray(deviceFcmRecord) && deviceFcmRecord.length > 0) {
+      const selectedUserRecord = deviceFcmRecord[0];
+      const fcmToken: string = selectedUserRecord.deviceFcm.fcmToken;
+      const title =
+        store.profileStatus === 'ONBOARDED'
+          ? 'Congratulations! You are Onboarded successfully.'
+          : 'Sorry, you have been Rejected';
+      const body =
+        store.profileStatus === 'ONBOARDED'
+          ? 'Party hard. Use Service plug to checkout more features'
+          : store.rejectionReason;
+      const notificationParams = {
+        fcmToken,
+        payload: {
+          notification: {
+            title,
+            body
+          }
+        }
+      };
+      return await this.notificationService.sendNotification(
+        notificationParams
+      );
+    }
+    return null;
+  }
+
   async getById(storeId: string): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by Id service initiated>'

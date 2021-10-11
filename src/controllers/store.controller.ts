@@ -188,15 +188,22 @@ export class StoreController {
   };
 
   updateStoreStatus = async (req: Request, res: Response) => {
-    const { storeId, status, message, userId } = req.body;
+    const payload = req.body;
     Logger.info('<Controller>:<StoreController>:<Update Store Status>');
 
     try {
-      const result  = "Lets see what we need to do here"; 
+      const result = await this.storeService.updateStoreStatus(payload);
+      Logger.info(
+        '<Controller>:<StoreController>: <Store: Sending notification of updated status>'
+      );
+      await this.storeService.sendNotificationToStore(result);
+      res.send({
+        message: 'Store Updation Successful',
+        result
+      });
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
-
   };
 }
