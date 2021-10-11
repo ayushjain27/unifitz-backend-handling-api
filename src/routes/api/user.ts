@@ -139,24 +139,21 @@ router.post('/otp/login', async (req: Request, res: Response) => {
  */
 router.post('/fcmToken', async (req: Request, res: Response) => {
   try {
-    const { deviceId, fcmToken } = req.body;
+    const { deviceId, fcmToken, role } = req.body;
     Logger.debug(
       `Storing FCM token into database for  ${deviceId} - ${fcmToken}`
     );
 
     if (deviceId && fcmToken) {
-      const deviceFcmRecord: IDeviceFcm = await DeviceFcm.findOne({ deviceId });
-      if (!deviceFcmRecord) {
-        const deviceFcm = await DeviceFcm.create({ deviceId, fcmToken });
-        res.status(HttpStatusCodes.OK).send({
-          message: 'Token Saved successfully',
-          ...deviceFcm
-        });
-      } else {
-        res.status(HttpStatusCodes.OK).send({
-          message: 'Token Already present in Database'
-        });
-      }
+      const deviceFcm = await DeviceFcm.findOneAndUpdate(
+        { deviceId, role },
+        { deviceId, fcmToken, role },
+        { upsert: true, new: true }
+      );
+      res.status(HttpStatusCodes.OK).send({
+        message: 'Token Saved successfully',
+        ...deviceFcm
+      });
     }
   } catch (err) {
     Logger.error(err.message);

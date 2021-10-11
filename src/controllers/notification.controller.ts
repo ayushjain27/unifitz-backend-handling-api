@@ -24,7 +24,7 @@ export class NotificationController {
     //     .json({ errors: errors.array() });
     // }
 
-    const { payload } = req.body;
+    const payload = req.body;
 
     Logger.info(
       '<Controller>:<NotificationController>:<Send notification controller initiated>'
