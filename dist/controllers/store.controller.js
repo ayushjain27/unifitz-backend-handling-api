@@ -190,10 +190,16 @@ let StoreController = class StoreController {
             }
         });
         this.updateStoreStatus = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { storeId, status, message, userId } = req.body;
+            const payload = req.body;
             winston_1.default.info('<Controller>:<StoreController>:<Update Store Status>');
             try {
-                const result = "Lets see what we need to do here";
+                const result = yield this.storeService.updateStoreStatus(payload);
+                winston_1.default.info('<Controller>:<StoreController>: <Store: Sending notification of updated status>');
+                yield this.storeService.sendNotificationToStore(result);
+                res.send({
+                    message: 'Store Updation Successful',
+                    result
+                });
             }
             catch (err) {
                 winston_1.default.error(err.message);

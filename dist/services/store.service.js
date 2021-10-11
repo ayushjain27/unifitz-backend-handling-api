@@ -30,6 +30,7 @@ const User_1 = __importDefault(require("../models/User"));
 let StoreService = class StoreService {
     constructor() {
         this.s3Client = inversify_container_1.default.get(inversify_types_1.TYPES.S3Service);
+        this.notificationService = inversify_container_1.default.get(inversify_types_1.TYPES.NotificationService);
     }
     create(storeRequest) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -79,33 +80,76 @@ let StoreService = class StoreService {
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Update store service initiated>');
             const { storePayload } = storeRequest;
-            // const { category, subCategory, brand } = storePayload.basicInfo;
-            // if (category && subCategory && brand) {
-            //   const getCategory: ICatalog = await Catalog.findOne({
-            //     catalogName: category.name,
-            //     parent: 'root'
-            //   });
-            //   const getSubCategory: ICatalog = await Catalog.findOne({
-            //     tree: `root/${category.name}`,
-            //     catalogName: subCategory.name
-            //   });
-            //   const getBrand: ICatalog = await Catalog.findOne({
-            //     tree: `root/${category.name}/${subCategory.name}`,
-            //     catalogName: brand.name
-            //   });
-            //   if (getCategory && getSubCategory && getBrand) {
-            //     storePayload.basicInfo.category._id = getCategory._id;
-            //     storePayload.basicInfo.subCategory._id = getSubCategory._id;
-            //     storePayload.basicInfo.brand._id = getBrand._id;
-            //   } else {
-            //     throw new Error(`Wrong Catalog Details`);
-            //   }
-            // }
             winston_1.default.info('<Service>:<StoreService>: <Store: updating new store>');
             yield Store_1.default.findOneAndUpdate({ storeId: storePayload.storeId }, storePayload);
             winston_1.default.info('<Service>:<StoreService>: <Store: update store successfully>');
             const updatedStore = yield Store_1.default.findOne({ storeId: storePayload.storeId });
             return updatedStore;
+        });
+    }
+    updateStoreStatus(statusRequest) {
+        return __awaiter(this, void 0, void 0, function* () {
+            winston_1.default.info('<Service>:<StoreService>:<Update store status>');
+            yield Store_1.default.findOneAndUpdate({ storeId: statusRequest.storeId }, {
+                $set: {
+                    profileStatus: statusRequest.profileStatus,
+                    rejectionReason: statusRequest.rejectionReason
+                }
+            });
+            winston_1.default.info('<Service>:<StoreService>: <Store: store status updated successfully>');
+            const updatedStore = yield Store_1.default.findOne({
+                storeId: statusRequest.storeId
+            });
+            return updatedStore;
+        });
+    }
+    sendNotificationToStore(store) {
+        return __awaiter(this, void 0, void 0, function* () {
+            winston_1.default.info('<Service>:<StoreService>:<Sending notification to store owner>');
+            // const ownerDetails: IUser = await User.findOne({
+            //   _id: store.userId
+            // }).lean();
+            // if (ownerDetails) {
+            //   const deviceFcmDetails: IDeviceFcm = await DeviceFcm.findOne({
+            //     deviceId: ownerDetails.deviceId
+            //   }).lean();
+            // }
+            const deviceFcmRecord = yield User_1.default.aggregate([
+                { $match: { _id: store.userId } },
+                {
+                    $lookup: {
+                        from: 'device_fcms',
+                        localField: 'deviceId',
+                        foreignField: 'deviceId',
+                        as: 'deviceFcm'
+                    }
+                },
+                {
+                    $unwind: '$deviceFcm'
+                }
+            ]);
+            winston_1.default.info(JSON.stringify(deviceFcmRecord));
+            if (Array.isArray(deviceFcmRecord) && deviceFcmRecord.length > 0) {
+                const selectedUserRecord = deviceFcmRecord[0];
+                const fcmToken = selectedUserRecord.deviceFcm.fcmToken;
+                const title = store.profileStatus === 'ONBOARDED'
+                    ? 'Congratulations! You are Onboarded successfully.'
+                    : 'Sorry, you have been Rejected';
+                const body = store.profileStatus === 'ONBOARDED'
+                    ? 'Party hard. Use Service plug to checkout more features'
+                    : store.rejectionReason;
+                const notificationParams = {
+                    fcmToken,
+                    payload: {
+                        notification: {
+                            title,
+                            body
+                        }
+                    }
+                };
+                return yield this.notificationService.sendNotification(notificationParams);
+            }
+            return null;
         });
     }
     getById(storeId) {
