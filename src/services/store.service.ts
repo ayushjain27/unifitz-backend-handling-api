@@ -123,8 +123,17 @@ export class StoreService {
       {
         $lookup: {
           from: 'device_fcms',
-          localField: 'deviceId',
-          foreignField: 'deviceId',
+          let: { deviceId: '$deviceId', role: 'STORE_OWNER' },
+          // localField: 'deviceId',
+          // foreignField: 'deviceId',
+          pipeline: [
+            {
+              $match: {
+                role: 'STORE_OWNER',
+                $expr: { $eq: ['$deviceId', '$$deviceId'] }
+              }
+            }
+          ],
           as: 'deviceFcm'
         }
       },
