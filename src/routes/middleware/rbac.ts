@@ -30,6 +30,7 @@ export const roleAuth = (credentials: string | string[]) => {
       );
       if (credentials.length > 0) {
         const getUserACL = RBAC_MAP[decoded.role.toLowerCase()];
+        req.role = decoded.role;
         if (
           getUserACL &&
           getUserACL.length > 0 &&
