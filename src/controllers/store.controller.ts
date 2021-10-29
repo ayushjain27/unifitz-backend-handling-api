@@ -5,6 +5,8 @@ import { StoreService } from '../services';
 import Logger from '../config/winston';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
+import User from '../models/User';
+
 import {
   StoreDocUploadRequest,
   StoreRequest,
@@ -24,6 +26,14 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
+      if (req?.role === 'ADMIN') {
+        const { phoneNumber } = storeRequest;
+        await User.findOneAndUpdate(
+          { phoneNumber, role: 'STORE_OWNER' },
+          { phoneNumber, role: 'STORE_OWNER' },
+          { upsert: true, new: true }
+        );
+      }
       const result = await this.storeService.create(storeRequest);
       res.send({
         message: 'Store Onboarding Successful',

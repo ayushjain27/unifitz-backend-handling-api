@@ -17,7 +17,7 @@
     "server": "concurrently \"npm run watch-tsc\" \"npm run watch-deploy\"",
     "start-js": "npm run deploy",
     "start": "ts-node src/server.ts",
-    "start:dev": "nodemon"
+    "local": "nodemon"
   },
   "dependencies": {
     "@types/cors": "^2.8.10",
