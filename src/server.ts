@@ -13,6 +13,7 @@ import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
+import product from './routes/api/product';
 import { ObjectId } from 'mongoose';
 
 const app = express();
@@ -50,7 +51,7 @@ app.use('/file', file);
 app.use('/customer', customer);
 
 app.use('/notification', notification);
-
+app.use('/product', product);
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
   const result = categoryList

@@ -8,6 +8,12 @@ export const TYPES = {
   NotificationController: Symbol('NotificationController'),
   NotificationService: Symbol('NotificationService'),
 
+  ProductController: Symbol('ProductController'),
+  ProductService: Symbol('ProductService'),
+
+  JobCardController: Symbol('JobCardController'),
+  JobCardService: Symbol('JobCardService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
