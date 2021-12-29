@@ -19,6 +19,15 @@ export enum FuelPoints {
   FOUR = '4 (100%)'
 }
 
+export enum JobStatus {
+  CREATED = 'CREATED',
+  ONGOING = 'ONGOING',
+  COMPLETED = 'COMPLETED',
+  DELIVERED = 'DELIVERED',
+  PENDING = 'PENDING',
+  CANCELLED = 'CANCELLED'
+}
+
 export interface ILineItem extends Document {
   item: Types.ObjectId;
   description: string;
@@ -43,11 +52,90 @@ export interface IJobCard extends Document {
   fuelPoints: FuelPoints;
   lineItems: [ILineItem];
   refImageList: [{ key: string; docURL: string }];
+  jobStatus: JobStatus;
+  comment: string;
 }
 
-const jobCardSchema: Schema = new Schema({
-    
-}, { timestamps: true });
+const jobCardSchema: Schema = new Schema(
+  {
+    storeId: {
+      type: String,
+      required: true
+    },
+    customerName: {
+      type: String,
+      required: true
+    },
+    mobileNumber: {
+      type: String,
+      required: true
+    },
+    billingAddress: {
+      type: String
+    },
+    vehicleType: {
+      type: String
+    },
+    brand: {
+      type: String
+    },
+    modelName: {
+      type: String
+    },
+    fuelType: {
+      type: String,
+      enum: FuelType
+    },
+    totalKmsRun: {
+      type: String
+    },
+    vehicleNumber: {
+      type: String
+    },
+    ownerType: {
+      type: String,
+      enum: OwnerType
+    },
+    mechanic: {
+      type: String
+    },
+    registrationYear: {
+      type: String
+    },
+    fuelPoints: {
+      type: String,
+      enum: FuelPoints
+    },
+    lineItems: {
+      type: [
+        {
+          item: Types.ObjectId,
+          description: String,
+          quantity: Number,
+          rate: Number
+        }
+      ]
+    },
+    refImageList: {
+      type: [
+        {
+          key: String,
+          docURL: String
+        }
+      ]
+    },
+    jobStatus: {
+      type: String,
+      enum: JobStatus,
+      default: JobStatus.CREATED,
+      required: true
+    },
+    comment: {
+      type: String
+    }
+  },
+  { timestamps: true }
+);
 
 const JobCard: Model<IJobCard> = model('jobCard', jobCardSchema);
 
