@@ -1,7 +1,7 @@
 {
   "MONGO_URI": "mongodb+srv://service_plug:stfpnmYijE1MKbJ4@serviceplugdev.f9iij.mongodb.net/serviceplug_dev?retryWrites=true&w=majority",
   "JWT_SECRET": "test-secret",
-  "JWT_EXPIRATION": "20d",
+  "JWT_EXPIRATION": "365d",
   "ACCOUNT_SID": "ACc9c1b7efd10252d71b1308f206b39c5c",
   "AUTH_TOKEN": "bcb3b60b352c489c58f31b6f7709d442",
   "SERVICE_ID": "VA683f485b74ce6df9c95dedd720bbafeb",

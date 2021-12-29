@@ -9,13 +9,17 @@ import {
   StoreController,
   AdminController,
   CustomerController,
-  NotificationController
+  NotificationController,
+  ProductController,
+  JobCardController
 } from '../controllers';
 import {
   StoreService,
   AdminService,
   CustomerService,
-  NotificationService
+  NotificationService,
+  ProductService,
+  JobCardService
 } from '../services';
 
 const container = new Container();
@@ -56,5 +60,17 @@ container
 container
   .bind<NotificationService>(TYPES.NotificationService)
   .to(NotificationService);
+
+container
+  .bind<ProductController>(TYPES.ProductController)
+  .to(ProductController);
+
+container.bind<ProductService>(TYPES.ProductService).to(ProductService);
+
+container
+  .bind<JobCardController>(TYPES.JobCardController)
+  .to(JobCardController);
+
+container.bind<JobCardService>(TYPES.JobCardService).to(JobCardService);
 
 export default container;
