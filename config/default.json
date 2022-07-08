@@ -1,5 +1,5 @@
 {
-  "MONGO_URI": "mongodb+srv://servicePlugDev:dev123@mypipdev.lggxd.mongodb.net/mypipDev?authSource=admin&replicaSet=atlas-12vq76-shard-0&w=majority&readPreference=primary&retryWrites=true&ssl=true",
+  "MONGO_URI": "mongodb+srv://myPipDev:dev123@mypipdev.lggxd.mongodb.net/servicePlugDev?authSource=admin&replicaSet=atlas-12vq76-shard-0&w=majority&readPreference=primary&retryWrites=true&ssl=true",
   "JWT_SECRET": "test-secret",
   "JWT_EXPIRATION": "365d",
   "ACCOUNT_SID": "ACc9c1b7efd10252d71b1308f206b39c5c",
