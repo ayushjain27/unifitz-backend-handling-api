@@ -53,7 +53,7 @@ const storeReviewSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const StoreReview: Model<IStoreReview> = model(
+const StoreReview = model<IStoreReview & Document>(
   'store-reviews',
   storeReviewSchema
 );

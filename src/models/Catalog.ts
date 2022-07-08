@@ -45,6 +45,6 @@ const catalogSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Catalog: Model<ICatalog> = model('catalog', catalogSchema);
+const Catalog = model<ICatalog & Document>('catalog', catalogSchema);
 
 export default Catalog;

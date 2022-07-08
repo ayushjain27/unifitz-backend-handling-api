@@ -22,7 +22,7 @@ const DeviceFcm_1 = __importDefault(require("../../models/DeviceFcm"));
 const inversify_container_1 = __importDefault(require("../../config/inversify.container"));
 const inversify_types_1 = require("../../config/inversify.types");
 const utils_1 = require("../../utils");
-const router = express_1.Router();
+const router = (0, express_1.Router)();
 const twilioCLient = inversify_container_1.default.get(inversify_types_1.TYPES.TwilioService);
 // @route   GET user/auth
 // @desc    Get authenticated user given the token
@@ -107,7 +107,7 @@ router.post('/otp/login', (req, res) => __awaiter(void 0, void 0, void 0, functi
                 userId: phoneNumber,
                 role: role
             };
-            const token = yield utils_1.generateToken(payload);
+            const token = yield (0, utils_1.generateToken)(payload);
             res.status(http_status_codes_1.default.OK).send({
                 message: 'Login Successful',
                 token,

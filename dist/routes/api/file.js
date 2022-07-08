@@ -20,13 +20,13 @@ const inversify_types_1 = require("../../config/inversify.types");
 const winston_1 = __importDefault(require("../../config/winston"));
 const rbac_enum_1 = require("../../enum/rbac.enum");
 const rbac_1 = require("../middleware/rbac");
-const router = express_1.Router();
+const router = (0, express_1.Router)();
 const storage = multer_1.default.memoryStorage();
-const uploadFile = multer_1.default({ storage: storage });
+const uploadFile = (0, multer_1.default)({ storage: storage });
 const s3Client = inversify_container_1.default.get(inversify_types_1.TYPES.S3Service);
 // @route   POST api/file
 // @access  Private
-router.post('/upload', uploadFile.single('file'), rbac_1.roleAuth(rbac_enum_1.ACL.FILE_UPLOAD), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/upload', uploadFile.single('file'), (0, rbac_1.roleAuth)(rbac_enum_1.ACL.FILE_UPLOAD), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
     winston_1.default.info('---------------------');
     winston_1.default.info('req body is', req.body, req.file);

@@ -29,7 +29,7 @@ app.set('port', process.env.PORT || 3005);
 app.use(helmet());
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(morganMiddleware);
 // @route   GET /
 // @desc    Liveliness base API
@@ -53,7 +53,7 @@ app.use('/customer', customer);
 
 app.use('/notification', notification);
 app.use('/product', product);
-app.use('/job-card',jobCard);
+app.use('/job-card', jobCard);
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
   const result = categoryList

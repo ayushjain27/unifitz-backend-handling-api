@@ -34,7 +34,7 @@ const customer_service_1 = require("./../services/customer.service");
 let CustomerController = class CustomerController {
     constructor(customerService) {
         this.create = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const errors = express_validator_1.validationResult(req);
+            const errors = (0, express_validator_1.validationResult)(req);
             if (!errors.isEmpty()) {
                 return res
                     .status(http_status_codes_1.default.BAD_REQUEST)
@@ -107,8 +107,8 @@ let CustomerController = class CustomerController {
     }
 };
 CustomerController = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.CustomerService)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.CustomerService)),
     __metadata("design:paramtypes", [customer_service_1.CustomerService])
 ], CustomerController);
 exports.CustomerController = CustomerController;

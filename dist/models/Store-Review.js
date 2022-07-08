@@ -34,6 +34,6 @@ const storeReviewSchema = new mongoose_1.Schema({
         required: true
     }
 }, { timestamps: true });
-const StoreReview = mongoose_1.model('store-reviews', storeReviewSchema);
+const StoreReview = (0, mongoose_1.model)('store-reviews', storeReviewSchema);
 exports.default = StoreReview;
 //# sourceMappingURL=Store-Review.js.map

@@ -19,7 +19,6 @@ const lodash_1 = __importDefault(require("lodash"));
 const database_1 = __importDefault(require("./config/database"));
 const firebase_config_1 = require("./config/firebase-config");
 const morgan_1 = __importDefault(require("./config/morgan"));
-const express_formidable_1 = __importDefault(require("express-formidable"));
 const winston_1 = __importDefault(require("./config/winston"));
 const Catalog_1 = __importDefault(require("./models/Catalog"));
 const file_1 = __importDefault(require("./routes/api/file"));
@@ -29,19 +28,19 @@ const user_1 = __importDefault(require("./routes/api/user"));
 const customer_1 = __importDefault(require("./routes/api/customer"));
 const notification_1 = __importDefault(require("./routes/api/notification"));
 const product_1 = __importDefault(require("./routes/api/product"));
-const app = express_1.default();
+const jobCard_route_1 = __importDefault(require("./routes/api/jobCard.route"));
+const app = (0, express_1.default)();
 // Connect to MongoDB
-database_1.default();
+(0, database_1.default)();
 // Connect with firebase admin
-firebase_config_1.connectFirebaseAdmin();
-app.use(cors_1.default());
+(0, firebase_config_1.connectFirebaseAdmin)();
+app.use((0, cors_1.default)());
 app.set('port', process.env.PORT || 3005);
 // Middlewares configuration
-app.use(helmet_1.default());
+app.use((0, helmet_1.default)());
 app.use(express_1.default.json());
-app.use(express_1.default.urlencoded());
+app.use(express_1.default.urlencoded({ extended: true }));
 app.use(morgan_1.default);
-app.use(express_formidable_1.default());
 // @route   GET /
 // @desc    Liveliness base API
 // @access  Public
@@ -58,6 +57,7 @@ app.use('/file', file_1.default);
 app.use('/customer', customer_1.default);
 app.use('/notification', notification_1.default);
 app.use('/product', product_1.default);
+app.use('/job-card', jobCard_route_1.default);
 app.get('/category', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const categoryList = yield Catalog_1.default.find({ parent: 'root' });
     const result = categoryList

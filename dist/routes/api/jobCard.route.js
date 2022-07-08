@@ -12,10 +12,7 @@ const rbac_enum_1 = require("../../enum/rbac.enum");
 const storage = multer_1.default.memoryStorage();
 const uploadFile = (0, multer_1.default)({ storage: storage });
 const router = (0, express_1.Router)();
-const productController = inversify_container_1.default.get(inversify_types_1.TYPES.ProductController);
-router.post('/', uploadFile.single('file'), (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), productController.validate('createProduct'), productController.createProduct);
-router.get('/:storeId', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_OWNER), productController.getAllProductsByStoreId);
-router.put('/:productId', uploadFile.single('file'), (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), productController.validate('createProduct'), productController.updateProduct);
-router.delete('/:productId', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), productController.delete);
+const jobCardController = inversify_container_1.default.get(inversify_types_1.TYPES.JobCardController);
+router.post('/', uploadFile.array('files', 10), (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), jobCardController.validate('createJobCard'), jobCardController.createJobCard);
 exports.default = router;
-//# sourceMappingURL=product.js.map
+//# sourceMappingURL=jobCard.route.js.map

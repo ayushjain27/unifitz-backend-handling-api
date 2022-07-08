@@ -120,6 +120,6 @@ const customerSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Customer: Model<ICustomer> = model('customers', customerSchema);
+const Customer = model<ICustomer & Document>('customers', customerSchema);
 
 export default Customer;

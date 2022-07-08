@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -47,7 +51,7 @@ const connectFirebaseAdmin = () => __awaiter(void 0, void 0, void 0, function* (
         authProviderX509CertUrl: firebase_adminsdk_json_1.default.auth_provider_x509_cert_url,
         clientC509CertUrl: firebase_adminsdk_json_1.default.client_x509_cert_url
     };
-    firebase_admin_1.initializeApp({
+    (0, firebase_admin_1.initializeApp)({
         credential: firebase_admin_1.credential.cert(params)
     });
 });

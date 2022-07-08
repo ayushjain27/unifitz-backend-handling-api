@@ -59,7 +59,9 @@ export class ProductService {
     Logger.info(
       '<Service>:<ProductService>: <Product Delete: deleting product by product id>'
     );
-    const res = await Product.deleteMany({ _id: Types.ObjectId(productId) });
+    const res = await Product.deleteMany({
+      _id: new Types.ObjectId(productId)
+    });
     Logger.info('<Service>:<ProductService>:<Product deleted successfully>');
     return res;
   }
@@ -79,7 +81,9 @@ export class ProductService {
     let store: IStore;
     let product: IProduct;
     if (productId) {
-      product = await Product.findOne({ productId: Types.ObjectId(productId) });
+      product = await Product.findOne({
+        productId: new Types.ObjectId(productId)
+      });
     }
     if (!product) {
       Logger.error(
@@ -106,7 +110,7 @@ export class ProductService {
       updatedProd.refImage = { key, docURL: url };
     }
     updatedProd = await Product.findOneAndUpdate(
-      { _id: Types.ObjectId(productId) },
+      { _id: new Types.ObjectId(productId) },
       updatedProd
     );
     Logger.info('<Service>:<ProductService>:<Product created successfully>');

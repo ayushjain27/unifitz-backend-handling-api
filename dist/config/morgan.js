@@ -21,7 +21,7 @@ const skip = () => {
     return env !== 'development';
 };
 // Build the morgan middleware
-const morganMiddleware = morgan_1.default(
+const morganMiddleware = (0, morgan_1.default)(
 // Define message format string (this is the default one).
 // The message format is made from tokens, and each token is
 // defined inside the Morgan library.

@@ -35,6 +35,6 @@ const adminSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Admin: Model<IAdmin> = model('admin_user', adminSchema);
+const Admin = model<IAdmin & Document>('admin_user', adminSchema);
 
 export default Admin;

@@ -2,6 +2,8 @@ import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import Logger from '../config/winston';
 import { firebaseAdmin } from '../config/firebase-config';
+import { messaging } from 'firebase-admin';
+import { App } from 'firebase-admin/app';
 // import Customer, { ICustomer } from './../models/Customer';
 
 @injectable()
@@ -17,9 +19,11 @@ export class NotificationService {
       timeToLive: 60 * 60 * 24
     };
     try {
-      const response = await firebaseAdmin
-        .messaging()
-        .sendToDevice(registrationToken, payload, options);
+      const response = await messaging(firebaseAdmin as App | any).sendToDevice(
+        registrationToken,
+        payload,
+        options
+      );
       return response;
     } catch (err) {
       throw new Error(err);

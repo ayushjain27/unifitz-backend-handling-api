@@ -46,7 +46,7 @@ let NotificationService = class NotificationService {
     }
 };
 NotificationService = __decorate([
-    inversify_1.injectable()
+    (0, inversify_1.injectable)()
 ], NotificationService);
 exports.NotificationService = NotificationService;
 //# sourceMappingURL=notification.service.js.map
