@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectFirebaseAdmin = exports.firebaseAdmin = void 0;
-const firebase_admin_1 = __importStar(require("firebase-admin"));
+const app_1 = __importStar(require("firebase-admin/app"));
 const firebase_adminsdk_json_1 = __importDefault(require("./firebase-adminsdk.json"));
 const connectFirebaseAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     const params = {
@@ -51,11 +51,9 @@ const connectFirebaseAdmin = () => __awaiter(void 0, void 0, void 0, function* (
         authProviderX509CertUrl: firebase_adminsdk_json_1.default.auth_provider_x509_cert_url,
         clientC509CertUrl: firebase_adminsdk_json_1.default.client_x509_cert_url
     };
-    (0, firebase_admin_1.initializeApp)({
-        credential: firebase_admin_1.credential.cert(params)
-    });
+    (0, app_1.initializeApp)(params);
 });
 exports.connectFirebaseAdmin = connectFirebaseAdmin;
-const _admin = firebase_admin_1.default;
+const _admin = app_1.default;
 exports.firebaseAdmin = _admin;
 //# sourceMappingURL=firebase-config.js.map

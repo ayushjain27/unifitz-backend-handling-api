@@ -19,8 +19,11 @@ const storeController = inversify_container_1.default.get(inversify_types_1.TYPE
 router.post('/', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.createStore);
 router.put('/', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.updateStore);
 router.get('/', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_SINGLE), storeController.getStoreByStoreId);
-router.get('/allStores', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_ALL), storeController.getAllStores);
+router.get('/allStores', 
+// roleAuth(ACL.STORE_GET_ALL),
+storeController.getAllStores);
 router.get('/search', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStores);
+router.post('/search_paginated', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStoresPaginated);
 router.get('/owner/:userId', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_OWNER), storeController.getStoresByOwner);
 router.post('/uploadFile', uploadFile.single('file'), (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.uploadFile);
 router.post('/review', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_REVIEW_CREATE), storeController.addStoreReview);

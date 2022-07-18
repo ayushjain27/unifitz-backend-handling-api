@@ -62,6 +62,8 @@ const storeContactSchema = new mongoose_1.Schema({
     geoLocation: {
         type: {
             kind: String,
+            type: String,
+            coords: [String],
             coordinates: { longitude: String, latitude: String }
         }
     },

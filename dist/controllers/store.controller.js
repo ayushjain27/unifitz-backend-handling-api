@@ -101,6 +101,24 @@ let StoreController = class StoreController {
                 res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
             }
         });
+        this.searchStoresPaginated = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { category, brand, storeName, pageNo, pageSize, coordinates } = req.body;
+            let { subCategory } = req.body;
+            if (subCategory) {
+                subCategory = subCategory.split(',');
+            }
+            else {
+                subCategory = [];
+            }
+            winston_1.default.info('<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>');
+            try {
+                winston_1.default.info('<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>');
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
         this.getStoreByStoreId = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const storeId = req.query.storeId;
             winston_1.default.info('<Controller>:<StoreController>:<Get stores by storeID request controller initiated>');

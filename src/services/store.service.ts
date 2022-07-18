@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
+import _ from 'lodash';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
@@ -178,9 +179,39 @@ export class StoreService {
     });
     return storeResponse;
   }
-  async getAll(): Promise<StoreResponse[]> {
+  async getAll() {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
-    const stores = await Store.find({});
+    const stores = await Store.find().lean();
+
+    //STARTS --- Update Script for all the stores
+    // const bulkWrite = [];
+    // for (const store of stores) {
+    //   const coords = store?.contactInfo?.geoLocation?.coordinates;
+    //   if (
+    //     !_.isEmpty(coords) &&
+    //     !_.isNaN(Number(coords[0])) &&
+    //     !_.isNaN(Number(coords[1]))
+    //   ) {
+    //     const updatedCoords = [Number(coords[1]), Number(coords[0])];
+    //     bulkWrite.push({
+    //       updateOne: {
+    //         filter: { _id: store._id },
+    //         update: {
+    //           $set: {
+    //             'contactInfo.geoLocation.coordinates': updatedCoords
+    //             // 'contactInfo.geoLocation.coords': coords
+    //           }
+    //           // $unset: { 'contactInfo.geoLocation.coords': 1 }
+    //         }
+    //       }
+    //     });
+    //   }
+    // }
+    // if (bulkWrite.length > 0) {
+    //   await Store.bulkWrite(bulkWrite);
+    // }
+    //ENDS --- Update Script for all the stores
+
     return stores;
   }
   async searchAndFilter(
@@ -226,6 +257,62 @@ export class StoreService {
     }
     return stores;
   }
+
+  async searchAndFilterPaginated(searchReqBody: {
+    storeName: string;
+    brand: string;
+    subCategory: string[];
+    category: string;
+    pageNo: number;
+    pageSize: number;
+    coordinates: number[];
+  }): Promise<StoreResponse[]> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated>'
+    );
+    const query = {
+      'contactInfo.geoLocation': {
+        $near: {
+          $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
+        }
+      },
+      'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
+      'basicInfo.brand.name': searchReqBody.brand,
+      'basicInfo.category.name': searchReqBody.category,
+      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      profileStatus: 'ONBOARDED'
+    };
+    if (!searchReqBody.brand) {
+      delete query['basicInfo.brand.name'];
+    }
+    if (!searchReqBody.category) {
+      delete query['basicInfo.category.name'];
+    }
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+      delete query['basicInfo.subCategory.name'];
+    }
+    if (!searchReqBody.storeName) {
+      delete query['basicInfo.businessName'];
+    }
+    Logger.debug(query);
+    let stores: any = await Store.find(query)
+      .limit(searchReqBody.pageSize)
+      .skip(searchReqBody.pageNo * searchReqBody.pageSize)
+      .lean();
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
+    }
+    return stores;
+  }
+
   async getByOwner(userId: string): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by owner service initiated>'

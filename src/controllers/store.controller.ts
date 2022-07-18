@@ -101,6 +101,54 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  searchStoresPaginated = async (req: Request, res: Response) => {
+    const {
+      category,
+      brand,
+      storeName,
+      pageNo,
+      pageSize,
+      coordinates
+    }: {
+      category: string;
+      brand: string;
+      storeName: string;
+      pageNo: number;
+      pageSize: number;
+      coordinates: number[];
+    } = req.body;
+    let { subCategory } = req.body;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] =
+        await this.storeService.searchAndFilterPaginated({
+          storeName,
+          category,
+          subCategory,
+          brand,
+          pageNo,
+          pageSize,
+          coordinates
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   getStoreByStoreId = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
     Logger.info(

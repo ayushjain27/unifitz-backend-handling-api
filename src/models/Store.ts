@@ -1,5 +1,4 @@
 import { Document, Model, model, ObjectId, Schema, Types } from 'mongoose';
-
 export interface ICatalogMap extends Document {
   _id: ObjectId;
   name: string;
@@ -69,8 +68,9 @@ export interface IContactInfo extends Document {
   email: string; //<String> {required},
   address: string; //<String>: {required},
   geoLocation: {
-    kind: string;
-    coordinates: { longitude: string; latitude: string };
+    // kind: string;
+    type: string;
+    coordinates: number[];
   }; //<Object>: { } {not required},  // this should be in the format of {type:Point,coordinates:[longitude,latitude]}
   state: string; //<String>
   city: string;
@@ -95,10 +95,9 @@ const storeContactSchema: Schema = new Schema(
       type: String
     },
     geoLocation: {
-      type: {
-        kind: String,
-        coordinates: { longitude: String, latitude: String }
-      }
+      // kind: String,
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
     },
     state: {
       type: String
@@ -114,6 +113,8 @@ const storeContactSchema: Schema = new Schema(
     _id: false
   }
 );
+
+storeContactSchema.index({ geoLocation: '2dsphere' });
 
 export interface IStoreTiming extends Document {
   openTime: Date; //<TIME>,
@@ -219,6 +220,8 @@ const storeSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });
 
 const Store = model<IStore & Document>('stores', storeSchema);
 
