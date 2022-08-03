@@ -1,16 +1,18 @@
 import { Response, Router } from 'express';
 import HttpStatusCodes from 'http-status-codes';
-
-import Request from '../../types/Request';
+import _ from 'lodash';
+import Request from '../../types/request';
 import { defaultCodeLength } from '../../config/constants';
 import Logger from '../../config/winston';
 import { TwilioLoginPayload, TwilioVerifyPayload } from '../../interfaces';
-import auth from '../../middleware/auth';
+import auth from '../middleware/auth';
 import User, { IUser } from '../../models/User';
+import DeviceFcm, { IDeviceFcm } from '../../models/DeviceFcm';
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { generateToken } from '../../utils';
-import { TwilioService } from '../../services/twilio-service';
+import { TwilioService } from '../../services/twilio.service';
+import { testUsers } from '../../config/constants';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -38,15 +40,23 @@ router.post('/otp/send', async (req: Request, res: Response) => {
       channel
     };
     if (loginPayload.phoneNumber) {
-      const result = await twilioCLient.sendVerificationCode(
-        loginPayload.phoneNumber,
-        loginPayload.channel
-      );
-      res.status(HttpStatusCodes.OK).send({
-        message: 'Verification is sent!!',
-        phoneNumber,
-        result
-      });
+      const testUser = getTestUser(loginPayload.phoneNumber);
+      if (testUser) {
+        res.status(HttpStatusCodes.OK).send({
+          message: 'Verification is sent!!',
+          phoneNumber
+        });
+      } else {
+        const result = await twilioCLient.sendVerificationCode(
+          loginPayload.phoneNumber,
+          loginPayload.channel
+        );
+        res.status(HttpStatusCodes.OK).send({
+          message: 'Verification is sent!!',
+          phoneNumber,
+          result
+        });
+      }
       Logger.debug(`Twilio verification sent to ${loginPayload.phoneNumber}`);
     } else {
       res.status(HttpStatusCodes.BAD_REQUEST).send({
@@ -69,7 +79,7 @@ router.post('/otp/send', async (req: Request, res: Response) => {
  */
 router.post('/otp/login', async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, code, role } = req.body;
+    const { phoneNumber, code, role, deviceId } = req.body;
     const verifyPayload: TwilioVerifyPayload = {
       phoneNumber,
       code
@@ -79,30 +89,45 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       verifyPayload.code.length === defaultCodeLength
     ) {
       const { phoneNumber } = verifyPayload;
-      const result = await twilioCLient.verifyCode(
-        phoneNumber,
-        verifyPayload.code
-      );
-      if (!result) {
-        res.status(HttpStatusCodes.BAD_REQUEST).send({
-          message: 'Invalid verification code :(',
-          phoneNumber
-        });
+      const testUser = getTestUser(phoneNumber);
+      if (testUser) {
+        const isMatch = testUser?.otp === verifyPayload.code;
+        if (!isMatch) {
+          return res.status(HttpStatusCodes.BAD_REQUEST).send({
+            message: 'Invalid verification code :(',
+            phoneNumber
+          });
+        }
+      } else {
+        const result = await twilioCLient.verifyCode(
+          phoneNumber,
+          verifyPayload.code
+        );
+        if (!result) {
+          return res.status(HttpStatusCodes.BAD_REQUEST).send({
+            message: 'Invalid verification code :(',
+            phoneNumber
+          });
+        }
       }
       Logger.debug(`Twilio verification completed for ${phoneNumber}`);
-      const user: IUser = await User.findOne({ phoneNumber: phoneNumber });
+      Logger.debug(`User registration started for ${phoneNumber}`);
+      // Build user object based on IUser
+      const userFields = {
+        phoneNumber,
+        deviceId,
+        role
+      };
 
-      if (!user) {
-        Logger.debug(`User registration started for ${phoneNumber}`);
-        // Build user object based on IUser
-        const userFields = {
-          phoneNumber
-        };
+      const newUser = await User.findOneAndUpdate(
+        { phoneNumber, role },
+        userFields,
+        { upsert: true, new: true }
+      );
 
-        const newUser = new User(userFields);
+      // await newUser.save();
+      const userId = newUser._id;
 
-        await newUser.save();
-      }
       const payload = {
         userId: phoneNumber,
         role: role
@@ -110,7 +135,8 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       const token = await generateToken(payload);
       res.status(HttpStatusCodes.OK).send({
         message: 'Login Successful',
-        token
+        token,
+        userId
       });
     } else {
       res.status(HttpStatusCodes.BAD_REQUEST).send({
@@ -125,5 +151,44 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       .send('Twilio Service Error');
   }
 });
+
+/**
+ * @route   POST /user/fcmToken
+ * @desc    Store FCM Token
+ * @access  Private
+ */
+router.post('/fcmToken', async (req: Request, res: Response) => {
+  try {
+    const { deviceId, fcmToken, role } = req.body;
+    Logger.debug(
+      `Storing FCM token into database for  ${deviceId} - ${fcmToken}`
+    );
+
+    if (deviceId && fcmToken) {
+      const deviceFcm = await DeviceFcm.findOneAndUpdate(
+        { deviceId, role },
+        { deviceId, fcmToken, role },
+        { upsert: true, new: true }
+      );
+      res.status(HttpStatusCodes.OK).send({
+        message: 'Token Saved successfully',
+        ...deviceFcm
+      });
+    }
+  } catch (err) {
+    Logger.error(err.message);
+    res
+      .status(HttpStatusCodes.SERVICE_UNAVAILABLE)
+      .send('Twilio Service Error');
+  }
+});
+
+const getTestUser = (phoneNumber: string) => {
+  const testUser = _.find(
+    testUsers,
+    (user) => `+91${user?.phoneNo}` === phoneNumber
+  );
+  return testUser;
+};
 
 export default router;
