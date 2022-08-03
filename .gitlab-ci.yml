@@ -9,7 +9,6 @@ stages:
     - staging
 
 staging:
-    type: deploy
     stage: staging
     image: ruby:latest
     script:
