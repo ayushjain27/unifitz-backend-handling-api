@@ -61,7 +61,7 @@ let CustomerService = class CustomerService {
     }
 };
 CustomerService = __decorate([
-    inversify_1.injectable()
+    (0, inversify_1.injectable)()
 ], CustomerService);
 exports.CustomerService = CustomerService;
 //# sourceMappingURL=customer.service.js.map

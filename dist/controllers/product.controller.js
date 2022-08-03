@@ -34,7 +34,7 @@ const product_service_1 = require("./../services/product.service");
 let ProductController = class ProductController {
     constructor(productService) {
         this.createProduct = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const errors = express_validator_1.validationResult(req);
+            const errors = (0, express_validator_1.validationResult)(req);
             if (!errors.isEmpty()) {
                 res.status(http_status_codes_1.default.BAD_REQUEST).json({ errors: errors.array() });
                 return;
@@ -42,9 +42,78 @@ let ProductController = class ProductController {
             const prodRequest = req.body;
             winston_1.default.info('<Controller>:<ProductController>:<Create product controller initiated>');
             try {
-                const result = yield this.productService.create(prodRequest);
+                const result = yield this.productService.create(prodRequest, req);
                 res.send({
                     message: 'Product Creation Successful',
+                    result
+                });
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
+        this.getAllProductsByStoreId = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const storeId = req.params.storeId;
+            if (!storeId) {
+                res
+                    .status(http_status_codes_1.default.BAD_REQUEST)
+                    .json({ errors: { message: 'Store Id is not present' } });
+                return;
+            }
+            winston_1.default.info('<Controller>:<ProductController>:<Get All products by store id controller initiated>');
+            try {
+                const result = yield this.productService.getAllProductsByStoreId(storeId);
+                res.send({
+                    message: 'Products Fetch Successful',
+                    result
+                });
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
+        this.updateProduct = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const errors = (0, express_validator_1.validationResult)(req);
+            if (!errors.isEmpty()) {
+                res.status(http_status_codes_1.default.BAD_REQUEST).json({ errors: errors.array() });
+                return;
+            }
+            const productId = req.params.productId;
+            if (!productId) {
+                res
+                    .status(http_status_codes_1.default.BAD_REQUEST)
+                    .json({ errors: { message: 'Product Id is not present' } });
+                return;
+            }
+            const prodRequest = req.body;
+            winston_1.default.info('<Controller>:<ProductController>:<Update product controller initiated>');
+            try {
+                const result = yield this.productService.update(prodRequest, productId, req);
+                res.send({
+                    message: 'Product Update Successful',
+                    result
+                });
+            }
+            catch (err) {
+                winston_1.default.error(err.message);
+                res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
+            }
+        });
+        this.delete = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const productId = req.params.productId;
+            if (!productId) {
+                res
+                    .status(http_status_codes_1.default.BAD_REQUEST)
+                    .json({ errors: { message: 'Product Id is not present' } });
+                return;
+            }
+            winston_1.default.info('<Controller>:<ProductController>:<Delete Product controller initiated>');
+            try {
+                const result = yield this.productService.deleteProduct(productId);
+                res.send({
+                    message: 'Products Deleted Successful',
                     result
                 });
             }
@@ -57,20 +126,21 @@ let ProductController = class ProductController {
             switch (method) {
                 case 'createProduct':
                     return [
-                        express_validator_1.body('type', 'Type ABCD does not exist')
+                        (0, express_validator_1.body)('storeId', 'Store Id does not exist').exists().isString(),
+                        (0, express_validator_1.body)('offerType', 'Type ABCD does not exist')
                             .exists()
                             .isIn(['product', 'service']),
-                        express_validator_1.body('itemName', 'Item Name does not exist').exists().isString()
+                        (0, express_validator_1.body)('itemName', 'Item Name does not exist').exists().isString(),
+                        (0, express_validator_1.body)('unit', 'Units does not exist').exists().isString()
                     ];
-                    break;
             }
         };
         this.productService = productService;
     }
 };
 ProductController = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.ProductService)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.ProductService)),
     __metadata("design:paramtypes", [product_service_1.ProductService])
 ], ProductController);
 exports.ProductController = ProductController;

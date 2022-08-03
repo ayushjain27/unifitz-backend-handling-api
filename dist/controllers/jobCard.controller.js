@@ -24,29 +24,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationController = void 0;
-// import { validationResult } from 'express-validator';
+exports.JobCardController = void 0;
+const express_validator_1 = require("express-validator");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const inversify_1 = require("inversify");
 const inversify_types_1 = require("../config/inversify.types");
 const winston_1 = __importDefault(require("../config/winston"));
-const notification_service_1 = require("../services/notification.service");
-let NotificationController = class NotificationController {
-    constructor(notificationService) {
-        this.sendNotification = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            // const errors = validationResult(req);
-            // if (!errors.isEmpty()) {
-            //   return res
-            //     .status(HttpStatusCodes.BAD_REQUEST)
-            //     .json({ errors: errors.array() });
-            // }
-            const payload = req.body;
-            winston_1.default.info('<Controller>:<NotificationController>:<Send notification controller initiated>');
+const jobCard_service_1 = require("./../services/jobCard.service");
+let JobCardController = class JobCardController {
+    constructor(jobCardService) {
+        this.createJobCard = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const errors = (0, express_validator_1.validationResult)(req);
+            if (!errors.isEmpty()) {
+                res.status(http_status_codes_1.default.BAD_REQUEST).json({ errors: errors.array() });
+                return;
+            }
+            const jobCardRequest = req.body;
+            winston_1.default.info('<Controller>:<JobCardController>:<Create jobcard controller initiated>');
             try {
-                const result = yield this.notificationService.sendNotification(payload);
-                return res.json({
-                    message: 'Notification Sent Successfully',
-                    userName: result
+                const result = yield this.jobCardService.create(jobCardRequest, req);
+                res.send({
+                    message: 'Job Card Creation Successful',
+                    result
                 });
             }
             catch (err) {
@@ -54,13 +53,25 @@ let NotificationController = class NotificationController {
                 res.status(http_status_codes_1.default.INTERNAL_SERVER_ERROR).send(err.message);
             }
         });
-        this.notificationService = notificationService;
+        this.validate = (method) => {
+            switch (method) {
+                case 'createJobCard':
+                    return [
+                        (0, express_validator_1.body)('storeId', 'Store Id does not exist').exists().isString(),
+                        (0, express_validator_1.body)('customerName', 'Customer name does not existzz')
+                            .exists()
+                            .isString(),
+                        (0, express_validator_1.body)('mobileNo', 'Mobile number does not exist').exists().isString()
+                    ];
+            }
+        };
+        this.jobCardService = jobCardService;
     }
 };
-NotificationController = __decorate([
+JobCardController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.NotificationService)),
-    __metadata("design:paramtypes", [notification_service_1.NotificationService])
-], NotificationController);
-exports.NotificationController = NotificationController;
-//# sourceMappingURL=notification.controller.js.map
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.JobCardService)),
+    __metadata("design:paramtypes", [jobCard_service_1.JobCardService])
+], JobCardController);
+exports.JobCardController = JobCardController;
+//# sourceMappingURL=jobCard.controller.js.map

@@ -10,22 +10,25 @@ const inversify_types_1 = require("../../config/inversify.types");
 const rbac_1 = require("../../routes/middleware/rbac");
 const rbac_enum_1 = require("../../enum/rbac.enum");
 const storage = multer_1.default.memoryStorage();
-const uploadFile = multer_1.default({ storage: storage });
-const router = express_1.Router();
+const uploadFile = (0, multer_1.default)({ storage: storage });
+const router = (0, express_1.Router)();
 const storeController = inversify_container_1.default.get(inversify_types_1.TYPES.StoreController);
 // @route   POST v1/store/
 // @desc    Onboard store
 // @access  Private
-router.post('/', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.createStore);
-router.put('/', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.updateStore);
-router.get('/', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_SINGLE), storeController.getStoreByStoreId);
-router.get('/allStores', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_ALL), storeController.getAllStores);
-router.get('/search', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStores);
-router.get('/owner/:userId', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_GET_OWNER), storeController.getStoresByOwner);
-router.post('/uploadFile', uploadFile.single('file'), rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.uploadFile);
-router.post('/review', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_REVIEW_CREATE), storeController.addStoreReview);
+router.post('/', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.createStore);
+router.put('/', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.updateStore);
+router.get('/', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_SINGLE), storeController.getStoreByStoreId);
+router.get('/allStores', 
+// roleAuth(ACL.STORE_GET_ALL),
+storeController.getAllStores);
+router.get('/search', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStores);
+router.post('/search_paginated', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_ALL), storeController.searchStoresPaginated);
+router.get('/owner/:userId', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_GET_OWNER), storeController.getStoresByOwner);
+router.post('/uploadFile', uploadFile.single('file'), (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.uploadFile);
+router.post('/review', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_REVIEW_CREATE), storeController.addStoreReview);
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
 router.get('/:storeId/reviews', storeController.getStoreReviews);
-router.put('/updateStatus', rbac_1.roleAuth(rbac_enum_1.ACL.STORE_CREATE), storeController.updateStoreStatus);
+router.put('/updateStatus', (0, rbac_1.roleAuth)(rbac_enum_1.ACL.STORE_CREATE), storeController.updateStoreStatus);
 exports.default = router;
 //# sourceMappingURL=store.js.map

@@ -8,6 +8,10 @@ var OfferType;
     OfferType["SERVICE"] = "service";
 })(OfferType = exports.OfferType || (exports.OfferType = {}));
 const productSchema = new mongoose_1.Schema({
+    storeId: {
+        type: String,
+        required: true
+    },
     offerType: {
         type: String,
         enum: OfferType,
@@ -39,6 +43,6 @@ const productSchema = new mongoose_1.Schema({
         }
     }
 }, { timestamps: true });
-const Product = mongoose_1.model('product', productSchema);
+const Product = (0, mongoose_1.model)('product', productSchema);
 exports.default = Product;
 //# sourceMappingURL=Product.js.map

@@ -14,3 +14,8 @@ export const s3Config: S3Config = {
   ACCESS_KEY: config.get('ACCESS_KEY'),
   BUCKET_NAME: config.get('BUCKET_NAME')
 };
+
+export const testUsers = [
+  { phoneNo: '7777777777', role: 'STORE_OWNER', otp: '7777' },
+  { phoneNo: '9999999999', role: 'USER', otp: '9999' }
+];

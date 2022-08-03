@@ -1,7 +1,7 @@
 import admin, {
-  initializeApp,
-  credential as _credential
-} from 'firebase-admin';
+  initializeApp
+  // credential as _credential
+} from 'firebase-admin/app';
 
 import serviceAccount from './firebase-adminsdk.json';
 
@@ -19,9 +19,7 @@ const connectFirebaseAdmin = async (): Promise<void> => {
     clientC509CertUrl: serviceAccount.client_x509_cert_url
   };
 
-  initializeApp({
-    credential: _credential.cert(params)
-  });
+  initializeApp(params);
 };
 const _admin = admin;
 export { _admin as firebaseAdmin, connectFirebaseAdmin };

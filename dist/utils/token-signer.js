@@ -19,7 +19,7 @@ const crypto_1 = require("crypto");
 const generateToken = (claims, signingOptions = {
     expiresIn: config_1.default.get('JWT_EXPIRATION')
 }) => __awaiter(void 0, void 0, void 0, function* () {
-    return jsonwebtoken_1.default.sign(Object.assign(Object.assign({}, claims), { iss: crypto_1.createHash('sha256').update(config_1.default.get('ISS')).digest('hex') }), config_1.default.get('JWT_SECRET'), signingOptions);
+    return jsonwebtoken_1.default.sign(Object.assign(Object.assign({}, claims), { iss: (0, crypto_1.createHash)('sha256').update(config_1.default.get('ISS')).digest('hex') }), config_1.default.get('JWT_SECRET'), signingOptions);
 });
 exports.generateToken = generateToken;
 //# sourceMappingURL=token-signer.js.map

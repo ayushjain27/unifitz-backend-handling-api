@@ -55,8 +55,8 @@ let TwilioService = class TwilioService {
     }
 };
 TwilioService = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.Twilio)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.Twilio)),
     __metadata("design:paramtypes", [twilio_1.Twilio])
 ], TwilioService);
 exports.TwilioService = TwilioService;

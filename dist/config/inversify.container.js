@@ -45,5 +45,9 @@ container
     .bind(inversify_types_1.TYPES.ProductController)
     .to(controllers_1.ProductController);
 container.bind(inversify_types_1.TYPES.ProductService).to(services_2.ProductService);
+container
+    .bind(inversify_types_1.TYPES.JobCardController)
+    .to(controllers_1.JobCardController);
+container.bind(inversify_types_1.TYPES.JobCardService).to(services_2.JobCardService);
 exports.default = container;
 //# sourceMappingURL=inversify.container.js.map

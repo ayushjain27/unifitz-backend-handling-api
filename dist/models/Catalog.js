@@ -26,6 +26,6 @@ const catalogSchema = new mongoose_1.Schema({
         required: false
     }
 }, { timestamps: true });
-const Catalog = mongoose_1.model('catalog', catalogSchema);
+const Catalog = (0, mongoose_1.model)('catalog', catalogSchema);
 exports.default = Catalog;
 //# sourceMappingURL=Catalog.js.map

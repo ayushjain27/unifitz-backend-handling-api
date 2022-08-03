@@ -34,7 +34,7 @@ const admin_service_1 = require("../services/admin.service");
 let AdminController = class AdminController {
     constructor(adminService) {
         this.create = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const errors = express_validator_1.validationResult(req);
+            const errors = (0, express_validator_1.validationResult)(req);
             if (!errors.isEmpty()) {
                 return res
                     .status(http_status_codes_1.default.BAD_REQUEST)
@@ -74,8 +74,8 @@ let AdminController = class AdminController {
     }
 };
 AdminController = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.AdminService)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.AdminService)),
     __metadata("design:paramtypes", [admin_service_1.AdminService])
 ], AdminController);
 exports.AdminController = AdminController;

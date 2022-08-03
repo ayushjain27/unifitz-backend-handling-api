@@ -66,5 +66,10 @@ const Logger = winston_1.default.createLogger({
     format,
     transports
 });
+if (process.env.NODE_ENV !== 'production') {
+    Logger.add(new winston_1.default.transports.Console({
+        format: winston_1.default.format.simple()
+    }));
+}
 exports.default = Logger;
 //# sourceMappingURL=winston.js.map

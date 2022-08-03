@@ -32,6 +32,13 @@ router.get(
   roleAuth(ACL.STORE_GET_ALL),
   storeController.searchStores
 );
+
+router.post(
+  '/search_paginated',
+  // roleAuth(ACL.STORE_GET_ALL),
+  storeController.searchStoresPaginated
+);
+
 router.get(
   '/owner/:userId',
   roleAuth(ACL.STORE_GET_OWNER),

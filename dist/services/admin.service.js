@@ -58,12 +58,12 @@ let AdminService = class AdminService {
                 userId: admin.userName,
                 role: admin.role
             };
-            return yield utils_1.generateToken(payload);
+            return yield (0, utils_1.generateToken)(payload);
         });
     }
 };
 AdminService = __decorate([
-    inversify_1.injectable()
+    (0, inversify_1.injectable)()
 ], AdminService);
 exports.AdminService = AdminService;
 //# sourceMappingURL=admin.service.js.map

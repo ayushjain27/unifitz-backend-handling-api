@@ -19,6 +19,6 @@ const adminSchema = new mongoose_1.Schema({
         default: 'ADMIN'
     }
 }, { timestamps: true });
-const Admin = mongoose_1.model('admin_user', adminSchema);
+const Admin = (0, mongoose_1.model)('admin_user', adminSchema);
 exports.default = Admin;
 //# sourceMappingURL=Admin.js.map

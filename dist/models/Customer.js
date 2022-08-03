@@ -73,6 +73,6 @@ const customerSchema = new mongoose_1.Schema({
         type: [customerVehicleInfoSchema]
     }
 }, { timestamps: true });
-const Customer = mongoose_1.model('customers', customerSchema);
+const Customer = (0, mongoose_1.model)('customers', customerSchema);
 exports.default = Customer;
 //# sourceMappingURL=Customer.js.map

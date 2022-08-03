@@ -62,6 +62,8 @@ const storeContactSchema = new mongoose_1.Schema({
     geoLocation: {
         type: {
             kind: String,
+            type: String,
+            coords: [String],
             coordinates: { longitude: String, latitude: String }
         }
     },
@@ -134,6 +136,6 @@ const storeSchema = new mongoose_1.Schema({
         type: storeDocumentsSchema
     }
 }, { timestamps: true });
-const Store = mongoose_1.model('stores', storeSchema);
+const Store = (0, mongoose_1.model)('stores', storeSchema);
 exports.default = Store;
 //# sourceMappingURL=Store.js.map

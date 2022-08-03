@@ -171,9 +171,44 @@ let StoreService = class StoreService {
         });
     }
     getAll() {
+        var _a, _b, _c, _d, _e, _f;
         return __awaiter(this, void 0, void 0, function* () {
             winston_1.default.info('<Service>:<StoreService>:<Get all stores service initiated>');
-            const stores = yield Store_1.default.find({});
+            const stores = yield Store_1.default.find().lean();
+            const bulkWrite = [];
+            for (const store of stores) {
+                const lat = (_c = (_b = (_a = store === null || store === void 0 ? void 0 : store.contactInfo) === null || _a === void 0 ? void 0 : _a.geoLocation) === null || _b === void 0 ? void 0 : _b.coordinates) === null || _c === void 0 ? void 0 : _c.latitude;
+                const long = (_f = (_e = (_d = store === null || store === void 0 ? void 0 : store.contactInfo) === null || _d === void 0 ? void 0 : _d.geoLocation) === null || _e === void 0 ? void 0 : _e.coordinates) === null || _f === void 0 ? void 0 : _f.longitude;
+                if (lat && long) {
+                    bulkWrite.push({
+                        updateOne: {
+                            filter: { _id: store._id },
+                            update: {
+                                $set: {
+                                    'contactInfo.geoLocation.type': 'Point',
+                                    'contactInfo.geoLocation.coords': [String(lat), String(long)]
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            if (bulkWrite.length > 0) {
+                yield Store_1.default.bulkWrite(bulkWrite);
+            }
+            // const stores = (await Store.updateMany(
+            //   {},
+            //   {
+            //     $set: {
+            //       'contactInfo.geoLocation.type': 'Point',
+            //       'contactInfo.geoLocation.coords': [
+            //         '$contactInfo.geoLocation.coordinates.latitude',
+            //         '$contactInfo.geoLocation.coordinates.longitude'
+            //       ]
+            //     }
+            //   },
+            //   { upsert: true, new: true }
+            // )) as any;
             return stores;
         });
     }
@@ -408,7 +443,7 @@ let StoreService = class StoreService {
     }
 };
 StoreService = __decorate([
-    inversify_1.injectable()
+    (0, inversify_1.injectable)()
 ], StoreService);
 exports.StoreService = StoreService;
 //# sourceMappingURL=store.service.js.map

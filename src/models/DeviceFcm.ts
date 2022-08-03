@@ -33,6 +33,6 @@ const deviceFmcSchema: Schema = new Schema(
 );
 deviceFmcSchema.index({ deviceId: 1, role: 1 }, { unique: true });
 
-const Admin: Model<IDeviceFcm> = model('device_fcm', deviceFmcSchema);
+const Admin = model<IDeviceFcm & Document>('device_fcm', deviceFmcSchema);
 
 export default Admin;

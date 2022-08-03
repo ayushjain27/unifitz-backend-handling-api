@@ -137,6 +137,6 @@ const jobCardSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const JobCard: Model<IJobCard> = model('jobCard', jobCardSchema);
+const JobCard = model<IJobCard & Document>('jobCard', jobCardSchema);
 
 export default JobCard;
