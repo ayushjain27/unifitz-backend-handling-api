@@ -14,6 +14,9 @@ export const TYPES = {
   JobCardController: Symbol('JobCardController'),
   JobCardService: Symbol('JobCardService'),
 
+  AdvertisementController: Symbol('AdvertisementController'),
+  AdvertisementService: Symbol('AdvertisementService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
