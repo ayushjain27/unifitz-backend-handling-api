@@ -17,6 +17,9 @@ export const TYPES = {
   AdvertisementController: Symbol('AdvertisementController'),
   AdvertisementService: Symbol('AdvertisementService'),
 
+  FavouriteStoreController: Symbol('FavouriteStoreController'),
+  FavouriteStoreService: Symbol('FavouriteStoreService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),

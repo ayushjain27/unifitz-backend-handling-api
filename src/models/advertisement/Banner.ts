@@ -6,6 +6,12 @@ export interface IBanner extends Document {
   description: string;
   altText: string;
   slugUrl: string;
+  status: string;
+}
+
+export enum BannerStatus {
+  ACTIVE = 'ACTIVE',
+  DISABLED = 'DISABLED'
 }
 
 const bannerSchema: Schema = new Schema(
@@ -25,6 +31,11 @@ const bannerSchema: Schema = new Schema(
     },
     slugUrl: {
       type: String
+    },
+    status: {
+      type: String,
+      enum: BannerStatus,
+      default: BannerStatus.ACTIVE
     }
   },
   { timestamps: true }

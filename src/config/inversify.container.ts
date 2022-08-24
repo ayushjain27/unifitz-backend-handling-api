@@ -3,7 +3,7 @@ import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
-import { TwilioService, S3Service, AdvertisementService } from '../services';
+import { TwilioService, S3Service } from '../services';
 import { s3Config, twilioConfig } from './constants';
 import {
   StoreController,
@@ -12,7 +12,8 @@ import {
   NotificationController,
   ProductController,
   JobCardController,
-  AdvertisementController
+  AdvertisementController,
+  FavouriteStoreController
 } from '../controllers';
 import {
   StoreService,
@@ -20,7 +21,9 @@ import {
   CustomerService,
   NotificationService,
   ProductService,
-  JobCardService
+  JobCardService,
+  AdvertisementService,
+  FavouriteStoreService
 } from '../services';
 
 const container = new Container();
@@ -80,5 +83,13 @@ container
 container
   .bind<AdvertisementService>(TYPES.AdvertisementService)
   .to(AdvertisementService);
+
+container
+  .bind<FavouriteStoreController>(TYPES.FavouriteStoreController)
+  .to(FavouriteStoreController);
+
+container
+  .bind<FavouriteStoreService>(TYPES.FavouriteStoreService)
+  .to(FavouriteStoreService);
 
 export default container;
