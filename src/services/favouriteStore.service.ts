@@ -44,4 +44,30 @@ export class FavouriteStoreService {
     );
     return newFavItem;
   }
+
+  async removeFromFavourite(favId: string) {
+    Logger.info(
+      '<Service>:<FavouriteStoreService>: <Removing items favourite intiiated>'
+    );
+
+    const res = await FavouriteStore.updateOne(
+      { _id: new Types.ObjectId(favId) },
+      {
+        $set: { isFavourite: false }
+      }
+    );
+    return res;
+  }
+
+  async checkFavStore(favStore: AddToFavouriteRequest) {
+    const favStoreDb = await FavouriteStore.findOne({
+      storeId: favStore.storeId,
+      customerId: new Types.ObjectId(favStore.customerId)
+    }).lean();
+    if (_.isEmpty(favStoreDb)) {
+      return false;
+    } else {
+      return favStoreDb.isFavourite;
+    }
+  }
 }

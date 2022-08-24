@@ -14,7 +14,20 @@ const favouriteStoreController = container.get<FavouriteStoreController>(
 router.post(
   '/addToFavourite',
   roleAuth(ACL.CUSTOMER_CREATE),
+  favouriteStoreController.validate('addToFavourite'),
   favouriteStoreController.addToFavourite
+);
+
+router.delete(
+  '/removeFromFavourite',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  favouriteStoreController.removeFromFavourite
+);
+
+router.post(
+  '/checkFavStore',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  favouriteStoreController.checkFavStore
 );
 
 export default router;
