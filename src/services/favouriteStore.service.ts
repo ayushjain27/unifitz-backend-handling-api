@@ -32,6 +32,22 @@ export class FavouriteStoreService {
       throw new Error('Customer not found');
     }
 
+    const currentFavStore: IFavouriteStore = await FavouriteStore.findOne({
+      storeId: favStore.storeId,
+      customerId: new Types.ObjectId(favStore.customerId)
+    }).lean();
+
+    if (!_.isEmpty(currentFavStore)) {
+      const res = await FavouriteStore.findOneAndUpdate(
+        { _id: currentFavStore._id },
+        {
+          $set: { isFavourite: true }
+        },
+        { returnDocument: 'after' }
+      );
+      return res;
+    }
+
     const newFavStore = {
       customerId: new Types.ObjectId(customerId),
       storeId,
@@ -50,11 +66,12 @@ export class FavouriteStoreService {
       '<Service>:<FavouriteStoreService>: <Removing items favourite intiiated>'
     );
 
-    const res = await FavouriteStore.updateOne(
+    const res = await FavouriteStore.findOneAndUpdate(
       { _id: new Types.ObjectId(favId) },
       {
         $set: { isFavourite: false }
-      }
+      },
+      { returnDocument: 'after' }
     );
     return res;
   }
