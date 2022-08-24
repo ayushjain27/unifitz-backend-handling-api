@@ -11,7 +11,9 @@ import {
   CustomerController,
   NotificationController,
   ProductController,
-  JobCardController
+  JobCardController,
+  AdvertisementController,
+  FavouriteStoreController
 } from '../controllers';
 import {
   StoreService,
@@ -19,7 +21,9 @@ import {
   CustomerService,
   NotificationService,
   ProductService,
-  JobCardService
+  JobCardService,
+  AdvertisementService,
+  FavouriteStoreService
 } from '../services';
 
 const container = new Container();
@@ -72,5 +76,20 @@ container
   .to(JobCardController);
 
 container.bind<JobCardService>(TYPES.JobCardService).to(JobCardService);
+
+container
+  .bind<AdvertisementController>(TYPES.AdvertisementController)
+  .to(AdvertisementController);
+container
+  .bind<AdvertisementService>(TYPES.AdvertisementService)
+  .to(AdvertisementService);
+
+container
+  .bind<FavouriteStoreController>(TYPES.FavouriteStoreController)
+  .to(FavouriteStoreController);
+
+container
+  .bind<FavouriteStoreService>(TYPES.FavouriteStoreService)
+  .to(FavouriteStoreService);
 
 export default container;

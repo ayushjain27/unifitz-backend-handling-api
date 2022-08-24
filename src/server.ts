@@ -15,6 +15,8 @@ import customer from './routes/api/customer';
 import notification from './routes/api/notification';
 import product from './routes/api/product';
 import jobCard from './routes/api/jobCard.route';
+import advertisement from './routes/api/advertisement.route';
+import favouriteStore from './routes/api/favouriteStore';
 import { ObjectId } from 'mongoose';
 
 const app = express();
@@ -54,6 +56,8 @@ app.use('/customer', customer);
 app.use('/notification', notification);
 app.use('/product', product);
 app.use('/job-card', jobCard);
+app.use('/ads', advertisement);
+app.use('/favourite', favouriteStore);
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
   const result = categoryList

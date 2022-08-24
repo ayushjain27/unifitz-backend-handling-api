@@ -6,3 +6,5 @@ export * from './customer.service';
 export * from './notification.service';
 export * from './product.service';
 export * from './jobCard.service';
+export * from './advertisement.service';
+export * from './favouriteStore.service';
