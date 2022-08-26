@@ -8,17 +8,19 @@ export interface IVehiclesInfo extends Document {
   brand: string;
   modelName: string;
   fuel: string;
-  year: string;
+  manufactureYear: string;
   ownership: string;
 }
 
+export interfac IVe
+
 const vehicleInfoSchema: Schema = new Schema(
   {
-    customerId: {
+    userId: {
       type: Types.ObjectId,
       required: true
     },
-    vehicleImage: {
+    vehicleImageList: {
       type: String
     },
     vehicleNumber: {
@@ -36,7 +38,7 @@ const vehicleInfoSchema: Schema = new Schema(
     fuel: {
       type: String
     },
-    year: {
+    manufactureYear: {
       type: String
     },
     ownership: {
