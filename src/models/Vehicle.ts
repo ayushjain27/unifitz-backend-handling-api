@@ -2,6 +2,7 @@ import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IVehiclesInfo extends Document {
   customerId: string;
+  vehicleType: string;
   vehicleImage: string;
   vehicleNumber: string;
   category: string;
@@ -10,9 +11,38 @@ export interface IVehiclesInfo extends Document {
   fuel: string;
   manufactureYear: string;
   ownership: string;
+  purpose: string;
 }
 
-export interfac IVe
+export interface VehicleImage extends Document {
+  url: string;
+  title: string;
+}
+
+export enum VehiclePurposeType {
+  BUY_SELL = 'BUY_SELL',
+  OWNED = 'OWNED'
+}
+
+export enum VehicleType {
+  CYCLE = 'CYCLE',
+  TWO_WHEELER = 'TWO_WHEELER',
+  THREE_WHEELER = 'THREE_WHEELER',
+  FOUR_WHEELER = 'FOUR_WHEELER',
+  COMMERCIAL_VEHICLE = 'COMMERCIAL_VEHICLE'
+}
+
+const vehicleImageSchema: Schema = new Schema(
+  {
+    url: {
+      type: String
+    },
+    title: {
+      type: String
+    }
+  },
+  { _id: false }
+);
 
 const vehicleInfoSchema: Schema = new Schema(
   {
@@ -20,8 +50,12 @@ const vehicleInfoSchema: Schema = new Schema(
       type: Types.ObjectId,
       required: true
     },
+    vehicleType: {
+      type: String,
+      enum: VehicleType
+    },
     vehicleImageList: {
-      type: String
+      type: [vehicleImageSchema]
     },
     vehicleNumber: {
       type: String
@@ -43,10 +77,16 @@ const vehicleInfoSchema: Schema = new Schema(
     },
     ownership: {
       type: String
+    },
+    purpose: {
+      type: String,
+      enum: VehiclePurposeType,
+      required: true
     }
   },
   {
-    _id: false
+    _id: false,
+    strict: false
   }
 );
 
