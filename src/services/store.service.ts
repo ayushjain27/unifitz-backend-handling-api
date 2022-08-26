@@ -181,7 +181,7 @@ export class StoreService {
   }
   async getAll() {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
-    const stores = await Store.find().lean();
+    const stores: StoreResponse[] = await Store.find().lean();
 
     //STARTS --- Update Script for all the stores
     // const bulkWrite = [];

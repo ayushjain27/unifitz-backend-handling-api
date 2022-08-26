@@ -49,7 +49,7 @@ export class AdvertisementService {
 
   async getAllBanner(): Promise<IBanner[]> {
     Logger.info('<Service>:<AdvertisementService>:<Get All Banner initiated>');
-    const banners = await Banner.find().lean();
+    const banners: IBanner[] = await Banner.find().lean();
     return banners;
   }
 
@@ -57,7 +57,7 @@ export class AdvertisementService {
     Logger.info(
       '<Service>:<AdvertisementService>:<Get All Banner for customer initiated>'
     );
-    const banners = await Banner.find().limit(4).lean();
+    const banners: IBanner[] = await Banner.find().limit(4).lean();
     Logger.info(
       '<Service>:<AdvertisementService>:<Get All Banner for customer completed>'
     );
