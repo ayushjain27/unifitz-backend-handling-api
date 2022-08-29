@@ -10,5 +10,6 @@ export enum ACL {
   NOTIFICATION_SEND = 'notification:send_owner',
   CUSTOMER_GET_ALL = 'customer:get_all',
   ADVERTISEMENT_CREATE = 'advertisement:write',
-  ADVERTISEMENT_GET_CUSTOMER = 'advertisement:customer'
+  ADVERTISEMENT_GET_CUSTOMER = 'advertisement:customer',
+  ADD_VEHICLE = 'vehicle:create'
 }

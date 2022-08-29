@@ -18,6 +18,7 @@ import jobCard from './routes/api/jobCard.route';
 import advertisement from './routes/api/advertisement.route';
 import favouriteStore from './routes/api/favouriteStore';
 import { ObjectId } from 'mongoose';
+import vehicle from './routes/api/vehicle';
 
 const app = express();
 // Connect to MongoDB
@@ -58,6 +59,7 @@ app.use('/product', product);
 app.use('/job-card', jobCard);
 app.use('/ads', advertisement);
 app.use('/favourite', favouriteStore);
+app.use('/vehicle', vehicle);
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
   const result = categoryList

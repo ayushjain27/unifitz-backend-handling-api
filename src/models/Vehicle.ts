@@ -1,7 +1,7 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IVehiclesInfo extends Document {
-  customerId: string;
+  userId: string;
   vehicleType: string;
   vehicleImage: string;
   vehicleNumber: string;
@@ -85,7 +85,6 @@ const vehicleInfoSchema: Schema = new Schema(
     }
   },
   {
-    _id: false,
     strict: false
   }
 );

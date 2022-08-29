@@ -20,6 +20,9 @@ export const TYPES = {
   FavouriteStoreController: Symbol('FavouriteStoreController'),
   FavouriteStoreService: Symbol('FavouriteStoreService'),
 
+  VehicleInfoController: Symbol('vehicleStoreController'),
+  VehicleInfoService: Symbol('vehicleStoreService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
