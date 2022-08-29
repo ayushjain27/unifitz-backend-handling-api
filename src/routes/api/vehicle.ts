@@ -17,4 +17,13 @@ router.post(
   vehicleInfoController.addVehicleInfo
 );
 
+router.post(
+  '/getAllVehicleByUser',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('getVehicle'),
+  vehicleInfoController.getAllVehicleByUser
+);
+
+router.post('')
+
 export default router;

@@ -24,7 +24,9 @@ export class VehicleInfoService {
     } = vehicleStore;
 
     // Check if user exists
-    const user: IUser = await User.findOne({ userId }).lean();
+    const user: IUser = await User.findOne({
+      userId: new Types.ObjectId(userId)
+    }).lean();
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
@@ -46,5 +48,25 @@ export class VehicleInfoService {
       newVehicleStore
     );
     return newVehicleItem;
+  }
+
+  async getAllVehicleByUser(getVehicleRequest: {
+    userId: string;
+    purpose: string;
+  }) {
+    const { userId, purpose } = getVehicleRequest;
+    // Check if user exists
+    const user: IUser = await User.findOne({
+      userId: new Types.ObjectId(userId)
+    }).lean();
+    if (_.isEmpty(user)) {
+      throw new Error('User not found');
+    }
+
+    const allVehicles = await VechicleInfo.find({
+      userId: new Types.ObjectId(userId),
+      purpose
+    }).lean();
+    return allVehicles;
   }
 }
