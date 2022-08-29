@@ -6,3 +6,4 @@ export * from './product.controller';
 export * from './jobCard.controller';
 export * from './advertisement.controller';
 export * from './favouriteStore.controller';
+export * from './vehicleInfo.controller';
