@@ -12,6 +12,8 @@ export interface IVehiclesInfo extends Document {
   manufactureYear: string;
   ownership: string;
   purpose: string;
+  fuelType: string;
+  kmsDriven: string;
 }
 
 export interface VehicleImage extends Document {
@@ -32,17 +34,22 @@ export enum VehicleType {
   COMMERCIAL_VEHICLE = 'COMMERCIAL_VEHICLE'
 }
 
-const vehicleImageSchema: Schema = new Schema(
-  {
-    url: {
-      type: String
-    },
-    title: {
-      type: String
-    }
+export enum FuelType {
+  DISEL = 'DISEL',
+  PETROL = 'PETROL',
+  EV = 'EV',
+  CNG = 'CNG',
+  LPG = 'LPG'
+}
+
+const vehicleImageSchema: Schema = new Schema({
+  url: {
+    type: String
   },
-  { _id: false }
-);
+  title: {
+    type: String
+  }
+});
 
 const vehicleInfoSchema: Schema = new Schema(
   {
@@ -82,6 +89,12 @@ const vehicleInfoSchema: Schema = new Schema(
       type: String,
       enum: VehiclePurposeType,
       required: true
+    },
+    fuelType: {
+      type: String
+    },
+    kmsDriven: {
+      type: String
     }
   },
   {
