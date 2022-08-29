@@ -85,7 +85,6 @@ const vehicleInfoSchema: Schema = new Schema(
     }
   },
   {
-    _id: false,
     strict: false
   }
 );

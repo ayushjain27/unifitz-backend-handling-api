@@ -13,7 +13,8 @@ import {
   ProductController,
   JobCardController,
   AdvertisementController,
-  FavouriteStoreController
+  FavouriteStoreController,
+  VehicleInfoController
 } from '../controllers';
 import {
   StoreService,
@@ -23,7 +24,8 @@ import {
   ProductService,
   JobCardService,
   AdvertisementService,
-  FavouriteStoreService
+  FavouriteStoreService,
+  VehicleInfoService
 } from '../services';
 
 const container = new Container();
@@ -91,5 +93,13 @@ container
 container
   .bind<FavouriteStoreService>(TYPES.FavouriteStoreService)
   .to(FavouriteStoreService);
+
+container
+  .bind<VehicleInfoController>(TYPES.VehicleInfoController)
+  .to(VehicleInfoController);
+
+container
+  .bind<VehicleInfoService>(TYPES.VehicleInfoService)
+  .to(VehicleInfoService);
 
 export default container;
