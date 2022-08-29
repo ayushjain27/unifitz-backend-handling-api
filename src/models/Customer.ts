@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IContactInfo extends Document {
   address: string;
@@ -32,6 +32,7 @@ const customerContactSchema: Schema = new Schema(
  * Interface to model the Customer Schema for TypeScript.
  */
 export interface ICustomer extends Document {
+  userId: string;
   nameSalutation: string;
   fullName: string;
   phoneNumber: string;
@@ -46,6 +47,9 @@ export interface ICustomer extends Document {
 
 const customerSchema: Schema = new Schema(
   {
+    userId: {
+      type: Types.ObjectId
+    },
     nameSalutation: {
       type: String,
     },
