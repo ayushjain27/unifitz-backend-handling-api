@@ -7,7 +7,7 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { FavouriteStoreService } from './../services/favouriteStore.service';
 import { AddToFavouriteRequest } from './../interfaces/addToFavouriteRequest.interface';
-
+import { AllFavStoreRequest } from '../interfaces/allFavStoreRequest.interface';
 @injectable()
 export class FavouriteStoreController {
   private favouriteStoreService: FavouriteStoreService;
@@ -102,6 +102,34 @@ export class FavouriteStoreController {
     }
   };
 
+  getAllFavStore = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const allFavStoreReq: AllFavStoreRequest = req.body;
+    // const addToFavouriteRequest: AddToFavouriteRequest = {
+    //   customerId,
+    //   storeId
+    // };
+    Logger.info(
+      '<Controller>:<FavouriteStoreController>:<Get all favourite store paginated request initiated>'
+    );
+    try {
+      const result = await this.favouriteStoreService.getAllFavStore(
+        allFavStoreReq
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addToFavourite':
@@ -113,6 +141,12 @@ export class FavouriteStoreController {
 
       case 'removeFromFavourite':
         return [query('id', 'Fav Id does not exist').exists().isString()];
+      case 'getAllFavStore':
+        return [
+          body('customerId', 'Customer Id does not exist').exists().isString(),
+          body('pageSize', 'Page Size does not exist').exists().isNumeric(),
+          body('pageNo', 'Page Number does not exist').exists().isNumeric()
+        ];
     }
   };
 }

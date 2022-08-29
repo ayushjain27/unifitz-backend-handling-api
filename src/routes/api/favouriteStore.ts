@@ -30,4 +30,12 @@ router.post(
   favouriteStoreController.checkFavStore
 );
 
+router.get(
+  '/getAllFavStore',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  favouriteStoreController.validate('getAllFavStore'),
+
+  favouriteStoreController.getAllFavStore
+);
+
 export default router;
