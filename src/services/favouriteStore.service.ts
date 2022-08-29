@@ -91,12 +91,28 @@ export class FavouriteStoreService {
 
   async getAllFavStore(allFavReq: AllFavStoreRequest) {
     const { pageSize, pageNo, customerId } = allFavReq;
-    const allFavStore: IFavouriteStore = await FavouriteStore.find({
-      customerId: new Types.ObjectId(customerId)
-    })
+    const allFavStore: IFavouriteStore[] = await FavouriteStore.aggregate([
+      {
+        $match: { customerId: new Types.ObjectId(customerId) }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      { $unwind: { path: '$storeInfo' } }
+    ])
       .limit(pageSize)
-      .skip(pageNo * pageSize)
-      .lean();
+      .skip(pageNo * pageSize);
+    // const allFavStore: IFavouriteStore = await FavouriteStore.find({
+    //   customerId: new Types.ObjectId(customerId)
+    // })
+    //   .limit(pageSize)
+    //   .skip(pageNo * pageSize)
+    //   .lean();
     return allFavStore;
   }
 }
