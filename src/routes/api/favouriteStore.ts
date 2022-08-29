@@ -30,7 +30,7 @@ router.post(
   favouriteStoreController.checkFavStore
 );
 
-router.get(
+router.post(
   '/getAllFavStore',
   roleAuth(ACL.CUSTOMER_CREATE),
   favouriteStoreController.validate('getAllFavStore'),
