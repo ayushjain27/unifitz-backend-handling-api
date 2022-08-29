@@ -1,3 +1,4 @@
+import { AllFavStoreRequest } from './../interfaces/allFavStoreRequest.interface';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -86,5 +87,16 @@ export class FavouriteStoreService {
     } else {
       return favStoreDb.isFavourite;
     }
+  }
+
+  async getAllFavStore(allFavReq: AllFavStoreRequest) {
+    const { pageSize, pageNo, customerId } = allFavReq;
+    const allFavStore: IFavouriteStore = await FavouriteStore.find({
+      customerId: new Types.ObjectId(customerId)
+    })
+      .limit(pageSize)
+      .skip(pageNo * pageSize)
+      .lean();
+    return allFavStore;
   }
 }
