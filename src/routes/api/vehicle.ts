@@ -1,9 +1,14 @@
 import { Router } from 'express';
+import multer from 'multer';
+
 import { roleAuth } from '../middleware/rbac';
 import { TYPES } from '../../config/inversify.types';
 import { ACL } from '../../enum/rbac.enum';
 import container from '../../config/inversify.container';
 import { VehicleInfoController } from '../../controllers/vehicleInfo.controller';
+
+const storage = multer.memoryStorage();
+const uploadFiles = multer({ storage: storage });
 
 const router: Router = Router();
 const vehicleInfoController = container.get<VehicleInfoController>(
@@ -24,6 +29,12 @@ router.post(
   vehicleInfoController.getAllVehicleByUser
 );
 
-router.post('')
+router.post(
+  '/uploadVehicleImages',
+  uploadFiles.array('files'),
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('uploadImages'),
+  vehicleInfoController.uploadVehicleImages
+);
 
 export default router;

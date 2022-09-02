@@ -16,8 +16,9 @@ export interface IVehiclesInfo extends Document {
   kmsDriven: string;
 }
 
-export interface VehicleImage extends Document {
+export interface IVehicleImage extends Document {
   url: string;
+  key: string;
   title: string;
 }
 
