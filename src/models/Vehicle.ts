@@ -15,6 +15,8 @@ export interface IVehiclesInfo extends Document {
   purpose: string;
   fuelType: string;
   kmsDriven: string;
+  lastInsuanceDate: Date;
+  lastServiceDate: Date;
 }
 
 export interface IVehicleImage extends Document {
@@ -100,6 +102,12 @@ const vehicleInfoSchema: Schema = new Schema(
     },
     kmsDriven: {
       type: String
+    },
+    lastInsuanceDate: {
+      type: Date
+    },
+    lastServiceDate: {
+      type: Date
     }
   },
   {
