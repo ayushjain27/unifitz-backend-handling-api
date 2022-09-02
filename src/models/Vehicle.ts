@@ -11,6 +11,7 @@ export interface IVehiclesInfo extends Document {
   fuel: string;
   manufactureYear: string;
   ownership: string;
+  gearType: string;
   purpose: string;
   fuelType: string;
   kmsDriven: string;
@@ -84,6 +85,9 @@ const vehicleInfoSchema: Schema = new Schema(
       type: String
     },
     ownership: {
+      type: String
+    },
+    gearType: {
       type: String
     },
     purpose: {
