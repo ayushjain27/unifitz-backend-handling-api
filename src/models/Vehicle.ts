@@ -11,8 +11,8 @@ export interface IVehiclesInfo extends Document {
   fuel: string;
   manufactureYear: string;
   ownership: string;
-  gearType: string;
   purpose: string;
+  gearType: string;
   fuelType: string;
   kmsDriven: string;
   lastInsuanceDate: Date;
@@ -28,6 +28,11 @@ export interface IVehicleImage extends Document {
 export enum VehiclePurposeType {
   BUY_SELL = 'BUY_SELL',
   OWNED = 'OWNED'
+}
+
+export enum VehicleGearType {
+  MANUAL = 'MANUAL',
+  AUTOMATIC = 'AUTOMATIC'
 }
 
 export enum VehicleType {
@@ -90,7 +95,8 @@ const vehicleInfoSchema: Schema = new Schema(
       type: String
     },
     gearType: {
-      type: String
+      type: String,
+      enum: VehicleGearType
     },
     purpose: {
       type: String,
