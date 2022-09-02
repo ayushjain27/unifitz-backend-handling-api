@@ -66,6 +66,32 @@ export class VehicleInfoController {
     }
   };
 
+  uploadVehicleImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const { vehicleId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.uploadVehicleImages(
+        vehicleId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':
@@ -76,6 +102,9 @@ export class VehicleInfoController {
           body('userId', 'User Id does not exist').exists().isString(),
           body('purpose', 'type does not exist').exists().isString()
         ];
+
+      case 'uploadImages':
+        return [body('vehicleId', 'Title does not exist').exists().isString()];
     }
   };
 }

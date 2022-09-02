@@ -29,7 +29,7 @@ export class AdvertisementService {
     }
 
     const { key, url } = await this.s3Client.uploadFile(
-      JSON.stringify(new Date().getMilliseconds()),
+      'advertisement',
       file.originalname,
       file.buffer
     );
