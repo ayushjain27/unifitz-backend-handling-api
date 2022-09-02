@@ -3,7 +3,7 @@ import { Document, model, Schema, Types } from 'mongoose';
 export interface IVehiclesInfo extends Document {
   userId: string;
   vehicleType: string;
-  vehicleImage: string;
+  vehicleImage: IVehicleImage;
   vehicleNumber: string;
   category: string;
   brand: string;
@@ -12,8 +12,11 @@ export interface IVehiclesInfo extends Document {
   manufactureYear: string;
   ownership: string;
   purpose: string;
+  gearType: string;
   fuelType: string;
   kmsDriven: string;
+  lastInsuanceDate: Date;
+  lastServiceDate: Date;
 }
 
 export interface IVehicleImage extends Document {
@@ -25,6 +28,11 @@ export interface IVehicleImage extends Document {
 export enum VehiclePurposeType {
   BUY_SELL = 'BUY_SELL',
   OWNED = 'OWNED'
+}
+
+export enum VehicleGearType {
+  MANUAL = 'MANUAL',
+  AUTOMATIC = 'AUTOMATIC'
 }
 
 export enum VehicleType {
@@ -86,6 +94,10 @@ const vehicleInfoSchema: Schema = new Schema(
     ownership: {
       type: String
     },
+    gearType: {
+      type: String,
+      enum: VehicleGearType
+    },
     purpose: {
       type: String,
       enum: VehiclePurposeType,
@@ -96,6 +108,12 @@ const vehicleInfoSchema: Schema = new Schema(
     },
     kmsDriven: {
       type: String
+    },
+    lastInsuanceDate: {
+      type: Date
+    },
+    lastServiceDate: {
+      type: Date
     }
   },
   {
