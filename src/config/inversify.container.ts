@@ -25,7 +25,8 @@ import {
   JobCardService,
   AdvertisementService,
   FavouriteStoreService,
-  VehicleInfoService
+  VehicleInfoService,
+  TwoFactorService
 } from '../services';
 
 const container = new Container();
@@ -101,5 +102,7 @@ container
 container
   .bind<VehicleInfoService>(TYPES.VehicleInfoService)
   .to(VehicleInfoService);
+
+container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 
 export default container;

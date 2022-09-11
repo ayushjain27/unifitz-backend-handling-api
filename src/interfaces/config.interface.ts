@@ -8,3 +8,9 @@ export interface S3Config {
   ACCESS_KEY: string;
   BUCKET_NAME: string;
 }
+
+export interface TwoFactorConfig {
+  URL: string;
+  API_KEY: string;
+  TEMPLATE_NAME: string;
+}
