@@ -9,3 +9,4 @@ export * from './jobCard.service';
 export * from './advertisement.service';
 export * from './favouriteStore.service';
 export * from './vehicle.service';
+export * from './twoFactor.service';
