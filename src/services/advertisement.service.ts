@@ -57,7 +57,11 @@ export class AdvertisementService {
     Logger.info(
       '<Service>:<AdvertisementService>:<Get All Banner for customer initiated>'
     );
-    const banners: IBanner[] = await Banner.find().limit(4).lean();
+    const banners: IBanner[] = await Banner.find({
+      status: BannerStatus.ACTIVE
+    })
+      .limit(4)
+      .lean();
     Logger.info(
       '<Service>:<AdvertisementService>:<Get All Banner for customer completed>'
     );

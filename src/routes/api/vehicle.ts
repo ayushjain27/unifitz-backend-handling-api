@@ -16,10 +16,10 @@ const vehicleInfoController = container.get<VehicleInfoController>(
 );
 
 router.post(
-  '/addVehicle',
+  '/addOrUpdateVehicle',
   roleAuth(ACL.ADD_VEHICLE),
   vehicleInfoController.validate('addVehicle'),
-  vehicleInfoController.addVehicleInfo
+  vehicleInfoController.addOrUpdateVehicle
 );
 
 router.post(
@@ -35,6 +35,14 @@ router.post(
   roleAuth(ACL.ADD_VEHICLE),
   vehicleInfoController.validate('uploadImages'),
   vehicleInfoController.uploadVehicleImages
+);
+
+router.post(
+  '/updateOrDeleteVehicleImage',
+  uploadFiles.single('file'),
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('updateOrDeleteVehicleImage'),
+  vehicleInfoController.updateOrDeleteVehicleImage
 );
 
 export default router;
