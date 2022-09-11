@@ -83,9 +83,12 @@ export class FavouriteStoreService {
       customerId: new Types.ObjectId(favStore.customerId)
     }).lean();
     if (_.isEmpty(favStoreDb)) {
-      return false;
+      return { isFavourite: false, favouriteId: null };
     } else {
-      return favStoreDb.isFavourite;
+      return {
+        isFavourite: favStoreDb.isFavourite,
+        favouriteId: favStoreDb?._id
+      };
     }
   }
 

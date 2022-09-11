@@ -1,9 +1,10 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IVehiclesInfo extends Document {
+  vehicleId?: string;
   userId: string;
   vehicleType: string;
-  vehicleImage: IVehicleImage;
+  vehicleImageList: IVehicleImage[];
   vehicleNumber: string;
   category: string;
   brand: string;
@@ -19,7 +20,7 @@ export interface IVehiclesInfo extends Document {
   lastServiceDate: Date;
 }
 
-export interface IVehicleImage extends Document {
+export interface IVehicleImage {
   url: string;
   key: string;
   title: string;
@@ -53,6 +54,9 @@ export enum FuelType {
 
 const vehicleImageSchema: Schema = new Schema({
   url: {
+    type: String
+  },
+  key: {
     type: String
   },
   title: {
