@@ -5,7 +5,7 @@ import { twoFactorConfig } from '../config/constants';
 @injectable()
 export class TwoFactorService {
   async sendVerificationCode(phoneNumber: string) {
-    const url = `${twoFactorConfig.URL}/${twoFactorConfig.API_KEY}/SMS/+91${phoneNumber}/AUTOGEN3/${twoFactorConfig.TEMPLATE_NAME}`;
+    const url = `${twoFactorConfig.URL}/${twoFactorConfig.API_KEY}/SMS/${phoneNumber}/AUTOGEN3/${twoFactorConfig.TEMPLATE_NAME}`;
     try {
       const res = await axios.get(url);
       return res.data;
@@ -15,7 +15,7 @@ export class TwoFactorService {
   }
 
   async verifyCode(phoneNumber: string, code: string) {
-    const url = `${twoFactorConfig.URL}/${twoFactorConfig.API_KEY}/SMS/VERIFY3/+91${phoneNumber}/${code}`;
+    const url = `${twoFactorConfig.URL}/${twoFactorConfig.API_KEY}/SMS/VERIFY3/${phoneNumber}/${code}`;
     try {
       const res = await axios.get(url);
       return res.data;
