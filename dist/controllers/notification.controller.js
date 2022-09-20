@@ -58,8 +58,8 @@ let NotificationController = class NotificationController {
     }
 };
 NotificationController = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.NotificationService)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.NotificationService)),
     __metadata("design:paramtypes", [notification_service_1.NotificationService])
 ], NotificationController);
 exports.NotificationController = NotificationController;

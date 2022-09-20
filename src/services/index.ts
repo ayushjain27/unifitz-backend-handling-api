@@ -4,3 +4,4 @@ export * from './admin.service';
 export * from './store.service';
 export * from './customer.service';
 export * from './notification.service';
+export * from './twoFactor.service';

@@ -15,7 +15,8 @@ import {
   StoreService,
   AdminService,
   CustomerService,
-  NotificationService
+  NotificationService,
+  TwoFactorService
 } from '../services';
 
 const container = new Container();
@@ -56,5 +57,7 @@ container
 container
   .bind<NotificationService>(TYPES.NotificationService)
   .to(NotificationService);
+
+container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 
 export default container;

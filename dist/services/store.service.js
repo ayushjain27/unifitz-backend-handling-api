@@ -408,7 +408,7 @@ let StoreService = class StoreService {
     }
 };
 StoreService = __decorate([
-    inversify_1.injectable()
+    (0, inversify_1.injectable)()
 ], StoreService);
 exports.StoreService = StoreService;
 //# sourceMappingURL=store.service.js.map

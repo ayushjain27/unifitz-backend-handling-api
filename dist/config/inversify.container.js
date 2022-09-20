@@ -41,5 +41,6 @@ container
 container
     .bind(inversify_types_1.TYPES.NotificationService)
     .to(services_2.NotificationService);
+container.bind(inversify_types_1.TYPES.TwoFactorService).to(services_2.TwoFactorService);
 exports.default = container;
 //# sourceMappingURL=inversify.container.js.map

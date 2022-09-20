@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
+const lodash_1 = __importDefault(require("lodash"));
 const constants_1 = require("../../config/constants");
 const winston_1 = __importDefault(require("../../config/winston"));
 const auth_1 = __importDefault(require("../middleware/auth"));
@@ -22,8 +23,10 @@ const DeviceFcm_1 = __importDefault(require("../../models/DeviceFcm"));
 const inversify_container_1 = __importDefault(require("../../config/inversify.container"));
 const inversify_types_1 = require("../../config/inversify.types");
 const utils_1 = require("../../utils");
-const router = express_1.Router();
+const constants_2 = require("../../config/constants");
+const router = (0, express_1.Router)();
 const twilioCLient = inversify_container_1.default.get(inversify_types_1.TYPES.TwilioService);
+const twoFactorService = inversify_container_1.default.get(inversify_types_1.TYPES.TwoFactorService);
 // @route   GET user/auth
 // @desc    Get authenticated user given the token
 // @access  Private
@@ -48,12 +51,34 @@ router.post('/otp/send', (req, res) => __awaiter(void 0, void 0, void 0, functio
             channel
         };
         if (loginPayload.phoneNumber) {
-            const result = yield twilioCLient.sendVerificationCode(loginPayload.phoneNumber, loginPayload.channel);
-            res.status(http_status_codes_1.default.OK).send({
-                message: 'Verification is sent!!',
-                phoneNumber,
-                result
-            });
+            // const result = await twilioCLient.sendVerificationCode(
+            //   loginPayload.phoneNumber,
+            //   loginPayload.channel
+            // );
+            // res.status(HttpStatusCodes.OK).send({
+            //   message: 'Verification is sent!!',
+            //   phoneNumber,
+            //   result
+            // });
+            const testUser = getTestUser(loginPayload.phoneNumber);
+            if (testUser) {
+                res.status(http_status_codes_1.default.OK).send({
+                    message: 'Verification is sent!!',
+                    phoneNumber
+                });
+            }
+            else {
+                // const result = await twilioCLient.sendVerificationCode(
+                //   loginPayload.phoneNumber,
+                //   loginPayload.channel
+                // );
+                const result = yield twoFactorService.sendVerificationCode(loginPayload.phoneNumber);
+                res.status(http_status_codes_1.default.OK).send({
+                    message: 'Verification is sent!!',
+                    phoneNumber,
+                    result
+                });
+            }
             winston_1.default.debug(`Twilio verification sent to ${loginPayload.phoneNumber}`);
         }
         else {
@@ -85,12 +110,33 @@ router.post('/otp/login', (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (verifyPayload.phoneNumber &&
             verifyPayload.code.length === constants_1.defaultCodeLength) {
             const { phoneNumber } = verifyPayload;
-            const result = yield twilioCLient.verifyCode(phoneNumber, verifyPayload.code);
-            if (!result) {
-                res.status(http_status_codes_1.default.BAD_REQUEST).send({
-                    message: 'Invalid verification code :(',
-                    phoneNumber
-                });
+            // const result = await twilioCLient.verifyCode(
+            //   phoneNumber,
+            //   verifyPayload.code
+            // );
+            // if (!result) {
+            //   res.status(HttpStatusCodes.BAD_REQUEST).send({
+            //     message: 'Invalid verification code :(',
+            //     phoneNumber
+            //   });
+            const testUser = getTestUser(phoneNumber);
+            if (testUser) {
+                const isMatch = (testUser === null || testUser === void 0 ? void 0 : testUser.otp) === verifyPayload.code;
+                if (!isMatch) {
+                    return res.status(http_status_codes_1.default.BAD_REQUEST).send({
+                        message: 'Invalid verification code :(',
+                        phoneNumber
+                    });
+                }
+            }
+            else {
+                const result = yield twoFactorService.verifyCode(phoneNumber, verifyPayload.code);
+                if (!result || (result === null || result === void 0 ? void 0 : result.Status) === 'Error') {
+                    return res.status(http_status_codes_1.default.BAD_REQUEST).send({
+                        message: 'Invalid verification code :(',
+                        phoneNumber
+                    });
+                }
             }
             winston_1.default.debug(`Twilio verification completed for ${phoneNumber}`);
             winston_1.default.debug(`User registration started for ${phoneNumber}`);
@@ -107,7 +153,7 @@ router.post('/otp/login', (req, res) => __awaiter(void 0, void 0, void 0, functi
                 userId: phoneNumber,
                 role: role
             };
-            const token = yield utils_1.generateToken(payload);
+            const token = yield (0, utils_1.generateToken)(payload);
             res.status(http_status_codes_1.default.OK).send({
                 message: 'Login Successful',
                 token,
@@ -149,5 +195,9 @@ router.post('/fcmToken', (req, res) => __awaiter(void 0, void 0, void 0, functio
             .send('Twilio Service Error');
     }
 }));
+const getTestUser = (phoneNumber) => {
+    const testUser = lodash_1.default.find(constants_2.testUsers, (user) => `+91${user === null || user === void 0 ? void 0 : user.phoneNo}` === phoneNumber);
+    return testUser;
+};
 exports.default = router;
 //# sourceMappingURL=user.js.map

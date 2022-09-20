@@ -22,6 +22,7 @@ exports.NotificationService = void 0;
 const inversify_1 = require("inversify");
 const winston_1 = __importDefault(require("../config/winston"));
 const firebase_config_1 = require("../config/firebase-config");
+const firebase_admin_1 = require("firebase-admin");
 // import Customer, { ICustomer } from './../models/Customer';
 let NotificationService = class NotificationService {
     sendNotification(params) {
@@ -34,9 +35,7 @@ let NotificationService = class NotificationService {
                 timeToLive: 60 * 60 * 24
             };
             try {
-                const response = yield firebase_config_1.firebaseAdmin
-                    .messaging()
-                    .sendToDevice(registrationToken, payload, options);
+                const response = yield (0, firebase_admin_1.messaging)(firebase_config_1.firebaseAdmin).sendToDevice(registrationToken, payload, options);
                 return response;
             }
             catch (err) {
@@ -46,7 +45,7 @@ let NotificationService = class NotificationService {
     }
 };
 NotificationService = __decorate([
-    inversify_1.injectable()
+    (0, inversify_1.injectable)()
 ], NotificationService);
 exports.NotificationService = NotificationService;
 //# sourceMappingURL=notification.service.js.map

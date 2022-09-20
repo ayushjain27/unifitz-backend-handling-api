@@ -48,14 +48,14 @@ const customerContactSchema = new mongoose_1.Schema({
 });
 const customerSchema = new mongoose_1.Schema({
     nameSalutation: {
-        type: String,
+        type: String
     },
     fullName: {
         type: String,
         required: true
     },
     phoneNumber: {
-        type: String,
+        type: String
     },
     email: {
         type: String
@@ -64,7 +64,7 @@ const customerSchema = new mongoose_1.Schema({
         type: String
     },
     dob: {
-        type: String,
+        type: String
     },
     contactInfo: {
         type: customerContactSchema
@@ -73,6 +73,6 @@ const customerSchema = new mongoose_1.Schema({
         type: [customerVehicleInfoSchema]
     }
 }, { timestamps: true });
-const Customer = mongoose_1.model('customers', customerSchema);
+const Customer = (0, mongoose_1.model)('customers', customerSchema);
 exports.default = Customer;
 //# sourceMappingURL=Customer.js.map

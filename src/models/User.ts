@@ -33,6 +33,6 @@ const userSchema: Schema = new Schema(
 );
 userSchema.index({ phoneNumber: 1, role: 1 }, { unique: true });
 
-const User: Model<IUser> = model('users', userSchema);
+const User = model<IUser & Document>('users', userSchema);
 
 export default User;

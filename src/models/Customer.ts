@@ -91,14 +91,14 @@ export interface ICustomer extends Document {
 const customerSchema: Schema = new Schema(
   {
     nameSalutation: {
-      type: String,
+      type: String
     },
     fullName: {
       type: String,
       required: true
     },
     phoneNumber: {
-      type: String,
+      type: String
     },
     email: {
       type: String
@@ -107,7 +107,7 @@ const customerSchema: Schema = new Schema(
       type: String
     },
     dob: {
-      type: String,
+      type: String
     },
     contactInfo: {
       type: customerContactSchema
@@ -120,6 +120,6 @@ const customerSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Customer: Model<ICustomer> = model('customers', customerSchema);
+const Customer = model<ICustomer & Document>('customers', customerSchema);
 
 export default Customer;

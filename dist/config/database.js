@@ -18,13 +18,13 @@ const winston_1 = __importDefault(require("./winston"));
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const mongoURI = config_1.default.get('MONGO_URI');
-        const options = {
-            useNewUrlParser: true,
-            useCreateIndex: true,
-            useFindAndModify: false,
-            useUnifiedTopology: true
-        };
-        yield mongoose_1.connect(mongoURI, options);
+        // const options: ConnectOptions = {
+        //   useNewUrlParser: true,
+        //   useCreateIndex: true,
+        //   useFindAndModify: false,
+        //   useUnifiedTopology: true
+        // };
+        (0, mongoose_1.connect)(mongoURI);
         winston_1.default.info('MongoDB Connected...');
     }
     catch (err) {

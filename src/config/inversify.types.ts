@@ -11,5 +11,6 @@ export const TYPES = {
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
-  S3Service: Symbol('S3Service')
+  S3Service: Symbol('S3Service'),
+  TwoFactorService: Symbol('TwoFactorService')
 };

@@ -27,15 +27,15 @@ const store_1 = __importDefault(require("./routes/api/store"));
 const user_1 = __importDefault(require("./routes/api/user"));
 const customer_1 = __importDefault(require("./routes/api/customer"));
 const notification_1 = __importDefault(require("./routes/api/notification"));
-const app = express_1.default();
+const app = (0, express_1.default)();
 // Connect to MongoDB
-database_1.default();
+(0, database_1.default)();
 // Connect with firebase admin
-firebase_config_1.connectFirebaseAdmin();
-app.use(cors_1.default());
+(0, firebase_config_1.connectFirebaseAdmin)();
+app.use((0, cors_1.default)());
 app.set('port', process.env.PORT || 3005);
 // Middlewares configuration
-app.use(helmet_1.default());
+app.use((0, helmet_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded());
 app.use(morgan_1.default);

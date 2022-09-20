@@ -17,6 +17,6 @@ const userSchema = new mongoose_1.Schema({
     }
 }, { timestamps: true });
 userSchema.index({ phoneNumber: 1, role: 1 }, { unique: true });
-const User = mongoose_1.model('users', userSchema);
+const User = (0, mongoose_1.model)('users', userSchema);
 exports.default = User;
 //# sourceMappingURL=User.js.map

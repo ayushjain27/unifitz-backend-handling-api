@@ -84,8 +84,8 @@ let S3Service = class S3Service {
     }
 };
 S3Service = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.S3Client)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.S3Client)),
     __metadata("design:paramtypes", [aws_sdk_1.S3])
 ], S3Service);
 exports.S3Service = S3Service;

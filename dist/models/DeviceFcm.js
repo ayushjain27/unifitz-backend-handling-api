@@ -18,6 +18,6 @@ const deviceFmcSchema = new mongoose_1.Schema({
     }
 }, { timestamps: true });
 deviceFmcSchema.index({ deviceId: 1, role: 1 }, { unique: true });
-const Admin = mongoose_1.model('device_fcm', deviceFmcSchema);
+const Admin = (0, mongoose_1.model)('device_fcm', deviceFmcSchema);
 exports.default = Admin;
 //# sourceMappingURL=DeviceFcm.js.map

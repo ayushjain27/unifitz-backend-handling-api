@@ -215,8 +215,8 @@ let StoreController = class StoreController {
     }
 };
 StoreController = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject(inversify_types_1.TYPES.StoreService)),
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(inversify_types_1.TYPES.StoreService)),
     __metadata("design:paramtypes", [services_1.StoreService])
 ], StoreController);
 exports.StoreController = StoreController;

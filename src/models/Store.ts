@@ -220,6 +220,6 @@ const storeSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Store: Model<IStore> = model('stores', storeSchema);
+const Store = model<IStore & Document>('stores', storeSchema);
 
 export default Store;
