@@ -108,12 +108,15 @@ app.post('/subCategory', async (req, res) => {
   }
   query = { tree: { $in: treeVal } };
   const subCatList: ICatalog[] = await Catalog.find(query);
-  let result = subCatList.map(({ _id, catalogName }) => {
-    return { _id, catalogName };
+  let result = subCatList.map(({ _id, catalogName, tree }) => {
+    return { _id, catalogName, tree };
   });
-  result = _.uniqBy(result, (e: { catalogName: string; _id: ObjectId }) => {
-    return e.catalogName;
-  });
+  result = _.uniqBy(
+    result,
+    (e: { catalogName: string; _id: ObjectId; tree: string }) => {
+      return e.catalogName;
+    }
+  );
   res.json({
     list: result
   });
@@ -133,15 +136,13 @@ app.get('/brand', async (req, res) => {
 });
 
 app.post('/brand', async (req, res) => {
-  const { subCategoryList, category } = req.body;
+  const { subCategoryList } = req.body;
   let query = {};
   const treeVal: string[] = [];
   if (Array.isArray(subCategoryList)) {
     subCategoryList.forEach((subCat) => {
-      treeVal.push(`root/${category}/${subCat}`);
+      treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
     });
-  } else {
-    treeVal.push(`root/${category}/${subCategoryList}`);
   }
   query = { tree: { $in: treeVal } };
   const categoryList: ICatalog[] = await Catalog.find(query);
