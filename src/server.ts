@@ -82,12 +82,37 @@ app.get('/category', async (req, res) => {
   });
 });
 
+// TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({
     tree: `root/${req.query.category}`
   });
   const result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
+  });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/subCategory', async (req, res) => {
+  const { categoryList } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryList.forEach((category) => {
+      treeVal.push(`root/${category.catalogName}`);
+    });
+  } else {
+    treeVal.push(`root/${categoryList}`);
+  }
+  query = { tree: { $in: treeVal } };
+  const subCatList: ICatalog[] = await Catalog.find(query);
+  let result = subCatList.map(({ _id, catalogName }) => {
+    return { _id, catalogName };
+  });
+  result = _.uniqBy(result, (e: { catalogName: string; _id: ObjectId }) => {
+    return e.catalogName;
   });
   res.json({
     list: result
