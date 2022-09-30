@@ -70,6 +70,34 @@ export class AdvertisementController {
     }
   };
 
+  updateBannerStatus = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdvertisementController>:<Update Banner Status>'
+    );
+    try {
+      const result = await this.adService.updateBannerStatus(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteBanner = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdvertisementController>:<Delete Banner>');
+    try {
+      const result = await this.adService.deleteBanner(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'uploadBanner':
@@ -79,6 +107,16 @@ export class AdvertisementController {
           body('description', 'Description does not existzz')
             .exists()
             .isString()
+        ];
+      case 'updateBannerStatus':
+        return [
+          body('bannerId', 'Banner Id does not exist').exists().isString(),
+          body('status', 'Status does not exist').exists().isString()
+        ];
+      case 'deleteBanner':
+        return [
+          body('bannerId', 'Banner Id does not exist').exists().isString(),
+          body('slugUrl', 'Image key does not exist').exists().isString()
         ];
     }
   };

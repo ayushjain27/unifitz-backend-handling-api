@@ -35,4 +35,18 @@ router.get(
   adController.getAllBannerForCustomer
 );
 
+router.post(
+  '/updateBannerStatus',
+  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  adController.validate('updateBannerStatus'),
+  adController.updateBannerStatus
+);
+
+router.delete(
+  '/deleteBanner',
+  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  adController.validate('deleteBanner'),
+  adController.deleteBanner
+);
+
 export default router;
