@@ -134,33 +134,51 @@ const storeTimingSchema: Schema = new Schema(
 );
 
 export interface IDocuments extends Document {
-  storeDocuments: {
-    primary: { key: string; docURL: string };
-    secondary: { key: string; docURL: string };
+  profile: { key: string; docURL: string };
+  storeImageList: {
+    first: { key: string; docURL: string };
+    second: { key: string; docURL: string };
+    third: { key: string; docURL: string };
   };
-  storeImages: {
-    primary: { key: string; docURL: string };
-    secondary: { key: string; docURL: string };
-  };
+
+  // storeDocuments: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
+  // storeImages: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
 }
 
 const storeDocumentsSchema: Schema = new Schema(
   {
-    storeDocuments: {
-      type: {
-        primary: { key: String, docURL: String },
-        secondary: { key: String, docURL: String }
-      }
+    profile: {
+      key: String,
+      docURL: String
     },
-    storeImages: {
+    storeImageList: {
       type: {
-        primary: { key: String, docURL: String },
-        secondary: { key: String, docURL: String }
+        first: { key: String, docURL: String },
+        second: { key: String, docURL: String },
+        third: { key: String, docURL: String }
       }
     }
+    // storeDocuments: {
+    //   type: {
+    //     primary: { key: String, docURL: String },
+    //     secondary: { key: String, docURL: String }
+    //   }
+    // },
+    // storeImages: {
+    //   type: [{ key: String, docURL: String }]
+    // type: {
+    //   primary: { key: String, docURL: String },
+    //   secondary: { key: String, docURL: String }
   },
   {
-    _id: false
+    _id: false,
+    strict: false
   }
 );
 

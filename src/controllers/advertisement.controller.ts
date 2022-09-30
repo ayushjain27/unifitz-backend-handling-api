@@ -59,6 +59,13 @@ export class AdvertisementController {
     Logger.info(
       '<Controller>:<AdvertisementController>:<Get All Banner for Customer request initiated>'
     );
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
     try {
       const result = await this.adService.getAllBannerForCustomer();
       res.send({
@@ -74,6 +81,13 @@ export class AdvertisementController {
     Logger.info(
       '<Controller>:<AdvertisementController>:<Update Banner Status>'
     );
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
     try {
       const result = await this.adService.updateBannerStatus(req.body);
       res.send({
@@ -87,6 +101,13 @@ export class AdvertisementController {
 
   deleteBanner = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<AdvertisementController>:<Delete Banner>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
     try {
       const result = await this.adService.deleteBanner(req.body);
       res.send({

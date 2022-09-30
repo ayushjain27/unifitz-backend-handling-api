@@ -44,12 +44,12 @@ router.get(
   roleAuth(ACL.STORE_GET_OWNER),
   storeController.getStoresByOwner
 );
-router.post(
-  '/uploadFile',
-  uploadFile.single('file'),
-  roleAuth(ACL.STORE_CREATE),
-  storeController.uploadFile
-);
+// router.post(
+//   '/uploadFile',
+//   uploadFile.single('file'),
+//   roleAuth(ACL.STORE_CREATE),
+//   storeController.uploadFile
+// );
 router.post(
   '/review',
   roleAuth(ACL.STORE_REVIEW_CREATE),
