@@ -1,4 +1,5 @@
 import { injectable } from 'inversify';
+import { Types } from 'mongoose';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -66,5 +67,33 @@ export class AdvertisementService {
       '<Service>:<AdvertisementService>:<Get All Banner for customer completed>'
     );
     return banners;
+  }
+
+  async updateBannerStatus(reqBody: {
+    bannerId: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<AdvertisementService>:<Update Banner status >');
+
+    const banner: IBanner = await Banner.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(reqBody.bannerId)
+      },
+      { $set: { status: reqBody.status } },
+      { returnDocument: 'after' }
+    );
+
+    return banner;
+  }
+
+  async deleteBanner(reqBody: { slugUrl: string; bannerId: string }) {
+    Logger.info('<Service>:<AdvertisementService>:<Delete Banner >');
+
+    // Delete the banner from the s3
+    await this.s3Client.deleteFile(reqBody.slugUrl);
+    const res = await Banner.findOneAndDelete({
+      _id: new Types.ObjectId(reqBody.bannerId)
+    });
+    return res;
   }
 }

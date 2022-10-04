@@ -6,12 +6,11 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import {
   OverallStoreRatingResponse,
-  StoreDocUploadRequest,
   StoreRequest,
   StoreResponse,
   StoreReviewRequest
 } from '../interfaces';
-import Store, { IStore } from '../models/Store';
+import Store, { IDocuments, IStore } from '../models/Store';
 import StoreReview from '../models/Store-Review';
 import User, { IUser } from '../models/User';
 import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
@@ -84,6 +83,43 @@ export class StoreService {
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
+  }
+
+  async updateStoreImages(storeId: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Upload Vehicles initiated>');
+    const store = await Store.findOne({ storeId });
+    if (_.isEmpty(store)) {
+      throw new Error('Store does not exist');
+    }
+
+    const files: Array<any> = req.files;
+    const documents: Partial<IDocuments> | any = store.documents || {
+      profile: {},
+      storeImageList: {}
+    };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        storeId,
+        fileName,
+        file.buffer
+      );
+      if (fileName === 'profile') {
+        documents.profile = { key, docURL: url };
+      } else {
+        documents.storeImageList[fileName] = { key, docURL: url };
+      }
+    }
+    const res = await Store.findOneAndUpdate(
+      { storeId: storeId },
+      { $set: { documents } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 
   async updateStoreStatus(statusRequest: any): Promise<IStore> {
@@ -214,6 +250,7 @@ export class StoreService {
 
     return stores;
   }
+
   async searchAndFilter(
     storeName: string,
     category: string,
@@ -321,132 +358,6 @@ export class StoreService {
     const stores = await Store.find({ userId: objId });
     return stores;
   }
-
-  async uploadFile(
-    storeDocUploadRequest: StoreDocUploadRequest,
-    req: Request
-  ): Promise<{ message: string }> {
-    const { storeId, fileType, placement } = storeDocUploadRequest;
-    const file = req.file;
-    let store: IStore;
-    Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
-    if (storeDocUploadRequest.storeId) {
-      store = await Store.findOne({ storeId });
-    }
-    if (!store) {
-      Logger.error(
-        '<Service>:<StoreService>:<Upload file - store id not found>'
-      );
-      throw new Error('Store not found');
-    }
-    // if (oldFileKey) {
-    //   await this.removePreviousFileRef(oldFileKey, fileType, store);
-    // }
-    const { key, url } = await this.s3Client.uploadFile(
-      storeId,
-      file.originalname,
-      file.buffer
-    );
-    Logger.info('<Service>:<StoreService>:<Upload file - successful>');
-    //initializing documents document if absent in store details
-    if (!store.documents) {
-      await Store.findOneAndUpdate(
-        { storeId },
-        {
-          documents: {
-            storeDocuments:
-              fileType === 'DOC'
-                ? {
-                    primary: {
-                      key: placement === 'primary' ? key : '',
-                      docURL: placement === 'primary' ? url : ''
-                    },
-                    secondary: {
-                      key: placement === 'secondary' ? key : '',
-                      docURL: placement === 'secondary' ? url : ''
-                    }
-                  }
-                : {
-                    primary: { key: '', docURL: '' },
-                    secondary: { key: '', docURL: '' }
-                  },
-            storeImages:
-              fileType === 'IMG'
-                ? {
-                    primary: {
-                      key: placement === 'primary' ? key : '',
-                      docURL: placement === 'primary' ? url : ''
-                    },
-                    secondary: {
-                      key: placement === 'secondary' ? key : '',
-                      docURL: placement === 'secondary' ? url : ''
-                    }
-                  }
-                : {
-                    primary: { key: '', docURL: '' },
-                    secondary: { key: '', docURL: '' }
-                  }
-          }
-        }
-      );
-    } else {
-      fileType === 'DOC'
-        ? (store.documents.storeDocuments[placement] = { key, docURL: url })
-        : (store.documents.storeImages[placement] = {
-            key,
-            docURL: url
-          });
-      await Store.findOneAndUpdate(
-        { storeId },
-        {
-          documents: {
-            storeDocuments: store.documents.storeDocuments,
-            storeImages: store.documents.storeImages
-          }
-        }
-      );
-    }
-    return {
-      message: 'File upload successful'
-    };
-  }
-  // private async removePreviousFileRef(
-  //   oldFileKey: string,
-  //   fileType: string,
-  //   store: IStore
-  // ) {
-  //   await this.s3Client.deleteFile(oldFileKey);
-  //   Logger.info('<Service>:<StoreService>:<Delete file - successful>');
-  //   if (fileType === 'DOC') {
-  //     if (store.documents && oldFileKey) {
-  //       store.documents.storeDocuments = store.documents.storeDocuments.filter(
-  //         (doc) => doc.docURL !== oldFileKey
-  //       );
-  //     }
-  //   } else if (fileType === 'IMG') {
-  //     if (store.documents && oldFileKey) {
-  //       store.documents.storeImages = store.documents.storeImages.filter(
-  //         (img) => img.imageURL !== oldFileKey
-  //       );
-  //     }
-  //   } else {
-  //     Logger.error('<Service>:<StoreService>:<Upload file - Unknown doc type>');
-  //     throw new Error('Invalid document type');
-  //   }
-  // }
-
-  // private async getS3Files(documents: IDocuments) {
-  //   const docBuffer = [];
-  //   for (const doc of documents.storeDocuments) {
-  //     const s3Response = await this.s3Client.getFile(doc.key);
-  //     docBuffer.push(s3Response);
-  //   }
-  //   for (const img of documents.storeImages) {
-  //     const s3Response = await this.s3Client.getFile(img.key);
-  //     docBuffer.push(s3Response);
-  //   }
-  //   return docBuffer;
-  // }
 
   async addReview(
     storeReview: StoreReviewRequest

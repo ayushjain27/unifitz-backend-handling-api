@@ -11,16 +11,6 @@ export interface StoreResponse extends IStore {
   docsResponse?: unknown;
 }
 
-export interface StoreDocUploadRequest {
-  storeId: string;
-  fileName?: string;
-  fileBuffer?: Buffer;
-  fileExtension?: string;
-  fileType: 'DOC' | 'IMG';
-  placement: 'primary' | 'secondary';
-  oldFileKey?: string;
-}
-
 export interface StoreReviewRequest {
   userId: Types.ObjectId;
   user: IUser;

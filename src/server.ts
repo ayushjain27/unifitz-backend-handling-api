@@ -57,7 +57,7 @@ app.use('/customer', customer);
 app.use('/notification', notification);
 app.use('/product', product);
 app.use('/job-card', jobCard);
-app.use('/ads', advertisement);
+app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
 app.get('/category', async (req, res) => {

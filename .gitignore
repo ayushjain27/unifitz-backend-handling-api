@@ -4,3 +4,4 @@ logs
 .vscode
 yarn.lock
 dist/
+src/db_update_script.js

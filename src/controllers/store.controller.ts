@@ -7,12 +7,7 @@ import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
-import {
-  StoreDocUploadRequest,
-  StoreRequest,
-  StoreResponse,
-  StoreReviewRequest
-} from '../interfaces';
+import { StoreRequest, StoreResponse, StoreReviewRequest } from '../interfaces';
 
 @injectable()
 export class StoreController {
@@ -61,6 +56,29 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+  uploadStoreImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res
+    //     .status(HttpStatusCodes.BAD_REQUEST)
+    //     .json({ errors: errors.array() });
+    // }
+    const { storeId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.storeService.updateStoreImages(storeId, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getAllStores = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
@@ -184,27 +202,7 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-  uploadFile = async (req: Request, res: Response) => {
-    const storeDocUploadRequest: StoreDocUploadRequest = req.body;
-    Logger.info('---------------------');
-    Logger.info('req body is', req.body, req.file);
-    Logger.info('---------------------');
-    Logger.info(
-      '<Controller>:<StoreController>:<Upload file request controller initiated>'
-    );
-    try {
-      const result = await this.storeService.uploadFile(
-        storeDocUploadRequest,
-        req
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
+
   getOverallStoreRatings = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
     Logger.info('<Controller>:<StoreController>:<Get stores ratings>');
