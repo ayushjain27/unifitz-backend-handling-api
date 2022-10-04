@@ -93,13 +93,16 @@ export class StoreService {
     }
 
     const files: Array<any> = req.files;
-    const documents: IDocuments = store.documents;
+    const documents: Partial<IDocuments> | any = store.documents || {
+      profile: {},
+      storeImageList: {}
+    };
     if (!files) {
       throw new Error('Files not found');
     }
     for (const file of files) {
       const fileName: 'first' | 'second' | 'third' | 'profile' =
-        file.originalname;
+        file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         storeId,
         fileName,
@@ -113,7 +116,7 @@ export class StoreService {
     }
     const res = await Store.findOneAndUpdate(
       { storeId: storeId },
-      { documents: { $set: { documents } } },
+      { $set: { documents } },
       { returnDocument: 'after' }
     );
     return res;

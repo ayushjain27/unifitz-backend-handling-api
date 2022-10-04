@@ -1,5 +1,5 @@
-import { Document, Model, model, ObjectId, Schema, Types } from 'mongoose';
-export interface ICatalogMap extends Document {
+import { model, ObjectId, Schema, Types } from 'mongoose';
+export interface ICatalogMap {
   _id: ObjectId;
   name: string;
 }
@@ -15,7 +15,7 @@ const storeCatalogMapSchema: Schema = new Schema({
   }
 });
 
-export interface IBasicInfo extends Document {
+export interface IBasicInfo {
   nameSalutation: string;
   ownerName: string; //<String> {required},
   businessName: string; //<String> {required},
@@ -62,7 +62,7 @@ const storeBasicInfoSchema: Schema = new Schema(
   }
 );
 
-export interface IContactInfo extends Document {
+export interface IContactInfo {
   country: { callingCode: string; countryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
   phoneNumber: { primary: string; secondary: string }; //{primary:String.,secondary:[String]},   // for multiple phone numbers
   email: string; //<String> {required},
@@ -116,7 +116,7 @@ const storeContactSchema: Schema = new Schema(
 
 storeContactSchema.index({ geoLocation: '2dsphere' });
 
-export interface IStoreTiming extends Document {
+export interface IStoreTiming {
   openTime: Date; //<TIME>,
   closeTime: Date; //<TIME>
 }
@@ -133,7 +133,7 @@ const storeTimingSchema: Schema = new Schema(
   { _id: false }
 );
 
-export interface IDocuments extends Document {
+export interface IDocuments {
   profile: { key: string; docURL: string };
   storeImageList: {
     first: { key: string; docURL: string };
@@ -151,7 +151,7 @@ export interface IDocuments extends Document {
   // };
 }
 
-const storeDocumentsSchema: Schema = new Schema(
+const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
     profile: {
       key: String,
@@ -188,7 +188,7 @@ const storeDocumentsSchema: Schema = new Schema(
  * @param storeId:string
  * @param profileStatus:string
  */
-export interface IStore extends Document {
+export interface IStore {
   userId: Types.ObjectId;
   storeId: string; // 6 digit unique value
   profileStatus: string;
@@ -202,10 +202,10 @@ export interface IStore extends Document {
   overAllRating?: any;
 }
 
-const storeSchema: Schema = new Schema(
+const storeSchema: Schema = new Schema<IStore>(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true
     },
     storeId: {
@@ -241,6 +241,6 @@ const storeSchema: Schema = new Schema(
 
 storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });
 
-const Store = model<IStore & Document>('stores', storeSchema);
+const Store = model<IStore>('stores', storeSchema);
 
 export default Store;
