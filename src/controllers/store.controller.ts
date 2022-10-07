@@ -187,6 +187,27 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  deleteStore = async (req: Request, res: Response) => {
+    const storeId = req.query.storeId;
+    Logger.info(
+      '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
+    );
+    try {
+      let result: StoreResponse[];
+      if (!storeId) {
+        throw new Error('storeId required');
+      } else {
+        result = await this.storeService.deleteStore(storeId as string);
+      }
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   getStoresByOwner = async (req: Request, res: Response) => {
     const userId = req.params.userId;
     Logger.info(

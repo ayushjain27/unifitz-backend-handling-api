@@ -215,6 +215,16 @@ export class StoreService {
     });
     return storeResponse;
   }
+
+  async deleteStore(storeId: string): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreService>:<Delete stores by Id service initiated>'
+    );
+    const res = await Store.findOneAndDelete({
+      storeId: storeId
+    });
+    return res;
+  }
   async getAll() {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
     const stores: StoreResponse[] = await Store.find().lean();
