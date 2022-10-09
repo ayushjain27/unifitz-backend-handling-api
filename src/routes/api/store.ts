@@ -28,6 +28,11 @@ router.get(
   roleAuth(ACL.STORE_GET_SINGLE),
   storeController.getStoreByStoreId
 );
+router.delete(
+  '/:storeId',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.deleteStore
+);
 router.get(
   '/allStores',
   roleAuth(ACL.STORE_GET_ALL),
