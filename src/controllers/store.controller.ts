@@ -189,7 +189,7 @@ export class StoreController {
   };
 
   deleteStore = async (req: Request, res: Response) => {
-    const storeId = req.query.storeId;
+    const storeId = req.params.storeId;
     Logger.info(
       '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
     );

@@ -1,3 +1,4 @@
+import { ICatalogMap } from './../models/Store';
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import _ from 'lodash';
@@ -257,6 +258,40 @@ export class StoreService {
     //   await Store.bulkWrite(bulkWrite);
     // }
     //ENDS --- Update Script for all the stores
+
+    // STARTS -- Update script for all the stores category, sub category and brand to array
+
+    // const bulkWrite = [];
+    // for (const store of stores) {
+    //   if (typeof store?.basicInfo?.category === 'object') {
+    //     store.basicInfo.category = Array(
+    //       store.basicInfo.category
+    //     ) as unknown as ICatalogMap[];
+    //   }
+
+    //   if (typeof store?.basicInfo?.subCategory === 'object') {
+    //     store.basicInfo.subCategory = Array(
+    //       store.basicInfo.subCategory
+    //     ) as unknown as ICatalogMap[];
+    //   }
+
+    //   if (typeof store?.basicInfo?.brand === 'object') {
+    //     store.basicInfo.brand = Array(
+    //       store.basicInfo.brand
+    //     ) as unknown as ICatalogMap[];
+    //   }
+    //   bulkWrite.push({
+    //     updateOne: {
+    //       filter: { _id: store._id },
+    //       update: store
+    //     }
+    //   });
+    // }
+    // if (bulkWrite.length > 0) {
+    //   await Store.bulkWrite(bulkWrite);
+    // }
+
+    // //ENDS --- Update Script for all the stores
 
     return stores;
   }
