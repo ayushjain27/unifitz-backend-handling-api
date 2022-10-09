@@ -189,6 +189,7 @@ const storeDocumentsSchema: Schema = new Schema<IDocuments>(
  * @param profileStatus:string
  */
 export interface IStore {
+  _id?: Types.ObjectId;
   userId: Types.ObjectId;
   storeId: string; // 6 digit unique value
   profileStatus: string;
