@@ -12,6 +12,7 @@ const connectDB = async (): Promise<void> => {
     //   useFindAndModify: false,
     //   useUnifiedTopology: true
     // };
+    // eslint-disable-next-line no-console
     connect(mongoURI);
     Logger.info('MongoDB Connected...');
   } catch (err) {
