@@ -51,14 +51,14 @@ const customerSchema: Schema = new Schema(
       type: Types.ObjectId
     },
     nameSalutation: {
-      type: String,
+      type: String
     },
     fullName: {
       type: String,
       required: true
     },
     phoneNumber: {
-      type: String,
+      type: String
     },
     email: {
       type: String
@@ -67,7 +67,7 @@ const customerSchema: Schema = new Schema(
       type: String
     },
     dob: {
-      type: String,
+      type: String
     },
     contactInfo: {
       type: customerContactSchema
