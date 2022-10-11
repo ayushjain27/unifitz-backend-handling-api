@@ -7,12 +7,7 @@ import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
-import {
-  StoreDocUploadRequest,
-  StoreRequest,
-  StoreResponse,
-  StoreReviewRequest
-} from '../interfaces';
+import { StoreRequest, StoreResponse, StoreReviewRequest } from '../interfaces';
 
 @injectable()
 export class StoreController {
@@ -61,6 +56,29 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+  uploadStoreImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res
+    //     .status(HttpStatusCodes.BAD_REQUEST)
+    //     .json({ errors: errors.array() });
+    // }
+    const { storeId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.storeService.updateStoreImages(storeId, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getAllStores = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
@@ -101,6 +119,54 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  searchStoresPaginated = async (req: Request, res: Response) => {
+    const {
+      category,
+      brand,
+      storeName,
+      pageNo,
+      pageSize,
+      coordinates
+    }: {
+      category: string;
+      brand: string;
+      storeName: string;
+      pageNo: number;
+      pageSize: number;
+      coordinates: number[];
+    } = req.body;
+    let { subCategory } = req.body;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] =
+        await this.storeService.searchAndFilterPaginated({
+          storeName,
+          category,
+          subCategory,
+          brand,
+          pageNo,
+          pageSize,
+          coordinates
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   getStoreByStoreId = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
     Logger.info(
@@ -112,6 +178,27 @@ export class StoreController {
         throw new Error('storeId required');
       } else {
         result = await this.storeService.getById(storeId as string);
+      }
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteStore = async (req: Request, res: Response) => {
+    const storeId = req.params.storeId;
+    Logger.info(
+      '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
+    );
+    try {
+      let result: StoreResponse[];
+      if (!storeId) {
+        throw new Error('storeId required');
+      } else {
+        result = await this.storeService.deleteStore(storeId as string);
       }
       res.send({
         result
@@ -136,27 +223,7 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-  uploadFile = async (req: Request, res: Response) => {
-    const storeDocUploadRequest: StoreDocUploadRequest = req.body;
-    Logger.info('---------------------');
-    Logger.info('req body is', req.body, req.file);
-    Logger.info('---------------------');
-    Logger.info(
-      '<Controller>:<StoreController>:<Upload file request controller initiated>'
-    );
-    try {
-      const result = await this.storeService.uploadFile(
-        storeDocUploadRequest,
-        req
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
+
   getOverallStoreRatings = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
     Logger.info('<Controller>:<StoreController>:<Get stores ratings>');

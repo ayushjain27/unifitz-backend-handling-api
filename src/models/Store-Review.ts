@@ -30,8 +30,7 @@ const storeReviewSchema: Schema = new Schema(
   {
     userId: {
       type: Types.ObjectId,
-      required: true,
-      unique: true
+      required: true
     },
     user: {
       type: userSchema,

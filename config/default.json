@@ -1,7 +1,7 @@
 {
-  "MONGO_URI": "mongodb+srv://serviceplug_prod:bafQS0xDizKR3HFT@serviceplug-prod.5iiva.mongodb.net/serviceplugProduction?retryWrites=true&w=majority",
+  "MONGO_URI": "mongodb+srv://myPipDev:dev123@mypipdev.lggxd.mongodb.net/servicePlugDev?authSource=admin&replicaSet=atlas-12vq76-shard-0&w=majority&readPreference=primary&retryWrites=true&ssl=true",
   "JWT_SECRET": "test-secret",
-  "JWT_EXPIRATION": "20d",
+  "JWT_EXPIRATION": "365d",
   "ACCOUNT_SID": "ACc9c1b7efd10252d71b1308f206b39c5c",
   "AUTH_TOKEN": "bcb3b60b352c489c58f31b6f7709d442",
   "SERVICE_ID": "VA683f485b74ce6df9c95dedd720bbafeb",
@@ -12,4 +12,8 @@
   "2FACTOR_API_KEY": "072aa3d3-31b9-11ed-9c12-0200cd936042",
   "2FACTOR_API_URL": "https://2factor.in/API/V1",
   "2FACTOR_TEMPLATE_NAME": "ServiceplugLOGINOTP"
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 5af01b393e45c3d1bf86895ec7b5e4ea151068c0

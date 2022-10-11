@@ -1,16 +1,17 @@
+import { ICatalogMap } from './../models/Store';
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
+import _ from 'lodash';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import {
   OverallStoreRatingResponse,
-  StoreDocUploadRequest,
   StoreRequest,
   StoreResponse,
   StoreReviewRequest
 } from '../interfaces';
-import Store, { IStore } from '../models/Store';
+import Store, { IDocuments, IStore } from '../models/Store';
 import StoreReview from '../models/Store-Review';
 import User, { IUser } from '../models/User';
 import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
@@ -83,6 +84,43 @@ export class StoreService {
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
+  }
+
+  async updateStoreImages(storeId: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Upload Vehicles initiated>');
+    const store = await Store.findOne({ storeId });
+    if (_.isEmpty(store)) {
+      throw new Error('Store does not exist');
+    }
+
+    const files: Array<any> = req.files;
+    const documents: Partial<IDocuments> | any = store.documents || {
+      profile: {},
+      storeImageList: {}
+    };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        storeId,
+        fileName,
+        file.buffer
+      );
+      if (fileName === 'profile') {
+        documents.profile = { key, docURL: url };
+      } else {
+        documents.storeImageList[fileName] = { key, docURL: url };
+      }
+    }
+    const res = await Store.findOneAndUpdate(
+      { storeId: storeId },
+      { $set: { documents } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 
   async updateStoreStatus(statusRequest: any): Promise<IStore> {
@@ -178,11 +216,86 @@ export class StoreService {
     });
     return storeResponse;
   }
-  async getAll(): Promise<StoreResponse[]> {
+
+  async deleteStore(storeId: string): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreService>:<Delete stores by Id service initiated>'
+    );
+    const res = await Store.findOneAndDelete({
+      storeId: storeId
+    });
+    return res;
+  }
+  async getAll() {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
-    const stores = await Store.find({});
+    const stores: StoreResponse[] = await Store.find().lean();
+
+    //STARTS --- Update Script for all the stores
+    // const bulkWrite = [];
+    // for (const store of stores) {
+    //   const coords = store?.contactInfo?.geoLocation?.coordinates;
+    //   if (
+    //     !_.isEmpty(coords) &&
+    //     !_.isNaN(Number(coords[0])) &&
+    //     !_.isNaN(Number(coords[1]))
+    //   ) {
+    //     const updatedCoords = [Number(coords[1]), Number(coords[0])];
+    //     bulkWrite.push({
+    //       updateOne: {
+    //         filter: { _id: store._id },
+    //         update: {
+    //           $set: {
+    //             'contactInfo.geoLocation.coordinates': updatedCoords
+    //             // 'contactInfo.geoLocation.coords': coords
+    //           }
+    //           // $unset: { 'contactInfo.geoLocation.coords': 1 }
+    //         }
+    //       }
+    //     });
+    //   }
+    // }
+    // if (bulkWrite.length > 0) {
+    //   await Store.bulkWrite(bulkWrite);
+    // }
+    //ENDS --- Update Script for all the stores
+
+    // STARTS -- Update script for all the stores category, sub category and brand to array
+
+    // const bulkWrite = [];
+    // for (const store of stores) {
+    //   if (typeof store?.basicInfo?.category === 'object') {
+    //     store.basicInfo.category = Array(
+    //       store.basicInfo.category
+    //     ) as unknown as ICatalogMap[];
+    //   }
+
+    //   if (typeof store?.basicInfo?.subCategory === 'object') {
+    //     store.basicInfo.subCategory = Array(
+    //       store.basicInfo.subCategory
+    //     ) as unknown as ICatalogMap[];
+    //   }
+
+    //   if (typeof store?.basicInfo?.brand === 'object') {
+    //     store.basicInfo.brand = Array(
+    //       store.basicInfo.brand
+    //     ) as unknown as ICatalogMap[];
+    //   }
+    //   bulkWrite.push({
+    //     updateOne: {
+    //       filter: { _id: store._id },
+    //       update: store
+    //     }
+    //   });
+    // }
+    // if (bulkWrite.length > 0) {
+    //   await Store.bulkWrite(bulkWrite);
+    // }
+
+    // //ENDS --- Update Script for all the stores
+
     return stores;
   }
+
   async searchAndFilter(
     storeName: string,
     category: string,
@@ -226,6 +339,62 @@ export class StoreService {
     }
     return stores;
   }
+
+  async searchAndFilterPaginated(searchReqBody: {
+    storeName: string;
+    brand: string;
+    subCategory: string[];
+    category: string;
+    pageNo: number;
+    pageSize: number;
+    coordinates: number[];
+  }): Promise<StoreResponse[]> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated>'
+    );
+    const query = {
+      'contactInfo.geoLocation': {
+        $near: {
+          $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
+        }
+      },
+      'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
+      'basicInfo.brand.name': searchReqBody.brand,
+      'basicInfo.category.name': searchReqBody.category,
+      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      profileStatus: 'ONBOARDED'
+    };
+    if (!searchReqBody.brand) {
+      delete query['basicInfo.brand.name'];
+    }
+    if (!searchReqBody.category) {
+      delete query['basicInfo.category.name'];
+    }
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+      delete query['basicInfo.subCategory.name'];
+    }
+    if (!searchReqBody.storeName) {
+      delete query['basicInfo.businessName'];
+    }
+    Logger.debug(query);
+    let stores: any = await Store.find(query)
+      .limit(searchReqBody.pageSize)
+      .skip(searchReqBody.pageNo * searchReqBody.pageSize)
+      .lean();
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
+    }
+    return stores;
+  }
+
   async getByOwner(userId: string): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by owner service initiated>'
@@ -234,132 +403,6 @@ export class StoreService {
     const stores = await Store.find({ userId: objId });
     return stores;
   }
-
-  async uploadFile(
-    storeDocUploadRequest: StoreDocUploadRequest,
-    req: Request
-  ): Promise<{ message: string }> {
-    const { storeId, fileType, placement } = storeDocUploadRequest;
-    const file = req.file;
-    let store: IStore;
-    Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
-    if (storeDocUploadRequest.storeId) {
-      store = await Store.findOne({ storeId });
-    }
-    if (!store) {
-      Logger.error(
-        '<Service>:<StoreService>:<Upload file - store id not found>'
-      );
-      throw new Error('Store not found');
-    }
-    // if (oldFileKey) {
-    //   await this.removePreviousFileRef(oldFileKey, fileType, store);
-    // }
-    const { key, url } = await this.s3Client.uploadFile(
-      storeId,
-      file.originalname,
-      file.buffer
-    );
-    Logger.info('<Service>:<StoreService>:<Upload file - successful>');
-    //initializing documents document if absent in store details
-    if (!store.documents) {
-      await Store.findOneAndUpdate(
-        { storeId },
-        {
-          documents: {
-            storeDocuments:
-              fileType === 'DOC'
-                ? {
-                    primary: {
-                      key: placement === 'primary' ? key : '',
-                      docURL: placement === 'primary' ? url : ''
-                    },
-                    secondary: {
-                      key: placement === 'secondary' ? key : '',
-                      docURL: placement === 'secondary' ? url : ''
-                    }
-                  }
-                : {
-                    primary: { key: '', docURL: '' },
-                    secondary: { key: '', docURL: '' }
-                  },
-            storeImages:
-              fileType === 'IMG'
-                ? {
-                    primary: {
-                      key: placement === 'primary' ? key : '',
-                      docURL: placement === 'primary' ? url : ''
-                    },
-                    secondary: {
-                      key: placement === 'secondary' ? key : '',
-                      docURL: placement === 'secondary' ? url : ''
-                    }
-                  }
-                : {
-                    primary: { key: '', docURL: '' },
-                    secondary: { key: '', docURL: '' }
-                  }
-          }
-        }
-      );
-    } else {
-      fileType === 'DOC'
-        ? (store.documents.storeDocuments[placement] = { key, docURL: url })
-        : (store.documents.storeImages[placement] = {
-            key,
-            docURL: url
-          });
-      await Store.findOneAndUpdate(
-        { storeId },
-        {
-          documents: {
-            storeDocuments: store.documents.storeDocuments,
-            storeImages: store.documents.storeImages
-          }
-        }
-      );
-    }
-    return {
-      message: 'File upload successful'
-    };
-  }
-  // private async removePreviousFileRef(
-  //   oldFileKey: string,
-  //   fileType: string,
-  //   store: IStore
-  // ) {
-  //   await this.s3Client.deleteFile(oldFileKey);
-  //   Logger.info('<Service>:<StoreService>:<Delete file - successful>');
-  //   if (fileType === 'DOC') {
-  //     if (store.documents && oldFileKey) {
-  //       store.documents.storeDocuments = store.documents.storeDocuments.filter(
-  //         (doc) => doc.docURL !== oldFileKey
-  //       );
-  //     }
-  //   } else if (fileType === 'IMG') {
-  //     if (store.documents && oldFileKey) {
-  //       store.documents.storeImages = store.documents.storeImages.filter(
-  //         (img) => img.imageURL !== oldFileKey
-  //       );
-  //     }
-  //   } else {
-  //     Logger.error('<Service>:<StoreService>:<Upload file - Unknown doc type>');
-  //     throw new Error('Invalid document type');
-  //   }
-  // }
-
-  // private async getS3Files(documents: IDocuments) {
-  //   const docBuffer = [];
-  //   for (const doc of documents.storeDocuments) {
-  //     const s3Response = await this.s3Client.getFile(doc.key);
-  //     docBuffer.push(s3Response);
-  //   }
-  //   for (const img of documents.storeImages) {
-  //     const s3Response = await this.s3Client.getFile(img.key);
-  //     docBuffer.push(s3Response);
-  //   }
-  //   return docBuffer;
-  // }
 
   async addReview(
     storeReview: StoreReviewRequest

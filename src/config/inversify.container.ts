@@ -9,13 +9,23 @@ import {
   StoreController,
   AdminController,
   CustomerController,
-  NotificationController
+  NotificationController,
+  ProductController,
+  JobCardController,
+  AdvertisementController,
+  FavouriteStoreController,
+  VehicleInfoController
 } from '../controllers';
 import {
   StoreService,
   AdminService,
   CustomerService,
   NotificationService,
+  ProductService,
+  JobCardService,
+  AdvertisementService,
+  FavouriteStoreService,
+  VehicleInfoService,
   TwoFactorService
 } from '../services';
 
@@ -57,6 +67,41 @@ container
 container
   .bind<NotificationService>(TYPES.NotificationService)
   .to(NotificationService);
+
+container
+  .bind<ProductController>(TYPES.ProductController)
+  .to(ProductController);
+
+container.bind<ProductService>(TYPES.ProductService).to(ProductService);
+
+container
+  .bind<JobCardController>(TYPES.JobCardController)
+  .to(JobCardController);
+
+container.bind<JobCardService>(TYPES.JobCardService).to(JobCardService);
+
+container
+  .bind<AdvertisementController>(TYPES.AdvertisementController)
+  .to(AdvertisementController);
+container
+  .bind<AdvertisementService>(TYPES.AdvertisementService)
+  .to(AdvertisementService);
+
+container
+  .bind<FavouriteStoreController>(TYPES.FavouriteStoreController)
+  .to(FavouriteStoreController);
+
+container
+  .bind<FavouriteStoreService>(TYPES.FavouriteStoreService)
+  .to(FavouriteStoreService);
+
+container
+  .bind<VehicleInfoController>(TYPES.VehicleInfoController)
+  .to(VehicleInfoController);
+
+container
+  .bind<VehicleInfoService>(TYPES.VehicleInfoService)
+  .to(VehicleInfoService);
 
 container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 

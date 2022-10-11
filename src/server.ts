@@ -13,7 +13,12 @@ import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
+import product from './routes/api/product';
+import jobCard from './routes/api/jobCard.route';
+import advertisement from './routes/api/advertisement.route';
+import favouriteStore from './routes/api/favouriteStore';
 import { ObjectId } from 'mongoose';
+import vehicle from './routes/api/vehicle';
 
 const app = express();
 // Connect to MongoDB
@@ -27,7 +32,7 @@ app.set('port', process.env.PORT || 3005);
 app.use(helmet());
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(morganMiddleware);
 // @route   GET /
 // @desc    Liveliness base API
@@ -50,7 +55,11 @@ app.use('/file', file);
 app.use('/customer', customer);
 
 app.use('/notification', notification);
-
+app.use('/product', product);
+app.use('/job-card', jobCard);
+app.use('/media', advertisement);
+app.use('/favourite', favouriteStore);
+app.use('/vehicle', vehicle);
 app.get('/category', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
   const result = categoryList
@@ -73,6 +82,7 @@ app.get('/category', async (req, res) => {
   });
 });
 
+// TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({
     tree: `root/${req.query.category}`
@@ -80,6 +90,33 @@ app.get('/subCategory', async (req, res) => {
   const result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
   });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/subCategory', async (req, res) => {
+  const { categoryList } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryList.forEach((category) => {
+      treeVal.push(`root/${category.catalogName}`);
+    });
+  } else {
+    treeVal.push(`root/${categoryList}`);
+  }
+  query = { tree: { $in: treeVal } };
+  const subCatList: ICatalog[] = await Catalog.find(query);
+  let result = subCatList.map(({ _id, catalogName, tree }) => {
+    return { _id, catalogName, tree };
+  });
+  result = _.uniqBy(
+    result,
+    (e: { catalogName: string; _id: ObjectId; tree: string }) => {
+      return e.catalogName;
+    }
+  );
   res.json({
     list: result
   });
@@ -99,15 +136,13 @@ app.get('/brand', async (req, res) => {
 });
 
 app.post('/brand', async (req, res) => {
-  const { subCategoryList, category } = req.body;
+  const { subCategoryList } = req.body;
   let query = {};
   const treeVal: string[] = [];
   if (Array.isArray(subCategoryList)) {
     subCategoryList.forEach((subCat) => {
-      treeVal.push(`root/${category}/${subCat}`);
+      treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
     });
-  } else {
-    treeVal.push(`root/${category}/${subCategoryList}`);
   }
   query = { tree: { $in: treeVal } };
   const categoryList: ICatalog[] = await Catalog.find(query);

@@ -2,3 +2,8 @@ export * from './store.controller';
 export * from './admin.controller';
 export * from './customer.controller';
 export * from './notification.controller';
+export * from './product.controller';
+export * from './jobCard.controller';
+export * from './advertisement.controller';
+export * from './favouriteStore.controller';
+export * from './vehicleInfo.controller';

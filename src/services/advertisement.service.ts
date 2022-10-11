@@ -1,0 +1,99 @@
+import { injectable } from 'inversify';
+import { Types } from 'mongoose';
+import Logger from '../config/winston';
+import container from '../config/inversify.container';
+import { TYPES } from '../config/inversify.types';
+
+import Banner, {
+  IBanner,
+  BannerStatus
+} from './../models/advertisement/Banner';
+import { AdBannerUploadRequest } from '../interfaces/adBannerRequest.interface';
+import { S3Service } from './s3.service';
+import _ from 'lodash';
+
+@injectable()
+export class AdvertisementService {
+  private s3Client = container.get<S3Service>(TYPES.S3Service);
+
+  async uploadBanner(
+    bannerUploadRequest: AdBannerUploadRequest,
+    req: Request | any
+  ): Promise<IBanner> {
+    Logger.info('<Service>:<AdvertisementService>:<Upload Banner initiated>');
+
+    const { title, description, altText, status } = bannerUploadRequest;
+    const file = req.file;
+
+    if (!file) {
+      throw new Error('File not found');
+    }
+
+    const { key, url } = await this.s3Client.uploadFile(
+      'advertisement',
+      file.originalname,
+      file.buffer
+    );
+    Logger.info('<Service>:<AdvertisementService>:<Upload file - successful>');
+    const newBanner = {
+      title,
+      description,
+      altText: _.isEmpty(altText) ? key : altText,
+      slugUrl: key,
+      url,
+      status: _.isEmpty(status) ? BannerStatus.ACTIVE : status
+    };
+    const createdBanner = await Banner.create(newBanner);
+
+    return createdBanner;
+  }
+
+  async getAllBanner(): Promise<IBanner[]> {
+    Logger.info('<Service>:<AdvertisementService>:<Get All Banner initiated>');
+    const banners: IBanner[] = await Banner.find().lean();
+    return banners;
+  }
+
+  async getAllBannerForCustomer(): Promise<IBanner[]> {
+    Logger.info(
+      '<Service>:<AdvertisementService>:<Get All Banner for customer initiated>'
+    );
+    const banners: IBanner[] = await Banner.find({
+      status: BannerStatus.ACTIVE
+    })
+      .limit(4)
+      .lean();
+    Logger.info(
+      '<Service>:<AdvertisementService>:<Get All Banner for customer completed>'
+    );
+    return banners;
+  }
+
+  async updateBannerStatus(reqBody: {
+    bannerId: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<AdvertisementService>:<Update Banner status >');
+
+    const banner: IBanner = await Banner.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(reqBody.bannerId)
+      },
+      { $set: { status: reqBody.status } },
+      { returnDocument: 'after' }
+    );
+
+    return banner;
+  }
+
+  async deleteBanner(reqBody: { slugUrl: string; bannerId: string }) {
+    Logger.info('<Service>:<AdvertisementService>:<Delete Banner >');
+
+    // Delete the banner from the s3
+    await this.s3Client.deleteFile(reqBody.slugUrl);
+    const res = await Banner.findOneAndDelete({
+      _id: new Types.ObjectId(reqBody.bannerId)
+    });
+    return res;
+  }
+}

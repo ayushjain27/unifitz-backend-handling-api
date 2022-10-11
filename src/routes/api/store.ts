@@ -8,7 +8,7 @@ import { roleAuth } from '../../routes/middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 
 const storage = multer.memoryStorage();
-const uploadFile = multer({ storage: storage });
+const uploadFiles = multer({ storage: storage });
 
 const router: Router = Router();
 const storeController = container.get<StoreController>(TYPES.StoreController);
@@ -17,10 +17,21 @@ const storeController = container.get<StoreController>(TYPES.StoreController);
 // @access  Private
 router.post('/', roleAuth(ACL.STORE_CREATE), storeController.createStore);
 router.put('/', roleAuth(ACL.STORE_CREATE), storeController.updateStore);
+router.post(
+  '/uploadStoreImages',
+  uploadFiles.array('files'),
+  roleAuth(ACL.STORE_CREATE),
+  storeController.uploadStoreImages
+);
 router.get(
   '/',
   roleAuth(ACL.STORE_GET_SINGLE),
   storeController.getStoreByStoreId
+);
+router.delete(
+  '/:storeId',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.deleteStore
 );
 router.get(
   '/allStores',
@@ -32,17 +43,24 @@ router.get(
   roleAuth(ACL.STORE_GET_ALL),
   storeController.searchStores
 );
+
+router.post(
+  '/search_paginated',
+  // roleAuth(ACL.STORE_GET_ALL),
+  storeController.searchStoresPaginated
+);
+
 router.get(
   '/owner/:userId',
   roleAuth(ACL.STORE_GET_OWNER),
   storeController.getStoresByOwner
 );
-router.post(
-  '/uploadFile',
-  uploadFile.single('file'),
-  roleAuth(ACL.STORE_CREATE),
-  storeController.uploadFile
-);
+// router.post(
+//   '/uploadFile',
+//   uploadFile.single('file'),
+//   roleAuth(ACL.STORE_CREATE),
+//   storeController.uploadFile
+// );
 router.post(
   '/review',
   roleAuth(ACL.STORE_REVIEW_CREATE),

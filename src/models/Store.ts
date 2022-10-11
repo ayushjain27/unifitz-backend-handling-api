@@ -1,6 +1,5 @@
-import { Document, Model, model, ObjectId, Schema, Types } from 'mongoose';
-
-export interface ICatalogMap extends Document {
+import { model, ObjectId, Schema, Types } from 'mongoose';
+export interface ICatalogMap {
   _id: ObjectId;
   name: string;
 }
@@ -16,13 +15,13 @@ const storeCatalogMapSchema: Schema = new Schema({
   }
 });
 
-export interface IBasicInfo extends Document {
+export interface IBasicInfo {
   nameSalutation: string;
   ownerName: string; //<String> {required},
   businessName: string; //<String> {required},
   registrationDate: Date; //<localeDate>{required},(NO TIME)
-  brand: ICatalogMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
-  category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
+  brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
+  category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   // businessHours for the different
 }
@@ -46,11 +45,11 @@ const storeBasicInfoSchema: Schema = new Schema(
       required: true
     },
     brand: {
-      type: storeCatalogMapSchema,
+      type: [storeCatalogMapSchema],
       required: true
     },
     category: {
-      type: storeCatalogMapSchema,
+      type: [storeCatalogMapSchema],
       required: true
     },
     subCategory: {
@@ -63,14 +62,15 @@ const storeBasicInfoSchema: Schema = new Schema(
   }
 );
 
-export interface IContactInfo extends Document {
+export interface IContactInfo {
   country: { callingCode: string; countryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
   phoneNumber: { primary: string; secondary: string }; //{primary:String.,secondary:[String]},   // for multiple phone numbers
   email: string; //<String> {required},
   address: string; //<String>: {required},
   geoLocation: {
-    kind: string;
-    coordinates: { longitude: string; latitude: string };
+    // kind: string;
+    type: string;
+    coordinates: number[];
   }; //<Object>: { } {not required},  // this should be in the format of {type:Point,coordinates:[longitude,latitude]}
   state: string; //<String>
   city: string;
@@ -95,10 +95,9 @@ const storeContactSchema: Schema = new Schema(
       type: String
     },
     geoLocation: {
-      type: {
-        kind: String,
-        coordinates: { longitude: String, latitude: String }
-      }
+      // kind: String,
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
     },
     state: {
       type: String
@@ -115,7 +114,9 @@ const storeContactSchema: Schema = new Schema(
   }
 );
 
-export interface IStoreTiming extends Document {
+storeContactSchema.index({ geoLocation: '2dsphere' });
+
+export interface IStoreTiming {
   openTime: Date; //<TIME>,
   closeTime: Date; //<TIME>
 }
@@ -132,34 +133,52 @@ const storeTimingSchema: Schema = new Schema(
   { _id: false }
 );
 
-export interface IDocuments extends Document {
-  storeDocuments: {
-    primary: { key: string; docURL: string };
-    secondary: { key: string; docURL: string };
+export interface IDocuments {
+  profile: { key: string; docURL: string };
+  storeImageList: {
+    first: { key: string; docURL: string };
+    second: { key: string; docURL: string };
+    third: { key: string; docURL: string };
   };
-  storeImages: {
-    primary: { key: string; docURL: string };
-    secondary: { key: string; docURL: string };
-  };
+
+  // storeDocuments: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
+  // storeImages: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
 }
 
-const storeDocumentsSchema: Schema = new Schema(
+const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
-    storeDocuments: {
-      type: {
-        primary: { key: String, docURL: String },
-        secondary: { key: String, docURL: String }
-      }
+    profile: {
+      key: String,
+      docURL: String
     },
-    storeImages: {
+    storeImageList: {
       type: {
-        primary: { key: String, docURL: String },
-        secondary: { key: String, docURL: String }
+        first: { key: String, docURL: String },
+        second: { key: String, docURL: String },
+        third: { key: String, docURL: String }
       }
     }
+    // storeDocuments: {
+    //   type: {
+    //     primary: { key: String, docURL: String },
+    //     secondary: { key: String, docURL: String }
+    //   }
+    // },
+    // storeImages: {
+    //   type: [{ key: String, docURL: String }]
+    // type: {
+    //   primary: { key: String, docURL: String },
+    //   secondary: { key: String, docURL: String }
   },
   {
-    _id: false
+    _id: false,
+    strict: false
   }
 );
 
@@ -169,7 +188,8 @@ const storeDocumentsSchema: Schema = new Schema(
  * @param storeId:string
  * @param profileStatus:string
  */
-export interface IStore extends Document {
+export interface IStore {
+  _id?: Types.ObjectId;
   userId: Types.ObjectId;
   storeId: string; // 6 digit unique value
   profileStatus: string;
@@ -183,10 +203,10 @@ export interface IStore extends Document {
   overAllRating?: any;
 }
 
-const storeSchema: Schema = new Schema(
+const storeSchema: Schema = new Schema<IStore>(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true
     },
     storeId: {
@@ -220,6 +240,8 @@ const storeSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Store = model<IStore & Document>('stores', storeSchema);
+storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });
+
+const Store = model<IStore>('stores', storeSchema);
 
 export default Store;
