@@ -136,12 +136,16 @@ app.get('/brand', async (req, res) => {
 });
 
 app.post('/brand', async (req, res) => {
-  const { subCategoryList } = req.body;
+  const { subCategoryList, category } = req.body;
   let query = {};
   const treeVal: string[] = [];
   if (Array.isArray(subCategoryList)) {
     subCategoryList.forEach((subCat) => {
+      if(subCat?.tree) {
       treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
+    } else {
+      treeVal.push(`root/${category}/${subCat}`);
+    }
     });
   }
   query = { tree: { $in: treeVal } };
