@@ -1,4 +1,4 @@
-import { ICatalogMap } from './../models/Store';
+import { ICatalogMap, StoreProfileStatus } from './../models/Store';
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import _ from 'lodash';
@@ -65,6 +65,7 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
     storePayload.storeId = '' + storeId;
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);
     Logger.info(
@@ -82,6 +83,7 @@ export class StoreService {
       storePayload
     );
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
     const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
   }

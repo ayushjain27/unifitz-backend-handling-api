@@ -15,6 +15,13 @@ const storeCatalogMapSchema: Schema = new Schema({
   }
 });
 
+export enum StoreProfileStatus {
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING',
+  ONBOARDED = 'ONBOARDED',
+  REJECTED = 'REJECTED'
+}
+
 export interface IBasicInfo {
   nameSalutation: string;
   ownerName: string; //<String> {required},
@@ -217,8 +224,8 @@ const storeSchema: Schema = new Schema<IStore>(
     profileStatus: {
       type: String,
       required: true,
-      enum: ['DRAFT', 'PENDING', 'ONBOARDED', 'REJECTED'],
-      default: 'DRAFT'
+      enum: StoreProfileStatus,
+      default: StoreProfileStatus.DRAFT
     },
     rejectionReason: {
       type: String,

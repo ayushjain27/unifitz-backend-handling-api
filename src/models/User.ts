@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, model, Schema, Types } from 'mongoose';
 
 /**
  * Interface to model the User Schema for TypeScript.
@@ -8,6 +8,7 @@ import { Document, Model, model, Schema } from 'mongoose';
  * @param createdDate:Date
  */
 export interface IUser extends Document {
+  _id?: Types.ObjectId;
   phoneNumber: string;
   role: string;
   deviceId: string;
