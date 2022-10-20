@@ -13,13 +13,13 @@ export interface IAdmin extends Document {
   role: string;
 }
 
-const adminSchema: Schema = new Schema(
+const adminSchema: Schema = new Schema<IAdmin>(
   {
     userName: {
       type: String,
       required: true,
       unique: true,
-      index: { unique: true }
+      index: true
     },
     password: {
       type: String,
@@ -35,6 +35,6 @@ const adminSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const Admin = model<IAdmin & Document>('admin_user', adminSchema);
+const Admin = model<IAdmin>('admin_user', adminSchema);
 
 export default Admin;
