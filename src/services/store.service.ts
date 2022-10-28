@@ -32,26 +32,7 @@ export class StoreService {
       phoneNumber
     });
     storePayload.userId = ownerDetails._id;
-    // const { category, subCategory, brand } = storePayload.basicInfo;
-    // const getCategory: ICatalog = await Catalog.findOne({
-    //   catalogName: category.name,
-    //   parent: 'root'
-    // });
-    // const getSubCategory: ICatalog = await Catalog.findOne({
-    //   tree: `root/${category.name}`,
-    //   catalogName: subCategory.name
-    // });
-    // const getBrand: ICatalog = await Catalog.findOne({
-    //   tree: `root/${category.name}/${subCategory.name}`,
-    //   catalogName: brand.name
-    // });
-    // if (getCategory && getBrand) {
-    //   storePayload.basicInfo.category._id = getCategory._id;
-    //   storePayload.basicInfo.subCategory = subCategory;
-    //   storePayload.basicInfo.brand._id = getBrand._id;
-    // } else {
-    //   throw new Error(`Wrong Catalog Details`);
-    // }
+
     const lastCreatedStoreId = await Store.find({})
       .sort({ createdAt: 'desc' })
       .select('storeId')
@@ -78,13 +59,14 @@ export class StoreService {
     const { storePayload } = storeRequest;
 
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
-    await Store.findOneAndUpdate(
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+
+    const updatedStore = await Store.findOneAndUpdate(
       { storeId: storePayload.storeId },
-      storePayload
+      storePayload,
+      { returnNewDocument: true }
     );
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
-    storePayload.profileStatus = StoreProfileStatus.DRAFT;
-    const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
   }
 
