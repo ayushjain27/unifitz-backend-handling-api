@@ -126,6 +126,7 @@ storeContactSchema.index({ geoLocation: '2dsphere' });
 export interface IStoreTiming {
   openTime: Date; //<TIME>,
   closeTime: Date; //<TIME>
+  holiday: [string];
 }
 
 const storeTimingSchema: Schema = new Schema(
@@ -135,9 +136,12 @@ const storeTimingSchema: Schema = new Schema(
     },
     closeTime: {
       type: Date
+    },
+    holiday: {
+      type: [String]
     }
   },
-  { _id: false }
+  { _id: false, strict: false }
 );
 
 export interface IDocuments {
