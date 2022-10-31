@@ -31,7 +31,7 @@ export interface IAdmin extends Document {
 }
 
 export enum CompanyType {
-  Manufacture = 'Manufacture',
+  Manufacture = 'Manufacturer',
   Importer = 'Importer',
   Distributer = 'Distributer',
   Exporter = 'Exporter'
