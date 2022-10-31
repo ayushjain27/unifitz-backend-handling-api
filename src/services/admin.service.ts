@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
+import secureRandomPassword from 'secure-random-password';
 import Payload from '../types/payload';
 import Admin, { IAdmin } from '../models/Admin';
 import Logger from '../config/winston';
@@ -11,10 +12,10 @@ export class AdminService {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
 
     // Update the password
-    const password = reqBody.password;
-    const salt = await bcrypt.genSalt(10);
-    const hashed = await bcrypt.hash(password, salt);
-    upAdminFields.password = hashed;
+    // const password = reqBody.password;
+    // const salt = await bcrypt.genSalt(10);
+    // const hashed = await bcrypt.hash(password, salt);
+    upAdminFields.password = secureRandomPassword.randomPassword();
     // Build user object based on IAdmin
 
     const lastCreatedAdminId = await Admin.find({})
