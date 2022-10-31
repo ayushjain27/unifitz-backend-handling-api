@@ -4,7 +4,7 @@ export interface ICatalogMap {
   name: string;
 }
 
-const storeCatalogMapSchema: Schema = new Schema({
+export const storeCatalogMapSchema: Schema = new Schema({
   _id: {
     type: Types.ObjectId,
     required: false
@@ -84,7 +84,7 @@ export interface IContactInfo {
   pincode: string; //<string>
 }
 
-const storeContactSchema: Schema = new Schema(
+export const storeContactSchema: Schema = new Schema(
   {
     country: {
       type: {

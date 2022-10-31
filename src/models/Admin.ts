@@ -1,4 +1,10 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import {
+  ICatalogMap,
+  IContactInfo,
+  storeCatalogMapSchema,
+  storeContactSchema
+} from './Store';
 
 /**
  * Interface to model the Admin Schema for TypeScript.
@@ -8,13 +14,63 @@ import { Document, Model, model, Schema } from 'mongoose';
  * @param createdDate:Date
  */
 export interface IAdmin extends Document {
+  ownerName: string;
+  businessName: string;
+  registrationYear: string;
+  companyType: string;
+  email: string;
+  category: ICatalogMap[];
+  subCategory: ICatalogMap[];
+  contactInfo: IContactInfo;
+  companyLogo: { key: string; docURL: string };
   userName: string;
   password: string;
   role: string;
 }
 
+export enum CompanyType {
+  Manufacture = 'Manufacture',
+  Importer = 'Importer',
+  Distributer = 'Distributer',
+  Exporter = 'Exporter'
+}
+
 const adminSchema: Schema = new Schema<IAdmin>(
   {
+    ownerName: {
+      type: String,
+      required: true
+    },
+    businessName: {
+      type: String,
+      required: true
+    },
+    registrationYear: {
+      type: String
+    },
+    email: {
+      type: String
+    },
+    companyType: {
+      type: String,
+      enum: CompanyType
+    },
+    companyLogo: {
+      key: String,
+      docURL: String
+    },
+    category: {
+      type: [storeCatalogMapSchema],
+      required: true
+    },
+    subCategory: {
+      type: [storeCatalogMapSchema],
+      required: false
+    },
+    contactInfo: {
+      type: storeContactSchema
+    },
+
     userName: {
       type: String,
       required: true,
@@ -28,7 +84,7 @@ const adminSchema: Schema = new Schema<IAdmin>(
     role: {
       type: String,
       required: true,
-      enum: ['ADMIN'],
+      enum: ['ADMIN', 'OEM'],
       default: 'ADMIN'
     }
   },
