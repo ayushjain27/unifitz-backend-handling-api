@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/inversify.types';
@@ -16,18 +16,17 @@ export class AdminController {
   create = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
 
-    const { userName, password } = req.body;
+    // const { userName, password } = req.body;
 
     Logger.info(
       '<Controller>:<AdminController>:<Admin creation controller initiated>'
     );
     try {
-      const result = await this.adminService.create(userName, password);
+      const result = await this.adminService.create(req.body);
 
       res.json({
         message: 'Admin Creation Successful',
@@ -54,6 +53,19 @@ export class AdminController {
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  validate = (method: string) => {
+    switch (method) {
+      case 'createUser':
+        return [
+          body('ownerName', 'Owner Name does not exist').exists().isString(),
+
+          body('businessName', 'Business Name does not exist')
+            .exists()
+            .isString()
+        ];
     }
   };
 }

@@ -14,9 +14,10 @@ import {
  * @param createdDate:Date
  */
 export interface IAdmin extends Document {
+  nameSalutation: string;
   ownerName: string;
   businessName: string;
-  registrationYear: string;
+  registrationDate: Date;
   companyType: string;
   email: string;
   category: ICatalogMap[];
@@ -24,6 +25,7 @@ export interface IAdmin extends Document {
   contactInfo: IContactInfo;
   companyLogo: { key: string; docURL: string };
   userName: string;
+  userId: string;
   password: string;
   role: string;
 }
@@ -37,6 +39,10 @@ export enum CompanyType {
 
 const adminSchema: Schema = new Schema<IAdmin>(
   {
+    nameSalutation: {
+      type: String,
+      required: true
+    },
     ownerName: {
       type: String,
       required: true
@@ -45,8 +51,8 @@ const adminSchema: Schema = new Schema<IAdmin>(
       type: String,
       required: true
     },
-    registrationYear: {
-      type: String
+    registrationDate: {
+      type: Date
     },
     email: {
       type: String
@@ -72,6 +78,12 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
 
     userName: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true
+    },
+    userId: {
       type: String,
       required: true,
       unique: true,
