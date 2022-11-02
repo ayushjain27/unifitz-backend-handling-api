@@ -30,7 +30,7 @@ export class AdminController {
 
       res.json({
         message: 'Admin Creation Successful',
-        userName: result
+        result
       });
     } catch (err) {
       Logger.error(err.message);
