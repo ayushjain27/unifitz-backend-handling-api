@@ -1,4 +1,6 @@
 import { ICatalogMap, StoreProfileStatus } from './../models/Store';
+import { AdminRole } from './../models/Admin';
+
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import _ from 'lodash';
@@ -25,7 +27,11 @@ export class StoreService {
   private notificationService = container.get<NotificationService>(
     TYPES.NotificationService
   );
-  async create(storeRequest: StoreRequest): Promise<IStore> {
+  async create(
+    storeRequest: StoreRequest,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
     const ownerDetails: IUser = await User.findOne({
@@ -47,6 +53,9 @@ export class StoreService {
     );
     storePayload.storeId = '' + storeId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    if (role === AdminRole.OEM) {
+      storePayload.oemUserName = userName;
+    }
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);
     Logger.info(
@@ -54,18 +63,24 @@ export class StoreService {
     );
     return newStore;
   }
-  async update(storeRequest: StoreRequest): Promise<IStore> {
+  async update(
+    storeRequest: StoreRequest,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store service initiated>');
     const { storePayload } = storeRequest;
 
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
-
-    const updatedStore = await Store.findOneAndUpdate(
-      { storeId: storePayload.storeId },
-      storePayload,
-      { returnNewDocument: true }
-    );
+    const query: any = {};
+    query.storeId = storePayload.storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
+      returnNewDocument: true
+    });
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
   }
@@ -107,18 +122,23 @@ export class StoreService {
     return res;
   }
 
-  async updateStoreStatus(statusRequest: any): Promise<IStore> {
+  async updateStoreStatus(
+    statusRequest: any,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store status>');
-
-    await Store.findOneAndUpdate(
-      { storeId: statusRequest.storeId },
-      {
-        $set: {
-          profileStatus: statusRequest.profileStatus,
-          rejectionReason: statusRequest.rejectionReason
-        }
+    const query: any = {};
+    query.storeId = statusRequest.storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    await Store.findOneAndUpdate(query, {
+      $set: {
+        profileStatus: statusRequest.profileStatus,
+        rejectionReason: statusRequest.rejectionReason
       }
-    );
+    });
     Logger.info(
       '<Service>:<StoreService>: <Store: store status updated successfully>'
     );
@@ -191,28 +211,46 @@ export class StoreService {
     return null;
   }
 
-  async getById(storeId: string): Promise<StoreResponse[]> {
+  async getById(
+    storeId: string,
+    userName?: string,
+    role?: string
+  ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by Id service initiated>'
     );
-    const storeResponse: StoreResponse[] = await Store.find({
-      storeId: storeId
-    });
+    const query: any = {};
+    query.storeId = storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const storeResponse: StoreResponse[] = await Store.find(query);
     return storeResponse;
   }
 
-  async deleteStore(storeId: string): Promise<any> {
+  async deleteStore(
+    storeId: string,
+    userName?: string,
+    role?: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Delete stores by Id service initiated>'
     );
-    const res = await Store.findOneAndDelete({
-      storeId: storeId
-    });
+    const query: any = {};
+    query.storeId = storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const res = await Store.findOneAndDelete(query);
     return res;
   }
-  async getAll() {
+  async getAll(userName?: string, role?: string) {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
-    const stores: StoreResponse[] = await Store.find().lean();
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const stores: StoreResponse[] = await Store.find(query).lean();
 
     //STARTS --- Update Script for all the stores
     // const bulkWrite = [];
