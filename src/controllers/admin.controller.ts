@@ -38,6 +38,28 @@ export class AdminController {
     }
   };
 
+  uploadProfileImage = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<AdminController>:<Admin uploading profile picture of the admin user>'
+    );
+    try {
+      const { userId } = req.body;
+
+      const result = await this.adminService.uploadAdminImage(userId, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   login = async (req: Request, res: Response) => {
     const { userName, password } = req.body;
     Logger.info(
@@ -104,6 +126,9 @@ export class AdminController {
             .exists()
             .isString()
         ];
+
+      case 'uploadProfile':
+        return [body('userId', 'User name does not exist').exists().isString()];
     }
   };
 }

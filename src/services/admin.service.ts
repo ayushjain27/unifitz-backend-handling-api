@@ -2,13 +2,18 @@ import { injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
 import _ from 'lodash';
 import secureRandomPassword from 'secure-random-password';
+import { TYPES } from '../config/inversify.types';
 import Payload from '../types/payload';
+import container from '../config/inversify.container';
 import Admin, { IAdmin } from '../models/Admin';
 import Logger from '../config/winston';
+import { S3Service } from './s3.service';
 import { generateToken } from '../utils';
 
 @injectable()
 export class AdminService {
+  private s3Client = container.get<S3Service>(TYPES.S3Service);
+
   async create(reqBody: IAdmin): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
 
@@ -39,8 +44,34 @@ export class AdminService {
     ).toObject<IAdmin>();
     newAdmin.generatedPassword = password;
 
-    Logger.info('<Controller>:<AdminService>:<Admin created successfully>');
+    Logger.info('<Service>:<AdminService>:<Admin created successfully>');
     return newAdmin;
+  }
+
+  async uploadAdminImage(userId: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<Into the upload photo >');
+    const file = req.file;
+    if (!file) {
+      throw new Error('File does not exist');
+    }
+
+    const admin: IAdmin = await Admin.findOne({ userName: userId })?.lean();
+
+    if (_.isEmpty(admin)) {
+      throw new Error('User does not exist');
+    }
+    const { key, url } = await this.s3Client.uploadFile(
+      userId,
+      'profile',
+      file.buffer
+    );
+    const companyLogo = { key, url };
+    const res = await Admin.findOneAndUpdate(
+      { userName: userId },
+      { $set: { companyLogo } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 
   async login(
@@ -50,12 +81,12 @@ export class AdminService {
     const admin: IAdmin = await Admin.findOne({ userName })?.lean();
 
     if (admin) {
-      Logger.info('<Controller>:<AdminService>:<Admin present in DB>');
+      Logger.info('<Service>:<AdminService>:<Admin present in DB>');
       if (!(await bcrypt.compare(password, admin.password))) {
         throw new Error('Password validation failed');
       }
       Logger.info(
-        '<Controller>:<AdminService>:<Admin password validated successfully>'
+        '<Service>:<AdminService>:<Admin password validated successfully>'
       );
       if (admin.isFirstTimeLoggedIn) {
         await Admin.findOneAndUpdate(
