@@ -202,6 +202,7 @@ const storeDocumentsSchema: Schema = new Schema<IDocuments>(
 export interface IStore {
   _id?: Types.ObjectId;
   userId: Types.ObjectId;
+  oemUserName?: string;
   storeId: string; // 6 digit unique value
   profileStatus: string;
   rejectionReason: string;
@@ -224,6 +225,9 @@ const storeSchema: Schema = new Schema<IStore>(
       type: String,
       required: true,
       unique: true
+    },
+    oemUserName: {
+      type: String
     },
     profileStatus: {
       type: String,

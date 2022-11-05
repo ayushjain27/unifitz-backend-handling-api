@@ -48,7 +48,45 @@ export class AdminController {
       Logger.info('<Controller>:<AdminController>:<Token created succesfully>');
       res.send({
         message: 'Admin Login Successful',
-        token: result
+        ...result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getUser = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Getting user by user name>');
+    try {
+      const userName = req.userId;
+      const result = await this.adminService.getAdminUserByUserName(userName);
+      Logger.info('<Controller>:<AdminController>:<User got successfully>');
+      res.send({
+        message: 'User obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updatePassword = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>: <AdminController>: Updating password for the user'
+    );
+
+    try {
+      const userName = req?.userId;
+      const password = req?.body?.password;
+      const result = await this.adminService.updatePassword(userName, password);
+      Logger.info(
+        '<Controller>:<AdminController>:<Password updated successfully>'
+      );
+      res.send({
+        message: 'Password updated successfully',
+        result
       });
     } catch (err) {
       Logger.error(err.message);

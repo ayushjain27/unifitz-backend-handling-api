@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Types, model, Schema } from 'mongoose';
 import {
   ICatalogMap,
   IContactInfo,
@@ -13,7 +13,8 @@ import {
  * @param role:string
  * @param createdDate:Date
  */
-export interface IAdmin extends Document {
+export interface IAdmin {
+  _id?: Types.ObjectId | string;
   nameSalutation: string;
   ownerName: string;
   businessName: string;
@@ -28,6 +29,8 @@ export interface IAdmin extends Document {
   userId: string;
   password: string;
   role: string;
+  isFirstTimeLoggedIn?: boolean;
+  generatedPassword?: string;
 }
 
 export enum CompanyType {
@@ -35,6 +38,11 @@ export enum CompanyType {
   Importer = 'Importer',
   Distributer = 'Distributer',
   Exporter = 'Exporter'
+}
+
+export enum AdminRole {
+  ADMIN = 'ADMIN',
+  OEM = 'OEM'
 }
 
 const adminSchema: Schema = new Schema<IAdmin>(
@@ -96,11 +104,11 @@ const adminSchema: Schema = new Schema<IAdmin>(
     role: {
       type: String,
       required: true,
-      enum: ['ADMIN', 'OEM'],
+      enum: AdminRole,
       default: 'ADMIN'
     }
   },
-  { timestamps: true }
+  { timestamps: true, strict: false }
 );
 
 const Admin = model<IAdmin>('admin_user', adminSchema);

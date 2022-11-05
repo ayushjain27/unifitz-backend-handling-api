@@ -18,4 +18,12 @@ router.post(
 );
 router.post('/login', adminController.login);
 
+router.get('/user', roleAuth(ACL.STORE_CREATE), adminController.getUser);
+
+router.post(
+  '/update-password',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.updatePassword
+);
+
 export default router;
