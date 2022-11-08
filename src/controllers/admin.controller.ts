@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
+import { AdminRole } from '../models/Admin';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
@@ -71,6 +72,25 @@ export class AdminController {
       res.send({
         message: 'Admin Login Successful',
         ...result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdminController>:<Get All request controller initiated>'
+    );
+    try {
+      const role = req?.role;
+      if (role !== AdminRole.ADMIN) {
+        throw new Error('User not allowed');
+      }
+      const result = await this.adminService.getAll();
+      res.send({
+        result
       });
     } catch (err) {
       Logger.error(err.message);

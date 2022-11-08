@@ -105,6 +105,12 @@ export class AdminService {
     return { user: admin, token };
   }
 
+  async getAll(): Promise<IAdmin[]> {
+    const admin: IAdmin[] = await Admin.find({}, { password: 0 }).lean();
+
+    return admin;
+  }
+
   async getAdminUserByUserName(userName: string): Promise<IAdmin> {
     const admin: IAdmin = await Admin.findOne({ userName })?.lean();
 
