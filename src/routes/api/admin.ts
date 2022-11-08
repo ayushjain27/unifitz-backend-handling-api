@@ -22,6 +22,8 @@ router.post(
   adminController.create
 );
 
+router.get('/getAll', roleAuth(ACL.ADMIN_USER_CREATE), adminController.getAll);
+
 router.post(
   '/uploadProfileImage',
   uploadFiles.single('file'),

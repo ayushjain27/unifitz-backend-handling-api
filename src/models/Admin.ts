@@ -23,6 +23,7 @@ export interface IAdmin {
   email: string;
   category: ICatalogMap[];
   subCategory: ICatalogMap[];
+  brand: ICatalogMap[];
   contactInfo: IContactInfo;
   companyLogo: { key: string; docURL: string };
   userName: string;
@@ -78,6 +79,10 @@ const adminSchema: Schema = new Schema<IAdmin>(
       required: true
     },
     subCategory: {
+      type: [storeCatalogMapSchema],
+      required: false
+    },
+    brand: {
       type: [storeCatalogMapSchema],
       required: false
     },
