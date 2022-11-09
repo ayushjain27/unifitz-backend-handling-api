@@ -8,6 +8,7 @@ import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
 import { StoreRequest, StoreResponse, StoreReviewRequest } from '../interfaces';
+import { AdminRole } from '../models/Admin';
 
 @injectable()
 export class StoreController {
@@ -21,7 +22,7 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      if (req?.role === 'ADMIN') {
+      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM) {
         const { phoneNumber } = storeRequest;
         await User.findOneAndUpdate(
           { phoneNumber, role: 'STORE_OWNER' },
@@ -29,7 +30,13 @@ export class StoreController {
           { upsert: true, new: true }
         );
       }
-      const result = await this.storeService.create(storeRequest);
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.storeService.create(
+        storeRequest,
+        userName,
+        role
+      );
       res.send({
         message: 'Store Onboarding Successful',
         result
@@ -46,7 +53,13 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      const result = await this.storeService.update(storeRequest);
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.storeService.update(
+        storeRequest,
+        userName,
+        role
+      );
       res.send({
         message: 'Store Updation Successful',
         result
@@ -84,7 +97,13 @@ export class StoreController {
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
     try {
-      const result: StoreResponse[] = await this.storeService.getAll();
+      const userName = req?.userId;
+      const role = req?.role;
+
+      const result: StoreResponse[] = await this.storeService.getAll(
+        userName,
+        role
+      );
       res.send({
         result
       });
@@ -169,6 +188,8 @@ export class StoreController {
   };
   getStoreByStoreId = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
+    const userName = req?.userId;
+    const role = req?.role;
     Logger.info(
       '<Controller>:<StoreController>:<Get stores by storeID request controller initiated>'
     );
@@ -177,7 +198,11 @@ export class StoreController {
       if (!storeId) {
         throw new Error('storeId required');
       } else {
-        result = await this.storeService.getById(storeId as string);
+        result = await this.storeService.getById(
+          storeId as string,
+          userName,
+          role
+        );
       }
       res.send({
         result
@@ -190,6 +215,8 @@ export class StoreController {
 
   deleteStore = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
+    const userName = req?.userId;
+    const role = req?.role;
     Logger.info(
       '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
     );
@@ -198,7 +225,11 @@ export class StoreController {
       if (!storeId) {
         throw new Error('storeId required');
       } else {
-        result = await this.storeService.deleteStore(storeId as string);
+        result = await this.storeService.deleteStore(
+          storeId as string,
+          userName,
+          role
+        );
       }
       res.send({
         result
@@ -266,10 +297,16 @@ export class StoreController {
 
   updateStoreStatus = async (req: Request, res: Response) => {
     const payload = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
     Logger.info('<Controller>:<StoreController>:<Update Store Status>');
 
     try {
-      const result = await this.storeService.updateStoreStatus(payload);
+      const result = await this.storeService.updateStoreStatus(
+        payload,
+        userName,
+        role
+      );
       Logger.info(
         '<Controller>:<StoreController>: <Store: Sending notification of updated status>'
       );

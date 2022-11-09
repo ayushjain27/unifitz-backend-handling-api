@@ -25,6 +25,7 @@ export default function (
     /* eslint-disable */
     const payload: Payload | any = jwt.verify(token, config.get('JWT_SECRET'));
     req.userId = payload.userId;
+    req.role = payload?.role;
     next();
   } catch (err) {
     res
