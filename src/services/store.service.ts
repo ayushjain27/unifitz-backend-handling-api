@@ -79,7 +79,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
     const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
-      returnNewDocument: true
+      returnDocument: 'after'
     });
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
