@@ -114,6 +114,24 @@ export class AdminController {
     }
   };
 
+  getUserByUserName = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Getting user by user name>');
+    try {
+      const userName = req.query.userName;
+      const result = await this.adminService.getAdminUserByUserName(
+        userName as string
+      );
+      Logger.info('<Controller>:<AdminController>:<User got successfully>');
+      res.send({
+        message: 'User obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   updatePassword = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>: <AdminController>: Updating password for the user'
