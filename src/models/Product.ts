@@ -27,7 +27,6 @@ export interface IProduct {
   sellingPrice: number;
   salesAccount: string;
   salesDescription: string;
-  supplierName: string;
   purchasePrice: number;
   purchaseAccount: string;
   purchaseDescription: string;
