@@ -78,7 +78,7 @@ export class ProductService {
 
     const products: IProduct[] = await Product.find({ storeId }).lean();
     Logger.info('<Service>:<ProductService>:<Product fetched successfully>');
-    return products;g
+    return products;
   }
 
   async deleteProduct(productId: string): Promise<unknown> {

@@ -8,7 +8,7 @@ import { roleAuth } from '../../routes/middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 
 const storage = multer.memoryStorage();
-const uploadFile = multer({ storage: storage });
+const uploadFiles = multer({ storage: storage });
 
 const router: Router = Router();
 const productController = container.get<ProductController>(
@@ -17,10 +17,16 @@ const productController = container.get<ProductController>(
 
 router.post(
   '/',
-  uploadFile.single('file'),
   roleAuth(ACL.STORE_CREATE),
   productController.validate('createProduct'),
   productController.createProduct
+);
+
+router.post(
+  '/uploadProductImages',
+  uploadFiles.array('files'),
+  roleAuth(ACL.STORE_CREATE),
+  productController.uploadProductImages
 );
 
 router.get(
@@ -31,7 +37,6 @@ router.get(
 
 router.put(
   '/:productId',
-  uploadFile.single('file'),
   roleAuth(ACL.STORE_CREATE),
   productController.validate('createProduct'),
   productController.updateProduct

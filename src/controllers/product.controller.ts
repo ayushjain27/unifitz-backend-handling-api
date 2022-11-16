@@ -25,9 +25,28 @@ export class ProductController {
       '<Controller>:<ProductController>:<Create product controller initiated>'
     );
     try {
-      const result = await this.productService.create(prodRequest, req);
+      const result = await this.productService.create(prodRequest);
       res.send({
         message: 'Product Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  uploadProductImages = async (req: Request, res: Response) => {
+    const { productId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.productService.updateProductImages(
+        productId,
+        req
+      );
+      res.send({
         result
       });
     } catch (err) {
@@ -80,11 +99,7 @@ export class ProductController {
     );
 
     try {
-      const result = await this.productService.update(
-        prodRequest,
-        productId,
-        req
-      );
+      const result = await this.productService.update(prodRequest, productId);
       res.send({
         message: 'Product Update Successful',
         result
