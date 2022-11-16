@@ -5,17 +5,33 @@ export enum OfferType {
   SERVICE = 'service'
 }
 
-export interface IProduct extends Document {
+export interface IImage {
+  key: string;
+  docURL: string;
+}
+
+export const IImageSchema: Schema = new Schema<IImage>({
+  key: {
+    type: String
+  },
+  docURL: {
+    type: String
+  }
+});
+
+export interface IProduct {
   storeId: string;
-  createdBy: string;
   offerType: OfferType;
   itemName: string;
   unit: string;
   sellingPrice: number;
+  salesAccount: string;
+  salesDescription: string;
   supplierName: string;
   purchasePrice: number;
-  purchaseDate: Date;
-  refImage: { key: string; docURL: string };
+  purchaseAccount: string;
+  purchaseDescription: string;
+  productImageList: IImage[];
 }
 
 const productSchema: Schema = new Schema(
@@ -39,20 +55,23 @@ const productSchema: Schema = new Schema(
     sellingPrice: {
       type: Number
     },
-    supplierName: {
+    salesAccount: {
+      type: String
+    },
+    salesDescription: {
       type: String
     },
     purchasePrice: {
       type: Number
     },
-    purchaseDate: {
-      type: Date
+    purchaseAccount: {
+      type: String
     },
-    refImage: {
-      type: {
-        key: String,
-        docURL: String
-      }
+    purchaseDescription: {
+      type: String
+    },
+    productImageList: {
+      type: [IImageSchema]
     }
   },
   { timestamps: true }

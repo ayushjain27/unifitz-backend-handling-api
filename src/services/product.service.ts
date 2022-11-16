@@ -1,48 +1,74 @@
 import { injectable } from 'inversify';
+import _ from 'lodash';
 import container from '../config/inversify.container';
 import { Types } from 'mongoose';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
-import Product, { IProduct } from './../models/Product';
+import Product, { IImage, IProduct } from './../models/Product';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
+import { fileIndex } from '../utils/constants/common';
 
 @injectable()
 export class ProductService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
-  async create(productPayload: IProduct, req: Request): Promise<IProduct> {
+  async create(productPayload: IProduct): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Creation: creating new product>'
     );
 
     // check if store id exist
     const { storeId } = productPayload;
-    const file = req.file;
     let store: IStore;
     if (storeId) {
       store = await Store.findOne({ storeId });
     }
     if (!store) {
-      Logger.error(
-        '<Service>:<ProductService>:<Upload file - store id not found>'
-      );
+      Logger.error('<Service>:<ProductService>:< store id not found>');
       throw new Error('Store not found');
     }
     let newProd: IProduct = productPayload;
 
-    if (file) {
-      const { key, url } = await this.s3Client.uploadFile(
-        storeId,
-        file.originalname,
-        file.buffer
-      );
-      newProd.refImage = { key, docURL: url };
-    }
     newProd = await Product.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
     return newProd;
+  }
+
+  async updateProductImages(productId: string, req: Request | any) {
+    Logger.info('<Service>:<ProductService>:<Product image uploading>');
+    const product = await Product.findOne({ productId });
+    if (_.isEmpty(product)) {
+      throw new Error('Product does not exist');
+    }
+    const files: Array<any> = req.files;
+
+    const productImages: Partial<IImage[]> | any = product.productImageList;
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'fourth' =
+        file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        productId,
+        fileName,
+        file.buffer
+      );
+
+      if (_.isEmpty(productImages) || !productImages[fileIndex[fileName] - 1]) {
+        productImages.push({ key, docURL: url });
+      } else {
+        productImages[fileIndex[fileName] - 1] = { key, docURL: url };
+      }
+    }
+    const res = await Product.findOneAndUpdate(
+      { _id: productId },
+      { $set: { productImages } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 
   async getAllProductsByStoreId(storeId: string): Promise<IProduct[]> {
@@ -52,7 +78,7 @@ export class ProductService {
 
     const products: IProduct[] = await Product.find({ storeId }).lean();
     Logger.info('<Service>:<ProductService>:<Product fetched successfully>');
-    return products;
+    return products;g
   }
 
   async deleteProduct(productId: string): Promise<unknown> {
@@ -66,18 +92,13 @@ export class ProductService {
     return res;
   }
 
-  async update(
-    productPayload: IProduct,
-    productId: string,
-    req: Request
-  ): Promise<IProduct> {
+  async update(productPayload: IProduct, productId: string): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Update: updating product>'
     );
 
     // check if store id exist
     const { storeId } = productPayload;
-    const file = req.file;
     let store: IStore;
     let product: IProduct;
     if (productId) {
@@ -101,14 +122,6 @@ export class ProductService {
 
     let updatedProd: IProduct = productPayload;
 
-    if (file) {
-      const { key, url } = await this.s3Client.uploadFile(
-        storeId,
-        file.originalname,
-        file.buffer
-      );
-      updatedProd.refImage = { key, docURL: url };
-    }
     updatedProd = await Product.findOneAndUpdate(
       { _id: new Types.ObjectId(productId) },
       updatedProd
