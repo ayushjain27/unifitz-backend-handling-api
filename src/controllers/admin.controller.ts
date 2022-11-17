@@ -39,6 +39,35 @@ export class AdminController {
     }
   };
 
+  updateUser = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const userName = req.params.userName;
+    if (!userName) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Username is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<AdminController>:<Admin updating controller initiated>'
+    );
+    try {
+      const result = await this.adminService.updateUser(req.body, userName);
+      res.send({
+        message: 'User Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   uploadProfileImage = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -157,6 +186,14 @@ export class AdminController {
   validate = (method: string) => {
     switch (method) {
       case 'createUser':
+        return [
+          body('ownerName', 'Owner Name does not exist').exists().isString(),
+
+          body('businessName', 'Business Name does not exist')
+            .exists()
+            .isString()
+        ];
+      case 'updateUser':
         return [
           body('ownerName', 'Owner Name does not exist').exists().isString(),
 

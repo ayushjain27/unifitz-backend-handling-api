@@ -20,7 +20,6 @@ export interface IAdmin {
   businessName: string;
   registrationDate: Date;
   companyType: string;
-  email: string;
   category: ICatalogMap[];
   subCategory: ICatalogMap[];
   brand: ICatalogMap[];
@@ -62,9 +61,6 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     registrationDate: {
       type: Date
-    },
-    email: {
-      type: String
     },
     companyType: {
       type: String,

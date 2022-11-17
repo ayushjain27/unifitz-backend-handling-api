@@ -22,6 +22,12 @@ router.post(
   adminController.create
 );
 
+router.put(
+  '/:userName',
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.validate('updateUser'),
+  adminController.updateUser
+);
 router.get('/getAll', roleAuth(ACL.ADMIN_USER_CREATE), adminController.getAll);
 
 router.post(
