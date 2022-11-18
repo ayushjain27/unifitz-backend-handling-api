@@ -49,6 +49,13 @@ router.get(
 );
 
 router.post(
+  '/updateUserStatus',
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.validate('updateUserStatus'),
+  adminController.updateUserStatus
+);
+
+router.post(
   '/update-password',
   roleAuth(ACL.STORE_CREATE),
   adminController.updatePassword

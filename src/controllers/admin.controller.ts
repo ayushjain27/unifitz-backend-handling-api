@@ -183,6 +183,26 @@ export class AdminController {
     }
   };
 
+  updateUserStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update User Status>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateUserStatus(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':
@@ -204,6 +224,12 @@ export class AdminController {
 
       case 'uploadProfile':
         return [body('userId', 'User name does not exist').exists().isString()];
+
+      case 'updateUserStatus':
+        return [
+          body('userName', 'User Name does not exist').exists().isString(),
+          body('status', 'Status does not exist').exists().isString()
+        ];
     }
   };
 }

@@ -150,6 +150,23 @@ export class AdminService {
     return true;
   }
 
+  async updateUserStatus(reqBody: {
+    userName: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<UserService>:<Update user status >');
+
+    const admin: IAdmin = await Admin.findOneAndUpdate(
+      {
+        userName: reqBody?.userName
+      },
+      { $set: { status: reqBody.status } },
+      { returnDocument: 'after' }
+    );
+
+    return admin;
+  }
+
   private async encryptPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
