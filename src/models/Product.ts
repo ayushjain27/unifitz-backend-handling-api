@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
+import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
   PRODUCT = 'product',
@@ -23,6 +24,9 @@ export interface IProduct {
   storeId: string;
   offerType: OfferType;
   itemName: string;
+  brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
+  category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
+  subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   unit: string;
   sellingPrice: number;
   salesAccount: string;
@@ -47,6 +51,18 @@ const productSchema: Schema = new Schema(
     itemName: {
       type: String,
       required: true
+    },
+    brand: {
+      type: [storeCatalogMapSchema],
+      required: true
+    },
+    category: {
+      type: [storeCatalogMapSchema],
+      required: true
+    },
+    subCategory: {
+      type: [storeCatalogMapSchema],
+      required: false
     },
     unit: {
       type: String
