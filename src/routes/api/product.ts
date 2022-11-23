@@ -31,7 +31,7 @@ router.post(
 
 router.get(
   '/:storeId',
-  roleAuth(ACL.STORE_GET_OWNER),
+  roleAuth(ACL.STORE_CREATE),
   productController.getAllProductsByStoreId
 );
 
