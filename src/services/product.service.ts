@@ -127,7 +127,8 @@ export class ProductService {
 
     updatedProd = await Product.findOneAndUpdate(
       { _id: new Types.ObjectId(productId) },
-      updatedProd
+      updatedProd,
+      { returnDocument: 'after' }
     );
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
     return updatedProd;
