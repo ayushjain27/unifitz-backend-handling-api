@@ -44,28 +44,31 @@ export class ProductService {
     }
     const files: Array<any> = req.files;
 
-    const productImages: Partial<IImage[]> | any = product.productImageList;
+    const productImageList: Partial<IImage[]> | any = product.productImageList;
     if (!files) {
       throw new Error('Files not found');
     }
     for (const file of files) {
       const fileName: 'first' | 'second' | 'third' | 'fourth' =
-        file.originalname?.split('.')[0];
+        file.originalname?.split('.')[0] || 'first';
       const { key, url } = await this.s3Client.uploadFile(
         productId,
         fileName,
         file.buffer
       );
 
-      if (_.isEmpty(productImages) || !productImages[fileIndex[fileName] - 1]) {
-        productImages.push({ key, docURL: url });
+      if (
+        _.isEmpty(productImageList) ||
+        !productImageList[fileIndex[fileName] - 1]
+      ) {
+        productImageList.push({ key, docURL: url });
       } else {
-        productImages[fileIndex[fileName] - 1] = { key, docURL: url };
+        productImageList[fileIndex[fileName] - 1] = { key, docURL: url };
       }
     }
     const res = await Product.findOneAndUpdate(
       { _id: productId },
-      { $set: { productImages } },
+      { $set: { productImageList } },
       { returnDocument: 'after' }
     );
     return res;
