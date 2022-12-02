@@ -17,6 +17,7 @@
     "server": "concurrently \"npm run watch-tsc\" \"npm run watch-deploy\"",
     "start-js": "npm run deploy",
     "start": "NODE_ENV=production ts-node src/server.ts",
+    "start:dev": "NODE_ENV=development PORT=5055 ts-node src/server.ts",
     "local": "nodemon"
   },
   "dependencies": {
