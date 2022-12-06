@@ -2,6 +2,5 @@ node_modules
 package-lock.json
 logs
 .vscode
-yarn.lock
 dist/
 src/db_update_script.js
