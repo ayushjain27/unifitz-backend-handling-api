@@ -31,7 +31,9 @@ export class VehicleInfoService {
       category,
       brand,
       modelName,
-      fuel
+      fuel,
+      lastInsuanceDate,
+      lastServiceDate
     } = vehicleStore;
 
     // Check if user exists
@@ -52,7 +54,9 @@ export class VehicleInfoService {
       category,
       brand,
       modelName,
-      fuel
+      fuel,
+      lastInsuanceDate,
+      lastServiceDate
     };
 
     let newVehicleItem: IVehiclesInfo;
