@@ -411,7 +411,7 @@ export class StoreService {
           spherical: true,
           query: query,
           distanceField: 'contactInfo.distance',
-          distanceMultiplier: 0.000621371
+          distanceMultiplier: 0.001
         }
       },
       {
