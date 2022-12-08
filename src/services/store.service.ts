@@ -400,7 +400,7 @@ export class StoreService {
     }
     Logger.debug(query);
 
-    const stores: any = await Store.aggregate([
+    let stores: any = await Store.aggregate([
       {
         $geoNear: {
           near: {
@@ -421,21 +421,18 @@ export class StoreService {
         $limit: searchReqBody.pageSize
       }
     ]);
-    // let stores: any = await Store.find(query)
-    //   .limit(searchReqBody.pageSize)
-    //   .skip(searchReqBody.pageNo * searchReqBody.pageSize)
-    //   .lean();
-    // if (stores && Array.isArray(stores)) {
-    //   stores = await Promise.all(
-    //     stores.map(async (store) => {
-    //       const updatedStore = { ...store };
-    //       updatedStore.overAllRating = await this.getOverallRatings(
-    //         updatedStore.storeId
-    //       );
-    //       return updatedStore;
-    //     })
-    //   );
-    // }
+
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
+    }
     return stores;
   }
 
