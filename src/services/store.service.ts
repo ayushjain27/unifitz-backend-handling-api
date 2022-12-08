@@ -375,11 +375,11 @@ export class StoreService {
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
     const query = {
-      'contactInfo.geoLocation': {
-        $near: {
-          $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
-        }
-      },
+      // 'contactInfo.geoLocation': {
+      //   $near: {
+      //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
+      //   }
+      // },
       'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
       'basicInfo.brand.name': searchReqBody.brand,
       'basicInfo.category.name': searchReqBody.category,
@@ -399,21 +399,43 @@ export class StoreService {
       delete query['basicInfo.businessName'];
     }
     Logger.debug(query);
-    let stores: any = await Store.find(query)
-      .limit(searchReqBody.pageSize)
-      .skip(searchReqBody.pageNo * searchReqBody.pageSize)
-      .lean();
-    if (stores && Array.isArray(stores)) {
-      stores = await Promise.all(
-        stores.map(async (store) => {
-          const updatedStore = { ...store };
-          updatedStore.overAllRating = await this.getOverallRatings(
-            updatedStore.storeId
-          );
-          return updatedStore;
-        })
-      );
-    }
+
+    const stores: any = await Store.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: searchReqBody.coordinates as [number, number]
+          },
+          // key: 'contactInfo.geoLocation',
+          spherical: true,
+          query: query,
+          distanceField: 'contactInfo.distance',
+          distanceMultiplier: 0.000621371
+        }
+      },
+      {
+        $skip: searchReqBody.pageNo * searchReqBody.pageSize
+      },
+      {
+        $limit: searchReqBody.pageSize
+      }
+    ]);
+    // let stores: any = await Store.find(query)
+    //   .limit(searchReqBody.pageSize)
+    //   .skip(searchReqBody.pageNo * searchReqBody.pageSize)
+    //   .lean();
+    // if (stores && Array.isArray(stores)) {
+    //   stores = await Promise.all(
+    //     stores.map(async (store) => {
+    //       const updatedStore = { ...store };
+    //       updatedStore.overAllRating = await this.getOverallRatings(
+    //         updatedStore.storeId
+    //       );
+    //       return updatedStore;
+    //     })
+    //   );
+    // }
     return stores;
   }
 
