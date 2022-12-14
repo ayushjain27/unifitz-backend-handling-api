@@ -5,7 +5,11 @@ import { Types } from 'mongoose';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
-import Product, { IImage, IProduct } from './../models/Product';
+import Product, {
+  IImage,
+  IProduct,
+  IProductImageList
+} from './../models/Product';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import { fileIndex } from '../utils/constants/common';
@@ -38,13 +42,21 @@ export class ProductService {
 
   async updateProductImages(productId: string, req: Request | any) {
     Logger.info('<Service>:<ProductService>:<Product image uploading>');
-    const product = await Product.findOne({ productId });
+    const product: IProduct = await Product.findOne({
+      _id: new Types.ObjectId(productId)
+    })?.lean();
     if (_.isEmpty(product)) {
       throw new Error('Product does not exist');
     }
     const files: Array<any> = req.files;
 
-    const productImageList: Partial<IImage[]> | any = product.productImageList;
+    const productImageList: Partial<IProductImageList> | any =
+      product.productImageList || {
+        profile: {},
+        first: {},
+        second: {},
+        third: {}
+      };
     if (!files) {
       throw new Error('Files not found');
     }
@@ -57,14 +69,7 @@ export class ProductService {
         file.buffer
       );
 
-      if (
-        _.isEmpty(productImageList) ||
-        !productImageList[fileIndex[fileName] - 1]
-      ) {
-        productImageList.push({ key, docURL: url });
-      } else {
-        productImageList[fileIndex[fileName] - 1] = { key, docURL: url };
-      }
+      productImageList[fileName] = { key, docURL: url };
     }
     const res = await Product.findOneAndUpdate(
       { _id: productId },

@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema, Types } from 'mongoose';
+import { model, Schema, Types } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
@@ -9,6 +9,13 @@ export enum OfferType {
 export interface IImage {
   key: string;
   docURL: string;
+}
+
+export interface IProductImageList {
+  profile: IImage;
+  first: IImage;
+  second: IImage;
+  third: IImage;
 }
 
 export const IImageSchema: Schema = new Schema<IImage>({
@@ -34,10 +41,10 @@ export interface IProduct {
   purchasePrice: number;
   purchaseAccount: string;
   purchaseDescription: string;
-  productImageList: IImage[];
+  productImageList: IProductImageList;
 }
 
-const productSchema: Schema = new Schema(
+const productSchema: Schema = new Schema<IProduct>(
   {
     storeId: {
       type: String,
@@ -86,12 +93,17 @@ const productSchema: Schema = new Schema(
       type: String
     },
     productImageList: {
-      type: [IImageSchema]
+      type: {
+        profile: IImageSchema,
+        first: IImageSchema,
+        second: IImageSchema,
+        third: IImageSchema
+      }
     }
   },
   { timestamps: true }
 );
 
-const Product = model<IProduct & Document>('product', productSchema);
+const Product = model<IProduct>('product', productSchema);
 
 export default Product;
