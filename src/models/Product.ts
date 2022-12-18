@@ -36,6 +36,7 @@ export interface IProduct {
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   unit: string;
   sellingPrice: number;
+  discountPrice: number;
   salesAccount: string;
   salesDescription: string;
   purchasePrice: number;
@@ -75,6 +76,9 @@ const productSchema: Schema = new Schema<IProduct>(
       type: String
     },
     sellingPrice: {
+      type: Number
+    },
+    discountPrice: {
       type: Number
     },
     salesAccount: {
