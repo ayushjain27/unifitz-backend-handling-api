@@ -30,11 +30,21 @@ router.post(
 );
 
 router.get(
+  '/getAll',
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  productController.getAll
+);
+
+router.get(
   '/:storeId',
   roleAuth(ACL.STORE_CREATE),
   productController.getAllProductsByStoreId
 );
-
+router.get(
+  '/product-detail/:productId',
+  roleAuth(ACL.STORE_CREATE),
+  productController.getProductByProductId
+);
 router.put(
   '/:productId',
   roleAuth(ACL.STORE_CREATE),

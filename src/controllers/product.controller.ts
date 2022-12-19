@@ -55,6 +55,51 @@ export class ProductController {
     }
   };
 
+  getAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      // const role = req?.role;
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.productService.getAll();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getProductByProductId = async (req: Request, res: Response) => {
+    const productId = req.params.productId;
+
+    if (!productId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Product Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Get products by product id controller initiated>'
+    );
+    try {
+      const result = await this.productService.getAllProductsByProductId(
+        productId
+      );
+      res.send({
+        message: 'Product Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getAllProductsByStoreId = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
 

@@ -79,6 +79,22 @@ export class ProductService {
     return res;
   }
 
+  async getAll(): Promise<IProduct[]> {
+    const product: IProduct[] = await Product.find({}).lean();
+
+    return product;
+  }
+
+  async getAllProductsByProductId(productId: string): Promise<IProduct> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Fetch: Get product by product id>'
+    );
+    const product: IProduct = await Product.findOne({
+      _id: new Types.ObjectId(productId)
+    }).lean();
+    return product;
+  }
+
   async getAllProductsByStoreId(storeId: string): Promise<IProduct[]> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: getting all the products by store id>'
