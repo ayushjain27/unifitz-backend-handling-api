@@ -1,7 +1,8 @@
+import ProductReview, { IProductReview } from './../models/ProductReview';
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import container from '../config/inversify.container';
-import { Types } from 'mongoose';
+import { Types, ObjectId } from 'mongoose';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
@@ -12,7 +13,9 @@ import Product, {
 } from './../models/Product';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
-import { fileIndex } from '../utils/constants/common';
+import { CustomerService } from './customer.service';
+import { ICustomer } from '../models/Customer';
+import { OverallStoreRatingResponse } from '../interfaces';
 
 @injectable()
 export class ProductService {
@@ -85,13 +88,14 @@ export class ProductService {
     return product;
   }
 
-  async getAllProductsByProductId(productId: string): Promise<IProduct> {
+  async getProductByProductId(productId: string): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: Get product by product id>'
     );
     const product: IProduct = await Product.findOne({
       _id: new Types.ObjectId(productId)
     }).lean();
+    product.overallRating = await this.getOverallRatings(productId);
     return product;
   }
 
@@ -153,5 +157,136 @@ export class ProductService {
     );
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
     return updatedProd;
+  }
+
+  async addProductReview(
+    productReviewPayload: {
+      productId: string;
+      review: string;
+      rating: number;
+    },
+    custPhoneNumber: string
+  ) {
+    const customerService = container.get<CustomerService>(
+      TYPES.CustomerService
+    );
+    Logger.info(
+      '<Service>:<ProductService>: <Product Review: adding product review>'
+    );
+    let customer: ICustomer;
+    if (custPhoneNumber) {
+      customer = await customerService.getByPhoneNumber(custPhoneNumber);
+    }
+    if (!customer) {
+      Logger.error('<Service>:<ProductService>:< Customer not found>');
+      throw new Error('Customer not found');
+    }
+    let newProdReview: IProductReview = {
+      review: productReviewPayload.review || '',
+      rating: productReviewPayload.rating,
+      productId: new Types.ObjectId(productReviewPayload.productId),
+      userId: customer._id
+    };
+
+    newProdReview = await ProductReview.create(newProdReview);
+    Logger.info(
+      '<Service>:<ProductService>:<Product Review Created successfully>'
+    );
+    return newProdReview;
+  }
+
+  async getOverallRatings(
+    productId: string
+  ): Promise<OverallStoreRatingResponse> {
+    Logger.info('<Service>:<ProductService>:<Get Overall Ratings initiate>');
+    const productReviews = await ProductReview.find({ productId });
+    if (productReviews.length === 0) {
+      return {
+        allRatings: {
+          5: 100
+        },
+        averageRating: 5,
+        totalRatings: 1,
+        totalReviews: 1
+      };
+    }
+    let ratingsCount = 0;
+    let totalRatings = 0;
+    let totalReviews = 0;
+    const allRatings: { [key: number]: number } = {};
+
+    productReviews.forEach(({ rating, review }) => {
+      if (rating) totalRatings++;
+      if (review) totalReviews++;
+      ratingsCount = ratingsCount + rating;
+      if (!allRatings[rating]) {
+        allRatings[rating] = 1;
+      } else {
+        allRatings[rating]++;
+      }
+    });
+
+    for (const key in allRatings) {
+      allRatings[key] = Math.trunc(
+        (allRatings[key] * 100) / productReviews.length
+      );
+    }
+
+    const averageRating = ratingsCount / productReviews.length;
+    Logger.info(
+      '<Service>:<ProductService>:<Get Overall Ratings performed successfully>'
+    );
+    return {
+      allRatings,
+      averageRating,
+      totalRatings,
+      totalReviews
+    };
+  }
+
+  async getProductReviews(productId: string, pageNo: number, pageSize: number) {
+    Logger.info('<Service>:<ProductService>:<Get Overall Ratings initiate>');
+
+    const productReviews = await ProductReview.aggregate([
+      {
+        $match: {
+          productId: new Types.ObjectId(productId)
+        }
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      },
+      {
+        $project: {
+          _id: 1,
+          productId: 1,
+          userId: 1,
+          review: 1,
+          rating: 1,
+          createdAt: 1,
+          'user.fullName': 1,
+          'user.profileImageUrl': 1
+        }
+      }
+    ]);
+    return productReviews;
   }
 }

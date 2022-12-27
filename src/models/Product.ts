@@ -1,4 +1,5 @@
-import { model, Schema, Types } from 'mongoose';
+import { OverallStoreRatingResponse } from './../interfaces/store-request.interface';
+import { model, Schema } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
@@ -43,6 +44,7 @@ export interface IProduct {
   purchaseAccount: string;
   purchaseDescription: string;
   productImageList: IProductImageList;
+  overallRating?: OverallStoreRatingResponse;
 }
 
 const productSchema: Schema = new Schema<IProduct>(

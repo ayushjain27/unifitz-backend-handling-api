@@ -36,7 +36,7 @@ router.get(
 );
 
 router.get(
-  '/:storeId',
+  '/store/:storeId',
   roleAuth(ACL.STORE_CREATE),
   productController.getAllProductsByStoreId
 );
@@ -56,6 +56,19 @@ router.delete(
   '/:productId',
   roleAuth(ACL.STORE_CREATE),
   productController.delete
+);
+
+router.post(
+  '/review',
+  roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('reviewProduct'),
+  productController.addProductReview
+);
+router.get(
+  '/reviews',
+  roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('getReviews'),
+  productController.getProductReviews
 );
 
 export default router;
