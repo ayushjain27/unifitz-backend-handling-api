@@ -37,12 +37,12 @@ router.get(
 
 router.get(
   '/store/:storeId',
-  roleAuth(ACL.STORE_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   productController.getAllProductsByStoreId
 );
 router.get(
   '/product-detail/:productId',
-  roleAuth(ACL.STORE_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   productController.getProductByProductId
 );
 router.put(
