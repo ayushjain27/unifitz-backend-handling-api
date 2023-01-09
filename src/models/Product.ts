@@ -1,6 +1,6 @@
 import { OverallStoreRatingResponse } from './../interfaces/store-request.interface';
 import { model, Schema } from 'mongoose';
-import { ICatalogMap, storeCatalogMapSchema } from './Store';
+// import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
   PRODUCT = 'product',
@@ -32,19 +32,13 @@ export interface IProduct {
   storeId: string;
   offerType: OfferType;
   itemName: string;
-  brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
-  category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
-  subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
-  unit: string;
+  mrp: number;
   sellingPrice: number;
-  discountPrice: number;
-  salesAccount: string;
-  salesDescription: string;
-  purchasePrice: number;
-  purchaseAccount: string;
-  purchaseDescription: string;
+  productDescription: string;
   productImageList: IProductImageList;
   overallRating?: OverallStoreRatingResponse;
+  isActive: boolean;
+  showPrice: boolean;
 }
 
 const productSchema: Schema = new Schema<IProduct>(
@@ -62,42 +56,57 @@ const productSchema: Schema = new Schema<IProduct>(
       type: String,
       required: true
     },
-    brand: {
-      type: [storeCatalogMapSchema],
-      required: true
-    },
-    category: {
-      type: [storeCatalogMapSchema],
-      required: true
-    },
-    subCategory: {
-      type: [storeCatalogMapSchema],
-      required: false
-    },
-    unit: {
-      type: String
-    },
+    // brand: {
+    //   type: [storeCatalogMapSchema],
+    //   required: true
+    // },
+    // category: {
+    //   type: [storeCatalogMapSchema],
+    //   required: true
+    // },
+    // subCategory: {
+    //   type: [storeCatalogMapSchema],
+    //   required: false
+    // },
+    // unit: {
+    //   type: String
+    // },
     sellingPrice: {
       type: Number
     },
-    discountPrice: {
-      type: Number
+    mrp: {
+      type: Number,
+      required: true
     },
-    salesAccount: {
+    productDescription: {
       type: String
     },
-    salesDescription: {
-      type: String
+    isActive: {
+      type: Boolean,
+      default: true
     },
-    purchasePrice: {
-      type: Number
+    showPrice: {
+      type: Boolean,
+      default: true
     },
-    purchaseAccount: {
-      type: String
-    },
-    purchaseDescription: {
-      type: String
-    },
+    // discountPrice: {
+    //   type: Number
+    // },
+    // salesAccount: {
+    //   type: String
+    // },
+    // salesDescription: {
+    //   type: String
+    // },
+    // purchasePrice: {
+    //   type: Number
+    // },
+    // purchaseAccount: {
+    //   type: String
+    // },
+    // purchaseDescription: {
+    //   type: String
+    // },
     productImageList: {
       type: {
         profile: IImageSchema,

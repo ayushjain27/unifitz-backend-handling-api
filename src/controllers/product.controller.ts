@@ -247,7 +247,7 @@ export class ProductController {
             .isIn(['product', 'service']),
 
           body('itemName', 'Item Name does not exist').exists().isString(),
-          body('unit', 'Units does not exist').exists().isString()
+          body('mrp', 'MRP does not exist').exists().isNumeric()
         ];
       case 'reviewProduct':
         return [
