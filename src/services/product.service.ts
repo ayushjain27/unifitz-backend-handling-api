@@ -2,7 +2,7 @@ import ProductReview, { IProductReview } from './../models/ProductReview';
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import container from '../config/inversify.container';
-import { Types, ObjectId } from 'mongoose';
+import { Types } from 'mongoose';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';

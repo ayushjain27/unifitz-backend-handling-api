@@ -23,6 +23,9 @@ export const TYPES = {
   VehicleInfoController: Symbol('vehicleStoreController'),
   VehicleInfoService: Symbol('vehicleStoreService'),
 
+  EnquiryController: Symbol('enquiryController'),
+  EnquiryService: Symbol('enquiryService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
