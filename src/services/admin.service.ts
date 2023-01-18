@@ -48,6 +48,22 @@ export class AdminService {
     return newAdmin;
   }
 
+  async updateUser(reqBody: IAdmin, userName: string): Promise<any> {
+    const user = await this.getAdminUserByUserName(userName);
+
+    if (!user) {
+      Logger.error('<Service>:<AdminService>:<Admin User not found>');
+      throw new Error('Admin user not found');
+    }
+    const updatedUser = { ...user, reqBody };
+    const res = await Admin.findOneAndUpdate(
+      { userName: userName },
+      updatedUser,
+      { returnDocument: 'after' }
+    );
+    return res;
+  }
+
   async uploadAdminImage(userId: string, req: Request | any): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Into the upload photo >');
     const file = req.file;
@@ -132,6 +148,23 @@ export class AdminService {
       { $set: { password: updatedPassword } }
     );
     return true;
+  }
+
+  async updateUserStatus(reqBody: {
+    userName: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<UserService>:<Update user status >');
+
+    const admin: IAdmin = await Admin.findOneAndUpdate(
+      {
+        userName: reqBody?.userName
+      },
+      { $set: { status: reqBody.status } },
+      { returnDocument: 'after' }
+    );
+
+    return admin;
   }
 
   private async encryptPassword(password: string): Promise<string> {

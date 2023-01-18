@@ -22,6 +22,12 @@ router.post(
   adminController.create
 );
 
+router.put(
+  '/:userName',
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.validate('updateUser'),
+  adminController.updateUser
+);
 router.get('/getAll', roleAuth(ACL.ADMIN_USER_CREATE), adminController.getAll);
 
 router.post(
@@ -35,6 +41,19 @@ router.post(
 router.post('/login', adminController.login);
 
 router.get('/user', roleAuth(ACL.STORE_CREATE), adminController.getUser);
+
+router.get(
+  '/getUserByUserName',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.getUserByUserName
+);
+
+router.post(
+  '/updateUserStatus',
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.validate('updateUserStatus'),
+  adminController.updateUserStatus
+);
 
 router.post(
   '/update-password',
