@@ -39,6 +39,35 @@ export class AdminController {
     }
   };
 
+  updateUser = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const userName = req.params.userName;
+    if (!userName) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Username is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<AdminController>:<Admin updating controller initiated>'
+    );
+    try {
+      const result = await this.adminService.updateUser(req.body, userName);
+      res.send({
+        message: 'User Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   uploadProfileImage = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -114,6 +143,24 @@ export class AdminController {
     }
   };
 
+  getUserByUserName = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Getting user by user name>');
+    try {
+      const userName = req.query.userName;
+      const result = await this.adminService.getAdminUserByUserName(
+        userName as string
+      );
+      Logger.info('<Controller>:<AdminController>:<User got successfully>');
+      res.send({
+        message: 'User obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   updatePassword = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>: <AdminController>: Updating password for the user'
@@ -136,6 +183,26 @@ export class AdminController {
     }
   };
 
+  updateUserStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update User Status>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateUserStatus(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':
@@ -146,9 +213,23 @@ export class AdminController {
             .exists()
             .isString()
         ];
+      case 'updateUser':
+        return [
+          body('ownerName', 'Owner Name does not exist').exists().isString(),
+
+          body('businessName', 'Business Name does not exist')
+            .exists()
+            .isString()
+        ];
 
       case 'uploadProfile':
         return [body('userId', 'User name does not exist').exists().isString()];
+
+      case 'updateUserStatus':
+        return [
+          body('userName', 'User Name does not exist').exists().isString(),
+          body('status', 'Status does not exist').exists().isString()
+        ];
     }
   };
 }
