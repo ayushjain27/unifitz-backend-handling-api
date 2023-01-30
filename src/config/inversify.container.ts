@@ -14,7 +14,8 @@ import {
   JobCardController,
   AdvertisementController,
   FavouriteStoreController,
-  VehicleInfoController
+  VehicleInfoController,
+  EnquiryController
 } from '../controllers';
 import {
   StoreService,
@@ -26,7 +27,8 @@ import {
   AdvertisementService,
   FavouriteStoreService,
   VehicleInfoService,
-  TwoFactorService
+  TwoFactorService,
+  EnquiryService
 } from '../services';
 
 const container = new Container();
@@ -102,6 +104,12 @@ container
 container
   .bind<VehicleInfoService>(TYPES.VehicleInfoService)
   .to(VehicleInfoService);
+
+container
+  .bind<EnquiryController>(TYPES.EnquiryController)
+  .to(EnquiryController);
+
+container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
 
 container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 
