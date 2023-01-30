@@ -39,6 +39,7 @@ export interface IProduct {
   overallRating?: OverallStoreRatingResponse;
   isActive: boolean;
   showPrice: boolean;
+  oemUserName?: string;
 }
 
 const productSchema: Schema = new Schema<IProduct>(
@@ -46,6 +47,9 @@ const productSchema: Schema = new Schema<IProduct>(
     storeId: {
       type: String,
       required: true
+    },
+    oemUserName: {
+      type: String
     },
     offerType: {
       type: String,

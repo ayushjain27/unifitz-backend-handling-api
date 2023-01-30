@@ -37,7 +37,7 @@ export class AdminService {
     upAdminFields.userId = String(userId);
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
-    upAdminFields.isFirstTimeLoggedIn = true;
+    upAdminFields.isFirstTimeLoggedIn = false;
 
     const newAdmin: IAdmin = (
       await Admin.create(upAdminFields)
@@ -104,10 +104,10 @@ export class AdminService {
       Logger.info(
         '<Service>:<AdminService>:<Admin password validated successfully>'
       );
-      if (admin.isFirstTimeLoggedIn) {
+      if (!admin.isFirstTimeLoggedIn) {
         await Admin.findOneAndUpdate(
           { _id: admin._id },
-          { $set: { isFirstTimeLoggedIn: false } }
+          { $set: { isFirstTimeLoggedIn: true } }
         );
       }
     }

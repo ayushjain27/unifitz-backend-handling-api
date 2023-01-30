@@ -29,11 +29,7 @@ router.post(
   productController.uploadProductImages
 );
 
-router.get(
-  '/getAll',
-  roleAuth(ACL.ADMIN_USER_CREATE),
-  productController.getAll
-);
+router.get('/getAll', roleAuth(ACL.STORE_GET_ALL), productController.getAll);
 
 router.get(
   '/store/:storeId',

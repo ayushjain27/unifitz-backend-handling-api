@@ -16,6 +16,7 @@ import { S3Service } from './s3.service';
 import { CustomerService } from './customer.service';
 import { ICustomer } from '../models/Customer';
 import { OverallStoreRatingResponse } from '../interfaces';
+import { AdminRole } from '../models/Admin';
 
 @injectable()
 export class ProductService {
@@ -37,6 +38,7 @@ export class ProductService {
       throw new Error('Store not found');
     }
     let newProd: IProduct = productPayload;
+    newProd.oemUserName = store?.oemUserName || '';
 
     newProd = await Product.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
@@ -82,8 +84,13 @@ export class ProductService {
     return res;
   }
 
-  async getAll(): Promise<IProduct[]> {
-    const product: IProduct[] = await Product.find({}).lean();
+  async getAll(userName?: string, role?: string): Promise<IProduct[]> {
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const product: IProduct[] = await Product.find(query).lean();
 
     return product;
   }

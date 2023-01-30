@@ -60,11 +60,13 @@ export class ProductController {
       '<Controller>:<ProductController>:<Get All request controller initiated>'
     );
     try {
+      const userName = req?.userId;
+      const role = req?.role;
       // const role = req?.role;
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
       // }
-      const result = await this.productService.getAll();
+      const result = await this.productService.getAll(userName, role);
       res.send({
         result
       });
