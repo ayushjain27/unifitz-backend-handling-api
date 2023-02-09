@@ -20,7 +20,6 @@ export interface IAdmin {
   businessName: string;
   registrationDate: Date;
   companyType: string;
-  email: string;
   category: ICatalogMap[];
   subCategory: ICatalogMap[];
   brand: ICatalogMap[];
@@ -32,6 +31,7 @@ export interface IAdmin {
   role: string;
   isFirstTimeLoggedIn?: boolean;
   generatedPassword?: string;
+  status: string;
 }
 
 export enum CompanyType {
@@ -44,6 +44,11 @@ export enum CompanyType {
 export enum AdminRole {
   ADMIN = 'ADMIN',
   OEM = 'OEM'
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  DISABLED = 'DISABLED'
 }
 
 const adminSchema: Schema = new Schema<IAdmin>(
@@ -62,9 +67,6 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     registrationDate: {
       type: Date
-    },
-    email: {
-      type: String
     },
     companyType: {
       type: String,
@@ -111,6 +113,11 @@ const adminSchema: Schema = new Schema<IAdmin>(
       required: true,
       enum: AdminRole,
       default: 'ADMIN'
+    },
+    status: {
+      type: String,
+      enum: UserStatus,
+      default: UserStatus.ACTIVE
     }
   },
   { timestamps: true, strict: false }

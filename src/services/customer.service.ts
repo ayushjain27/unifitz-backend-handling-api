@@ -38,8 +38,9 @@ export class CustomerService {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by Id service initiated>'
     );
+
     const customerResponse: ICustomer = await Customer.findOne({
-      phoneNumber
+      phoneNumber: `+91${phoneNumber.slice(-10)}`
     }).lean();
     return customerResponse;
   }

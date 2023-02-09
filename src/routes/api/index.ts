@@ -7,3 +7,4 @@ export * from './notification';
 export * from './product';
 export * from './advertisement.route';
 export * from './favouriteStore';
+export * from './enquiry.route';

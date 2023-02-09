@@ -8,7 +8,7 @@ import { roleAuth } from '../../routes/middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 
 const storage = multer.memoryStorage();
-const uploadFile = multer({ storage: storage });
+const uploadFiles = multer({ storage: storage });
 
 const router: Router = Router();
 const productController = container.get<ProductController>(
@@ -17,21 +17,32 @@ const productController = container.get<ProductController>(
 
 router.post(
   '/',
-  uploadFile.single('file'),
   roleAuth(ACL.STORE_CREATE),
   productController.validate('createProduct'),
   productController.createProduct
 );
 
-router.get(
-  '/:storeId',
-  roleAuth(ACL.STORE_GET_OWNER),
-  productController.getAllProductsByStoreId
+router.post(
+  '/uploadProductImages',
+  uploadFiles.array('files'),
+  roleAuth(ACL.STORE_CREATE),
+  productController.uploadProductImages
 );
 
+router.get('/getAll', roleAuth(ACL.STORE_GET_ALL), productController.getAll);
+
+router.get(
+  '/store/:storeId',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getAllProductsByStoreId
+);
+router.get(
+  '/product-detail/:productId',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getProductByProductId
+);
 router.put(
   '/:productId',
-  uploadFile.single('file'),
   roleAuth(ACL.STORE_CREATE),
   productController.validate('createProduct'),
   productController.updateProduct
@@ -41,6 +52,19 @@ router.delete(
   '/:productId',
   roleAuth(ACL.STORE_CREATE),
   productController.delete
+);
+
+router.post(
+  '/review',
+  roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('reviewProduct'),
+  productController.addProductReview
+);
+router.get(
+  '/reviews',
+  roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('getReviews'),
+  productController.getProductReviews
 );
 
 export default router;

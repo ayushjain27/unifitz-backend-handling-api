@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
+import { appendCodeToPhone } from '../utils/common';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { ICustomer } from '../models/Customer';
@@ -22,6 +23,9 @@ export class CustomerController {
         .json({ errors: errors.array() });
     }
     const customerPayload: ICustomer = req.body;
+    customerPayload.phoneNumber = appendCodeToPhone(
+      customerPayload?.phoneNumber
+    );
     Logger.info(
       '<Controller>:<CustomerController>:<Customer creation controller initiated>'
     );
@@ -40,6 +44,9 @@ export class CustomerController {
   update = async (req: Request, res: Response) => {
     const customerPayload: ICustomer = req.body;
     const customerId = req.params.customerId;
+    customerPayload.phoneNumber = appendCodeToPhone(
+      customerPayload?.phoneNumber
+    );
     Logger.info(
       '<Controller>:<CustomerController>:<Customer update controller initiated>'
     );
@@ -59,7 +66,7 @@ export class CustomerController {
   };
 
   getCustomerByPhoneNo = async (req: Request, res: Response) => {
-    const phoneNumber = req.body.phoneNumber;
+    let phoneNumber = req.body.phoneNumber;
     Logger.info(
       '<Controller>:<StoreController>:<Get customer by phone number request controller initiated>'
     );
@@ -68,6 +75,7 @@ export class CustomerController {
       if (!phoneNumber) {
         throw new Error('phoneNumber required');
       } else {
+        phoneNumber = appendCodeToPhone(phoneNumber);
         result = await this.customerService.getByPhoneNumber(
           phoneNumber as string
         );

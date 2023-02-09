@@ -1,28 +1,55 @@
-import { Document, Model, model, Schema, Types } from 'mongoose';
+import { OverallStoreRatingResponse } from './../interfaces/store-request.interface';
+import { model, Schema } from 'mongoose';
+// import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
   PRODUCT = 'product',
   SERVICE = 'service'
 }
 
-export interface IProduct extends Document {
-  storeId: string;
-  createdBy: string;
-  offerType: OfferType;
-  itemName: string;
-  unit: string;
-  sellingPrice: number;
-  supplierName: string;
-  purchasePrice: number;
-  purchaseDate: Date;
-  refImage: { key: string; docURL: string };
+export interface IImage {
+  key: string;
+  docURL: string;
 }
 
-const productSchema: Schema = new Schema(
+export interface IProductImageList {
+  profile: IImage;
+  first: IImage;
+  second: IImage;
+  third: IImage;
+}
+
+export const IImageSchema: Schema = new Schema<IImage>({
+  key: {
+    type: String
+  },
+  docURL: {
+    type: String
+  }
+});
+
+export interface IProduct {
+  storeId: string;
+  offerType: OfferType;
+  itemName: string;
+  mrp: number;
+  sellingPrice: number;
+  productDescription: string;
+  productImageList: IProductImageList;
+  overallRating?: OverallStoreRatingResponse;
+  isActive: boolean;
+  showPrice: boolean;
+  oemUserName?: string;
+}
+
+const productSchema: Schema = new Schema<IProduct>(
   {
     storeId: {
       type: String,
       required: true
+    },
+    oemUserName: {
+      type: String
     },
     offerType: {
       type: String,
@@ -33,31 +60,69 @@ const productSchema: Schema = new Schema(
       type: String,
       required: true
     },
-    unit: {
-      type: String
-    },
+    // brand: {
+    //   type: [storeCatalogMapSchema],
+    //   required: true
+    // },
+    // category: {
+    //   type: [storeCatalogMapSchema],
+    //   required: true
+    // },
+    // subCategory: {
+    //   type: [storeCatalogMapSchema],
+    //   required: false
+    // },
+    // unit: {
+    //   type: String
+    // },
     sellingPrice: {
       type: Number
     },
-    supplierName: {
+    mrp: {
+      type: Number,
+      required: true
+    },
+    productDescription: {
       type: String
     },
-    purchasePrice: {
-      type: Number
+    isActive: {
+      type: Boolean,
+      default: true
     },
-    purchaseDate: {
-      type: Date
+    showPrice: {
+      type: Boolean,
+      default: true
     },
-    refImage: {
+    // discountPrice: {
+    //   type: Number
+    // },
+    // salesAccount: {
+    //   type: String
+    // },
+    // salesDescription: {
+    //   type: String
+    // },
+    // purchasePrice: {
+    //   type: Number
+    // },
+    // purchaseAccount: {
+    //   type: String
+    // },
+    // purchaseDescription: {
+    //   type: String
+    // },
+    productImageList: {
       type: {
-        key: String,
-        docURL: String
+        profile: IImageSchema,
+        first: IImageSchema,
+        second: IImageSchema,
+        third: IImageSchema
       }
     }
   },
   { timestamps: true }
 );
 
-const Product = model<IProduct & Document>('product', productSchema);
+const Product = model<IProduct>('product', productSchema);
 
 export default Product;

@@ -37,7 +37,7 @@ export class AdminService {
     upAdminFields.userId = String(userId);
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
-    upAdminFields.isFirstTimeLoggedIn = true;
+    upAdminFields.isFirstTimeLoggedIn = false;
 
     const newAdmin: IAdmin = (
       await Admin.create(upAdminFields)
@@ -46,6 +46,22 @@ export class AdminService {
 
     Logger.info('<Service>:<AdminService>:<Admin created successfully>');
     return newAdmin;
+  }
+
+  async updateUser(reqBody: IAdmin, userName: string): Promise<any> {
+    const user = await this.getAdminUserByUserName(userName);
+
+    if (!user) {
+      Logger.error('<Service>:<AdminService>:<Admin User not found>');
+      throw new Error('Admin user not found');
+    }
+    const updatedUser = { ...user, reqBody };
+    const res = await Admin.findOneAndUpdate(
+      { userName: userName },
+      updatedUser,
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 
   async uploadAdminImage(userId: string, req: Request | any): Promise<any> {
@@ -88,10 +104,10 @@ export class AdminService {
       Logger.info(
         '<Service>:<AdminService>:<Admin password validated successfully>'
       );
-      if (admin.isFirstTimeLoggedIn) {
+      if (!admin.isFirstTimeLoggedIn) {
         await Admin.findOneAndUpdate(
           { _id: admin._id },
-          { $set: { isFirstTimeLoggedIn: false } }
+          { $set: { isFirstTimeLoggedIn: true } }
         );
       }
     }
@@ -132,6 +148,23 @@ export class AdminService {
       { $set: { password: updatedPassword } }
     );
     return true;
+  }
+
+  async updateUserStatus(reqBody: {
+    userName: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<UserService>:<Update user status >');
+
+    const admin: IAdmin = await Admin.findOneAndUpdate(
+      {
+        userName: reqBody?.userName
+      },
+      { $set: { status: reqBody.status } },
+      { returnDocument: 'after' }
+    );
+
+    return admin;
   }
 
   private async encryptPassword(password: string): Promise<string> {
