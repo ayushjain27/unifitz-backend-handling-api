@@ -2,7 +2,7 @@ import ProductReview, { IProductReview } from './../models/ProductReview';
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import container from '../config/inversify.container';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
@@ -295,5 +295,31 @@ export class ProductService {
       }
     ]);
     return productReviews;
+  }
+
+  async duplicateProductToStores(productId: string, storeIdList: string[]) {
+    Logger.info(
+      '<Service>:<ProductService>:<Duplicate Product To multiple stores>'
+    );
+
+    const product: IProduct = await Product.findOne({
+      _id: new Types.ObjectId(productId)
+    })?.lean();
+    if (_.isEmpty(product)) {
+      throw new Error('Product does not exist');
+    }
+    const db = mongoose.connection.db;
+    const bulkOps: any = [];
+
+    _.forEach(storeIdList, (storeId) => {
+      const insertDoc = {
+        insertOne: {
+          document: { ...product, storeId }
+        }
+      };
+      bulkOps.push(insertDoc);
+    });
+    await db.collection('product').bulkWrite(bulkOps);
+    return { message: 'Product duplicated successfully', success: true };
   }
 }

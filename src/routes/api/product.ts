@@ -67,4 +67,11 @@ router.get(
   productController.getProductReviews
 );
 
+router.post(
+  '/duplicateProductToStores',
+  roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('duplicateProductToStores'),
+  productController.duplicateProductToStores
+);
+
 export default router;
