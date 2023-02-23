@@ -310,16 +310,23 @@ export class ProductService {
     }
     const db = mongoose.connection.db;
     const bulkOps: any = [];
-
+    delete product?._id;
+    const newProdList: IProduct[] = [];
     _.forEach(storeIdList, (storeId) => {
-      const insertDoc = {
-        insertOne: {
-          document: { ...product, storeId }
-        }
-      };
-      bulkOps.push(insertDoc);
+      // const insertDoc = {
+      //   insertOne: {
+      //     document: { ...product, storeId }
+      //   }
+      // };
+      newProdList.push({ ...product, storeId });
+      // bulkOps.push(insertDoc);
     });
-    await db.collection('product').bulkWrite(bulkOps);
-    return { message: 'Product duplicated successfully', success: true };
+    // const result = await db.collection('product').bulkWrite(bulkOps);
+    const result = await Product.insertMany(newProdList);
+    return {
+      message: 'Product duplicated successfully',
+      success: true,
+      result
+    };
   }
 }
