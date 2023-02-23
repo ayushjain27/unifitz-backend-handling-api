@@ -69,7 +69,7 @@ router.get(
 
 router.post(
   '/duplicateProductToStores',
-  roleAuth(ACL.STORE_REVIEW_CREATE),
+  roleAuth(ACL.STORE_CREATE),
   productController.validate('duplicateProductToStores'),
   productController.duplicateProductToStores
 );
