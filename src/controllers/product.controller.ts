@@ -238,6 +238,33 @@ export class ProductController {
     }
   };
 
+  duplicateProductToStores = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<ProductController>:<Duplicating Product to stores controller initiated>'
+    );
+    const productId: string = req.body.productId as string;
+    const storeIdList: string[] = req.body.storeIdList as string[];
+    try {
+      const result = await this.productService.duplicateProductToStores(
+        productId,
+        storeIdList
+      );
+      res.send({
+        message: 'Product Duplication Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
@@ -265,6 +292,11 @@ export class ProductController {
             .withMessage('Product Id does not exist'),
           query('pageNo').isString(),
           query('pageSize').isString()
+        ];
+      case 'duplicateProductToStores':
+        return [
+          body('productId', 'Product Id does not exist').exists().isString(),
+          body('storeIdList', 'Store Id List does not exist').exists().isArray()
         ];
     }
   };

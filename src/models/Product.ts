@@ -29,6 +29,7 @@ export const IImageSchema: Schema = new Schema<IImage>({
 });
 
 export interface IProduct {
+  _id?: any;
   storeId: string;
   offerType: OfferType;
   itemName: string;
