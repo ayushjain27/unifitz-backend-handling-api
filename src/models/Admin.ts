@@ -38,7 +38,7 @@ export enum CompanyType {
   Manufacturer = 'Manufacturer',
   Importer = 'Importer',
   Distributer = 'Distributer',
-  Exporter = 'Exporter'
+  Dealer = 'Dealer'
 }
 
 export enum AdminRole {
