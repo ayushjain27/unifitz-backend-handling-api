@@ -283,9 +283,15 @@ export class StoreController {
   };
   getStoreReviews = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
+    const pageSize = Number(req.query.pageSize) || 15;
+    const pageNo = Number(req.query.pageNo) || 0;
     Logger.info('<Controller>:<StoreController>:<Get stores reviews>');
     try {
-      const result = await this.storeService.getReviews(storeId);
+      const result = await this.storeService.getReviews(
+        storeId,
+        pageNo,
+        pageSize
+      );
       res.send({
         result
       });

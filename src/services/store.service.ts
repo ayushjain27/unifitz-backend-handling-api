@@ -504,13 +504,20 @@ export class StoreService {
     };
   }
   /* eslint-disable */
-  async getReviews(storeId: string): Promise<any[]> {
+  async getReviews(
+    storeId: string,
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId }).lean();
+    const storeReviews = await StoreReview.find({ storeId })
+      .skip(pageNo * pageSize)
+      .limit(pageSize)
+      .lean();
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
-    if (storeReviews.length === 0) {
+    if (storeReviews.length === 0 && !pageNo) {
       return [
         {
           user: {
