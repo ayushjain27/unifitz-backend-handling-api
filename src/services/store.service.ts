@@ -492,7 +492,9 @@ export class StoreService {
       );
     }
 
-    const averageRating = ratingsCount / storeReviews.length;
+    const averageRating = Number(
+      ratingsCount / storeReviews.length
+    ).toPrecision(2);
     Logger.info(
       '<Service>:<StoreService>:<Get Overall Ratings performed successfully>'
     );

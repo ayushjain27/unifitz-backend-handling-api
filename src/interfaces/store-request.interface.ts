@@ -21,7 +21,7 @@ export interface StoreReviewRequest {
 
 export interface OverallStoreRatingResponse {
   allRatings: { [key: number]: number };
-  averageRating: number;
+  averageRating: string | number;
   totalRatings: number;
   totalReviews: number;
 }
