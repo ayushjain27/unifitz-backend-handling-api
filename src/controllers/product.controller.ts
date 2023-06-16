@@ -271,7 +271,7 @@ export class ProductController {
         return [
           body('storeId', 'Store Id does not exist').exists().isString(),
 
-          body('offerType', 'Type ABCD does not exist')
+          body('offerType', 'OfferType does not exist')
             .exists()
             .isIn(['product', 'service']),
 

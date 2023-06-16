@@ -40,6 +40,9 @@ export class ProductService {
     let newProd: IProduct = productPayload;
     newProd.oemUserName = store?.oemUserName || '';
 
+    newProd.allowMarketPlaceHosting = !_.isEmpty(newProd.oemUserName);
+
+    newProd.isActive = true;
     newProd = await Product.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
     return newProd;
@@ -56,7 +59,7 @@ export class ProductService {
     const files: Array<any> = req.files;
 
     const productImageList: Partial<IProductImageList> | any =
-      product.productImageList || {
+      product.productImages || {
         profile: {},
         first: {},
         second: {},
@@ -66,8 +69,8 @@ export class ProductService {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' | 'fourth' =
-        file.originalname?.split('.')[0] || 'first';
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0] || 'profie';
       const { key, url } = await this.s3Client.uploadFile(
         productId,
         fileName,

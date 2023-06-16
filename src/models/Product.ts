@@ -1,5 +1,6 @@
 import { OverallStoreRatingResponse } from './../interfaces/store-request.interface';
 import { model, Schema } from 'mongoose';
+import { catalogSchema, ICatalog } from './Catalog';
 // import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
@@ -29,18 +30,23 @@ export const IImageSchema: Schema = new Schema<IImage>({
 });
 
 export interface IProduct {
-  _id?: any;
+  _id?: string;
   storeId: string;
   offerType: OfferType;
   itemName: string;
+  unit: string;
   mrp: number;
   sellingPrice: number;
   productDescription: string;
-  productImageList: IProductImageList;
+  productImages: IProductImageList;
   overallRating?: OverallStoreRatingResponse;
+  productCategory?: ICatalog;
+  productSubCategory?: ICatalog;
+  productBrand?: ICatalog;
   isActive: boolean;
   showPrice: boolean;
   oemUserName?: string;
+  allowMarketPlaceHosting: boolean;
 }
 
 const productSchema: Schema = new Schema<IProduct>(
@@ -61,21 +67,23 @@ const productSchema: Schema = new Schema<IProduct>(
       type: String,
       required: true
     },
-    // brand: {
-    //   type: [storeCatalogMapSchema],
-    //   required: true
-    // },
-    // category: {
-    //   type: [storeCatalogMapSchema],
-    //   required: true
-    // },
-    // subCategory: {
-    //   type: [storeCatalogMapSchema],
-    //   required: false
-    // },
-    // unit: {
-    //   type: String
-    // },
+    productCategory: {
+      type: catalogSchema
+    },
+    productSubCategory: {
+      type: catalogSchema
+    },
+    productBrand: {
+      type: catalogSchema
+    },
+    allowMarketPlaceHosting: {
+      type: Boolean,
+      default: false
+    },
+
+    unit: {
+      type: String
+    },
     sellingPrice: {
       type: Number
     },
@@ -94,25 +102,8 @@ const productSchema: Schema = new Schema<IProduct>(
       type: Boolean,
       default: true
     },
-    // discountPrice: {
-    //   type: Number
-    // },
-    // salesAccount: {
-    //   type: String
-    // },
-    // salesDescription: {
-    //   type: String
-    // },
-    // purchasePrice: {
-    //   type: Number
-    // },
-    // purchaseAccount: {
-    //   type: String
-    // },
-    // purchaseDescription: {
-    //   type: String
-    // },
-    productImageList: {
+
+    productImages: {
       type: {
         profile: IImageSchema,
         first: IImageSchema,
