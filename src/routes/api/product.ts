@@ -22,6 +22,14 @@ router.post(
   productController.createProduct
 );
 
+router.put(
+  '/',
+  roleAuth(ACL.STORE_CREATE),
+  productController.validate('createProduct'),
+
+  productController.updateProduct
+);
+
 router.post(
   '/uploadProductImages',
   uploadFiles.array('files'),
@@ -52,6 +60,12 @@ router.delete(
   '/:productId',
   roleAuth(ACL.STORE_CREATE),
   productController.delete
+);
+
+router.post(
+  '/delete/multi',
+  roleAuth(ACL.STORE_CREATE),
+  productController.multiDelete
 );
 
 router.post(

@@ -130,6 +130,17 @@ export class ProductService {
     return res;
   }
 
+  async deleteMultiProduct(productIdList: string[]): Promise<unknown> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Delete: deleting product by product id>'
+    );
+    const res = await Product.deleteMany({
+      _id: { $in: productIdList }
+    });
+    Logger.info('<Service>:<ProductService>:<Product deleted successfully>');
+    return res;
+  }
+
   async update(productPayload: IProduct, productId: string): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Update: updating product>'

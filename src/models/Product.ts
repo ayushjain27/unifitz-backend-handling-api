@@ -40,9 +40,9 @@ export interface IProduct {
   productDescription: string;
   productImages: IProductImageList;
   overallRating?: OverallStoreRatingResponse;
-  productCategory?: ICatalog;
-  productSubCategory?: ICatalog;
-  productBrand?: ICatalog;
+  productCategory?: ICatalog[];
+  productSubCategory?: ICatalog[];
+  productBrand?: string;
   isActive: boolean;
   showPrice: boolean;
   oemUserName?: string;
@@ -68,13 +68,13 @@ const productSchema: Schema = new Schema<IProduct>(
       required: true
     },
     productCategory: {
-      type: catalogSchema
+      type: [catalogSchema]
     },
     productSubCategory: {
-      type: catalogSchema
+      type: [catalogSchema]
     },
     productBrand: {
-      type: catalogSchema
+      type: String
     },
     allowMarketPlaceHosting: {
       type: Boolean,
