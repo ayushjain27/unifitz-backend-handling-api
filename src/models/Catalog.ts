@@ -16,7 +16,7 @@ export interface ICatalog extends Document {
   displayOrder: number;
 }
 
-const catalogSchema: Schema = new Schema(
+export const catalogSchema: Schema = new Schema(
   {
     catalogName: {
       type: String,
@@ -46,5 +46,10 @@ const catalogSchema: Schema = new Schema(
 );
 
 const Catalog = model<ICatalog & Document>('catalog', catalogSchema);
+
+export const ProductCatalog = model<ICatalog & Document>(
+  'productCatalog',
+  catalogSchema
+);
 
 export default Catalog;
