@@ -23,7 +23,7 @@ router.post(
 );
 
 router.put(
-  '/',
+  '/:productId',
   roleAuth(ACL.STORE_CREATE),
   productController.validate('createProduct'),
 
