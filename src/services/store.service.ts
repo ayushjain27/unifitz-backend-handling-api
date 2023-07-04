@@ -35,7 +35,8 @@ export class StoreService {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
     const ownerDetails: IUser = await User.findOne({
-      phoneNumber
+      phoneNumber,
+      role
     });
     storePayload.userId = ownerDetails._id;
 
