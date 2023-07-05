@@ -38,7 +38,7 @@ export interface IProduct {
   mrp: number;
   sellingPrice: number;
   productDescription: string;
-  productImages: IProductImageList;
+  productImageList: IProductImageList;
   overallRating?: OverallStoreRatingResponse;
   productCategory?: ICatalog[];
   productSubCategory?: ICatalog[];
@@ -103,7 +103,7 @@ const productSchema: Schema = new Schema<IProduct>(
       default: true
     },
 
-    productImages: {
+    productImageList: {
       type: {
         profile: IImageSchema,
         first: IImageSchema,

@@ -59,7 +59,7 @@ export class ProductService {
     const files: Array<any> = req.files;
 
     const productImageList: Partial<IProductImageList> | any =
-      product.productImages || {
+      product.productImageList || {
         profile: {},
         first: {},
         second: {},
