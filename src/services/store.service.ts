@@ -35,7 +35,8 @@ export class StoreService {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
     const ownerDetails: IUser = await User.findOne({
-      phoneNumber
+      phoneNumber,
+      role
     });
     storePayload.userId = ownerDetails._id;
 
@@ -492,7 +493,9 @@ export class StoreService {
       );
     }
 
-    const averageRating = ratingsCount / storeReviews.length;
+    const averageRating = Number(
+      ratingsCount / storeReviews.length
+    ).toPrecision(2);
     Logger.info(
       '<Service>:<StoreService>:<Get Overall Ratings performed successfully>'
     );
@@ -504,13 +507,20 @@ export class StoreService {
     };
   }
   /* eslint-disable */
-  async getReviews(storeId: string): Promise<any[]> {
+  async getReviews(
+    storeId: string,
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId }).lean();
+    const storeReviews = await StoreReview.find({ storeId })
+      .skip(pageNo * pageSize)
+      .limit(pageSize)
+      .lean();
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
-    if (storeReviews.length === 0) {
+    if (storeReviews.length === 0 && !pageNo) {
       return [
         {
           user: {

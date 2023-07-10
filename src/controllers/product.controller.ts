@@ -180,6 +180,20 @@ export class ProductController {
     }
   };
 
+  multiDelete = async (req: Request, res: Response) => {
+    try {
+      const ids: [string] = req.body.itemIdList as [string];
+      const result = await this.productService.deleteMultiProduct(ids);
+      res.send({
+        message: 'Products Deleted Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   addProductReview = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -271,7 +285,7 @@ export class ProductController {
         return [
           body('storeId', 'Store Id does not exist').exists().isString(),
 
-          body('offerType', 'Type ABCD does not exist')
+          body('offerType', 'OfferType does not exist')
             .exists()
             .isIn(['product', 'service']),
 

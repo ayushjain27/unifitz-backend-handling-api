@@ -40,6 +40,9 @@ export class ProductService {
     let newProd: IProduct = productPayload;
     newProd.oemUserName = store?.oemUserName || '';
 
+    newProd.allowMarketPlaceHosting = !_.isEmpty(newProd.oemUserName);
+
+    newProd.isActive = true;
     newProd = await Product.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
     return newProd;
@@ -66,8 +69,8 @@ export class ProductService {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' | 'fourth' =
-        file.originalname?.split('.')[0] || 'first';
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0] || 'profie';
       const { key, url } = await this.s3Client.uploadFile(
         productId,
         fileName,
@@ -122,6 +125,17 @@ export class ProductService {
     );
     const res = await Product.deleteMany({
       _id: new Types.ObjectId(productId)
+    });
+    Logger.info('<Service>:<ProductService>:<Product deleted successfully>');
+    return res;
+  }
+
+  async deleteMultiProduct(productIdList: string[]): Promise<unknown> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Delete: deleting product by product id>'
+    );
+    const res = await Product.deleteMany({
+      _id: { $in: productIdList }
     });
     Logger.info('<Service>:<ProductService>:<Product deleted successfully>');
     return res;
