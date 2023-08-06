@@ -34,10 +34,20 @@ export class StoreService {
   ): Promise<IStore> {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
-    const ownerDetails: IUser = await User.findOne({
+    let ownerDetails: IUser = await User.findOne({
       phoneNumber,
       role
     });
+
+    if (_.isEmpty(ownerDetails)) {
+      ownerDetails = await User.findOne({
+        phoneNumber
+      });
+    }
+    if (_.isEmpty(ownerDetails)) {
+      throw new Error('User not found');
+    }
+
     storePayload.userId = ownerDetails._id;
 
     const lastCreatedStoreId = await Store.find({})

@@ -76,9 +76,27 @@ app.get('/category', async (req, res) => {
         ? -1
         : 0
     )
-    .map(({ _id, catalogName, tree, parent, catalogType }) => {
-      return { _id, catalogName, tree, parent, catalogType };
-    });
+    .map(
+      ({
+        _id,
+        catalogName,
+        tree,
+        parent,
+        catalogType,
+        catalogIcon,
+        catalogWebIcon
+      }) => {
+        return {
+          _id,
+          catalogName,
+          tree,
+          parent,
+          catalogType,
+          catalogIcon,
+          catalogWebIcon
+        };
+      }
+    );
 
   // const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
   //   return { _id, catalogName, catalogIcon };

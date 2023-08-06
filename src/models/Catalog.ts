@@ -14,6 +14,7 @@ export interface ICatalog extends Document {
   catalogType: string;
   catalogIcon?: string;
   displayOrder: number;
+  catalogWebIcon?: string;
 }
 
 export const catalogSchema: Schema = new Schema(
@@ -38,6 +39,10 @@ export const catalogSchema: Schema = new Schema(
       required: true
     },
     catalogIcon: {
+      type: String,
+      required: false
+    },
+    catalogWebIcon: {
       type: String,
       required: false
     }
