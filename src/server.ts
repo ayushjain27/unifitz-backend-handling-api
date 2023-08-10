@@ -9,6 +9,7 @@ import Logger from './config/winston';
 import Catalog, { ICatalog } from './models/Catalog';
 import file from './routes/api/file';
 import admin from './routes/api/admin';
+import category from './routes/api/category.route';
 import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
@@ -62,49 +63,50 @@ app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
 app.use('/enquiry', enquiry);
-app.get('/category', async (req, res) => {
-  const catalogType = req.query.catalogType || 'category';
-  const categoryList: ICatalog[] = await Catalog.find({
-    parent: 'root',
-    catalogType
-  });
-  const result = categoryList
-    .sort((a, b) =>
-      a.displayOrder > b.displayOrder
-        ? 1
-        : b.displayOrder > a.displayOrder
-        ? -1
-        : 0
-    )
-    .map(
-      ({
-        _id,
-        catalogName,
-        tree,
-        parent,
-        catalogType,
-        catalogIcon,
-        catalogWebIcon
-      }) => {
-        return {
-          _id,
-          catalogName,
-          tree,
-          parent,
-          catalogType,
-          catalogIcon,
-          catalogWebIcon
-        };
-      }
-    );
+app.use('/category', category);
+// app.get('/category', async (req, res) => {
+//   const catalogType = req.query.catalogType || 'category';
+//   const categoryList: ICatalog[] = await Catalog.find({
+//     parent: 'root',
+//     catalogType
+//   });
+//   const result = categoryList
+//     .sort((a, b) =>
+//       a.displayOrder > b.displayOrder
+//         ? 1
+//         : b.displayOrder > a.displayOrder
+//         ? -1
+//         : 0
+//     )
+//     .map(
+//       ({
+//         _id,
+//         catalogName,
+//         tree,
+//         parent,
+//         catalogType,
+//         catalogIcon,
+//         catalogWebIcon
+//       }) => {
+//         return {
+//           _id,
+//           catalogName,
+//           tree,
+//           parent,
+//           catalogType,
+//           catalogIcon,
+//           catalogWebIcon
+//         };
+//       }
+//     );
 
-  // const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
-  //   return { _id, catalogName, catalogIcon };
-  // });
-  res.json({
-    list: result
-  });
-});
+// const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
+//   return { _id, catalogName, catalogIcon };
+// });
+//   res.json({
+//     list: result
+//   });
+// });
 
 // TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
