@@ -11,5 +11,7 @@
   "BUCKET_NAME": "serviceplug-prod",
   "2FACTOR_API_KEY": "072aa3d3-31b9-11ed-9c12-0200cd936042",
   "2FACTOR_API_URL": "https://2factor.in/API/V1",
-  "2FACTOR_TEMPLATE_NAME": "ServiceplugLOGINOTP"
+  "2FACTOR_TEMPLATE_NAME": "ServiceplugLOGINOTP",
+  "SUREPASS_URL": "",
+  "SUREPASS_API_KEY": ""
 }

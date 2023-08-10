@@ -14,3 +14,8 @@ export interface TwoFactorConfig {
   API_KEY: string;
   TEMPLATE_NAME: string;
 }
+
+export interface SurepassConfig {
+  URL: string;
+  API_KEY: string;
+}

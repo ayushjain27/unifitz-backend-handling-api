@@ -73,4 +73,10 @@ router.put(
   roleAuth(ACL.STORE_CREATE),
   storeController.updateStoreStatus
 );
+
+router.post(
+  '/verify-business',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.verifyBusiness
+);
 export default router;

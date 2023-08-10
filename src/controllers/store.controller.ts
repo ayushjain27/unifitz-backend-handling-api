@@ -7,7 +7,12 @@ import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
-import { StoreRequest, StoreResponse, StoreReviewRequest } from '../interfaces';
+import {
+  StoreRequest,
+  StoreResponse,
+  StoreReviewRequest,
+  VerifyBusinessRequest
+} from '../interfaces';
 import { AdminRole } from '../models/Admin';
 
 @injectable()
@@ -319,6 +324,29 @@ export class StoreController {
       await this.storeService.sendNotificationToStore(result);
       res.send({
         message: 'Store Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  verifyBusiness = async (req: Request, res: Response) => {
+    const payload = req.body as VerifyBusinessRequest;
+    const userName = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Business>');
+
+    try {
+      const result = await this.storeService.verifyBusiness(
+        payload,
+        userName,
+        role
+      );
+
+      res.send({
+        message: 'Store Verification Successful',
         result
       });
     } catch (err) {

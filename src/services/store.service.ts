@@ -11,7 +11,8 @@ import {
   OverallStoreRatingResponse,
   StoreRequest,
   StoreResponse,
-  StoreReviewRequest
+  StoreReviewRequest,
+  VerifyBusinessRequest
 } from '../interfaces';
 import Store, { IDocuments, IStore } from '../models/Store';
 import StoreReview from '../models/Store-Review';
@@ -20,6 +21,7 @@ import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
 import Request from '../types/request';
 import { S3Service } from './s3.service';
 import { NotificationService } from './notification.service';
+import { DocType } from '../enum/docType.enum';
 
 @injectable()
 export class StoreService {
@@ -546,5 +548,24 @@ export class StoreService {
     } else {
       return storeReviews;
     }
+  }
+
+  async verifyBusiness(
+    payload: VerifyBusinessRequest,
+    userName: string,
+    role?: string
+  ) {
+    Logger.info('<Service>:<StoreService>:<Veirfying user business>');
+    let result: any = {};
+    // integrate surephass api based on doc type
+    switch (payload.documentType) {
+      case DocType.GST:
+        break;
+      case DocType.UDHYAM:
+        break;
+      case DocType.AADHAR:
+        break;
+    }
+    return result;
   }
 }

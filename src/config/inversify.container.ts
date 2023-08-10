@@ -1,3 +1,4 @@
+import { SurepassService } from './../services/surepass.service';
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Twilio } from 'twilio';
@@ -28,7 +29,8 @@ import {
   FavouriteStoreService,
   VehicleInfoService,
   TwoFactorService,
-  EnquiryService
+  EnquiryService,
+  SurepassService
 } from '../services';
 
 const container = new Container();
@@ -112,5 +114,7 @@ container
 container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
 
 container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
+
+container.bind<SurepassService>(TYPES.SurepassService).to(SurepassService);
 
 export default container;
