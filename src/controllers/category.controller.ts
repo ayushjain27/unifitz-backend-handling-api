@@ -6,11 +6,12 @@ import Logger from '../config/winston';
 import Request from '../types/request';
 // import { TYPES } from '../config/inversify.types';
 import { CategoryResponse } from '../interfaces/category.interface';
+import { TYPES } from '../config/inversify.types';
 
 @injectable()
 export class CategoryController {
   private categoryService: CategoryService;
-  constructor(@inject('categoryService') categoryService: CategoryService) {
+  constructor(@inject(TYPES.CategoryService) categoryService: CategoryService) {
     this.categoryService = categoryService;
   }
   // createStore = async (req: Request, res: Response) => {
