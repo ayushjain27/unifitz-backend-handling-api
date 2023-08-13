@@ -63,7 +63,7 @@ app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
 app.use('/enquiry', enquiry);
-app.use('/category', category);
+app.use('/categories', category);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({

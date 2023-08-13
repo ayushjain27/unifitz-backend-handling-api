@@ -18,5 +18,8 @@ const categoryController = container.get<CategoryController>(
 
 // upload banner API
 // router.get('/category', categoryController.getCategoryList);
-router.get('/category/All', categoryController.getAllCategories);
+router.get('/getAll', categoryController.getAllCategories);
+router.delete('/delete/:categoryId', categoryController.deleteCategory);
+router.post('/create', categoryController.createCategories);
+
 export default router;

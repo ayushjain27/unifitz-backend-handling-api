@@ -70,18 +70,49 @@ export class CategoryController {
 
   getAllCategories = async (req: Request, res: Response) => {
     Logger.info(
-      '<Controller>:<StoreController>:<Get All categories request controller initiated>'
+      '<Controller>:<CategoryController>:<Get All categories request controller initiated>'
     );
     try {
-      const userName = req?.userId;
-      const role = req?.role;
-
-      const result: CategoryResponse[] = await this.categoryService.getAll(
-        userName,
-        role
-      );
+      const result: CategoryResponse[] = await this.categoryService.getAll();
       res.send({
         result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteCategory = async (req: Request, res: Response) => {
+    try {
+      const categoryId = req.params.categoryId;
+      Logger.info(
+        '<Controller>:<CategoryController>:<Delete category request controller initiated>'
+      );
+      if (!categoryId) {
+        throw new Error(` ${categoryId} categoryId required`);
+      } else {
+        await this.categoryService.deleteCategory(categoryId);
+      }
+      res.send({
+        status: 'deleted',
+        deleted: true
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createCategories = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<CategoryController>:<Delete category request controller initiated>'
+      );
+      const result = await this.categoryService.createCategories(req.body);
+      res.send({
+        res: result,
+        created: 'successful'
       });
     } catch (err) {
       Logger.error(err.message);
