@@ -25,7 +25,7 @@ router.post(
 );
 router.get(
   '/',
-  roleAuth(ACL.STORE_GET_SINGLE),
+  // roleAuth(ACL.STORE_GET_SINGLE),
   storeController.getStoreByStoreId
 );
 router.delete(
