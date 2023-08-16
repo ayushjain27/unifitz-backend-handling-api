@@ -1,24 +1,29 @@
 import { injectable } from 'inversify';
 import Logger from '../config/winston';
 // import { AdminRole } from './../models/Admin';
-import Category from '../models/Category';
 import {
   CategoryResponse,
   CategoryRequest
 } from '../interfaces/category.interface';
-// import Catalog, { ICatalog } from '../models/Catalog';
+import _ from 'lodash';
+import Catalog, { ICatalog, IDocuments } from '../models/Catalog';
 import { Types } from 'mongoose';
+import container from '../config/inversify.container';
+import { S3Service } from './s3.service';
+import { TYPES } from '../config/inversify.types';
 
 // import Customer, { ICustomer } from './../models/Customer';
 
 @injectable()
 export class CategoryService {
+  private s3Client = container.get<S3Service>(TYPES.S3Service);
+
   async getAll() {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
     const query: any = {};
-    const result: CategoryResponse[] = await Category.find(query).lean();
+    const result: CategoryResponse[] = await Catalog.find(query).lean();
     return result;
   }
 
@@ -28,17 +33,26 @@ export class CategoryService {
     );
     const query: any = {};
     query.catalogType = 'brand';
-    const result: CategoryResponse[] = await Category.find(query).lean();
+    const result: CategoryResponse[] = await Catalog.find(query).lean();
     return result;
   }
 
+  async getCategoryByCategoryId(categoryId?: string) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all Category service initiated>'
+    );
+    const query: any = {};
+    query._id = new Types.ObjectId(categoryId);
+    const res = await Catalog.find(query);
+    return res;
+  }
   async deleteCategory(categoryId?: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
     const query: any = {};
     query._id = new Types.ObjectId(categoryId);
-    const res = await Category.findOneAndDelete(query);
+    const res = await Catalog.findOneAndDelete(query);
     return res;
   }
 
@@ -46,23 +60,22 @@ export class CategoryService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
-    const list: CategoryRequest = categoryList;
+    const query: CategoryRequest = categoryList;
     // categoryList.forEach((categoryItem: any) => {
     //   list.push(categoryItem);
     // });
-    const newCategories = new Category(list);
-    await newCategories.save();
-    return newCategories;
+    const result = await Catalog.create(query);
+    return result;
   }
 
-  async editCategories(categoryReq?: any) {
+  async updateCategories(categoryReq?: any) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
     const categoryReqQuery: CategoryRequest = categoryReq;
     const query: any = {};
     query._id = categoryReq._id;
-    const updatedCategory = await Category.findOneAndUpdate(
+    const updatedCategory = await Catalog.findOneAndUpdate(
       query,
       categoryReqQuery,
       {
@@ -70,5 +83,45 @@ export class CategoryService {
       }
     );
     return updatedCategory;
+  }
+
+  async uploadCategoryImages(
+    categoryId: string,
+    req: Request | any
+  ): Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Upload Vehicles initiated>');
+    const category = await Catalog.findOne({ categoryId });
+    if (_.isEmpty(category)) {
+      throw new Error('Store does not exist');
+    }
+
+    const files: Array<any> = req.files;
+    const documents: Partial<IDocuments> | any = category?.documents || {
+      profile: {},
+      storeImageList: {}
+    };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        categoryId,
+        fileName,
+        file.buffer
+      );
+      if (fileName === 'profile') {
+        documents.profile = { key, docURL: url };
+      } else {
+        documents.storeImageList[fileName] = { key, docURL: url };
+      }
+    }
+    const res = await Catalog.findOneAndUpdate(
+      { storeId: categoryId },
+      { $set: { documents } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 }

@@ -14,7 +14,7 @@ const categorySchema: Schema = new Schema<ICategory>(
   {
     _id: {
       type: Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       unique: true
     },
     catalogName: {

@@ -83,6 +83,24 @@ export class CategoryController {
     }
   };
 
+  getCategoryByCategoryId = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CategoryController>:<Get category request controller initiated>'
+    );
+    try {
+      const categoryId = req.params.categoryId;
+      const result = await this.categoryService.getCategoryByCategoryId(
+        categoryId as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   deleteCategory = async (req: Request, res: Response) => {
     try {
       const categoryId = req.params.categoryId;
@@ -120,15 +138,15 @@ export class CategoryController {
     }
   };
 
-  editCategories = async (req: Request, res: Response) => {
+  updateCategories = async (req: Request, res: Response) => {
     try {
       Logger.info(
         '<Controller>:<CategoryController>:<edit category request controller initiated>'
       );
-      const result = await this.categoryService.editCategories(req.body);
+      const result = await this.categoryService.updateCategories(req.body);
       res.send({
         res: result,
-        created: 'successful'
+        updated: 'successful'
       });
     } catch (err) {
       Logger.error(err.message);
@@ -142,6 +160,32 @@ export class CategoryController {
     );
     try {
       const result: CategoryResponse[] = await this.categoryService.getBrands();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  uploadCategoryImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res
+    //     .status(HttpStatusCodes.BAD_REQUEST)
+    //     .json({ errors: errors.array() });
+    // }
+    const { categoryId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.categoryService.uploadCategoryImages(
+        categoryId,
+        req
+      );
       res.send({
         result
       });

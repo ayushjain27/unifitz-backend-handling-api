@@ -15,7 +15,46 @@ export interface ICatalog extends Document {
   catalogIcon?: string;
   displayOrder: number;
   catalogWebIcon?: string;
+  documents: IDocuments;
 }
+
+export interface IDocuments {
+  profile: { key: string; docURL: string };
+  categoryImageList: {
+    first: { key: string; docURL: string };
+    second: { key: string; docURL: string };
+    third: { key: string; docURL: string };
+  };
+
+  // storeDocuments: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
+  // storeImages: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
+}
+
+const categoryDocumentsSchema: Schema = new Schema<IDocuments>(
+  {
+    profile: {
+      key: String,
+      docURL: String
+    },
+    categoryImageList: {
+      type: {
+        first: { key: String, docURL: String },
+        second: { key: String, docURL: String },
+        third: { key: String, docURL: String }
+      }
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
 
 export const catalogSchema: Schema = new Schema(
   {
@@ -38,13 +77,8 @@ export const catalogSchema: Schema = new Schema(
       type: String,
       required: true
     },
-    catalogIcon: {
-      type: String,
-      required: false
-    },
-    catalogWebIcon: {
-      type: String,
-      required: false
+    documents: {
+      type: categoryDocumentsSchema
     }
   },
   { timestamps: true }
