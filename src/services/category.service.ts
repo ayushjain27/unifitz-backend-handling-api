@@ -22,6 +22,16 @@ export class CategoryService {
     return result;
   }
 
+  async getBrands() {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all Brands service initiated>'
+    );
+    const query: any = {};
+    query.catalogType = 'brand';
+    const result: CategoryResponse[] = await Category.find(query).lean();
+    return result;
+  }
+
   async deleteCategory(categoryId?: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
@@ -36,12 +46,29 @@ export class CategoryService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
-    const list: CategoryRequest[] = [];
-    categoryList.forEach((categoryItem: any) => {
-      list.push(categoryItem);
-    });
+    const list: CategoryRequest = categoryList;
+    // categoryList.forEach((categoryItem: any) => {
+    //   list.push(categoryItem);
+    // });
     const newCategories = new Category(list);
     await newCategories.save();
     return newCategories;
+  }
+
+  async editCategories(categoryReq?: any) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all Category service initiated>'
+    );
+    const categoryReqQuery: CategoryRequest = categoryReq;
+    const query: any = {};
+    query._id = categoryReq._id;
+    const updatedCategory = await Category.findOneAndUpdate(
+      query,
+      categoryReqQuery,
+      {
+        returnDocument: 'after'
+      }
+    );
+    return updatedCategory;
   }
 }

@@ -119,6 +119,37 @@ export class CategoryController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  editCategories = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<CategoryController>:<edit category request controller initiated>'
+      );
+      const result = await this.categoryService.editCategories(req.body);
+      res.send({
+        res: result,
+        created: 'successful'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getBrands = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CategoryController>:<Get All brands request controller initiated>'
+    );
+    try {
+      const result: CategoryResponse[] = await this.categoryService.getBrands();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   // searchStores = async (req: Request, res: Response) => {
   //   const { category, brand, storeName } = req.query;
   //   let { subCategory } = req.query;

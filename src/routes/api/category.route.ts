@@ -21,5 +21,7 @@ const categoryController = container.get<CategoryController>(
 router.get('/getAll', categoryController.getAllCategories);
 router.delete('/delete/:categoryId', categoryController.deleteCategory);
 router.post('/create', categoryController.createCategories);
+router.put('/edit', categoryController.editCategories);
+router.get('/getAllBrand', categoryController.getBrands);
 
 export default router;
