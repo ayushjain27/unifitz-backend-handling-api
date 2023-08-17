@@ -90,7 +90,7 @@ export class CategoryService {
     req: Request | any
   ): Promise<any> {
     Logger.info('<Service>:<StoreService>:<Upload Vehicles initiated>');
-    const category = await Catalog.findOne({ categoryId });
+    const category = await Catalog.findOne({ _id: categoryId });
     if (_.isEmpty(category)) {
       throw new Error('Store does not exist');
     }
@@ -118,7 +118,7 @@ export class CategoryService {
       }
     }
     const res = await Catalog.findOneAndUpdate(
-      { storeId: categoryId },
+      { _id: categoryId },
       { $set: { documents } },
       { returnDocument: 'after' }
     );
