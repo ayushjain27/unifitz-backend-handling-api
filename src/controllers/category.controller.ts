@@ -113,7 +113,7 @@ export class CategoryController {
         await this.categoryService.deleteCategory(categoryId);
       }
       res.send({
-        status: 'deleted',
+        status: 'in-active',
         deleted: true
       });
     } catch (err) {
@@ -170,13 +170,6 @@ export class CategoryController {
   };
 
   uploadCategoryImages = async (req: Request, res: Response) => {
-    // Validate the request body
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res
-    //     .status(HttpStatusCodes.BAD_REQUEST)
-    //     .json({ errors: errors.array() });
-    // }
     const { categoryId } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'

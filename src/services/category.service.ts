@@ -46,13 +46,18 @@ export class CategoryService {
     const res = await Catalog.find(query);
     return res;
   }
+
   async deleteCategory(categoryId?: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
+    // const categoryparams: CategoryRequest = await ;
     const query: any = {};
-    query._id = new Types.ObjectId(categoryId);
-    const res = await Catalog.findOneAndDelete(query);
+    query.status = 'INACTIVE';
+    const _id = new Types.ObjectId(categoryId);
+    const res = await Catalog.findOneAndUpdate(_id, query, {
+      returnDocument: 'after'
+    });
     return res;
   }
 
@@ -97,31 +102,38 @@ export class CategoryService {
 
     const files: Array<any> = req.files;
     const documents: Partial<IDocuments> | any = category?.documents || {
-      profile: {},
+      // profile: {},
+      catalogIcon: {},
+      catalogWebIcon: {},
       storeImageList: {}
     };
     if (!files) {
       throw new Error('Files not found');
     }
+    const query: any = {};
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' | 'profile' =
-        file.originalname?.split('.')[0];
+      const fileName:
+        | 'first'
+        | 'second'
+        | 'third'
+        | 'catalogIcon'
+        | 'catalogWebIcon' = file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         categoryId,
         fileName,
         file.buffer
       );
-      if (fileName === 'profile') {
-        documents.profile = { key, docURL: url };
+      if (fileName === 'catalogIcon') {
+        query.catalogIcon = url;
+      } else if (fileName === 'catalogWebIcon') {
+        query.catalogWebIcon = url;
       } else {
         documents.storeImageList[fileName] = { key, docURL: url };
       }
     }
-    const res = await Catalog.findOneAndUpdate(
-      { _id: categoryId },
-      { $set: { documents } },
-      { returnDocument: 'after' }
-    );
+    const res = await Catalog.findOneAndUpdate({ _id: categoryId }, query, {
+      returnDocument: 'after'
+    });
     return res;
   }
 }

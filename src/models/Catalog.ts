@@ -13,6 +13,7 @@ export interface ICatalog extends Document {
   parent: string;
   catalogType: string;
   catalogIcon?: string;
+  status?: string;
   displayOrder: number;
   catalogWebIcon?: string;
   documents: IDocuments;
@@ -20,6 +21,8 @@ export interface ICatalog extends Document {
 
 export interface IDocuments {
   profile: { key: string; docURL: string };
+  catalogIcon: { key: string; docURL: string };
+  catalogWebIcon: { key: string; docURL: string };
   categoryImageList: {
     first: { key: string; docURL: string };
     second: { key: string; docURL: string };
@@ -36,25 +39,25 @@ export interface IDocuments {
   // };
 }
 
-const categoryDocumentsSchema: Schema = new Schema<IDocuments>(
-  {
-    profile: {
-      key: String,
-      docURL: String
-    },
-    categoryImageList: {
-      type: {
-        first: { key: String, docURL: String },
-        second: { key: String, docURL: String },
-        third: { key: String, docURL: String }
-      }
-    }
-  },
-  {
-    _id: false,
-    strict: false
-  }
-);
+// const categoryDocumentsSchema: Schema = new Schema<IDocuments>(
+//   {
+//     profile: {
+//       key: String,
+//       docURL: String
+//     },
+//     categoryImageList: {
+//       type: {
+//         first: { key: String, docURL: String },
+//         second: { key: String, docURL: String },
+//         third: { key: String, docURL: String }
+//       }
+//     }
+//   },
+//   {
+//     _id: false,
+//     strict: false
+//   }
+// );
 
 export const catalogSchema: Schema = new Schema(
   {
@@ -69,6 +72,10 @@ export const catalogSchema: Schema = new Schema(
       type: String,
       required: true
     },
+    status: {
+      type: String,
+      default: 'ACTIVE'
+    },
     parent: {
       type: String,
       required: true
@@ -77,8 +84,13 @@ export const catalogSchema: Schema = new Schema(
       type: String,
       required: true
     },
-    documents: {
-      type: categoryDocumentsSchema
+    catalogIcon: {
+      type: String,
+      required: false
+    },
+    catalogWebIcon: {
+      type: String,
+      required: false
     }
   },
   { timestamps: true }
