@@ -101,12 +101,12 @@ export class CategoryService {
     }
 
     const files: Array<any> = req.files;
-    const documents: Partial<IDocuments> | any = category?.documents || {
-      // profile: {},
-      catalogIcon: {},
-      catalogWebIcon: {},
-      storeImageList: {}
-    };
+    // const documents: Partial<IDocuments> | any = category?.documents || {
+    //   // profile: {},
+    //   catalogIcon: {},
+    //   catalogWebIcon: {},
+    //   storeImageList: {}
+    // };
     if (!files) {
       throw new Error('Files not found');
     }
@@ -127,9 +127,10 @@ export class CategoryService {
         query.catalogIcon = url;
       } else if (fileName === 'catalogWebIcon') {
         query.catalogWebIcon = url;
-      } else {
-        documents.storeImageList[fileName] = { key, docURL: url };
       }
+      // else {
+      //   documents.storeImageList[fileName] = { key, docURL: url };
+      // }
     }
     const res = await Catalog.findOneAndUpdate({ _id: categoryId }, query, {
       returnDocument: 'after'
