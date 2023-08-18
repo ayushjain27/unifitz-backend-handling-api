@@ -16,7 +16,6 @@ const categoryController = container.get<CategoryController>(
   TYPES.CategoryController
 );
 
-// upload banner API
 router.get('/getAll', categoryController.getAllCategories);
 router.delete('/delete/:categoryId', categoryController.deleteCategory);
 router.post('/create', categoryController.createCategories);
@@ -26,7 +25,6 @@ router.get('/:categoryId', categoryController.getCategoryByCategoryId);
 router.post(
   '/uploadCategoryImages',
   uploadFiles.array('files'),
-  // roleAuth(ACL.STORE_CREATE),
   categoryController.uploadCategoryImages
 );
 

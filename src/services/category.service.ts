@@ -6,13 +6,11 @@ import {
   CategoryRequest
 } from '../interfaces/category.interface';
 import _ from 'lodash';
-import Catalog, { ICatalog, IDocuments } from '../models/Catalog';
+import Catalog from '../models/Catalog';
 import { Types } from 'mongoose';
 import container from '../config/inversify.container';
 import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
-
-// import Customer, { ICustomer } from './../models/Customer';
 
 @injectable()
 export class CategoryService {
@@ -51,7 +49,6 @@ export class CategoryService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
-    // const categoryparams: CategoryRequest = await ;
     const query: any = {};
     query.status = 'INACTIVE';
     const _id = new Types.ObjectId(categoryId);
@@ -66,9 +63,6 @@ export class CategoryService {
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
     const query: CategoryRequest = categoryList;
-    // categoryList.forEach((categoryItem: any) => {
-    //   list.push(categoryItem);
-    // });
     const result = await Catalog.create(query);
     return result;
   }
@@ -101,12 +95,6 @@ export class CategoryService {
     }
 
     const files: Array<any> = req.files;
-    // const documents: Partial<IDocuments> | any = category?.documents || {
-    //   // profile: {},
-    //   catalogIcon: {},
-    //   catalogWebIcon: {},
-    //   storeImageList: {}
-    // };
     if (!files) {
       throw new Error('Files not found');
     }
