@@ -1,5 +1,5 @@
 export enum DocType {
-  AADHAR,
-  GST,
-  UDHYAM
+  AADHAR = 'AADHAR',
+  GST = 'GST',
+  UDHYAM = 'UDHYAM'
 }

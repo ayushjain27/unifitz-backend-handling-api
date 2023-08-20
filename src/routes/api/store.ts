@@ -6,6 +6,7 @@ import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../../routes/middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
+import { validationHandler } from '../middleware/auth';
 
 const storage = multer.memoryStorage();
 const uploadFiles = multer({ storage: storage });
@@ -75,8 +76,10 @@ router.put(
 );
 
 router.post(
-  '/verify-business',
+  '/initiate-business-verify',
   roleAuth(ACL.STORE_CREATE),
-  storeController.verifyBusiness
+  storeController.validate('initiateBusinessVerification'),
+  validationHandler(),
+  storeController.initiateBusinessVerification
 );
 export default router;

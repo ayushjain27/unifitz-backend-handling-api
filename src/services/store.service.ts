@@ -22,6 +22,7 @@ import Request from '../types/request';
 import { S3Service } from './s3.service';
 import { NotificationService } from './notification.service';
 import { DocType } from '../enum/docType.enum';
+import { SurepassService } from './surepass.service';
 
 @injectable()
 export class StoreService {
@@ -29,6 +30,10 @@ export class StoreService {
   private notificationService = container.get<NotificationService>(
     TYPES.NotificationService
   );
+  private surepassService = container.get<SurepassService>(
+    TYPES.SurepassService
+  );
+
   async create(
     storeRequest: StoreRequest,
     userName?: string,
@@ -550,22 +555,55 @@ export class StoreService {
     }
   }
 
-  async verifyBusiness(
+  async initiateBusinessVerification(
     payload: VerifyBusinessRequest,
-    userName: string,
+    phoneNumber: string,
     role?: string
   ) {
-    Logger.info('<Service>:<StoreService>:<Veirfying user business>');
-    let result: any = {};
-    // integrate surephass api based on doc type
-    switch (payload.documentType) {
-      case DocType.GST:
-        break;
-      case DocType.UDHYAM:
-        break;
-      case DocType.AADHAR:
-        break;
+    Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
+    // validate the store from user phone number and user id
+    let verifyResult: any = {};
+
+    try {
+      // get the store data
+      const storeDetails = await Store.findOne({
+        storeId: payload.storeId
+      }).lean();
+      const userDetails = await User.findOne({ phoneNumber, role }).lean();
+      if (_.isEmpty(storeDetails)) {
+        throw new Error('Store does not exist');
+      }
+
+      if (_.isEmpty(userDetails)) {
+        throw new Error('User does not exist');
+      }
+
+      // Check if role is store owner and user id matches with store user id
+      if (
+        role === 'STORE_OWNER' &&
+        String(storeDetails?.userId) !== String(userDetails._id)
+      ) {
+        throw new Error('Invalid and unauthenticated request');
+      }
+
+      // integrate surephass api based on doc type
+      switch (payload.documentType) {
+        case DocType.GST:
+          verifyResult = await this.surepassService.getGstDetails(
+            payload.documentNo
+          );
+          break;
+        case DocType.UDHYAM:
+          verifyResult = await this.surepassService.getUdhyamDetails(
+            payload.documentNo
+          );
+          break;
+        case DocType.AADHAR:
+          break;
+      }
+      return verifyResult;
+    } catch (err) {
+      throw new Error(err);
     }
-    return result;
   }
 }

@@ -1,4 +1,3 @@
-import { SurepassService } from './../services/surepass.service';
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Twilio } from 'twilio';

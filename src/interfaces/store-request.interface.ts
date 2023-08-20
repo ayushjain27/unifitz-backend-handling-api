@@ -37,5 +37,5 @@ export interface StoreReviewResponse {
 export interface VerifyBusinessRequest {
   documentNo: string;
   documentType: DocType;
-  storeId: string;
+  storeId?: string;
 }

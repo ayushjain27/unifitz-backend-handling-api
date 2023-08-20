@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
+import { body, validationResult } from 'express-validator';
+
 import { StoreService } from '../services';
 import Logger from '../config/winston';
 import Request from '../types/request';
@@ -332,26 +334,40 @@ export class StoreController {
     }
   };
 
-  verifyBusiness = async (req: Request, res: Response) => {
+  initiateBusinessVerification = async (req: Request, res: Response) => {
     const payload = req.body as VerifyBusinessRequest;
-    const userName = req?.userId;
+    const phoneNumber = req?.userId;
     const role = req?.role;
-    Logger.info('<Controller>:<StoreController>:<Verify Business>');
+    Logger.info('<Controller>:<StoreController>:<Verify Business Initatiate>');
 
     try {
-      const result = await this.storeService.verifyBusiness(
+      const result = await this.storeService.initiateBusinessVerification(
         payload,
-        userName,
+        phoneNumber,
         role
       );
 
       res.send({
-        message: 'Store Verification Successful',
+        message: 'Store Verification Initatiation Successful',
         result
       });
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  validate = (method: string) => {
+    switch (method) {
+      case 'initiateBusinessVerification':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('documentNo', 'Document Number does not exist')
+            .exists()
+            .isString(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
     }
   };
 }
