@@ -39,3 +39,9 @@ export interface VerifyBusinessRequest {
   documentType: DocType;
   storeId?: string;
 }
+
+export interface VerifyAadharRequest {
+  clientId: string;
+  otp: string;
+  storeId?: string;
+}

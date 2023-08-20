@@ -12,6 +12,7 @@ import {
   StoreRequest,
   StoreResponse,
   StoreReviewRequest,
+  VerifyAadharRequest,
   VerifyBusinessRequest
 } from '../interfaces';
 import Store, { IDocuments, IStore } from '../models/Store';
@@ -601,6 +602,39 @@ export class StoreService {
         case DocType.AADHAR:
           break;
       }
+      return verifyResult;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async verifyAadhar(
+    payload: VerifyAadharRequest,
+    phoneNumber: string,
+    role?: string
+  ) {
+    Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
+    // validate the store from user phone number and user id
+    let verifyResult: any = {};
+
+    try {
+      // get the store data
+      const storeDetails = await Store.findOne({
+        storeId: payload.storeId
+      }).lean();
+      const userDetails = await User.findOne({ phoneNumber, role }).lean();
+      if (_.isEmpty(storeDetails)) {
+        throw new Error('Store does not exist');
+      }
+
+      if (_.isEmpty(userDetails)) {
+        throw new Error('User does not exist');
+      }
+
+      const verifyResult = await this.surepassService.verifyOtpForAadharVerify(
+        payload.clientId,
+        payload.otp
+      );
       return verifyResult;
     } catch (err) {
       throw new Error(err);

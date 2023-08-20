@@ -13,6 +13,7 @@ import {
   StoreRequest,
   StoreResponse,
   StoreReviewRequest,
+  VerifyAadharRequest,
   VerifyBusinessRequest
 } from '../interfaces';
 import { AdminRole } from '../models/Admin';
@@ -356,6 +357,28 @@ export class StoreController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  verifyAadhar = async (req: Request, res: Response) => {
+    const payload: VerifyAadharRequest = req.body;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Aadhar OTP>');
+    try {
+      const result = await this.storeService.verifyAadhar(
+        payload,
+        phoneNumber,
+        role
+      );
+      res.send({
+        message: 'Aadhar Verification Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateBusinessVerification':
