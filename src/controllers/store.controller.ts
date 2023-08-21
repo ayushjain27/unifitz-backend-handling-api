@@ -348,13 +348,24 @@ export class StoreController {
         role
       );
 
+      // if (result.status === 422) {
+      //   // validation failed
+      //   res.status(result?.status).json(result?.data);
+      // } else {
       res.send({
         message: 'Store Verification Initatiation Successful',
         result
       });
+      // }
     } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      }
     }
   };
 

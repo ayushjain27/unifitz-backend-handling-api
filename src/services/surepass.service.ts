@@ -37,8 +37,8 @@ export class SurepassService {
         id_number: gstin,
         filing_status_get: false
       });
-      if (!_.isEmpty(response.data)) {
-        return response.data;
+      if (!_.isEmpty(response.data.data)) {
+        return response.data.data;
       }
     }
     return null;
@@ -49,8 +49,8 @@ export class SurepassService {
       const response = await axiosInstance.post(urls.UDHYAM, {
         id_number: udhyamNo
       });
-      if (!_.isEmpty(response.data)) {
-        return response.data;
+      if (!_.isEmpty(response.data.data)) {
+        return response.data.data;
       }
     }
     return null;

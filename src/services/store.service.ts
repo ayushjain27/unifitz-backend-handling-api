@@ -58,7 +58,7 @@ export class StoreService {
 
     storePayload.userId = ownerDetails._id;
 
-    const lastCreatedStoreId = await Store.find({})
+    const lastCreatedStoreId = await Store.find({}, { verificationDetails: 0 })
       .sort({ createdAt: 'desc' })
       .select('storeId')
       .limit(1)
@@ -98,7 +98,8 @@ export class StoreService {
       query.oemUserName = userName;
     }
     const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
-      returnDocument: 'after'
+      returnDocument: 'after',
+      projection: { verificationDetails: 0 }
     });
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
@@ -106,7 +107,7 @@ export class StoreService {
 
   async updateStoreImages(storeId: string, req: Request | any): Promise<any> {
     Logger.info('<Service>:<StoreService>:<Upload Vehicles initiated>');
-    const store = await Store.findOne({ storeId });
+    const store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     if (_.isEmpty(store)) {
       throw new Error('Store does not exist');
     }
@@ -136,7 +137,7 @@ export class StoreService {
     const res = await Store.findOneAndUpdate(
       { storeId: storeId },
       { $set: { documents } },
-      { returnDocument: 'after' }
+      { returnDocument: 'after', projection: { verificationDetails: 0 } }
     );
     return res;
   }
@@ -161,9 +162,12 @@ export class StoreService {
     Logger.info(
       '<Service>:<StoreService>: <Store: store status updated successfully>'
     );
-    const updatedStore = await Store.findOne({
-      storeId: statusRequest.storeId
-    });
+    const updatedStore = await Store.findOne(
+      {
+        storeId: statusRequest.storeId
+      },
+      { verificationDetails: 0 }
+    );
     return updatedStore;
   }
 
@@ -243,7 +247,9 @@ export class StoreService {
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
-    const storeResponse: StoreResponse[] = await Store.find(query);
+    const storeResponse: StoreResponse[] = await Store.find(query, {
+      verificationDetails: 0
+    });
     return storeResponse;
   }
 
@@ -269,7 +275,9 @@ export class StoreService {
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
-    const stores: StoreResponse[] = await Store.find(query).lean();
+    const stores: StoreResponse[] = await Store.find(query, {
+      verificationDetails: 0
+    }).lean();
 
     //STARTS --- Update Script for all the stores
     // const bulkWrite = [];
@@ -366,7 +374,9 @@ export class StoreService {
       delete query['basicInfo.businessName'];
     }
     Logger.debug(query);
-    let stores: any = await Store.find(query).lean();
+    let stores: any = await Store.find(query, {
+      verificationDetails: 0
+    }).lean();
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
@@ -438,6 +448,9 @@ export class StoreService {
       },
       {
         $limit: searchReqBody.pageSize
+      },
+      {
+        $project: { verificationDetails: 0 }
       }
     ]);
 
@@ -460,7 +473,10 @@ export class StoreService {
       '<Service>:<StoreService>:<Get stores by owner service initiated>'
     );
     const objId = new Types.ObjectId(userId);
-    const stores = await Store.find({ userId: objId });
+    const stores = await Store.find(
+      { userId: objId },
+      { verificationDetails: 0 }
+    );
     return stores;
   }
 
@@ -567,9 +583,12 @@ export class StoreService {
 
     try {
       // get the store data
-      const storeDetails = await Store.findOne({
-        storeId: payload.storeId
-      }).lean();
+      const storeDetails = await Store.findOne(
+        {
+          storeId: payload.storeId
+        },
+        { verificationDetails: 0 }
+      ).lean();
       const userDetails = await User.findOne({ phoneNumber, role }).lean();
       if (_.isEmpty(storeDetails)) {
         throw new Error('Store does not exist');
@@ -602,10 +621,53 @@ export class StoreService {
         case DocType.AADHAR:
           break;
       }
-      return verifyResult;
+      const updatedStore = await this.updateStoreDetails(
+        verifyResult,
+        payload.documentType,
+        storeDetails
+      );
+
+      return updatedStore;
     } catch (err) {
+      if (err.response) {
+        return Promise.reject(err.response);
+      }
       throw new Error(err);
     }
+  }
+
+  private async updateStoreDetails(
+    verifyResult: any,
+    documentType: string,
+    storeDetails: IStore
+  ) {
+    let isVerified = false;
+    let businessName = storeDetails.basicInfo.businessName;
+
+    if (!_.isEmpty(verifyResult)) {
+      // Business is verified
+      isVerified = true;
+
+      if (documentType === DocType.GST) {
+        businessName = verifyResult?.business_name;
+      } else if (documentType === DocType.UDHYAM) {
+        businessName = verifyResult?.main_details?.name_of_enterprise;
+      }
+    }
+    // update the store
+    const updatedStore = await Store.findOneAndUpdate(
+      { _id: storeDetails._id },
+      {
+        $set: {
+          'basicInfo.businessName': businessName,
+          isVerified,
+          verificationDetails: { documentType, verifyObj: verifyResult }
+        }
+      },
+      { returnDocument: 'after', projection: { verificationDetails: 0 } }
+    );
+
+    return updatedStore;
   }
 
   async verifyAadhar(
@@ -622,7 +684,10 @@ export class StoreService {
       const storeDetails = await Store.findOne({
         storeId: payload.storeId
       }).lean();
-      const userDetails = await User.findOne({ phoneNumber, role }).lean();
+      const userDetails = await User.findOne(
+        { phoneNumber, role },
+        { verificationDetails: 0 }
+      ).lean();
       if (_.isEmpty(storeDetails)) {
         throw new Error('Store does not exist');
       }
@@ -635,6 +700,7 @@ export class StoreService {
         payload.clientId,
         payload.otp
       );
+      delete verifyResult.verificationDetails;
       return verifyResult;
     } catch (err) {
       throw new Error(err);

@@ -31,7 +31,7 @@ export class ProductService {
     const { storeId } = productPayload;
     let store: IStore;
     if (storeId) {
-      store = await Store.findOne({ storeId });
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
     if (!store) {
       Logger.error('<Service>:<ProductService>:< store id not found>');
@@ -162,7 +162,7 @@ export class ProductService {
       throw new Error('Store not found');
     }
     if (storeId) {
-      store = await Store.findOne({ storeId });
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
     if (!store) {
       Logger.error('<Service>:<ProductService>:<Store note found>');
