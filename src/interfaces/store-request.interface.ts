@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { IUser } from '../models/Store-Review';
 import { IStore } from '../models/Store';
+import { DocType } from '../enum/docType.enum';
 
 export interface StoreRequest {
   phoneNumber: string;
@@ -31,4 +32,16 @@ export interface StoreReviewResponse {
   storeId: string;
   review: string;
   rating: number;
+}
+
+export interface VerifyBusinessRequest {
+  documentNo: string;
+  documentType: DocType;
+  storeId?: string;
+}
+
+export interface VerifyAadharRequest {
+  clientId: string;
+  otp: string;
+  storeId?: string;
 }

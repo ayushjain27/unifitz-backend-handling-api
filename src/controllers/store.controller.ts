@@ -1,13 +1,21 @@
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
+import { body, validationResult } from 'express-validator';
+
 import { StoreService } from '../services';
 import Logger from '../config/winston';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
-import { StoreRequest, StoreResponse, StoreReviewRequest } from '../interfaces';
+import {
+  StoreRequest,
+  StoreResponse,
+  StoreReviewRequest,
+  VerifyAadharRequest,
+  VerifyBusinessRequest
+} from '../interfaces';
 import { AdminRole } from '../models/Admin';
 
 @injectable()
@@ -324,6 +332,76 @@ export class StoreController {
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  initiateBusinessVerification = async (req: Request, res: Response) => {
+    const payload = req.body as VerifyBusinessRequest;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Business Initatiate>');
+
+    try {
+      const result = await this.storeService.initiateBusinessVerification(
+        payload,
+        phoneNumber,
+        role
+      );
+
+      // if (result.status === 422) {
+      //   // validation failed
+      //   res.status(result?.status).json(result?.data);
+      // } else {
+      res.send({
+        message: 'Store Verification Initatiation Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      }
+    }
+  };
+
+  verifyAadhar = async (req: Request, res: Response) => {
+    const payload: VerifyAadharRequest = req.body;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Aadhar OTP>');
+    try {
+      const result = await this.storeService.verifyAadhar(
+        payload,
+        phoneNumber,
+        role
+      );
+      res.send({
+        message: 'Aadhar Verification Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  validate = (method: string) => {
+    switch (method) {
+      case 'initiateBusinessVerification':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('documentNo', 'Document Number does not exist')
+            .exists()
+            .isString(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
     }
   };
 }

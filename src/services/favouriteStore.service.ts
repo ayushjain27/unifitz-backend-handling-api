@@ -19,7 +19,10 @@ export class FavouriteStoreService {
     const { customerId, storeId } = favStore;
 
     // Check if store exists
-    const store: IStore = await Store.findOne({ storeId }).lean();
+    const store: IStore = await Store.findOne(
+      { storeId },
+      { verificationDetails: 0 }
+    ).lean();
 
     if (_.isEmpty(store)) {
       throw new Error('Store not found');

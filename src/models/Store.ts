@@ -1,4 +1,5 @@
 import { model, ObjectId, Schema, Types } from 'mongoose';
+import { DocType } from '../enum/docType.enum';
 export interface ICatalogMap {
   _id: ObjectId;
   name: string;
@@ -162,6 +163,11 @@ export interface IDocuments {
   // };
 }
 
+export interface IVerificationDetails {
+  documentType: DocType;
+  verifyObj: unknown;
+}
+
 const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
     profile: {
@@ -213,6 +219,8 @@ export interface IStore {
   createdAt?: Date;
   updatedAt?: Date;
   overAllRating?: any;
+  isVerified?: boolean;
+  verificationDetails?: IVerificationDetails;
 }
 
 const storeSchema: Schema = new Schema<IStore>(
@@ -252,7 +260,7 @@ const storeSchema: Schema = new Schema<IStore>(
       type: storeDocumentsSchema
     }
   },
-  { timestamps: true }
+  { timestamps: true, strict: false }
 );
 
 storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });

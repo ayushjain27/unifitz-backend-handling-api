@@ -1,6 +1,8 @@
 import config from 'config';
 import { Response, NextFunction } from 'express';
 import HttpStatusCodes from 'http-status-codes';
+import { validationResult } from 'express-validator';
+
 import jwt from 'jsonwebtoken';
 
 import Payload from '../../types/payload';
@@ -32,4 +34,21 @@ export default function (
       .status(HttpStatusCodes.UNAUTHORIZED)
       .json({ msg: 'Token is not valid' });
   }
+}
+
+export function validationHandler() {
+  return async (req: Request | any, res: Response, next: NextFunction) => {
+    // to check the validation and throw the reponse error
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const response = {
+        data: errors.array(),
+        code: HttpStatusCodes.BAD_REQUEST,
+        message: 'Error while validating request body'
+      };
+
+      return res.status(HttpStatusCodes.BAD_REQUEST).json(response);
+    }
+    next();
+  };
 }
