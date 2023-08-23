@@ -28,6 +28,21 @@ export class CategoryController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+  getAllRootCategories = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CategoryController>:<Get All root categories request controller initiated>'
+    );
+    try {
+      const result: CategoryResponse[] =
+        await this.categoryService.getAllRootCategories();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
   getCategoryByCategoryId = async (req: Request, res: Response) => {
     Logger.info(

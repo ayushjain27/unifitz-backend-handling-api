@@ -25,6 +25,15 @@ export class CategoryService {
     return result;
   }
 
+  async getAllRootCategories() {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all root Category service initiated>'
+    );
+    const query: any = { parent: 'root' };
+    const result: CategoryResponse[] = await Catalog.find(query).lean();
+    return result;
+  }
+
   async getBrands() {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Brands service initiated>'
