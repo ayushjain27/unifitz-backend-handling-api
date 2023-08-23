@@ -15,7 +15,8 @@ import {
   AdvertisementController,
   FavouriteStoreController,
   VehicleInfoController,
-  EnquiryController
+  EnquiryController,
+  CategoryController
 } from '../controllers';
 import {
   StoreService,
@@ -29,7 +30,8 @@ import {
   VehicleInfoService,
   TwoFactorService,
   EnquiryService,
-  SurepassService
+  SurepassService,
+  CategoryService
 } from '../services';
 
 const container = new Container();
@@ -112,6 +114,11 @@ container
 
 container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
 
+container
+  .bind<CategoryController>(TYPES.CategoryController)
+  .to(CategoryController);
+
+container.bind<CategoryService>(TYPES.CategoryService).to(CategoryService);
 container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 
 container.bind<SurepassService>(TYPES.SurepassService).to(SurepassService);

@@ -8,6 +8,7 @@ import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
 import Catalog, { ICatalog } from './models/Catalog';
 import file from './routes/api/file';
+import category from './routes/api/category.route';
 import admin from './routes/api/admin';
 import store from './routes/api/store';
 import user from './routes/api/user';
@@ -62,6 +63,7 @@ app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
 app.use('/enquiry', enquiry);
+app.use('/categories', category);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -97,10 +99,6 @@ app.get('/category', async (req, res) => {
         };
       }
     );
-
-  // const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
-  //   return { _id, catalogName, catalogIcon };
-  // });
   res.json({
     list: result
   });

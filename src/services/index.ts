@@ -12,3 +12,4 @@ export * from './favouriteStore.service';
 export * from './vehicle.service';
 export * from './twoFactor.service';
 export * from './surepass.service';
+export * from './category.service';
