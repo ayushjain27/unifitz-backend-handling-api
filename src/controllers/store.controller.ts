@@ -402,6 +402,13 @@ export class StoreController {
             .exists()
             .isString()
         ];
+
+      case 'verifyAadhar':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('clientId', 'Cliend Id does not exist').exists().isString(),
+          body('otp', 'OTP does not exist').exists().isString()
+        ];
     }
   };
 }

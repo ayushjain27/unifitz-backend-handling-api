@@ -74,8 +74,8 @@ export class SurepassService {
         client_id: clientId,
         otp
       });
-      if (_.isEmpty(response.data)) {
-        return response.data;
+      if (!_.isEmpty(response.data.data)) {
+        return response.data.data;
       }
     }
     return null;

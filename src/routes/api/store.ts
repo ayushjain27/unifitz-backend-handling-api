@@ -82,4 +82,12 @@ router.post(
   validationHandler(),
   storeController.initiateBusinessVerification
 );
+
+router.post(
+  '/verify-aadhar-otp',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.validate('verifyAadhar'),
+  validationHandler(),
+  storeController.verifyAadhar
+);
 export default router;
