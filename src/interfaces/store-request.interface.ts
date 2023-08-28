@@ -43,5 +43,5 @@ export interface VerifyBusinessRequest {
 export interface VerifyAadharRequest {
   clientId: string;
   otp: string;
-  storeId?: string;
+  storeId: string;
 }

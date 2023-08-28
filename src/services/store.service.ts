@@ -706,8 +706,13 @@ export class StoreService {
         payload.clientId,
         payload.otp
       );
-      delete verifyResult.verificationDetails;
-      return verifyResult;
+      const updatedStore = await this.updateStoreDetails(
+        verifyResult,
+        DocType.AADHAR,
+        storeDetails
+      );
+
+      return updatedStore;
     } catch (err) {
       throw new Error(err);
     }
