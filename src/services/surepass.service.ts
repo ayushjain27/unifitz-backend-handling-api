@@ -61,8 +61,8 @@ export class SurepassService {
       const response = await axiosInstance.post(urls.GENERATE_AADHAR_OTP, {
         id_number: aadharNo
       });
-      if (_.isEmpty(response.data)) {
-        return response.data;
+      if (!_.isEmpty(response.data.data)) {
+        return response.data.data;
       }
     }
     return null;
