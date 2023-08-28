@@ -19,54 +19,27 @@ export class VehicleInfoService {
 
   async addOrUpdateVehicle(vehicleStore: IVehiclesInfo) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
-    const {
-      vehicleId,
-      userId,
-      purpose,
-      manufactureYear,
-      ownership,
-      vehicleType,
-      vehicleImageList,
-      vehicleNumber,
-      category,
-      brand,
-      modelName,
-      fuel,
-      lastInsuanceDate,
-      lastServiceDate
-    } = vehicleStore;
 
     // Check if user exists
     const user: IUser = await User.findOne({
-      userId: new Types.ObjectId(userId)
+      userId: new Types.ObjectId(vehicleStore.userId)
     }).lean();
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
     const newVehicleStore = {
-      userId: new Types.ObjectId(userId),
-      purpose,
-      manufactureYear,
-      ownership,
-      vehicleType,
-      vehicleImageList,
-      vehicleNumber,
-      category,
-      brand,
-      modelName,
-      fuel,
-      lastInsuanceDate,
-      lastServiceDate
+      ...vehicleStore,
+      userId: new Types.ObjectId(vehicleStore.userId)
     };
 
     let newVehicleItem: IVehiclesInfo;
 
-    if (_.isEmpty(vehicleId)) {
+    if (_.isEmpty(newVehicleStore.vehicleId)) {
       newVehicleItem = await VechicleInfo.create(newVehicleStore);
     } else {
       newVehicleItem = await VechicleInfo.findOneAndUpdate(
         {
-          _id: new Types.ObjectId(vehicleId)
+          _id: new Types.ObjectId(newVehicleStore.vehicleId)
         },
         newVehicleStore,
         { returnDocument: 'after' }

@@ -41,7 +41,7 @@ router.get('/getAll', roleAuth(ACL.STORE_GET_ALL), productController.getAll);
 
 router.get(
   '/store/:storeId',
-  roleAuth(ACL.STORE_GET_ALL),
+  // roleAuth(ACL.STORE_GET_ALL),
   productController.getAllProductsByStoreId
 );
 router.get(
