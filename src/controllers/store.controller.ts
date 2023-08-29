@@ -52,7 +52,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -75,7 +77,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   uploadStoreImages = async (req: Request, res: Response) => {
@@ -97,7 +101,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -144,7 +150,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -192,7 +200,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   getStoreByStoreId = async (req: Request, res: Response) => {
@@ -218,7 +228,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -260,7 +272,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -274,7 +288,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   addStoreReview = async (req: Request, res: Response) => {
@@ -287,7 +303,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   getStoreReviews = async (req: Request, res: Response) => {
@@ -306,7 +324,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -332,7 +352,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -360,7 +382,9 @@ export class StoreController {
           .json({ success: err.data?.success, message: err.data?.message });
       } else {
         Logger.error(err.message);
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
       }
     }
   };
@@ -389,7 +413,9 @@ export class StoreController {
           .json({ success: err.data?.success, message: err.data?.message });
       } else {
         Logger.error(err.message);
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
       }
     }
   };
@@ -411,7 +437,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 

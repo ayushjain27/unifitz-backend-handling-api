@@ -633,17 +633,11 @@ export class StoreService {
           verifyResult = await this.surepassService.sendOtpForAadharVerify(
             payload.documentNo
           );
+          break;
         default:
           throw new Error('Invalid Document Type');
       }
 
-      // const updatedStore = await this.updateStoreDetails(
-      //   verifyResult,
-      //   payload.documentType,
-      //   storeDetails
-      // );
-
-      // return updatedStore;
       return { verifyResult, displayFields };
     } catch (err) {
       if (err.response) {
