@@ -584,6 +584,7 @@ export class StoreService {
     Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
     // validate the store from user phone number and user id
     let verifyResult: any = {};
+    const displayFields: any = {};
 
     try {
       // get the store data
@@ -616,11 +617,17 @@ export class StoreService {
           verifyResult = await this.surepassService.getGstDetails(
             payload.documentNo
           );
+          displayFields.businessName = verifyResult?.business_name;
+          displayFields.address = verifyResult?.address;
           break;
         case DocType.UDHYAM:
           verifyResult = await this.surepassService.getUdhyamDetails(
             payload.documentNo
           );
+          const mainDetails = verifyResult?.main_details;
+          displayFields.businessName = mainDetails?.name_of_enterprise;
+          const add = `${mainDetails?.name_of_building} ${mainDetails?.flat} ${mainDetails?.block} ${mainDetails?.road} ${mainDetails?.village} ${mainDetails?.city} ${mainDetails?.dic_name} ${mainDetails?.state} ${mainDetails?.pin}`;
+          displayFields.address = add;
           break;
         case DocType.AADHAR:
           verifyResult = await this.surepassService.sendOtpForAadharVerify(
@@ -637,7 +644,7 @@ export class StoreService {
       // );
 
       // return updatedStore;
-      return verifyResult;
+      return { verifyResult, displayFields };
     } catch (err) {
       if (err.response) {
         return Promise.reject(err.response);
