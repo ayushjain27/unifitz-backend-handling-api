@@ -10,6 +10,7 @@ import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
 import {
+  ApproveBusinessVerifyRequest,
   StoreRequest,
   StoreResponse,
   StoreReviewRequest,
@@ -347,13 +348,37 @@ export class StoreController {
         phoneNumber,
         role
       );
-
-      // if (result.status === 422) {
-      //   // validation failed
-      //   res.status(result?.status).json(result?.data);
-      // } else {
       res.send({
         message: 'Store Verification Initatiation Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      }
+    }
+  };
+
+  approveBusinessVerification = async (req: Request, res: Response) => {
+    const payload = req.body as ApproveBusinessVerifyRequest;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Business Initatiate>');
+
+    try {
+      const result = await this.storeService.approveBusinessVerification(
+        payload,
+        phoneNumber,
+        role
+      );
+      res.send({
+        message: 'Store Verification Approval Successful',
         result
       });
       // }
@@ -398,6 +423,17 @@ export class StoreController {
           body('documentNo', 'Document Number does not exist')
             .exists()
             .isString(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
+
+      case 'approveBusinessVerification':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('verificationDetails', 'Details does not exist')
+            .exists()
+            .isObject(),
           body('documentType', 'Document Type does not exist')
             .exists()
             .isString()

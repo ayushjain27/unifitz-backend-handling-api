@@ -8,6 +8,7 @@ import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import {
+  ApproveBusinessVerifyRequest,
   OverallStoreRatingResponse,
   StoreRequest,
   StoreResponse,
@@ -99,7 +100,7 @@ export class StoreService {
     }
     const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
       returnDocument: 'after',
-      projection: { verificationDetails: 0 }
+      projection: { 'verificationDetails.verifyObj': 0 }
     });
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
@@ -137,7 +138,10 @@ export class StoreService {
     const res = await Store.findOneAndUpdate(
       { storeId: storeId },
       { $set: { documents } },
-      { returnDocument: 'after', projection: { verificationDetails: 0 } }
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
     );
     return res;
   }
@@ -622,13 +626,58 @@ export class StoreService {
           verifyResult = await this.surepassService.sendOtpForAadharVerify(
             payload.documentNo
           );
-          return verifyResult;
         default:
           throw new Error('Invalid Document Type');
       }
 
+      // const updatedStore = await this.updateStoreDetails(
+      //   verifyResult,
+      //   payload.documentType,
+      //   storeDetails
+      // );
+
+      // return updatedStore;
+      return verifyResult;
+    } catch (err) {
+      if (err.response) {
+        return Promise.reject(err.response);
+      }
+      throw new Error(err);
+    }
+  }
+  async approveBusinessVerification(
+    payload: ApproveBusinessVerifyRequest,
+    phoneNumber: string,
+    role?: string
+  ) {
+    Logger.info('<Service>:<StoreService>:<Approve Verifying user business>');
+    // validate the store from user phone number and user id
+
+    try {
+      const storeDetails = await Store.findOne(
+        {
+          storeId: payload.storeId
+        },
+        { verificationDetails: 0 }
+      ).lean();
+      const userDetails = await User.findOne({ phoneNumber, role }).lean();
+      if (_.isEmpty(storeDetails)) {
+        throw new Error('Store does not exist');
+      }
+
+      if (_.isEmpty(userDetails)) {
+        throw new Error('User does not exist');
+      }
+
+      // Check if role is store owner and user id matches with store user id
+      if (
+        role === 'STORE_OWNER' &&
+        String(storeDetails?.userId) !== String(userDetails._id)
+      ) {
+        throw new Error('Invalid and unauthenticated request');
+      }
       const updatedStore = await this.updateStoreDetails(
-        verifyResult,
+        payload.verificationDetails,
         payload.documentType,
         storeDetails
       );
@@ -648,29 +697,24 @@ export class StoreService {
     storeDetails: IStore
   ) {
     let isVerified = false;
-    let businessName = storeDetails.basicInfo.businessName;
 
     if (!_.isEmpty(verifyResult)) {
       // Business is verified
       isVerified = true;
-
-      if (documentType === DocType.GST) {
-        businessName = verifyResult?.business_name;
-      } else if (documentType === DocType.UDHYAM) {
-        businessName = verifyResult?.main_details?.name_of_enterprise;
-      }
     }
     // update the store
     const updatedStore = await Store.findOneAndUpdate(
       { _id: storeDetails._id },
       {
         $set: {
-          'basicInfo.businessName': businessName,
           isVerified,
           verificationDetails: { documentType, verifyObj: verifyResult }
         }
       },
-      { returnDocument: 'after', projection: { verificationDetails: 0 } }
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
     );
 
     return updatedStore;

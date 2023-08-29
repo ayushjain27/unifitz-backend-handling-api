@@ -40,6 +40,12 @@ export interface VerifyBusinessRequest {
   storeId?: string;
 }
 
+export interface ApproveBusinessVerifyRequest {
+  documentType: DocType;
+  storeId?: string;
+  verificationDetails: object;
+}
+
 export interface VerifyAadharRequest {
   clientId: string;
   otp: string;

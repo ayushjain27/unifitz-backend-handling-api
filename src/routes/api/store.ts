@@ -84,6 +84,14 @@ router.post(
 );
 
 router.post(
+  '/approve-business-verify',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.validate('approveBusinessVerification'),
+  validationHandler(),
+  storeController.approveBusinessVerification
+);
+
+router.post(
   '/verify-aadhar-otp',
   roleAuth(ACL.STORE_CREATE),
   storeController.validate('verifyAadhar'),
