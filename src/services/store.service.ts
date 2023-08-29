@@ -170,7 +170,7 @@ export class StoreService {
       {
         storeId: statusRequest.storeId
       },
-      { verificationDetails: 0 }
+      { 'verificationDetails.verifyObj': 0 }
     );
     return updatedStore;
   }
@@ -252,7 +252,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
     const storeResponse: StoreResponse[] = await Store.find(query, {
-      verificationDetails: 0
+      'verificationDetails.verifyObj': 0
     });
     return storeResponse;
   }
@@ -280,7 +280,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
     const stores: StoreResponse[] = await Store.find(query, {
-      verificationDetails: 0
+      'verificationDetails.verifyObj': 0
     }).lean();
 
     //STARTS --- Update Script for all the stores
@@ -379,7 +379,7 @@ export class StoreService {
     }
     Logger.debug(query);
     let stores: any = await Store.find(query, {
-      verificationDetails: 0
+      'verificationDetails.verifyObj': 0
     }).lean();
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
@@ -454,7 +454,7 @@ export class StoreService {
         $limit: searchReqBody.pageSize
       },
       {
-        $project: { verificationDetails: 0 }
+        $project: { 'verificationDetails.verifyObj': 0 }
       }
     ]);
 
@@ -479,7 +479,7 @@ export class StoreService {
     const objId = new Types.ObjectId(userId);
     const stores = await Store.find(
       { userId: objId },
-      { verificationDetails: 0 }
+      { 'verificationDetails.verifyObj': 0 }
     );
     return stores;
   }
