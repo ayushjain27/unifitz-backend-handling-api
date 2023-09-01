@@ -9,9 +9,12 @@ import FavouriteStore, { IFavouriteStore } from '../models/FavouriteStore';
 import Store, { IStore } from './../models/Store';
 import Customer, { ICustomer } from './../models/Customer';
 import { AddToFavouriteRequest } from '../interfaces/addToFavouriteRequest.interface';
+import { StoreService } from './store.service';
 
 @injectable()
 export class FavouriteStoreService {
+  private storeService = container.get<StoreService>(TYPES.StoreService);
+
   async addToFavourite(favStore: AddToFavouriteRequest) {
     Logger.info(
       '<Service>:<FavouriteStoreService>: <Adding to favourite intiiated>'
@@ -93,7 +96,7 @@ export class FavouriteStoreService {
 
   async getAllFavStore(allFavReq: AllFavStoreRequest) {
     const { pageSize, pageNo, customerId } = allFavReq;
-    const allFavStore: IFavouriteStore[] = await FavouriteStore.aggregate([
+    let allFavStore: any = await FavouriteStore.aggregate([
       {
         $match: { customerId: new Types.ObjectId(customerId) }
       },
@@ -105,10 +108,24 @@ export class FavouriteStoreService {
           as: 'storeInfo'
         }
       },
-      { $unwind: { path: '$storeInfo' } }
-    ])
-      .limit(pageSize)
-      .skip(pageNo * pageSize);
+      { $unwind: { path: '$storeInfo' } },
+      { $project: { 'storeInfo.verificationDetails.verifyObj': 0 } },
+
+      { $skip: Number(pageNo * pageSize) },
+      { $limit: pageSize }
+    ]);
+
+    if (allFavStore && Array.isArray(allFavStore)) {
+      allFavStore = await Promise.all(
+        allFavStore.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating =
+            await this.storeService.getOverallRatings(updatedStore.storeId);
+          return updatedStore;
+        })
+      );
+    }
+
     // const allFavStore: IFavouriteStore = await FavouriteStore.find({
     //   customerId: new Types.ObjectId(customerId)
     // })
