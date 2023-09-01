@@ -70,13 +70,9 @@ export class FavouriteStoreService {
       '<Service>:<FavouriteStoreService>: <Removing items favourite intiiated>'
     );
 
-    const res = await FavouriteStore.findOneAndUpdate(
-      { _id: new Types.ObjectId(favId) },
-      {
-        $set: { isFavourite: false }
-      },
-      { returnDocument: 'after' }
-    );
+    const res = await FavouriteStore.deleteMany({
+      _id: new Types.ObjectId(favId)
+    });
     return res;
   }
 
