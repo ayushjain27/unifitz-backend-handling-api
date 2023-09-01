@@ -239,7 +239,7 @@ export class StoreService {
   }
 
   async getById(
-    storeId: string,
+    req: { storeId: string; lat: string; long: string },
     userName?: string,
     role?: string
   ): Promise<StoreResponse[]> {
@@ -247,13 +247,35 @@ export class StoreService {
       '<Service>:<StoreService>:<Get stores by Id service initiated>'
     );
     const query: any = {};
-    query.storeId = storeId;
+    query.storeId = req.storeId;
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
-    const storeResponse: StoreResponse[] = await Store.find(query, {
-      'verificationDetails.verifyObj': 0
-    });
+    let storeResponse: any;
+    if (_.isEmpty(req.lat) && _.isEmpty(req.long)) {
+      storeResponse = await Store.find(query, {
+        'verificationDetails.verifyObj': 0
+      });
+    } else {
+      storeResponse = Store.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [Number(req.long), Number(req.lat)] as [
+                number,
+                number
+              ]
+            },
+            // key: 'contactInfo.geoLocation',
+            spherical: true,
+            query: query,
+            distanceField: 'contactInfo.distance',
+            distanceMultiplier: 0.001
+          }
+        }
+      ]);
+    }
     return storeResponse;
   }
 

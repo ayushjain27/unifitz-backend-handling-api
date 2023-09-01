@@ -207,6 +207,8 @@ export class StoreController {
   };
   getStoreByStoreId = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
+    const lat = req.query.lat;
+    const long = req.query.long;
     const userName = req?.userId;
     const role = req?.role;
     Logger.info(
@@ -218,7 +220,7 @@ export class StoreController {
         throw new Error('storeId required');
       } else {
         result = await this.storeService.getById(
-          storeId as string,
+          { storeId, lat, long },
           userName,
           role
         );
