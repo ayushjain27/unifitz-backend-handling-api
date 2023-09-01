@@ -220,7 +220,11 @@ export class StoreController {
         throw new Error('storeId required');
       } else {
         result = await this.storeService.getById(
-          { storeId, lat, long },
+          { storeId, lat, long } as {
+            storeId: string;
+            lat: string;
+            long: string;
+          },
           userName,
           role
         );
