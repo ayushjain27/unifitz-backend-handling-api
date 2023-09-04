@@ -46,7 +46,7 @@ router.get(
 );
 router.get(
   '/product-detail/:productId',
-  roleAuth(ACL.STORE_GET_ALL),
+  // roleAuth(ACL.STORE_GET_ALL),
   productController.getProductByProductId
 );
 router.put(
