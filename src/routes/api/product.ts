@@ -76,7 +76,7 @@ router.post(
 );
 router.get(
   '/reviews',
-  roleAuth(ACL.STORE_REVIEW_CREATE),
+  // roleAuth(ACL.STORE_REVIEW_CREATE),
   productController.validate('getReviews'),
   productController.getProductReviews
 );
