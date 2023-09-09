@@ -46,7 +46,7 @@ router.get(
 );
 router.get(
   '/product-detail/:productId',
-  roleAuth(ACL.STORE_GET_ALL),
+  // roleAuth(ACL.STORE_GET_ALL),
   productController.getProductByProductId
 );
 router.put(
@@ -76,7 +76,7 @@ router.post(
 );
 router.get(
   '/reviews',
-  roleAuth(ACL.STORE_REVIEW_CREATE),
+  // roleAuth(ACL.STORE_REVIEW_CREATE),
   productController.validate('getReviews'),
   productController.getProductReviews
 );
