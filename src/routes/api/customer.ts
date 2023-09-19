@@ -1,10 +1,14 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { ACL } from '../../enum/rbac.enum';
 
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { CustomerController } from '../../controllers';
 import { roleAuth } from '../middleware/rbac';
+
+const storage = multer.memoryStorage();
+const uploadFiles = multer({ storage: storage });
 
 const router: Router = Router();
 const customerController = container.get<CustomerController>(
@@ -17,6 +21,13 @@ router.put(
   '/:customerId',
   roleAuth(ACL.CUSTOMER_CREATE),
   customerController.update
+);
+
+router.post(
+  '/uploadCustomerImages',
+  uploadFiles.array('file'),
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.uploadCustomerImage
 );
 
 router.post(

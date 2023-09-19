@@ -65,6 +65,25 @@ export class CustomerController {
     }
   };
 
+  uploadCustomerImage = async (req: Request, res: Response) => {
+    const { customerId } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Upload Customer request initiated>'
+    );
+    try {
+      const result = await this.customerService.updateCustomerImage(
+        customerId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getCustomerByPhoneNo = async (req: Request, res: Response) => {
     let phoneNumber = req.body.phoneNumber;
     Logger.info(
