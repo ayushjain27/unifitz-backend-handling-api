@@ -24,7 +24,7 @@ router.put(
 );
 
 router.post(
-  '/uploadCustomerImages',
+  '/uploadCustomerImage',
   uploadFiles.array('file'),
   roleAuth(ACL.CUSTOMER_CREATE),
   customerController.uploadCustomerImage
