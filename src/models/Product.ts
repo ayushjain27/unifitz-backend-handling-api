@@ -31,7 +31,7 @@ export const IImageSchema: Schema = new Schema<IImage>({
 
 export interface IProduct {
   _id?: string;
-  storeId: string;
+  storeId?: string;
   offerType: OfferType;
   itemName: string;
   unit: string;
@@ -47,13 +47,13 @@ export interface IProduct {
   showPrice: boolean;
   oemUserName?: string;
   allowMarketPlaceHosting: boolean;
+  isPrelist: boolean;
 }
 
 const productSchema: Schema = new Schema<IProduct>(
   {
     storeId: {
-      type: String,
-      required: true
+      type: String
     },
     oemUserName: {
       type: String
@@ -101,6 +101,10 @@ const productSchema: Schema = new Schema<IProduct>(
     showPrice: {
       type: Boolean,
       default: true
+    },
+    isPrelist: {
+      type: Boolean,
+      default: false
     },
 
     productImageList: {
