@@ -1,12 +1,11 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IVehiclesInfo extends Document {
-  vehicleId?: string;
-  userId: string;
   vehicleType: string;
-  vehicleImageList: IVehicleImage[];
+  vehicleId?: string;
   vehicleNumber: string;
-  category: string;
+  userId?: string;
+  vehicleImageList: IVehicleImage[];
   brand: string;
   modelName: string;
   fuel: string;
@@ -18,17 +17,18 @@ export interface IVehiclesInfo extends Document {
   kmsDriven: string;
   lastInsuanceDate: Date;
   lastServiceDate: Date;
+  color?: string;
+  bodyType?: string;
+  fitnessCertificate?: boolean;
+  registrationType?: string;
+  expectedPrice?: number;
+  noOfSeats?: number;
 }
 
 export interface IVehicleImage {
   url: string;
   key: string;
   title: string;
-}
-
-export enum VehiclePurposeType {
-  BUY_SELL = 'BUY_SELL',
-  OWNED = 'OWNED'
 }
 
 export enum VehicleGearType {
@@ -52,7 +52,7 @@ export enum FuelType {
   LPG = 'LPG'
 }
 
-const vehicleImageSchema: Schema = new Schema({
+export const vehicleImageSchema: Schema = new Schema({
   url: {
     type: String
   },
@@ -64,7 +64,7 @@ const vehicleImageSchema: Schema = new Schema({
   }
 });
 
-const vehicleInfoSchema: Schema = new Schema(
+export const vehicleInfoSchema: Schema = new Schema(
   {
     userId: {
       type: Types.ObjectId,
@@ -80,9 +80,7 @@ const vehicleInfoSchema: Schema = new Schema(
     vehicleNumber: {
       type: String
     },
-    category: {
-      type: String
-    },
+
     brand: {
       type: String
     },
@@ -102,11 +100,6 @@ const vehicleInfoSchema: Schema = new Schema(
       type: String,
       enum: VehicleGearType
     },
-    purpose: {
-      type: String,
-      enum: VehiclePurposeType,
-      required: true
-    },
     fuelType: {
       type: String
     },
@@ -118,7 +111,13 @@ const vehicleInfoSchema: Schema = new Schema(
     },
     lastServiceDate: {
       type: Date
-    }
+    },
+    color: { type: String },
+    bodyType: { type: String },
+    fitnessCertificate: { type: Boolean },
+    registrationType: { type: String },
+    expectedPrice: { type: Number },
+    noOfSeats: { type: Number }
   },
   {
     strict: false
