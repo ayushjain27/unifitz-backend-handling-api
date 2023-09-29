@@ -17,6 +17,8 @@ import { CustomerService } from './customer.service';
 import { ICustomer } from '../models/Customer';
 import { OverallStoreRatingResponse } from '../interfaces';
 import { AdminRole } from '../models/Admin';
+import { IPrelistProduct } from '../models/PrelistProduct';
+import { PrelistPoduct } from '../models/PrelistProduct';
 
 @injectable()
 export class ProductService {
@@ -45,6 +47,20 @@ export class ProductService {
     newProd.isActive = true;
     newProd = await Product.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
+    return newProd;
+  }
+
+  async createPreListProduct(
+    productPayload: IPrelistProduct
+  ): Promise<IPrelistProduct> {
+    Logger.info(
+      '<Service>:<PrelistProductService>: <Prelist Product Creation: creating new prelist product>'
+    );
+    let newProd: IPrelistProduct = productPayload;
+    newProd = await PrelistPoduct.create(newProd);
+    Logger.info(
+      '<Service>:<PrelistProductService>:<Prelist Product created successfully>'
+    );
     return newProd;
   }
 
@@ -98,6 +114,44 @@ export class ProductService {
     return product;
   }
 
+  async searchAndFilterPrelistProductPaginated(searchReqBody: {
+    itemName: string;
+    pageNo: number;
+    pageSize: number;
+    offerType: string;
+  }): Promise<IPrelistProduct[]> {
+    Logger.info(
+      '<Service>:<ProductService>:<Search and Filter prelist product service initiated>'
+    );
+    const query = {
+      // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
+      itemName: searchReqBody.itemName,
+      offerType: searchReqBody.offerType
+      // profileStatus: 'ONBOARDED'
+    };
+    if (!searchReqBody.itemName) {
+      delete query['itemName'];
+    }
+    if (!searchReqBody.offerType) {
+      delete query['offerType'];
+    }
+    Logger.debug(query);
+
+    const prelistProduct: any = await PrelistPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: searchReqBody.pageNo * searchReqBody.pageSize
+      },
+      {
+        $limit: searchReqBody.pageSize
+      }
+    ]);
+
+    return prelistProduct;
+  }
+
   async getProductByProductId(productId: string): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: Get product by product id>'
@@ -106,6 +160,18 @@ export class ProductService {
       _id: new Types.ObjectId(productId)
     }).lean();
     product.overallRating = await this.getOverallRatings(productId);
+    return product;
+  }
+
+  async getPrelistProductByProductId(
+    productId: string
+  ): Promise<IPrelistProduct> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Fetch: Get prelist product by product id>'
+    );
+    const product: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(productId)
+    }).lean();
     return product;
   }
 
@@ -127,6 +193,19 @@ export class ProductService {
       _id: new Types.ObjectId(productId)
     });
     Logger.info('<Service>:<ProductService>:<Product deleted successfully>');
+    return res;
+  }
+
+  async deletePrelistProduct(productId: string): Promise<unknown> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Delete: deleting prelist product by product id>'
+    );
+    const res = await PrelistPoduct.deleteMany({
+      _id: new Types.ObjectId(productId)
+    });
+    Logger.info(
+      '<Service>:<ProductService>:<Prelist Product deleted successfully>'
+    );
     return res;
   }
 
@@ -177,6 +256,38 @@ export class ProductService {
       { returnDocument: 'after' }
     );
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
+    return updatedProd;
+  }
+
+  async updatePrelistProduct(
+    productPayload: IPrelistProduct,
+    productId: string
+  ): Promise<IPrelistProduct> {
+    Logger.info(
+      '<Service>:<ProductService>: <Prelist Product Update: updating prelist product>'
+    );
+    let product: IPrelistProduct;
+    if (productId) {
+      product = await PrelistPoduct.findOne({
+        productId: new Types.ObjectId(productId)
+      });
+    }
+    if (!product) {
+      Logger.error(
+        '<Service>:<ProductService>:<Prelist Product not found with that product Id>'
+      );
+      throw new Error('Store not found');
+    }
+    let updatedProd: IPrelistProduct = productPayload;
+
+    updatedProd = await PrelistPoduct.findOneAndUpdate(
+      { _id: new Types.ObjectId(productId) },
+      updatedProd,
+      { returnDocument: 'after' }
+    );
+    Logger.info(
+      '<Service>:<ProductService>:<Prelist Product created successfully>'
+    );
     return updatedProd;
   }
 
