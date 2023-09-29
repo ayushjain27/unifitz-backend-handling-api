@@ -3,7 +3,7 @@ import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
-import { TwilioService, S3Service } from '../services';
+import { TwilioService, S3Service, BuySellService } from '../services';
 import { s3Config, twilioConfig } from './constants';
 import {
   StoreController,
@@ -16,7 +16,8 @@ import {
   FavouriteStoreController,
   VehicleInfoController,
   EnquiryController,
-  CategoryController
+  CategoryController,
+  BuySellController
 } from '../controllers';
 import {
   StoreService,
@@ -122,5 +123,11 @@ container.bind<CategoryService>(TYPES.CategoryService).to(CategoryService);
 container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 
 container.bind<SurepassService>(TYPES.SurepassService).to(SurepassService);
+
+container
+  .bind<BuySellController>(TYPES.BuySellController)
+  .to(BuySellController);
+
+container.bind<BuySellService>(TYPES.BuySellService).to(BuySellService);
 
 export default container;

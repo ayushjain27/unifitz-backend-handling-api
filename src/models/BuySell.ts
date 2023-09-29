@@ -35,3 +35,7 @@ export const buySellSchema: Schema = new Schema(
   },
   { timestamps: true, strict: false }
 );
+
+const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
+
+export default buySellVehicleInfo;

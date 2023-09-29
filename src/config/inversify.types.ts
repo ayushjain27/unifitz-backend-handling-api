@@ -34,5 +34,8 @@ export const TYPES = {
   S3Client: Symbol('S3Client'),
   S3Service: Symbol('S3Service'),
   TwoFactorService: Symbol('TwoFactorService'),
-  SurepassService: Symbol('SurepassService')
+  SurepassService: Symbol('SurepassService'),
+
+  BuySellController: Symbol('BuySellController'),
+  BuySellService: Symbol('BuySellService')
 };

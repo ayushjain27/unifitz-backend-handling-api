@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 
-import { ProductController } from '../../controllers';
+import { ProductController } from './../../controllers/product.controller';
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../../routes/middleware/rbac';
