@@ -86,6 +86,37 @@ export class BuySellController {
     }
   };
 
+  getBuyVehicle = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<BuySellController>:<Product getting Buy Vehicle controller initiated>'
+    );
+    // const userId: string = req.query.userId as string;
+    const { pageNo, pageSize, status, userType } = req.body;
+
+    try {
+      const result = await this.buySellService.getBuyVehicle(
+        // productId,
+        pageNo,
+        pageSize,
+        status,
+        userType
+      );
+      res.send({
+        message: 'Buy Vehicle Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':

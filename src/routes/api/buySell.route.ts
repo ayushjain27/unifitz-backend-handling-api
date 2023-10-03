@@ -31,4 +31,11 @@ router.post(
   buySellController.updateSellVehicle
 );
 
+router.post(
+  '/getBuyVehicle',
+  // roleAuth(ACL.STORE_REVIEW_CREATE),
+  // productController.validate('getReviews'),
+  buySellController.getBuyVehicle
+);
+
 export default router;

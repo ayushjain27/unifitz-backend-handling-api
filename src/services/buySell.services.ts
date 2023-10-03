@@ -10,12 +10,10 @@ import _ from 'lodash';
 @injectable()
 export class BuySellService {
   async addSellVehicle(buySellVehicle?: IBuySell) {
-    Logger.info(
-      '<Service>:<BuySellService>:<Adding BuySell Vehicle initiated>'
-    );
+    Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
     Logger.debug(userId, buySellVehicle, 'result');
-    const customer: ICustomer = await Customer.findOne({
+    const customer: IUser = await User.findOne({
       _id: new Types.ObjectId(userId)
     }).lean();
     Logger.debug(`user result ${customer}`);
@@ -72,5 +70,57 @@ export class BuySellService {
       { returnDocument: 'after' }
     );
     return newVehicleItem;
+  }
+
+  async getBuyVehicle(
+    pageNo: number,
+    pageSize: number,
+    status: string,
+    userType: string
+  ) {
+    Logger.info('<Service>:<ProductService>:<Get buy Vehicle lists initiate>');
+    const buyVehicleList = await buySellVehicleInfo.aggregate([
+      {
+        $match: {
+          status: status,
+          userType: userType
+        }
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      },
+      {
+        $project: {
+          _id: 1,
+          vehicleId: 1,
+          userId: 1,
+          vehicleInfo: 1,
+          userType: 1,
+          status: 1,
+          transactionDetails: 1,
+          contactInfo: 1,
+          createdAt: 1
+        }
+      }
+    ]);
+    return buyVehicleList;
   }
 }
