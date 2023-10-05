@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { IUser } from '../models/Store-Review';
 import { IStore } from '../models/Store';
+import { DocType } from '../enum/docType.enum';
 
 export interface StoreRequest {
   phoneNumber: string;
@@ -9,16 +10,6 @@ export interface StoreRequest {
 
 export interface StoreResponse extends IStore {
   docsResponse?: unknown;
-}
-
-export interface StoreDocUploadRequest {
-  storeId: string;
-  fileName?: string;
-  fileBuffer?: Buffer;
-  fileExtension?: string;
-  fileType: 'DOC' | 'IMG';
-  placement: 'primary' | 'secondary';
-  oldFileKey?: string;
 }
 
 export interface StoreReviewRequest {
@@ -31,7 +22,7 @@ export interface StoreReviewRequest {
 
 export interface OverallStoreRatingResponse {
   allRatings: { [key: number]: number };
-  averageRating: number;
+  averageRating: string | number;
   totalRatings: number;
   totalReviews: number;
 }
@@ -41,4 +32,22 @@ export interface StoreReviewResponse {
   storeId: string;
   review: string;
   rating: number;
+}
+
+export interface VerifyBusinessRequest {
+  documentNo: string;
+  documentType: DocType;
+  storeId?: string;
+}
+
+export interface ApproveBusinessVerifyRequest {
+  documentType: DocType;
+  storeId?: string;
+  verificationDetails: object;
+}
+
+export interface VerifyAadharRequest {
+  clientId: string;
+  otp: string;
+  storeId: string;
 }

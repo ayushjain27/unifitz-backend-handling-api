@@ -22,7 +22,36 @@ export class S3Service {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
     const params = {
       Bucket: this.bucketName,
-      Key: `${keySalt}/${new Date().getTime()}-${fileName}`,
+      Key: `${keySalt}/${fileName}`,
+      Body: fileBuffer,
+      ACL: 'public-read'
+    };
+    Logger.info('---------------------');
+    Logger.info('upload file is filereq body is', params);
+    Logger.info('---------------------');
+    try {
+      const { Location } = await this.client.upload(params).promise();
+      return {
+        key: params.Key,
+        url: Location
+      };
+    } catch (err) {
+      Logger.error('err in s3', err);
+      throw new Error('There is some problem with file uploading');
+    }
+  }
+
+  async replaceFile(
+    fileKey: string,
+    fileBuffer: Buffer
+  ): Promise<{
+    key: string;
+    url: string;
+  }> {
+    Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
+    const params = {
+      Bucket: this.bucketName,
+      Key: fileKey,
       Body: fileBuffer,
       ACL: 'public-read'
     };

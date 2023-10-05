@@ -1,5 +1,10 @@
 import config from 'config';
-import { S3Config, TwilioConfig } from '../interfaces/config.interface';
+import {
+  S3Config,
+  SurepassConfig,
+  TwilioConfig,
+  TwoFactorConfig
+} from '../interfaces/config.interface';
 
 export const defaultCodeLength = 4;
 
@@ -13,6 +18,17 @@ export const s3Config: S3Config = {
   AWS_KEY_ID: config.get('AWS_KEY_ID'),
   ACCESS_KEY: config.get('ACCESS_KEY'),
   BUCKET_NAME: config.get('BUCKET_NAME')
+};
+
+export const twoFactorConfig: TwoFactorConfig = {
+  URL: config.get('2FACTOR_API_URL'),
+  API_KEY: config.get('2FACTOR_API_KEY'),
+  TEMPLATE_NAME: config.get('2FACTOR_TEMPLATE_NAME')
+};
+
+export const surepassConfig: SurepassConfig = {
+  URL: config.get('SUREPASS_URL'),
+  API_KEY: config.get('SUREPASS_API_KEY')
 };
 
 export const testUsers = [

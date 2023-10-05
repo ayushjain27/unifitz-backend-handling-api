@@ -8,14 +8,20 @@ import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
 import Catalog, { ICatalog } from './models/Catalog';
 import file from './routes/api/file';
+import category from './routes/api/category.route';
 import admin from './routes/api/admin';
 import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
 import product from './routes/api/product';
+import employee from './routes/api/employee';
 import jobCard from './routes/api/jobCard.route';
+import advertisement from './routes/api/advertisement.route';
+import favouriteStore from './routes/api/favouriteStore';
 import { ObjectId } from 'mongoose';
+import vehicle from './routes/api/vehicle';
+import enquiry from './routes/api/enquiry.route';
 
 const app = express();
 // Connect to MongoDB
@@ -53,9 +59,19 @@ app.use('/customer', customer);
 
 app.use('/notification', notification);
 app.use('/product', product);
+app.use('/employee', employee);
 app.use('/job-card', jobCard);
+app.use('/media', advertisement);
+app.use('/favourite', favouriteStore);
+app.use('/vehicle', vehicle);
+app.use('/enquiry', enquiry);
+app.use('/categories', category);
 app.get('/category', async (req, res) => {
-  const categoryList: ICatalog[] = await Catalog.find({ parent: 'root' });
+  const catalogType = req.query.catalogType || 'category';
+  const categoryList: ICatalog[] = await Catalog.find({
+    parent: 'root',
+    catalogType
+  });
   const result = categoryList
     .sort((a, b) =>
       a.displayOrder > b.displayOrder
@@ -64,24 +80,69 @@ app.get('/category', async (req, res) => {
         ? -1
         : 0
     )
-    .map(({ _id, catalogName, catalogIcon }) => {
-      return { _id, catalogName, catalogIcon };
-    });
-
-  // const result = categoryList.map(({ _id, catalogName, catalogIcon }) => {
-  //   return { _id, catalogName, catalogIcon };
-  // });
+    .map(
+      ({
+        _id,
+        catalogName,
+        tree,
+        parent,
+        catalogType,
+        catalogIcon,
+        catalogWebIcon
+      }) => {
+        return {
+          _id,
+          catalogName,
+          tree,
+          parent,
+          catalogType,
+          catalogIcon,
+          catalogWebIcon
+        };
+      }
+    );
   res.json({
     list: result
   });
 });
 
+// TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
+  const catalogType = req.query.catalogType || 'subCategory';
+
   const categoryList: ICatalog[] = await Catalog.find({
-    tree: `root/${req.query.category}`
+    tree: `root/${req.query.category}`,
+    catalogType
   });
   const result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
+  });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/subCategory', async (req, res) => {
+  const { categoryList } = req.body;
+  const catalogType = req.body.catalogType || 'subCategory';
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryList.forEach((category) => {
+      treeVal.push(`root/${category.catalogName}`);
+    });
+  } else {
+    treeVal.push(`root/${categoryList}`);
+  }
+  query = { tree: { $in: treeVal }, catalogType };
+  const subCatList: ICatalog[] = await Catalog.find(query);
+  let result = subCatList.map(
+    ({ _id, catalogName, tree, parent, catalogType }) => {
+      return { _id, catalogName, tree, parent, catalogType };
+    }
+  );
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
   });
   res.json({
     list: result
@@ -93,11 +154,11 @@ app.get('/brand', async (req, res) => {
   const categoryList: ICatalog[] = await Catalog.find({
     tree: `root/${req.query.category}/${req.query.subCategory}`
   });
-  const result = categoryList.map(({ _id, catalogName }) => {
-    return { _id, catalogName };
-  });
+  // const result = categoryList.map(({ _id, catalogName }) => {
+  //   return { _id, catalogName };
+  // });
   res.json({
-    list: result
+    list: categoryList
   });
 });
 
@@ -107,17 +168,21 @@ app.post('/brand', async (req, res) => {
   const treeVal: string[] = [];
   if (Array.isArray(subCategoryList)) {
     subCategoryList.forEach((subCat) => {
-      treeVal.push(`root/${category}/${subCat}`);
+      if (subCat?.tree) {
+        treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
+      } else {
+        treeVal.push(`root/${category}/${subCat}`);
+      }
     });
-  } else {
-    treeVal.push(`root/${category}/${subCategoryList}`);
   }
   query = { tree: { $in: treeVal } };
   const categoryList: ICatalog[] = await Catalog.find(query);
-  let result = categoryList.map(({ _id, catalogName }) => {
-    return { _id, catalogName };
-  });
-  result = _.uniqBy(result, (e: { catalogName: string; _id: ObjectId }) => {
+  let result = categoryList.map(
+    ({ _id, catalogName, tree, parent, catalogType }) => {
+      return { _id, catalogName, tree, parent, catalogType };
+    }
+  );
+  result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
   res.json({

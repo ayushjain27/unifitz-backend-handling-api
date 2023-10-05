@@ -1,10 +1,11 @@
-import { Document, Model, model, ObjectId, Schema, Types } from 'mongoose';
-export interface ICatalogMap extends Document {
+import { model, ObjectId, Schema, Types } from 'mongoose';
+import { DocType } from '../enum/docType.enum';
+export interface ICatalogMap {
   _id: ObjectId;
   name: string;
 }
 
-const storeCatalogMapSchema: Schema = new Schema({
+export const storeCatalogMapSchema: Schema = new Schema({
   _id: {
     type: Types.ObjectId,
     required: false
@@ -15,13 +16,20 @@ const storeCatalogMapSchema: Schema = new Schema({
   }
 });
 
-export interface IBasicInfo extends Document {
+export enum StoreProfileStatus {
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING',
+  ONBOARDED = 'ONBOARDED',
+  REJECTED = 'REJECTED'
+}
+
+export interface IBasicInfo {
   nameSalutation: string;
   ownerName: string; //<String> {required},
   businessName: string; //<String> {required},
   registrationDate: Date; //<localeDate>{required},(NO TIME)
-  brand: ICatalogMap; //<Object> {_id:, name:} {required}, _id - unique - (MD)
-  category: ICatalogMap; //<Object> {_id:, name:} {required}, - (MD)
+  brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
+  category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   // businessHours for the different
 }
@@ -45,11 +53,11 @@ const storeBasicInfoSchema: Schema = new Schema(
       required: true
     },
     brand: {
-      type: storeCatalogMapSchema,
+      type: [storeCatalogMapSchema],
       required: true
     },
     category: {
-      type: storeCatalogMapSchema,
+      type: [storeCatalogMapSchema],
       required: true
     },
     subCategory: {
@@ -62,7 +70,7 @@ const storeBasicInfoSchema: Schema = new Schema(
   }
 );
 
-export interface IContactInfo extends Document {
+export interface IContactInfo {
   country: { callingCode: string; countryCode: string }; //<Object> {callingCode: 91, countryCode: IND},
   phoneNumber: { primary: string; secondary: string }; //{primary:String.,secondary:[String]},   // for multiple phone numbers
   email: string; //<String> {required},
@@ -77,7 +85,7 @@ export interface IContactInfo extends Document {
   pincode: string; //<string>
 }
 
-const storeContactSchema: Schema = new Schema(
+export const storeContactSchema: Schema = new Schema(
   {
     country: {
       type: {
@@ -116,9 +124,10 @@ const storeContactSchema: Schema = new Schema(
 
 storeContactSchema.index({ geoLocation: '2dsphere' });
 
-export interface IStoreTiming extends Document {
+export interface IStoreTiming {
   openTime: Date; //<TIME>,
   closeTime: Date; //<TIME>
+  holiday: [string];
 }
 
 const storeTimingSchema: Schema = new Schema(
@@ -128,39 +137,65 @@ const storeTimingSchema: Schema = new Schema(
     },
     closeTime: {
       type: Date
+    },
+    holiday: {
+      type: [String]
     }
   },
-  { _id: false }
+  { _id: false, strict: false }
 );
 
-export interface IDocuments extends Document {
-  storeDocuments: {
-    primary: { key: string; docURL: string };
-    secondary: { key: string; docURL: string };
+export interface IDocuments {
+  profile: { key: string; docURL: string };
+  storeImageList: {
+    first: { key: string; docURL: string };
+    second: { key: string; docURL: string };
+    third: { key: string; docURL: string };
   };
-  storeImages: {
-    primary: { key: string; docURL: string };
-    secondary: { key: string; docURL: string };
-  };
+
+  // storeDocuments: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
+  // storeImages: {
+  //   primary: { key: string; docURL: string };
+  //   secondary: { key: string; docURL: string };
+  // };
 }
 
-const storeDocumentsSchema: Schema = new Schema(
+export interface IVerificationDetails {
+  documentType: DocType;
+  verifyObj: unknown;
+}
+
+const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
-    storeDocuments: {
-      type: {
-        primary: { key: String, docURL: String },
-        secondary: { key: String, docURL: String }
-      }
+    profile: {
+      key: String,
+      docURL: String
     },
-    storeImages: {
+    storeImageList: {
       type: {
-        primary: { key: String, docURL: String },
-        secondary: { key: String, docURL: String }
+        first: { key: String, docURL: String },
+        second: { key: String, docURL: String },
+        third: { key: String, docURL: String }
       }
     }
+    // storeDocuments: {
+    //   type: {
+    //     primary: { key: String, docURL: String },
+    //     secondary: { key: String, docURL: String }
+    //   }
+    // },
+    // storeImages: {
+    //   type: [{ key: String, docURL: String }]
+    // type: {
+    //   primary: { key: String, docURL: String },
+    //   secondary: { key: String, docURL: String }
   },
   {
-    _id: false
+    _id: false,
+    strict: false
   }
 );
 
@@ -170,8 +205,10 @@ const storeDocumentsSchema: Schema = new Schema(
  * @param storeId:string
  * @param profileStatus:string
  */
-export interface IStore extends Document {
+export interface IStore {
+  _id?: Types.ObjectId;
   userId: Types.ObjectId;
+  oemUserName?: string;
   storeId: string; // 6 digit unique value
   profileStatus: string;
   rejectionReason: string;
@@ -182,12 +219,14 @@ export interface IStore extends Document {
   createdAt?: Date;
   updatedAt?: Date;
   overAllRating?: any;
+  isVerified?: boolean;
+  verificationDetails?: IVerificationDetails;
 }
 
-const storeSchema: Schema = new Schema(
+const storeSchema: Schema = new Schema<IStore>(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true
     },
     storeId: {
@@ -195,11 +234,14 @@ const storeSchema: Schema = new Schema(
       required: true,
       unique: true
     },
+    oemUserName: {
+      type: String
+    },
     profileStatus: {
       type: String,
       required: true,
-      enum: ['DRAFT', 'PENDING', 'ONBOARDED', 'REJECTED'],
-      default: 'DRAFT'
+      enum: StoreProfileStatus,
+      default: StoreProfileStatus.DRAFT
     },
     rejectionReason: {
       type: String,
@@ -218,11 +260,11 @@ const storeSchema: Schema = new Schema(
       type: storeDocumentsSchema
     }
   },
-  { timestamps: true }
+  { timestamps: true, strict: false }
 );
 
 storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });
 
-const Store = model<IStore & Document>('stores', storeSchema);
+const Store = model<IStore>('stores', storeSchema);
 
 export default Store;

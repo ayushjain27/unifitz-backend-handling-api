@@ -11,7 +11,13 @@ import {
   CustomerController,
   NotificationController,
   ProductController,
-  JobCardController
+  JobCardController,
+  AdvertisementController,
+  FavouriteStoreController,
+  VehicleInfoController,
+  EnquiryController,
+  CategoryController,
+  EmployeeController
 } from '../controllers';
 import {
   StoreService,
@@ -19,7 +25,15 @@ import {
   CustomerService,
   NotificationService,
   ProductService,
-  JobCardService
+  JobCardService,
+  AdvertisementService,
+  FavouriteStoreService,
+  VehicleInfoService,
+  TwoFactorService,
+  EnquiryService,
+  SurepassService,
+  CategoryService,
+  EmployeeService
 } from '../services';
 
 const container = new Container();
@@ -68,9 +82,53 @@ container
 container.bind<ProductService>(TYPES.ProductService).to(ProductService);
 
 container
+  .bind<EmployeeController>(TYPES.EmployeeController)
+  .to(EmployeeController);
+
+container.bind<EmployeeService>(TYPES.EmployeeService).to(EmployeeService);
+
+container
   .bind<JobCardController>(TYPES.JobCardController)
   .to(JobCardController);
 
 container.bind<JobCardService>(TYPES.JobCardService).to(JobCardService);
+
+container
+  .bind<AdvertisementController>(TYPES.AdvertisementController)
+  .to(AdvertisementController);
+container
+  .bind<AdvertisementService>(TYPES.AdvertisementService)
+  .to(AdvertisementService);
+
+container
+  .bind<FavouriteStoreController>(TYPES.FavouriteStoreController)
+  .to(FavouriteStoreController);
+
+container
+  .bind<FavouriteStoreService>(TYPES.FavouriteStoreService)
+  .to(FavouriteStoreService);
+
+container
+  .bind<VehicleInfoController>(TYPES.VehicleInfoController)
+  .to(VehicleInfoController);
+
+container
+  .bind<VehicleInfoService>(TYPES.VehicleInfoService)
+  .to(VehicleInfoService);
+
+container
+  .bind<EnquiryController>(TYPES.EnquiryController)
+  .to(EnquiryController);
+
+container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
+
+container
+  .bind<CategoryController>(TYPES.CategoryController)
+  .to(CategoryController);
+
+container.bind<CategoryService>(TYPES.CategoryService).to(CategoryService);
+container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
+
+container.bind<SurepassService>(TYPES.SurepassService).to(SurepassService);
 
 export default container;

@@ -12,10 +12,14 @@ import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { generateToken } from '../../utils';
 import { TwilioService } from '../../services/twilio.service';
+import { TwoFactorService } from '../../services/twoFactor.service';
 import { testUsers } from '../../config/constants';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
+const twoFactorService = container.get<TwoFactorService>(
+  TYPES.TwoFactorService
+);
 // @route   GET user/auth
 // @desc    Get authenticated user given the token
 // @access  Private
@@ -47,9 +51,12 @@ router.post('/otp/send', async (req: Request, res: Response) => {
           phoneNumber
         });
       } else {
-        const result = await twilioCLient.sendVerificationCode(
-          loginPayload.phoneNumber,
-          loginPayload.channel
+        // const result = await twilioCLient.sendVerificationCode(
+        //   loginPayload.phoneNumber,
+        //   loginPayload.channel
+        // );
+        const result = await twoFactorService.sendVerificationCode(
+          loginPayload.phoneNumber
         );
         res.status(HttpStatusCodes.OK).send({
           message: 'Verification is sent!!',
@@ -99,11 +106,11 @@ router.post('/otp/login', async (req: Request, res: Response) => {
           });
         }
       } else {
-        const result = await twilioCLient.verifyCode(
+        const result = await twoFactorService.verifyCode(
           phoneNumber,
           verifyPayload.code
         );
-        if (!result) {
+        if (!result || result?.Status === 'Error') {
           return res.status(HttpStatusCodes.BAD_REQUEST).send({
             message: 'Invalid verification code :(',
             phoneNumber
