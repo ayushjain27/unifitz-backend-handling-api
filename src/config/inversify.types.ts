@@ -11,6 +11,9 @@ export const TYPES = {
   ProductController: Symbol('ProductController'),
   ProductService: Symbol('ProductService'),
 
+  EmployeeController: Symbol('EmployeeController'),
+  EmployeeService: Symbol('EmployeeService'),
+
   JobCardController: Symbol('JobCardController'),
   JobCardService: Symbol('JobCardService'),
 

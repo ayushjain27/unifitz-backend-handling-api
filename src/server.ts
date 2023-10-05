@@ -15,6 +15,7 @@ import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
 import product from './routes/api/product';
+import employee from './routes/api/employee';
 import jobCard from './routes/api/jobCard.route';
 import advertisement from './routes/api/advertisement.route';
 import favouriteStore from './routes/api/favouriteStore';
@@ -58,6 +59,7 @@ app.use('/customer', customer);
 
 app.use('/notification', notification);
 app.use('/product', product);
+app.use('/employee', employee);
 app.use('/job-card', jobCard);
 app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);

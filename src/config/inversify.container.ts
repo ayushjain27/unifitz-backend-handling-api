@@ -16,7 +16,8 @@ import {
   FavouriteStoreController,
   VehicleInfoController,
   EnquiryController,
-  CategoryController
+  CategoryController,
+  EmployeeController
 } from '../controllers';
 import {
   StoreService,
@@ -31,7 +32,8 @@ import {
   TwoFactorService,
   EnquiryService,
   SurepassService,
-  CategoryService
+  CategoryService,
+  EmployeeService
 } from '../services';
 
 const container = new Container();
@@ -78,6 +80,12 @@ container
   .to(ProductController);
 
 container.bind<ProductService>(TYPES.ProductService).to(ProductService);
+
+container
+  .bind<EmployeeController>(TYPES.EmployeeController)
+  .to(EmployeeController);
+
+container.bind<EmployeeService>(TYPES.EmployeeService).to(EmployeeService);
 
 container
   .bind<JobCardController>(TYPES.JobCardController)
