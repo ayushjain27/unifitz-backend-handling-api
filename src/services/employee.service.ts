@@ -1,13 +1,10 @@
 import { injectable } from 'inversify';
-import _ from 'lodash';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
-import { IEmployee } from '../models/employee';
-import { Employee } from '../models/employee';
-import mongoose, { Types } from 'mongoose';
+import { Employee, IEmployee } from '../models/Employee';
 
 @injectable()
 export class EmployeeService {
