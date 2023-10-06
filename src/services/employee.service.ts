@@ -34,12 +34,12 @@ export class EmployeeService {
     return newEmp;
   }
 
-  async getEmployeesByStoreId(storeId: string): Promise<IEmployee[]> {
+  async getEmployeesByStoreId(storeId: string): Promise<IEmployee> {
     Logger.info(
       '<Service>:<EmployeeService>: <Employee Fetch: getting all the employees by store id>'
     );
 
-    const employees: IEmployee[] = await Employee.find({ storeId }).lean();
+    const employees: IEmployee = await Employee.find({ storeId }).lean();
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employees;
   }
