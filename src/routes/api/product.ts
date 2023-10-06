@@ -97,14 +97,6 @@ router.post(
   productController.createPrelistProduct
 );
 
-router.put(
-  '/createPrelistProduct/:productId',
-  roleAuth(ACL.STORE_CREATE),
-  productController.validate('createPrelistProduct'),
-
-  productController.updatePrelistProduct
-);
-
 router.post(
   '/searchPrelistProduct_paginated',
   // roleAuth(ACL.STORE_GET_ALL),

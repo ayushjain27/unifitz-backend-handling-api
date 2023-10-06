@@ -241,39 +241,6 @@ export class ProductController {
     }
   };
 
-  updatePrelistProduct = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
-      return;
-    }
-    const productId = req.params.productId;
-    if (!productId) {
-      res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: { message: 'Product Id is not present' } });
-      return;
-    }
-    const prodRequest = req.body;
-    Logger.info(
-      '<Controller>:<ProductController>:<Update prelist product controller initiated>'
-    );
-
-    try {
-      const result = await this.productService.updatePrelistProduct(
-        prodRequest,
-        productId
-      );
-      res.send({
-        message: 'Prelist Product Update Successful',
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
   delete = async (req: Request, res: Response) => {
     const productId = req.params.productId;
 

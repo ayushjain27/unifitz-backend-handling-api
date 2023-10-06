@@ -259,38 +259,6 @@ export class ProductService {
     return updatedProd;
   }
 
-  async updatePrelistProduct(
-    productPayload: IPrelistProduct,
-    productId: string
-  ): Promise<IPrelistProduct> {
-    Logger.info(
-      '<Service>:<ProductService>: <Prelist Product Update: updating prelist product>'
-    );
-    let product: IPrelistProduct;
-    if (productId) {
-      product = await PrelistPoduct.findOne({
-        productId: new Types.ObjectId(productId)
-      });
-    }
-    if (!product) {
-      Logger.error(
-        '<Service>:<ProductService>:<Prelist Product not found with that product Id>'
-      );
-      throw new Error('Store not found');
-    }
-    let updatedProd: IPrelistProduct = productPayload;
-
-    updatedProd = await PrelistPoduct.findOneAndUpdate(
-      { _id: new Types.ObjectId(productId) },
-      updatedProd,
-      { returnDocument: 'after' }
-    );
-    Logger.info(
-      '<Service>:<ProductService>:<Prelist Product created successfully>'
-    );
-    return updatedProd;
-  }
-
   async addProductReview(
     productReviewPayload: {
       productId: string;
