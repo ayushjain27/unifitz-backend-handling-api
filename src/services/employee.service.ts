@@ -34,13 +34,13 @@ export class EmployeeService {
     return newEmp;
   }
 
-  async getEmployeesByStoreId(storeId: string): Promise<IEmployee> {
+  async getEmployeesByStoreId(storeId: string): Promise<IEmployee[]> {
     Logger.info(
-      '<Service>:<EmployeeService>: <Product Fetch: getting all the employees by store id>'
+      '<Service>:<EmployeeService>: <Employee Fetch: getting all the employees by store id>'
     );
 
-    const employees: IEmployee = await Employee.find({ storeId }).lean();
-    Logger.info('<Service>:<ProductService>:<Product fetched successfully>');
+    const employees: IEmployee[] = await Employee.find({ storeId }).lean();
+    Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employees;
   }
 }
