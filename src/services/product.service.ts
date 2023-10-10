@@ -259,38 +259,6 @@ export class ProductService {
     return updatedProd;
   }
 
-  async updatePrelistProduct(
-    productPayload: IPrelistProduct,
-    productId: string
-  ): Promise<IPrelistProduct> {
-    Logger.info(
-      '<Service>:<ProductService>: <Prelist Product Update: updating prelist product>'
-    );
-    let product: IPrelistProduct;
-    if (productId) {
-      product = await PrelistPoduct.findOne({
-        productId: new Types.ObjectId(productId)
-      });
-    }
-    if (!product) {
-      Logger.error(
-        '<Service>:<ProductService>:<Prelist Product not found with that product Id>'
-      );
-      throw new Error('Store not found');
-    }
-    let updatedProd: IPrelistProduct = productPayload;
-
-    updatedProd = await PrelistPoduct.findOneAndUpdate(
-      { _id: new Types.ObjectId(productId) },
-      updatedProd,
-      { returnDocument: 'after' }
-    );
-    Logger.info(
-      '<Service>:<ProductService>:<Prelist Product created successfully>'
-    );
-    return updatedProd;
-  }
-
   async addProductReview(
     productReviewPayload: {
       productId: string;
@@ -453,5 +421,40 @@ export class ProductService {
       success: true,
       result
     };
+  }
+
+  async createProductFromPrelist(prelistId: string, productData: any[]) {
+    Logger.info('<Service>:<ProductService>:<Create Product form prelist>');
+
+    const preListProduct: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(prelistId)
+    })?.lean();
+
+    if (_.isEmpty(preListProduct)) {
+      throw new Error('Prelist Product does not exist');
+    }
+
+    const bulkWrite: any = [];
+    _.forEach(productData, (pData) => {
+      const newProd = this.createProdByPrelist(preListProduct, pData);
+      bulkWrite.push({
+        insertOne: {
+          document: newProd
+        }
+      });
+    });
+    if (bulkWrite.length > 0) {
+      const res = await Product.bulkWrite(bulkWrite);
+      return res;
+    }
+    return null;
+  }
+
+  private createProdByPrelist(prelistProd: IPrelistProduct, pData: any) {
+    const upProd = { ...prelistProd, ...pData } as IProduct;
+    upProd.prelistId = prelistProd._id;
+    delete upProd._id;
+
+    return upProd;
   }
 }

@@ -241,39 +241,6 @@ export class ProductController {
     }
   };
 
-  updatePrelistProduct = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
-      return;
-    }
-    const productId = req.params.productId;
-    if (!productId) {
-      res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: { message: 'Product Id is not present' } });
-      return;
-    }
-    const prodRequest = req.body;
-    Logger.info(
-      '<Controller>:<ProductController>:<Update prelist product controller initiated>'
-    );
-
-    try {
-      const result = await this.productService.updatePrelistProduct(
-        prodRequest,
-        productId
-      );
-      res.send({
-        message: 'Prelist Product Update Successful',
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
   delete = async (req: Request, res: Response) => {
     const productId = req.params.productId;
 
@@ -423,6 +390,32 @@ export class ProductController {
     }
   };
 
+  createProductFromPrelist = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Creating Product from prelist product initiated>'
+    );
+    const prelistId = req.body.prelistId;
+    const productData = req.body.productData;
+    try {
+      const result = await this.productService.createProductFromPrelist(
+        prelistId,
+        productData
+      );
+      res.send({
+        message: 'Product Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
@@ -464,6 +457,13 @@ export class ProductController {
         return [
           body('productId', 'Product Id does not exist').exists().isString(),
           body('storeIdList', 'Store Id List does not exist').exists().isArray()
+        ];
+      case 'createProductFromPrelist':
+        return [
+          body('prelistId', 'Prelist Product Id does not exist')
+            .exists()
+            .isString(),
+          body('productData', 'Product Data does not exist').exists().isArray()
         ];
     }
   };

@@ -1,4 +1,3 @@
-import { OverallStoreRatingResponse } from '../interfaces/store-request.interface';
 import { model, Schema } from 'mongoose';
 import { catalogSchema, ICatalog } from './Catalog';
 
