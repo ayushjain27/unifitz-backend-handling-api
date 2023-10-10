@@ -115,4 +115,11 @@ router.delete(
   productController.prelistProductDelete
 );
 
+router.post(
+  '/createProductFromPrelist',
+  productController.validate('createProductFromPrelist'),
+  roleAuth(ACL.STORE_CREATE),
+  productController.createProductFromPrelist
+);
+
 export default router;
