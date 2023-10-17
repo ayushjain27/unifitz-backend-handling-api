@@ -115,6 +115,8 @@ export class ProductService {
   }
 
   async searchAndFilterPrelistProductPaginated(searchReqBody: {
+    productCategory: string;
+    productSubCategory: string;
     itemName: string;
     pageNo: number;
     pageSize: number;
@@ -126,7 +128,9 @@ export class ProductService {
     const query = {
       // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
       itemName: searchReqBody.itemName,
-      offerType: searchReqBody.offerType
+      offerType: searchReqBody.offerType,
+      'productCategory.catalogName': searchReqBody.productCategory,
+      'productSubCategory.catalogName': searchReqBody.productSubCategory
       // profileStatus: 'ONBOARDED'
     };
     if (!searchReqBody.itemName) {
@@ -134,6 +138,12 @@ export class ProductService {
     }
     if (!searchReqBody.offerType) {
       delete query['offerType'];
+    }
+    if (!searchReqBody.productCategory) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!searchReqBody.productSubCategory) {
+      delete query['productSubCategory.catalogName'];
     }
     Logger.debug(query);
 
