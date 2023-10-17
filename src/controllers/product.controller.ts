@@ -103,8 +103,14 @@ export class ProductController {
   };
 
   searchPrelistProductPaginated = async (req: Request, res: Response) => {
-    const { itemName, pageNo, pageSize, offerType }: IPrelistSearchRequest =
-      req.body;
+    const {
+      productCategory,
+      productSubCategory,
+      itemName,
+      pageNo,
+      pageSize,
+      offerType
+    }: IPrelistSearchRequest = req.body;
     // let { mrp } = req.body;
     // if (mrp) {
     //   mrp = (mrp as number).split(',').map(Number);
@@ -120,6 +126,8 @@ export class ProductController {
       );
       const result: IPrelistProduct[] =
         await this.productService.searchAndFilterPrelistProductPaginated({
+          productCategory,
+          productSubCategory,
           itemName,
           pageNo,
           pageSize,
