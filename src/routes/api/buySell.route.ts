@@ -21,8 +21,15 @@ router.post(
 router.post(
   '/getAllSellVehicleByUser',
   roleAuth(ACL.CUSTOMER_CREATE),
-  buySellController.validate('addorGetSellVehicle'),
+  // buySellController.validate('addorGetSellVehicle'),
   buySellController.getAllSellVehicleByUser
+);
+
+router.post(
+  '/getBuyVehicleById',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  // buySellController.validate('addorGetSellVehicle'),
+  buySellController.getBuyVehicleById
 );
 
 router.post(

@@ -64,6 +64,30 @@ export class BuySellController {
     }
   };
 
+  getBuyVehicleById = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const getVehicleRequest: { vehicleId: string } = req.body;
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get Buy vehicle by Id request initiated>'
+    );
+    try {
+      const result = await this.buySellService.getAllBuyVehicleById(
+        getVehicleRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   updateSellVehicle = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -97,7 +121,7 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Product getting Buy Vehicle controller initiated>'
     );
     // const userId: string = req.query.userId as string;
-    const { pageNo, pageSize, status, userType } = req.body;
+    const { pageNo, pageSize, status, userType, subCategory, brand } = req.body;
 
     try {
       const result = await this.buySellService.getBuyVehicle(
@@ -105,7 +129,9 @@ export class BuySellController {
         pageNo,
         pageSize,
         status,
-        userType
+        userType,
+        subCategory,
+        brand
       );
       res.send({
         message: 'Buy Vehicle Fetched Successful',
@@ -120,7 +146,56 @@ export class BuySellController {
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':
-        return [body('userId', 'User Id does not exist').exists().isString()];
+        return [
+          body('userId', 'User Id does not exist').exists().isString(),
+          body('vehicleInfo.vehicleType', 'vehicleType does not exist')
+            .exists()
+            .isString(),
+          body('vehicleInfo.vehicleNumber', 'vehicleNumber does not exist')
+            .exists()
+            .isString(),
+          body('vehicleInfo.brand', 'brand does not exist').exists().isString(),
+          body('vehicleInfo.modelName', 'modelName does not exist')
+            .exists()
+            .isString(),
+          // body('vehicleInfo.manufactureYear', 'manufactureYear does not exist')
+          //   .exists()
+          //   .isString(),
+          body('vehicleInfo.ownership', 'ownership does not exist')
+            .exists()
+            .isString(),
+          body('vehicleInfo.gearType', 'gearType does not exist')
+            .exists()
+            .isString(),
+          body('vehicleInfo.fuelType', 'fuelType does not exist')
+            .exists()
+            .isString(),
+          body('vehicleInfo.kmsDriven', 'kmsDriven does not exist')
+            .exists()
+            .isString(),
+          body('vehicleInfo.color', 'color does not exist').exists().isString(),
+          body('vehicleInfo.bodyType', 'bodyType does not exist')
+            .exists()
+            .isString(),
+          body(
+            'vehicleInfo.fitnessCertificate',
+            'fitnessCertificate does not exist'
+          )
+            .exists()
+            .isBoolean(),
+          body(
+            'vehicleInfo.registrationType',
+            'registrationType does not exist'
+          )
+            .exists()
+            .isString(),
+          body('vehicleInfo.expectedPrice', 'expectedPrice does not exist')
+            .exists()
+            .isNumeric(),
+          body('vehicleInfo.noOfSeats', 'noOfSeats does not exist')
+            .exists()
+            .isNumeric()
+        ];
     }
   };
 }

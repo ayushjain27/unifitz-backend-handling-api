@@ -12,12 +12,13 @@ export class BuySellService {
   async addSellVehicle(buySellVehicle?: IBuySell) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
-    Logger.debug(userId, buySellVehicle, 'result');
-    const customer: IUser = await User.findOne({
-      _id: new Types.ObjectId(userId)
+
+    // Check if user exists
+    const user: IUser = await User.findOne({
+      _id: new Types.ObjectId(`${userId}`)
     }).lean();
-    Logger.debug(`user result ${customer}`);
-    if (_.isEmpty(customer)) {
+    Logger.debug(`user result ${JSON.stringify(user)}`);
+    if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
 
@@ -40,6 +41,17 @@ export class BuySellService {
     const allVehicles: IBuySell = await buySellVehicleInfo
       .find({
         userId: new Types.ObjectId(userId)
+      })
+      .lean();
+    return allVehicles;
+  }
+
+  async getAllBuyVehicleById(getVehicleRequest: { vehicleId: string }) {
+    const { vehicleId } = getVehicleRequest;
+
+    const allVehicles: IBuySell = await buySellVehicleInfo
+      .find({
+        _id: new Types.ObjectId(vehicleId)
       })
       .lean();
     return allVehicles;
@@ -76,15 +88,26 @@ export class BuySellService {
     pageNo: number,
     pageSize: number,
     status: string,
-    userType: string
+    userType: string,
+    subCategory: string,
+    brand: string
   ) {
     Logger.info('<Service>:<ProductService>:<Get buy Vehicle lists initiate>');
+    const query = {
+      status: status,
+      userType: userType,
+      'vehicleInfo.category': subCategory,
+      'vehicleInfo.brand': brand
+    };
+    if (!subCategory) {
+      delete query['vehicleInfo.category'];
+    }
+    if (!brand) {
+      delete query['vehicleInfo.brand'];
+    }
     const buyVehicleList = await buySellVehicleInfo.aggregate([
       {
-        $match: {
-          status: status,
-          userType: userType
-        }
+        $match: query
       },
       { $sort: { createdAt: -1 } },
       {
