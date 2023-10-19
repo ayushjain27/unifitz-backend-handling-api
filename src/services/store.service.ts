@@ -1,3 +1,6 @@
+import { ICatalogMap, StoreProfileStatus } from './../models/Store';
+import { AdminRole } from './../models/Admin';
+
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import _ from 'lodash';
@@ -5,19 +8,23 @@ import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import {
+  ApproveBusinessVerifyRequest,
   OverallStoreRatingResponse,
-  StoreDocUploadRequest,
   StoreRequest,
   StoreResponse,
-  StoreReviewRequest
+  StoreReviewRequest,
+  VerifyAadharRequest,
+  VerifyBusinessRequest
 } from '../interfaces';
-import Store, { IStore } from '../models/Store';
+import Store, { IDocuments, IStore } from '../models/Store';
 import StoreReview from '../models/Store-Review';
 import User, { IUser } from '../models/User';
 import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
 import Request from '../types/request';
 import { S3Service } from './s3.service';
 import { NotificationService } from './notification.service';
+import { DocType } from '../enum/docType.enum';
+import { SurepassService } from './surepass.service';
 
 @injectable()
 export class StoreService {
@@ -25,34 +32,34 @@ export class StoreService {
   private notificationService = container.get<NotificationService>(
     TYPES.NotificationService
   );
-  async create(storeRequest: StoreRequest): Promise<IStore> {
+  private surepassService = container.get<SurepassService>(
+    TYPES.SurepassService
+  );
+
+  async create(
+    storeRequest: StoreRequest,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
-    const ownerDetails: IUser = await User.findOne({
-      phoneNumber
+    let ownerDetails: IUser = await User.findOne({
+      phoneNumber,
+      role
     });
+
+    if (_.isEmpty(ownerDetails)) {
+      ownerDetails = await User.findOne({
+        phoneNumber
+      });
+    }
+    if (_.isEmpty(ownerDetails)) {
+      throw new Error('User not found');
+    }
+
     storePayload.userId = ownerDetails._id;
-    // const { category, subCategory, brand } = storePayload.basicInfo;
-    // const getCategory: ICatalog = await Catalog.findOne({
-    //   catalogName: category.name,
-    //   parent: 'root'
-    // });
-    // const getSubCategory: ICatalog = await Catalog.findOne({
-    //   tree: `root/${category.name}`,
-    //   catalogName: subCategory.name
-    // });
-    // const getBrand: ICatalog = await Catalog.findOne({
-    //   tree: `root/${category.name}/${subCategory.name}`,
-    //   catalogName: brand.name
-    // });
-    // if (getCategory && getBrand) {
-    //   storePayload.basicInfo.category._id = getCategory._id;
-    //   storePayload.basicInfo.subCategory = subCategory;
-    //   storePayload.basicInfo.brand._id = getBrand._id;
-    // } else {
-    //   throw new Error(`Wrong Catalog Details`);
-    // }
-    const lastCreatedStoreId = await Store.find({})
+
+    const lastCreatedStoreId = await Store.find({}, { verificationDetails: 0 })
       .sort({ createdAt: 'desc' })
       .select('storeId')
       .limit(1)
@@ -65,6 +72,10 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
     storePayload.storeId = '' + storeId;
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    if (role === AdminRole.OEM) {
+      storePayload.oemUserName = userName;
+    }
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);
     Logger.info(
@@ -72,38 +83,95 @@ export class StoreService {
     );
     return newStore;
   }
-  async update(storeRequest: StoreRequest): Promise<IStore> {
+  async update(
+    storeRequest: StoreRequest,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store service initiated>');
     const { storePayload } = storeRequest;
 
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
-    await Store.findOneAndUpdate(
-      { storeId: storePayload.storeId },
-      storePayload
-    );
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    const query: any = {};
+    query.storeId = storePayload.storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
-    const updatedStore = await Store.findOne({ storeId: storePayload.storeId });
     return updatedStore;
   }
 
-  async updateStoreStatus(statusRequest: any): Promise<IStore> {
-    Logger.info('<Service>:<StoreService>:<Update store status>');
+  async updateStoreImages(storeId: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Upload Vehicles initiated>');
+    const store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    if (_.isEmpty(store)) {
+      throw new Error('Store does not exist');
+    }
 
-    await Store.findOneAndUpdate(
-      { storeId: statusRequest.storeId },
+    const files: Array<any> = req.files;
+    const documents: Partial<IDocuments> | any = store.documents || {
+      profile: {},
+      storeImageList: {}
+    };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        storeId,
+        fileName,
+        file.buffer
+      );
+      if (fileName === 'profile') {
+        documents.profile = { key, docURL: url };
+      } else {
+        documents.storeImageList[fileName] = { key, docURL: url };
+      }
+    }
+    const res = await Store.findOneAndUpdate(
+      { storeId: storeId },
+      { $set: { documents } },
       {
-        $set: {
-          profileStatus: statusRequest.profileStatus,
-          rejectionReason: statusRequest.rejectionReason
-        }
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
       }
     );
+    return res;
+  }
+
+  async updateStoreStatus(
+    statusRequest: any,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
+    Logger.info('<Service>:<StoreService>:<Update store status>');
+    const query: any = {};
+    query.storeId = statusRequest.storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    await Store.findOneAndUpdate(query, {
+      $set: {
+        profileStatus: statusRequest.profileStatus,
+        rejectionReason: statusRequest.rejectionReason
+      }
+    });
     Logger.info(
       '<Service>:<StoreService>: <Store: store status updated successfully>'
     );
-    const updatedStore = await Store.findOne({
-      storeId: statusRequest.storeId
-    });
+    const updatedStore = await Store.findOne(
+      {
+        storeId: statusRequest.storeId
+      },
+      { 'verificationDetails.verifyObj': 0 }
+    );
     return updatedStore;
   }
 
@@ -170,18 +238,72 @@ export class StoreService {
     return null;
   }
 
-  async getById(storeId: string): Promise<StoreResponse[]> {
+  async getById(
+    req: { storeId: string; lat: string; long: string },
+    userName?: string,
+    role?: string
+  ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Get stores by Id service initiated>'
     );
-    const storeResponse: StoreResponse[] = await Store.find({
-      storeId: storeId
-    });
+    const query: any = {};
+    query.storeId = req.storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    let storeResponse: any;
+    if (_.isEmpty(req.lat) && _.isEmpty(req.long)) {
+      storeResponse = await Store.find(query, {
+        'verificationDetails.verifyObj': 0
+      });
+    } else {
+      storeResponse = Store.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [Number(req.long), Number(req.lat)] as [
+                number,
+                number
+              ]
+            },
+            // key: 'contactInfo.geoLocation',
+            spherical: true,
+            query: query,
+            distanceField: 'contactInfo.distance',
+            distanceMultiplier: 0.001
+          }
+        }
+      ]);
+    }
     return storeResponse;
   }
-  async getAll() {
+
+  async deleteStore(
+    storeId: string,
+    userName?: string,
+    role?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreService>:<Delete stores by Id service initiated>'
+    );
+    const query: any = {};
+    query.storeId = storeId;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const res = await Store.findOneAndDelete(query);
+    return res;
+  }
+  async getAll(userName?: string, role?: string) {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
-    const stores = await Store.find().lean();
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const stores: StoreResponse[] = await Store.find(query, {
+      'verificationDetails.verifyObj': 0
+    }).lean();
 
     //STARTS --- Update Script for all the stores
     // const bulkWrite = [];
@@ -212,8 +334,43 @@ export class StoreService {
     // }
     //ENDS --- Update Script for all the stores
 
+    // STARTS -- Update script for all the stores category, sub category and brand to array
+
+    // const bulkWrite = [];
+    // for (const store of stores) {
+    //   if (typeof store?.basicInfo?.category === 'object') {
+    //     store.basicInfo.category = Array(
+    //       store.basicInfo.category
+    //     ) as unknown as ICatalogMap[];
+    //   }
+
+    //   if (typeof store?.basicInfo?.subCategory === 'object') {
+    //     store.basicInfo.subCategory = Array(
+    //       store.basicInfo.subCategory
+    //     ) as unknown as ICatalogMap[];
+    //   }
+
+    //   if (typeof store?.basicInfo?.brand === 'object') {
+    //     store.basicInfo.brand = Array(
+    //       store.basicInfo.brand
+    //     ) as unknown as ICatalogMap[];
+    //   }
+    //   bulkWrite.push({
+    //     updateOne: {
+    //       filter: { _id: store._id },
+    //       update: store
+    //     }
+    //   });
+    // }
+    // if (bulkWrite.length > 0) {
+    //   await Store.bulkWrite(bulkWrite);
+    // }
+
+    // //ENDS --- Update Script for all the stores
+
     return stores;
   }
+
   async searchAndFilter(
     storeName: string,
     category: string,
@@ -243,7 +400,9 @@ export class StoreService {
       delete query['basicInfo.businessName'];
     }
     Logger.debug(query);
-    let stores: any = await Store.find(query).lean();
+    let stores: any = await Store.find(query, {
+      'verificationDetails.verifyObj': 0
+    }).lean();
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
@@ -271,11 +430,11 @@ export class StoreService {
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
     const query = {
-      'contactInfo.geoLocation': {
-        $near: {
-          $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
-        }
-      },
+      // 'contactInfo.geoLocation': {
+      //   $near: {
+      //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
+      //   }
+      // },
       'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
       'basicInfo.brand.name': searchReqBody.brand,
       'basicInfo.category.name': searchReqBody.category,
@@ -295,10 +454,32 @@ export class StoreService {
       delete query['basicInfo.businessName'];
     }
     Logger.debug(query);
-    let stores: any = await Store.find(query)
-      .limit(searchReqBody.pageSize)
-      .skip(searchReqBody.pageNo * searchReqBody.pageSize)
-      .lean();
+
+    let stores: any = await Store.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: searchReqBody.coordinates as [number, number]
+          },
+          // key: 'contactInfo.geoLocation',
+          spherical: true,
+          query: query,
+          distanceField: 'contactInfo.distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      {
+        $skip: searchReqBody.pageNo * searchReqBody.pageSize
+      },
+      {
+        $limit: searchReqBody.pageSize
+      },
+      {
+        $project: { 'verificationDetails.verifyObj': 0 }
+      }
+    ]);
+
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
@@ -318,135 +499,12 @@ export class StoreService {
       '<Service>:<StoreService>:<Get stores by owner service initiated>'
     );
     const objId = new Types.ObjectId(userId);
-    const stores = await Store.find({ userId: objId });
+    const stores = await Store.find(
+      { userId: objId },
+      { 'verificationDetails.verifyObj': 0 }
+    );
     return stores;
   }
-
-  async uploadFile(
-    storeDocUploadRequest: StoreDocUploadRequest,
-    req: Request
-  ): Promise<{ message: string }> {
-    const { storeId, fileType, placement } = storeDocUploadRequest;
-    const file = req.file;
-    let store: IStore;
-    Logger.info('<Service>:<StoreService>:<Upload file service initiated>');
-    if (storeDocUploadRequest.storeId) {
-      store = await Store.findOne({ storeId });
-    }
-    if (!store) {
-      Logger.error(
-        '<Service>:<StoreService>:<Upload file - store id not found>'
-      );
-      throw new Error('Store not found');
-    }
-    // if (oldFileKey) {
-    //   await this.removePreviousFileRef(oldFileKey, fileType, store);
-    // }
-    const { key, url } = await this.s3Client.uploadFile(
-      storeId,
-      file.originalname,
-      file.buffer
-    );
-    Logger.info('<Service>:<StoreService>:<Upload file - successful>');
-    //initializing documents document if absent in store details
-    if (!store.documents) {
-      await Store.findOneAndUpdate(
-        { storeId },
-        {
-          documents: {
-            storeDocuments:
-              fileType === 'DOC'
-                ? {
-                    primary: {
-                      key: placement === 'primary' ? key : '',
-                      docURL: placement === 'primary' ? url : ''
-                    },
-                    secondary: {
-                      key: placement === 'secondary' ? key : '',
-                      docURL: placement === 'secondary' ? url : ''
-                    }
-                  }
-                : {
-                    primary: { key: '', docURL: '' },
-                    secondary: { key: '', docURL: '' }
-                  },
-            storeImages:
-              fileType === 'IMG'
-                ? {
-                    primary: {
-                      key: placement === 'primary' ? key : '',
-                      docURL: placement === 'primary' ? url : ''
-                    },
-                    secondary: {
-                      key: placement === 'secondary' ? key : '',
-                      docURL: placement === 'secondary' ? url : ''
-                    }
-                  }
-                : {
-                    primary: { key: '', docURL: '' },
-                    secondary: { key: '', docURL: '' }
-                  }
-          }
-        }
-      );
-    } else {
-      fileType === 'DOC'
-        ? (store.documents.storeDocuments[placement] = { key, docURL: url })
-        : (store.documents.storeImages[placement] = {
-            key,
-            docURL: url
-          });
-      await Store.findOneAndUpdate(
-        { storeId },
-        {
-          documents: {
-            storeDocuments: store.documents.storeDocuments,
-            storeImages: store.documents.storeImages
-          }
-        }
-      );
-    }
-    return {
-      message: 'File upload successful'
-    };
-  }
-  // private async removePreviousFileRef(
-  //   oldFileKey: string,
-  //   fileType: string,
-  //   store: IStore
-  // ) {
-  //   await this.s3Client.deleteFile(oldFileKey);
-  //   Logger.info('<Service>:<StoreService>:<Delete file - successful>');
-  //   if (fileType === 'DOC') {
-  //     if (store.documents && oldFileKey) {
-  //       store.documents.storeDocuments = store.documents.storeDocuments.filter(
-  //         (doc) => doc.docURL !== oldFileKey
-  //       );
-  //     }
-  //   } else if (fileType === 'IMG') {
-  //     if (store.documents && oldFileKey) {
-  //       store.documents.storeImages = store.documents.storeImages.filter(
-  //         (img) => img.imageURL !== oldFileKey
-  //       );
-  //     }
-  //   } else {
-  //     Logger.error('<Service>:<StoreService>:<Upload file - Unknown doc type>');
-  //     throw new Error('Invalid document type');
-  //   }
-  // }
-
-  // private async getS3Files(documents: IDocuments) {
-  //   const docBuffer = [];
-  //   for (const doc of documents.storeDocuments) {
-  //     const s3Response = await this.s3Client.getFile(doc.key);
-  //     docBuffer.push(s3Response);
-  //   }
-  //   for (const img of documents.storeImages) {
-  //     const s3Response = await this.s3Client.getFile(img.key);
-  //     docBuffer.push(s3Response);
-  //   }
-  //   return docBuffer;
-  // }
 
   async addReview(
     storeReview: StoreReviewRequest
@@ -495,7 +553,9 @@ export class StoreService {
       );
     }
 
-    const averageRating = ratingsCount / storeReviews.length;
+    const averageRating = Number(
+      ratingsCount / storeReviews.length
+    ).toPrecision(2);
     Logger.info(
       '<Service>:<StoreService>:<Get Overall Ratings performed successfully>'
     );
@@ -507,13 +567,20 @@ export class StoreService {
     };
   }
   /* eslint-disable */
-  async getReviews(storeId: string): Promise<any[]> {
+  async getReviews(
+    storeId: string,
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId }).lean();
+    const storeReviews = await StoreReview.find({ storeId })
+      .skip(pageNo * pageSize)
+      .limit(pageSize)
+      .lean();
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
-    if (storeReviews.length === 0) {
+    if (storeReviews.length === 0 && !pageNo) {
       return [
         {
           user: {
@@ -528,6 +595,193 @@ export class StoreService {
       ];
     } else {
       return storeReviews;
+    }
+  }
+
+  async initiateBusinessVerification(
+    payload: VerifyBusinessRequest,
+    phoneNumber: string,
+    role?: string
+  ) {
+    Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
+    // validate the store from user phone number and user id
+    let verifyResult: any = {};
+    const displayFields: any = {};
+
+    try {
+      // get the store data
+      const storeDetails = await Store.findOne(
+        {
+          storeId: payload.storeId
+        },
+        { verificationDetails: 0 }
+      ).lean();
+      const userDetails = await User.findOne({ phoneNumber, role }).lean();
+      if (_.isEmpty(storeDetails)) {
+        throw new Error('Store does not exist');
+      }
+
+      if (_.isEmpty(userDetails)) {
+        throw new Error('User does not exist');
+      }
+
+      // Check if role is store owner and user id matches with store user id
+      if (
+        role === 'STORE_OWNER' &&
+        String(storeDetails?.userId) !== String(userDetails._id)
+      ) {
+        throw new Error('Invalid and unauthenticated request');
+      }
+
+      // integrate surephass api based on doc type
+      switch (payload.documentType) {
+        case DocType.GST:
+          verifyResult = await this.surepassService.getGstDetails(
+            payload.documentNo
+          );
+          displayFields.businessName = verifyResult?.business_name;
+          displayFields.address = verifyResult?.address;
+          break;
+        case DocType.UDHYAM:
+          verifyResult = await this.surepassService.getUdhyamDetails(
+            payload.documentNo
+          );
+          const mainDetails = verifyResult?.main_details;
+          displayFields.businessName = mainDetails?.name_of_enterprise;
+          const add = `${mainDetails?.name_of_building} ${mainDetails?.flat} ${mainDetails?.block} ${mainDetails?.road} ${mainDetails?.village} ${mainDetails?.city} ${mainDetails?.dic_name} ${mainDetails?.state} ${mainDetails?.pin}`;
+          displayFields.address = add;
+          break;
+        case DocType.AADHAR:
+          verifyResult = await this.surepassService.sendOtpForAadharVerify(
+            payload.documentNo
+          );
+          break;
+        default:
+          throw new Error('Invalid Document Type');
+      }
+
+      return { verifyResult, displayFields };
+    } catch (err) {
+      if (err.response) {
+        return Promise.reject(err.response);
+      }
+      throw new Error(err);
+    }
+  }
+  async approveBusinessVerification(
+    payload: ApproveBusinessVerifyRequest,
+    phoneNumber: string,
+    role?: string
+  ) {
+    Logger.info('<Service>:<StoreService>:<Approve Verifying user business>');
+    // validate the store from user phone number and user id
+
+    try {
+      const storeDetails = await Store.findOne(
+        {
+          storeId: payload.storeId
+        },
+        { verificationDetails: 0 }
+      ).lean();
+      const userDetails = await User.findOne({ phoneNumber, role }).lean();
+      if (_.isEmpty(storeDetails)) {
+        throw new Error('Store does not exist');
+      }
+
+      if (_.isEmpty(userDetails)) {
+        throw new Error('User does not exist');
+      }
+
+      // Check if role is store owner and user id matches with store user id
+      if (
+        role === 'STORE_OWNER' &&
+        String(storeDetails?.userId) !== String(userDetails._id)
+      ) {
+        throw new Error('Invalid and unauthenticated request');
+      }
+      const updatedStore = await this.updateStoreDetails(
+        payload.verificationDetails,
+        payload.documentType,
+        storeDetails
+      );
+
+      return updatedStore;
+    } catch (err) {
+      if (err.response) {
+        return Promise.reject(err.response);
+      }
+      throw new Error(err);
+    }
+  }
+
+  private async updateStoreDetails(
+    verifyResult: any,
+    documentType: string,
+    storeDetails: IStore
+  ) {
+    let isVerified = false;
+
+    if (!_.isEmpty(verifyResult)) {
+      // Business is verified
+      isVerified = true;
+    }
+    // update the store
+    const updatedStore = await Store.findOneAndUpdate(
+      { _id: storeDetails._id },
+      {
+        $set: {
+          isVerified,
+          verificationDetails: { documentType, verifyObj: verifyResult }
+        }
+      },
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
+    );
+
+    return updatedStore;
+  }
+
+  async verifyAadhar(
+    payload: VerifyAadharRequest,
+    phoneNumber: string,
+    role?: string
+  ) {
+    Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
+    // validate the store from user phone number and user id
+    let verifyResult: any = {};
+
+    try {
+      // get the store data
+      const storeDetails = await Store.findOne({
+        storeId: payload.storeId
+      }).lean();
+      const userDetails = await User.findOne(
+        { phoneNumber, role },
+        { verificationDetails: 0 }
+      ).lean();
+      if (_.isEmpty(storeDetails)) {
+        throw new Error('Store does not exist');
+      }
+
+      if (_.isEmpty(userDetails)) {
+        throw new Error('User does not exist');
+      }
+
+      const verifyResult = await this.surepassService.verifyOtpForAadharVerify(
+        payload.clientId,
+        payload.otp
+      );
+      const updatedStore = await this.updateStoreDetails(
+        verifyResult,
+        DocType.AADHAR,
+        storeDetails
+      );
+
+      return updatedStore;
+    } catch (err) {
+      throw new Error(err);
     }
   }
 }

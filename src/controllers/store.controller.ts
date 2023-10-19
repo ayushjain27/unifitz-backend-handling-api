@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
+import { body, validationResult } from 'express-validator';
+
 import { StoreService } from '../services';
 import Logger from '../config/winston';
 import Request from '../types/request';
@@ -8,11 +10,14 @@ import { TYPES } from '../config/inversify.types';
 import User from '../models/User';
 
 import {
-  StoreDocUploadRequest,
+  ApproveBusinessVerifyRequest,
   StoreRequest,
   StoreResponse,
-  StoreReviewRequest
+  StoreReviewRequest,
+  VerifyAadharRequest,
+  VerifyBusinessRequest
 } from '../interfaces';
+import { AdminRole } from '../models/Admin';
 
 @injectable()
 export class StoreController {
@@ -26,7 +31,7 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      if (req?.role === 'ADMIN') {
+      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM) {
         const { phoneNumber } = storeRequest;
         await User.findOneAndUpdate(
           { phoneNumber, role: 'STORE_OWNER' },
@@ -34,14 +39,22 @@ export class StoreController {
           { upsert: true, new: true }
         );
       }
-      const result = await this.storeService.create(storeRequest);
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.storeService.create(
+        storeRequest,
+        userName,
+        role
+      );
       res.send({
         message: 'Store Onboarding Successful',
         result
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -51,22 +64,61 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      const result = await this.storeService.update(storeRequest);
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.storeService.update(
+        storeRequest,
+        userName,
+        role
+      );
       res.send({
         message: 'Store Updation Successful',
         result
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
+  uploadStoreImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res
+    //     .status(HttpStatusCodes.BAD_REQUEST)
+    //     .json({ errors: errors.array() });
+    // }
+    const { storeId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.storeService.updateStoreImages(storeId, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   getAllStores = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
     try {
-      const result: StoreResponse[] = await this.storeService.getAll();
+      const userName = req?.userId;
+      const role = req?.role;
+
+      const result: StoreResponse[] = await this.storeService.getAll(
+        userName,
+        role
+      );
       res.send({
         result
       });
@@ -98,7 +150,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -146,11 +200,17 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   getStoreByStoreId = async (req: Request, res: Response) => {
     const storeId = req.query.storeId;
+    const lat = req.query.lat;
+    const long = req.query.long;
+    const userName = req?.userId;
+    const role = req?.role;
     Logger.info(
       '<Controller>:<StoreController>:<Get stores by storeID request controller initiated>'
     );
@@ -159,7 +219,44 @@ export class StoreController {
       if (!storeId) {
         throw new Error('storeId required');
       } else {
-        result = await this.storeService.getById(storeId as string);
+        result = await this.storeService.getById(
+          { storeId, lat, long } as {
+            storeId: string;
+            lat: string;
+            long: string;
+          },
+          userName,
+          role
+        );
+      }
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  deleteStore = async (req: Request, res: Response) => {
+    const storeId = req.params.storeId;
+    const userName = req?.userId;
+    const role = req?.role;
+    Logger.info(
+      '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
+    );
+    try {
+      let result: StoreResponse[];
+      if (!storeId) {
+        throw new Error('storeId required');
+      } else {
+        result = await this.storeService.deleteStore(
+          storeId as string,
+          userName,
+          role
+        );
       }
       res.send({
         result
@@ -181,30 +278,12 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
-  uploadFile = async (req: Request, res: Response) => {
-    const storeDocUploadRequest: StoreDocUploadRequest = req.body;
-    Logger.info('---------------------');
-    Logger.info('req body is', req.body, req.file);
-    Logger.info('---------------------');
-    Logger.info(
-      '<Controller>:<StoreController>:<Upload file request controller initiated>'
-    );
-    try {
-      const result = await this.storeService.uploadFile(
-        storeDocUploadRequest,
-        req
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
+
   getOverallStoreRatings = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
     Logger.info('<Controller>:<StoreController>:<Get stores ratings>');
@@ -215,7 +294,9 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   addStoreReview = async (req: Request, res: Response) => {
@@ -228,29 +309,45 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
   getStoreReviews = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
+    const pageSize = Number(req.query.pageSize) || 15;
+    const pageNo = Number(req.query.pageNo) || 0;
     Logger.info('<Controller>:<StoreController>:<Get stores reviews>');
     try {
-      const result = await this.storeService.getReviews(storeId);
+      const result = await this.storeService.getReviews(
+        storeId,
+        pageNo,
+        pageSize
+      );
       res.send({
         result
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
   updateStoreStatus = async (req: Request, res: Response) => {
     const payload = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
     Logger.info('<Controller>:<StoreController>:<Update Store Status>');
 
     try {
-      const result = await this.storeService.updateStoreStatus(payload);
+      const result = await this.storeService.updateStoreStatus(
+        payload,
+        userName,
+        role
+      );
       Logger.info(
         '<Controller>:<StoreController>: <Store: Sending notification of updated status>'
       );
@@ -261,7 +358,127 @@ export class StoreController {
       });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  initiateBusinessVerification = async (req: Request, res: Response) => {
+    const payload = req.body as VerifyBusinessRequest;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Business Initatiate>');
+
+    try {
+      const result = await this.storeService.initiateBusinessVerification(
+        payload,
+        phoneNumber,
+        role
+      );
+      res.send({
+        message: 'Store Verification Initatiation Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
+      }
+    }
+  };
+
+  approveBusinessVerification = async (req: Request, res: Response) => {
+    const payload = req.body as ApproveBusinessVerifyRequest;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Business Initatiate>');
+
+    try {
+      const result = await this.storeService.approveBusinessVerification(
+        payload,
+        phoneNumber,
+        role
+      );
+      res.send({
+        message: 'Store Verification Approval Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
+      }
+    }
+  };
+
+  verifyAadhar = async (req: Request, res: Response) => {
+    const payload: VerifyAadharRequest = req.body;
+    const phoneNumber = req?.userId;
+    const role = req?.role;
+    Logger.info('<Controller>:<StoreController>:<Verify Aadhar OTP>');
+    try {
+      const result = await this.storeService.verifyAadhar(
+        payload,
+        phoneNumber,
+        role
+      );
+      res.send({
+        message: 'Aadhar Verification Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  validate = (method: string) => {
+    switch (method) {
+      case 'initiateBusinessVerification':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('documentNo', 'Document Number does not exist')
+            .exists()
+            .isString(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
+
+      case 'approveBusinessVerification':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('verificationDetails', 'Details does not exist')
+            .exists()
+            .isObject(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
+
+      case 'verifyAadhar':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('clientId', 'Cliend Id does not exist').exists().isString(),
+          body('otp', 'OTP does not exist').exists().isString()
+        ];
     }
   };
 }

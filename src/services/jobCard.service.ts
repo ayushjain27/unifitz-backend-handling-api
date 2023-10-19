@@ -23,7 +23,7 @@ export class JobCardService {
     const files = req.files;
     let store: IStore;
     if (storeId) {
-      store = await Store.findOne({ storeId });
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
     if (!store) {
       Logger.error(
