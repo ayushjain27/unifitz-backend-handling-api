@@ -127,7 +127,7 @@ export class ProductService {
     );
     const query = {
       // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
-      itemName: searchReqBody.itemName,
+      itemName: new RegExp(searchReqBody.itemName, 'i'),
       offerType: searchReqBody.offerType,
       'productCategory.catalogName': searchReqBody.productCategory,
       'productSubCategory.catalogName': searchReqBody.productSubCategory
