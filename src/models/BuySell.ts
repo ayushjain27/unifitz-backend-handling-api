@@ -22,6 +22,9 @@ export interface IBuySell extends Document {
   status: string;
   transactionDetails: unknown;
   contactInfo: IContactInfo;
+  isOwner: boolean;
+  isDealer: boolean;
+  isAuthorised: boolean;
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -31,7 +34,10 @@ export const buySellSchema: Schema = new Schema(
     userType: { type: String, enum: UserType },
     status: { type: String, enum: Status },
     transactionDetails: { type: Schema.Types.Mixed },
-    contactInfo: { type: storeContactSchema }
+    contactInfo: { type: storeContactSchema },
+    isOwner: { type: Boolean },
+    isDealer: { type: Boolean },
+    isAuthorised: { type: Boolean }
   },
   { timestamps: true, strict: false }
 );
