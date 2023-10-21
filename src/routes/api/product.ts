@@ -44,11 +44,13 @@ router.get(
   // roleAuth(ACL.STORE_GET_ALL),
   productController.getAllProductsByStoreId
 );
+
 router.get(
   '/product-detail/:productId',
   // roleAuth(ACL.STORE_GET_ALL),
   productController.getProductByProductId
 );
+
 router.put(
   '/:productId',
   roleAuth(ACL.STORE_CREATE),
@@ -86,6 +88,39 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   productController.validate('duplicateProductToStores'),
   productController.duplicateProductToStores
+);
+
+router.post(
+  '/createPrelistProduct',
+  roleAuth(ACL.STORE_CREATE),
+  productController.validate('createPrelistProduct'),
+  productController.createPrelistProduct
+);
+
+router.put(
+  '/createPrelistProduct/:productId',
+  roleAuth(ACL.STORE_CREATE),
+  productController.validate('createPrelistProduct'),
+
+  productController.updatePrelistProduct
+);
+
+router.post(
+  '/searchPrelistProduct_paginated',
+  // roleAuth(ACL.STORE_GET_ALL),
+  productController.searchPrelistProductPaginated
+);
+
+router.get(
+  '/prelistProduct-detail/:productId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  productController.getPrelistProductByProductId
+);
+
+router.delete(
+  '/createPrelistProduct/:productId',
+  roleAuth(ACL.STORE_CREATE),
+  productController.prelistProductDelete
 );
 
 export default router;
