@@ -194,7 +194,16 @@ export class BuySellController {
             .isNumeric(),
           body('vehicleInfo.noOfSeats', 'noOfSeats does not exist')
             .exists()
-            .isNumeric()
+            .isNumeric(),
+          body('vehicleInfo.isOwner', 'isOwner does not exist')
+            .exists()
+            .isBoolean(),
+          body('vehicleInfo.isDealer', 'isDealer does not exist')
+            .exists()
+            .isBoolean(),
+          body('vehicleInfo.isAuthorised', 'isAuthorised does not exist')
+            .exists()
+            .isBoolean()
         ];
     }
   };
