@@ -35,9 +35,9 @@ export const buySellSchema: Schema = new Schema(
     status: { type: String, enum: Status },
     transactionDetails: { type: Schema.Types.Mixed },
     contactInfo: { type: storeContactSchema },
-    isOwner: { type: Boolean, default: true },
-    isDealer: { type: Boolean, default: true },
-    isAuthorised: { type: Boolean, default: true }
+    isOwner: { type: Boolean, required: true },
+    isDealer: { type: Boolean, required: true },
+    isAuthorised: { type: Boolean, required: true }
   },
   { timestamps: true, strict: false }
 );
