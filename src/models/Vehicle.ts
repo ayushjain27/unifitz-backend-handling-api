@@ -75,7 +75,14 @@ const vehicleInfoSchema: Schema = new Schema(
       enum: VehicleType
     },
     vehicleImageList: {
-      type: [vehicleImageSchema]
+      type: {
+        frontView: vehicleImageSchema,
+        leftView: vehicleImageSchema,
+        seatView: vehicleImageSchema,
+        odometer: vehicleImageSchema,
+        rightView: vehicleImageSchema,
+        backView: vehicleImageSchema
+      }
     },
     vehicleNumber: {
       type: String
