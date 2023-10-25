@@ -142,4 +142,30 @@ export class VehicleInfoController {
         ];
     }
   };
+
+  getVehicleByVehicleId = async (req: Request, res: Response) => {
+    const vehicleId = req.params.vehicleId;
+
+    if (!vehicleId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Vehicle Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get vehicles by vehicle id controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getVehicleByVehicleId(
+        vehicleId
+      );
+      res.send({
+        message: 'Vehicle Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }
