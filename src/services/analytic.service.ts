@@ -48,19 +48,64 @@ export class AnalyticService {
       return { totalStores: res, stores: resData, isFilterEmpty };
     } else {
       isFilterEmpty = false;
-      const res = await Store.find({
-        $and: [
-          { createdAt: { $gte: query?.from, $lte: query?.to } },
-          { 'contactInfo.state': { $in: query?.state } }
-        ]
-      }).count();
-      const resData = await Store.find({
+      let resData: any[] = [];
+      if ((query?.from || query?.to) && query?.state) {
+        resData = await this.getStoreFilterByDateState(query);
+      } else if ((query?.from || query?.to) && _.isEmpty(query?.state)) {
+        resData = await this.getStoreFilterByDate(query);
+      } else {
+        resData = await Store.find({
+          'contactInfo.state': { $in: query?.state }
+        });
+      }
+      return { stores: resData, isFilterEmpty };
+    }
+  }
+
+  getStoreFilterByDateState = async (query: any) => {
+    let res: any[] = [];
+    if (!_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
+      res = await Store.find({
         $and: [
           { createdAt: { $gte: query?.from, $lte: query?.to } },
           { 'contactInfo.state': { $in: query?.state } }
         ]
       });
-      return { totalStores: res, stores: resData, isFilterEmpty };
+    } else if (_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
+      res = await Store.find({
+        $and: [
+          { createdAt: { $lte: query?.to } },
+          { 'contactInfo.state': { $in: query?.state } }
+        ]
+      });
+    } else {
+      res = await Store.find({
+        $and: [
+          {
+            createdAt: { $gte: query?.from }
+          },
+          { 'contactInfo.state': { $in: query?.state } }
+        ]
+      });
     }
-  }
+    return res;
+  };
+
+  getStoreFilterByDate = async (query: any) => {
+    let res: any[] = [];
+    if (!_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
+      res = await Store.find({
+        createdAt: { $gte: query?.from, $lte: query?.to }
+      });
+    } else if (_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
+      res = await Store.find({
+        createdAt: { $lte: query?.to }
+      });
+    } else {
+      res = await Store.find({
+        createdAt: { $gte: query?.from }
+      });
+    }
+    return res;
+  };
 }

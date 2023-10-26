@@ -56,8 +56,15 @@ export class AnalyticController {
           result
         });
       } else {
-        const filterStores = await this.filterStoresByCatSubCat(result, req);
-        res.send({ filterStores });
+        if (!_.isEmpty(req.body.category) || !_.isEmpty(req.body.subCategory)) {
+          const filterStores = await this.filterStoresByCatSubCat(result, req);
+          res.send({
+            ...filterStores,
+            totalStores: filterStores?.stores?.length
+          });
+        } else {
+          res.send({ ...result, totalStores: result?.stores?.length });
+        }
       }
     } catch (err) {
       Logger.error(err.message);
