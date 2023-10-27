@@ -45,4 +45,10 @@ router.post(
   vehicleInfoController.updateOrDeleteVehicleImage
 );
 
+router.get(
+  '/vehicle-detail/:vehicleId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getVehicleByVehicleId
+);
+
 export default router;

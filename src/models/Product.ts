@@ -1,5 +1,5 @@
 import { OverallStoreRatingResponse } from './../interfaces/store-request.interface';
-import { model, Schema } from 'mongoose';
+import mongoose, { model, Schema } from 'mongoose';
 import { catalogSchema, ICatalog } from './Catalog';
 // import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
@@ -47,7 +47,7 @@ export interface IProduct {
   showPrice: boolean;
   oemUserName?: string;
   allowMarketPlaceHosting: boolean;
-  isPrelist: boolean;
+  prelistId?: string;
 }
 
 const productSchema: Schema = new Schema<IProduct>(
@@ -102,10 +102,6 @@ const productSchema: Schema = new Schema<IProduct>(
       type: Boolean,
       default: true
     },
-    isPrelist: {
-      type: Boolean,
-      default: false
-    },
 
     productImageList: {
       type: {
@@ -114,6 +110,9 @@ const productSchema: Schema = new Schema<IProduct>(
         second: IImageSchema,
         third: IImageSchema
       }
+    },
+    prelistId: {
+      type: Schema.Types.Mixed
     }
   },
   { timestamps: true }

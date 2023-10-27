@@ -127,7 +127,7 @@ export class ProductService {
     );
     const query = {
       // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
-      itemName: searchReqBody.itemName,
+      itemName: new RegExp(searchReqBody.itemName, 'i'),
       offerType: searchReqBody.offerType,
       'productCategory.catalogName': searchReqBody.productCategory,
       'productSubCategory.catalogName': searchReqBody.productSubCategory
@@ -266,38 +266,6 @@ export class ProductService {
       { returnDocument: 'after' }
     );
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
-    return updatedProd;
-  }
-
-  async updatePrelistProduct(
-    productPayload: IPrelistProduct,
-    productId: string
-  ): Promise<IPrelistProduct> {
-    Logger.info(
-      '<Service>:<ProductService>: <Prelist Product Update: updating prelist product>'
-    );
-    let product: IPrelistProduct;
-    if (productId) {
-      product = await PrelistPoduct.findOne({
-        productId: new Types.ObjectId(productId)
-      });
-    }
-    if (!product) {
-      Logger.error(
-        '<Service>:<ProductService>:<Prelist Product not found with that product Id>'
-      );
-      throw new Error('Store not found');
-    }
-    let updatedProd: IPrelistProduct = productPayload;
-
-    updatedProd = await PrelistPoduct.findOneAndUpdate(
-      { _id: new Types.ObjectId(productId) },
-      updatedProd,
-      { returnDocument: 'after' }
-    );
-    Logger.info(
-      '<Service>:<ProductService>:<Prelist Product created successfully>'
-    );
     return updatedProd;
   }
 
@@ -463,5 +431,79 @@ export class ProductService {
       success: true,
       result
     };
+  }
+
+  async createProductFromPrelist(prelistId: string, productData: any[]) {
+    Logger.info('<Service>:<ProductService>:<Create Product form prelist>');
+
+    const preListProduct: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(prelistId)
+    })?.lean();
+
+    if (_.isEmpty(preListProduct)) {
+      throw new Error('Prelist Product does not exist');
+    }
+
+    const bulkWrite: any = [];
+    _.forEach(productData, (pData) => {
+      const newProd = this.createProdByPrelist(preListProduct, pData);
+      bulkWrite.push({
+        insertOne: {
+          document: newProd
+        }
+      });
+    });
+    if (bulkWrite.length > 0) {
+      const res = await Product.bulkWrite(bulkWrite);
+      return res;
+    }
+    return null;
+  }
+
+  private createProdByPrelist(prelistProd: IPrelistProduct, pData: any) {
+    const upProd = { ...prelistProd, ...pData } as IProduct;
+    upProd.prelistId = prelistProd._id;
+    delete upProd._id;
+
+    return upProd;
+  }
+
+  async updatePrelistProductImages(productId: string, req: Request | any) {
+    Logger.info('<Service>:<ProductService>:<Product image uploading>');
+    const prelistProduct: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(productId)
+    })?.lean();
+    if (_.isEmpty(prelistProduct)) {
+      throw new Error('Product does not exist');
+    }
+    const files: Array<any> = req.files;
+
+    const productImageList: Partial<IProductImageList> | any =
+      prelistProduct.productImageList || {
+        profile: {},
+        first: {},
+        second: {},
+        third: {}
+      };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0] || 'profie';
+      const { key, url } = await this.s3Client.uploadFile(
+        productId,
+        fileName,
+        file.buffer
+      );
+
+      productImageList[fileName] = { key, docURL: url };
+    }
+    const res = await PrelistPoduct.findOneAndUpdate(
+      { _id: productId },
+      { $set: { productImageList } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 }
