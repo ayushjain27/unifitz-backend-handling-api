@@ -4,7 +4,7 @@ export interface IVehiclesInfo extends Document {
   vehicleId?: string;
   userId: string;
   vehicleType: string;
-  vehicleImageList: IVehicleImage[];
+  vehicleImageList: IVehicleImageList;
   vehicleNumber: string;
   category: string;
   brand: string;
@@ -20,10 +20,25 @@ export interface IVehiclesInfo extends Document {
   lastServiceDate: Date;
 }
 
+export enum VehicleImgTitle {
+  frontView = 'frontView',
+  leftView = 'leftView',
+  seatView = 'seatView',
+  odometer = 'odometer',
+  rightView = 'rightView',
+  backView = 'backView'
+}
 export interface IVehicleImage {
-  url: string;
+  docURL: string;
   key: string;
-  title: string;
+}
+export interface IVehicleImageList {
+  frontView: IVehicleImage;
+  leftView: IVehicleImage;
+  seatView: IVehicleImage;
+  odometer: IVehicleImage;
+  rightView: IVehicleImage;
+  backView: IVehicleImage;
 }
 
 export enum VehiclePurposeType {
@@ -53,7 +68,7 @@ export enum FuelType {
 }
 
 const vehicleImageSchema: Schema = new Schema({
-  url: {
+  docURL: {
     type: String
   },
   key: {
@@ -75,7 +90,14 @@ const vehicleInfoSchema: Schema = new Schema(
       enum: VehicleType
     },
     vehicleImageList: {
-      type: [vehicleImageSchema]
+      type: {
+        frontView: vehicleImageSchema,
+        leftView: vehicleImageSchema,
+        seatView: vehicleImageSchema,
+        odometer: vehicleImageSchema,
+        rightView: vehicleImageSchema,
+        backView: vehicleImageSchema
+      }
     },
     vehicleNumber: {
       type: String
