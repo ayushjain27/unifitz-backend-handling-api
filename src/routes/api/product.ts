@@ -123,4 +123,11 @@ router.delete(
   productController.prelistProductDelete
 );
 
+router.post(
+  '/uploadPrelistProductImages',
+  uploadFiles.array('files'),
+  roleAuth(ACL.STORE_CREATE),
+  productController.uploadPrelistPoductImages
+);
+
 export default router;

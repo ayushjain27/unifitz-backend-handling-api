@@ -431,6 +431,25 @@ export class ProductController {
     }
   };
 
+  uploadPrelistPoductImages = async (req: Request, res: Response) => {
+    const { productId } = req.body;
+    Logger.info(
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
+    );
+    try {
+      const result = await this.productService.updatePrelistProductImages(
+        productId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':

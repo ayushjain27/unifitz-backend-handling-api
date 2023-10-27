@@ -464,4 +464,43 @@ export class ProductService {
       result
     };
   }
+
+  async updatePrelistProductImages(productId: string, req: Request | any) {
+    Logger.info('<Service>:<ProductService>:<Product image uploading>');
+    const prelistProduct: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(productId)
+    })?.lean();
+    if (_.isEmpty(prelistProduct)) {
+      throw new Error('Product does not exist');
+    }
+    const files: Array<any> = req.files;
+
+    const productImageList: Partial<IProductImageList> | any =
+      prelistProduct.productImageList || {
+        profile: {},
+        first: {},
+        second: {},
+        third: {}
+      };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0] || 'profie';
+      const { key, url } = await this.s3Client.uploadFile(
+        productId,
+        fileName,
+        file.buffer
+      );
+
+      productImageList[fileName] = { key, docURL: url };
+    }
+    const res = await PrelistPoduct.findOneAndUpdate(
+      { _id: productId },
+      { $set: { productImageList } },
+      { returnDocument: 'after' }
+    );
+    return res;
+  }
 }
