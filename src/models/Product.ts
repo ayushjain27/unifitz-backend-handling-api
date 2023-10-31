@@ -48,6 +48,7 @@ export interface IProduct {
   oemUserName?: string;
   allowMarketPlaceHosting: boolean;
   prelistId?: string;
+  partNumber?: string;
 }
 
 const productSchema: Schema = new Schema<IProduct>(
@@ -88,8 +89,7 @@ const productSchema: Schema = new Schema<IProduct>(
       type: Number
     },
     mrp: {
-      type: Number,
-      required: true
+      type: Number
     },
     productDescription: {
       type: String
@@ -102,7 +102,9 @@ const productSchema: Schema = new Schema<IProduct>(
       type: Boolean,
       default: true
     },
-
+    partNumber: {
+      type: String
+    },
     productImageList: {
       type: {
         profile: IImageSchema,
