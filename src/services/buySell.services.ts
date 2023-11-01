@@ -140,10 +140,50 @@ export class BuySellService {
           status: 1,
           transactionDetails: 1,
           contactInfo: 1,
-          createdAt: 1
+          createdAt: 1,
+          isOwner: 1,
+          isDealer: 1,
+          isAuthorised: 1,
+          hpLoan: 1,
+          insuranceExperience: 1,
+          description: 1
         }
       }
     ]);
     return buyVehicleList;
+  }
+
+  async getAll() {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
+    );
+    const query: any = {};
+    const result = await buySellVehicleInfo.find(query).lean();
+    const totalAmount = result.reduce(
+      (a, b) => a + b.vehicleInfo.expectedPrice,
+      0
+    );
+    let count = 0;
+    const activeVehicles: any = result.map((list: any) => {
+      const date1 = new Date(list.createdAt);
+      const date2 = new Date();
+      const Difference_In_Time = date2.getTime() - date1.getTime();
+      const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+      if (Difference_In_Days <= 45) {
+        count += 1;
+        return count;
+      }
+      return count;
+    });
+    Logger.debug(
+      `total length ${result.length}, ${totalAmount} ${activeVehicles}`
+    );
+    const allQuery: any = {
+      allVehicles: result.length,
+      totalAmount: totalAmount,
+      active: activeVehicles[activeVehicles.length - 1],
+      inactive: result.length - activeVehicles[activeVehicles.length - 1]
+    };
+    return allQuery;
   }
 }

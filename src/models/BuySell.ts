@@ -25,6 +25,9 @@ export interface IBuySell extends Document {
   isOwner: boolean;
   isDealer: boolean;
   isAuthorised: boolean;
+  hpLoan: boolean;
+  insuranceExperience: string;
+  description: string;
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -37,7 +40,10 @@ export const buySellSchema: Schema = new Schema(
     contactInfo: { type: storeContactSchema },
     isOwner: { type: Boolean, required: true },
     isDealer: { type: Boolean, required: true },
-    isAuthorised: { type: Boolean, required: true }
+    isAuthorised: { type: Boolean, required: true },
+    hpLoan: { type: Boolean, required: true },
+    insuranceExperience: { type: String, required: true },
+    description: { type: String, required: true }
   },
   { timestamps: true, strict: false }
 );

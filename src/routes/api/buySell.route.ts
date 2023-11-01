@@ -26,7 +26,7 @@ router.post(
 );
 
 router.post(
-  '/getBuyVehicleById',
+  '/getBuySellVehicleById',
   roleAuth(ACL.CUSTOMER_CREATE),
   // buySellController.validate('addorGetSellVehicle'),
   buySellController.getBuyVehicleById
@@ -38,11 +38,8 @@ router.post(
   buySellController.updateSellVehicle
 );
 
-router.post(
-  '/getBuyVehicle',
-  // roleAuth(ACL.STORE_REVIEW_CREATE),
-  // productController.validate('getReviews'),
-  buySellController.getBuyVehicle
-);
+router.post('/getBuyVehicle', buySellController.getBuyVehicle);
+
+router.get('/getBuySellAggregation', buySellController.getBuySellAggregation);
 
 export default router;

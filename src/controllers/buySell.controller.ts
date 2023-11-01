@@ -102,6 +102,7 @@ export class BuySellController {
     try {
       const result = await this.buySellService.updateSellVehicle(req.body);
       res.send({
+        message: 'Sell Vehicle Updated Successfully',
         result
       });
     } catch (err) {
@@ -135,6 +136,21 @@ export class BuySellController {
       );
       res.send({
         message: 'Buy Vehicle Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getBuySellAggregation = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
+    );
+    try {
+      const result = await this.buySellService.getAll();
+      res.send({
         result
       });
     } catch (err) {
@@ -195,13 +211,9 @@ export class BuySellController {
           body('vehicleInfo.noOfSeats', 'noOfSeats does not exist')
             .exists()
             .isNumeric(),
-          body('vehicleInfo.isOwner', 'isOwner does not exist')
-            .exists()
-            .isBoolean(),
-          body('vehicleInfo.isDealer', 'isDealer does not exist')
-            .exists()
-            .isBoolean(),
-          body('vehicleInfo.isAuthorised', 'isAuthorised does not exist')
+          body('isOwner', 'isOwner does not exist').exists().isBoolean(),
+          body('isDealer', 'isDealer does not exist').exists().isBoolean(),
+          body('isAuthorised', 'isAuthorised does not exist')
             .exists()
             .isBoolean()
         ];
