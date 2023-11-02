@@ -3,7 +3,7 @@ import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
-import { TwilioService, S3Service } from '../services';
+import { TwilioService, S3Service, AnalyticService } from '../services';
 import { s3Config, twilioConfig } from './constants';
 import {
   StoreController,
@@ -17,7 +17,8 @@ import {
   VehicleInfoController,
   EnquiryController,
   CategoryController,
-  EmployeeController
+  EmployeeController,
+  AnalyticController
 } from '../controllers';
 import {
   StoreService,
@@ -121,6 +122,11 @@ container
   .to(EnquiryController);
 
 container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
+
+container
+  .bind<AnalyticController>(TYPES.AnalyticController)
+  .to(AnalyticController);
+container.bind<AnalyticService>(TYPES.AnalyticService).to(AnalyticService);
 
 container
   .bind<CategoryController>(TYPES.CategoryController)
