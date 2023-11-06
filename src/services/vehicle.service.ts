@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import VechicleInfo, {
   IVehiclesInfo,
   IVehicleImage
@@ -12,10 +13,14 @@ import { TYPES } from '../config/inversify.types';
 import { S3Service } from './s3.service';
 
 import User, { IUser } from './../models/User';
+import { SurepassService } from './surepass.service';
 
 @injectable()
 export class VehicleInfoService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private surepassService = container.get<SurepassService>(
+    TYPES.SurepassService
+  );
 
   async addOrUpdateVehicle(vehicleStore: IVehiclesInfo) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
@@ -181,6 +186,23 @@ export class VehicleInfoService {
     );
 
     return updatedVehicle;
+  }
+
+  async vehicleDetailsFromRC(reqBody: { vehicleNumber: string }): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Initiate fetching vehicle Details>'
+    );
+    // validate the store from user phone number and user id
+    const { vehicleNumber } = reqBody;
+    try {
+      // get the store data
+      const vehicleDetails = await this.surepassService.getRcDetails(
+        vehicleNumber
+      );
+      return vehicleDetails;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 
   async getVehicleByVehicleId(productId: string): Promise<IVehiclesInfo> {
