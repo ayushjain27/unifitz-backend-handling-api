@@ -28,7 +28,7 @@ const urls = {
   UDHYAM: '/corporate/udyog-aadhaar',
   GENERATE_AADHAR_OTP: '/aadhaar-v2/generate-otp',
   VERIFY_AADHAR_OTP: '/aadhaar-v2/submit-otp',
-  RC: '/api/v1/rc/rc-full'
+  RC: '/rc/rc-full'
 };
 @injectable()
 export class SurepassService {
