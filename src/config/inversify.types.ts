@@ -32,6 +32,9 @@ export const TYPES = {
   CategoryController: Symbol('categoryController'),
   CategoryService: Symbol('categoryService'),
 
+  AnalyticController: Symbol('analyticController'),
+  AnalyticService: Symbol('analyticService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
