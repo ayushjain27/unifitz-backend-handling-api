@@ -11,6 +11,9 @@ export const TYPES = {
   ProductController: Symbol('ProductController'),
   ProductService: Symbol('ProductService'),
 
+  EmployeeController: Symbol('EmployeeController'),
+  EmployeeService: Symbol('EmployeeService'),
+
   JobCardController: Symbol('JobCardController'),
   JobCardService: Symbol('JobCardService'),
 
@@ -28,6 +31,9 @@ export const TYPES = {
 
   CategoryController: Symbol('categoryController'),
   CategoryService: Symbol('categoryService'),
+
+  AnalyticController: Symbol('analyticController'),
+  AnalyticService: Symbol('analyticService'),
 
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),

@@ -10,3 +10,5 @@ export * from './vehicleInfo.controller';
 export * from './enquiry.controller';
 export * from './category.controller';
 export * from './buySell.controller';
+export * from './employee.controller';
+export * from './analytic.controller';

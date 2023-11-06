@@ -36,7 +36,7 @@ export class JobCardController {
     }
   };
 
-  validate = (method: string) => { 
+  validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
         return [
@@ -46,7 +46,9 @@ export class JobCardController {
             .exists()
             .isString(),
 
-          body('mobileNo', 'Mobile number does not exist').exists().isString()
+          body('mobileNumber', 'Mobile number does not exist')
+            .exists()
+            .isString()
         ];
     }
   };

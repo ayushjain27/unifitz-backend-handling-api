@@ -17,6 +17,8 @@ import { CustomerService } from './customer.service';
 import { ICustomer } from '../models/Customer';
 import { OverallStoreRatingResponse } from '../interfaces';
 import { AdminRole } from '../models/Admin';
+import { IPrelistProduct } from '../models/PrelistProduct';
+import { PrelistPoduct } from '../models/PrelistProduct';
 
 @injectable()
 export class ProductService {
@@ -45,6 +47,20 @@ export class ProductService {
     newProd.isActive = true;
     newProd = await Product.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product created successfully>');
+    return newProd;
+  }
+
+  async createPreListProduct(
+    productPayload: IPrelistProduct
+  ): Promise<IPrelistProduct> {
+    Logger.info(
+      '<Service>:<PrelistProductService>: <Prelist Product Creation: creating new prelist product>'
+    );
+    let newProd: IPrelistProduct = productPayload;
+    newProd = await PrelistPoduct.create(newProd);
+    Logger.info(
+      '<Service>:<PrelistProductService>:<Prelist Product created successfully>'
+    );
     return newProd;
   }
 
@@ -98,6 +114,54 @@ export class ProductService {
     return product;
   }
 
+  async searchAndFilterPrelistProductPaginated(searchReqBody: {
+    productCategory: string;
+    productSubCategory: string;
+    itemName: string;
+    pageNo: number;
+    pageSize: number;
+    offerType: string;
+  }): Promise<IPrelistProduct[]> {
+    Logger.info(
+      '<Service>:<ProductService>:<Search and Filter prelist product service initiated>'
+    );
+    const query = {
+      // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
+      itemName: new RegExp(searchReqBody.itemName, 'i'),
+      offerType: searchReqBody.offerType,
+      'productCategory.catalogName': searchReqBody.productCategory,
+      'productSubCategory.catalogName': searchReqBody.productSubCategory
+      // profileStatus: 'ONBOARDED'
+    };
+    if (!searchReqBody.itemName) {
+      delete query['itemName'];
+    }
+    if (!searchReqBody.offerType) {
+      delete query['offerType'];
+    }
+    if (!searchReqBody.productCategory) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!searchReqBody.productSubCategory) {
+      delete query['productSubCategory.catalogName'];
+    }
+    Logger.debug(query);
+
+    const prelistProduct: any = await PrelistPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: searchReqBody.pageNo * searchReqBody.pageSize
+      },
+      {
+        $limit: searchReqBody.pageSize
+      }
+    ]);
+
+    return prelistProduct;
+  }
+
   async getProductByProductId(productId: string): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: Get product by product id>'
@@ -106,6 +170,18 @@ export class ProductService {
       _id: new Types.ObjectId(productId)
     }).lean();
     product.overallRating = await this.getOverallRatings(productId);
+    return product;
+  }
+
+  async getPrelistProductByProductId(
+    productId: string
+  ): Promise<IPrelistProduct> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Fetch: Get prelist product by product id>'
+    );
+    const product: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(productId)
+    }).lean();
     return product;
   }
 
@@ -127,6 +203,19 @@ export class ProductService {
       _id: new Types.ObjectId(productId)
     });
     Logger.info('<Service>:<ProductService>:<Product deleted successfully>');
+    return res;
+  }
+
+  async deletePrelistProduct(productId: string): Promise<unknown> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Delete: deleting prelist product by product id>'
+    );
+    const res = await PrelistPoduct.deleteMany({
+      _id: new Types.ObjectId(productId)
+    });
+    Logger.info(
+      '<Service>:<ProductService>:<Prelist Product deleted successfully>'
+    );
     return res;
   }
 
@@ -342,5 +431,79 @@ export class ProductService {
       success: true,
       result
     };
+  }
+
+  async createProductFromPrelist(prelistId: string, productData: any[]) {
+    Logger.info('<Service>:<ProductService>:<Create Product form prelist>');
+
+    const preListProduct: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(prelistId)
+    })?.lean();
+
+    if (_.isEmpty(preListProduct)) {
+      throw new Error('Prelist Product does not exist');
+    }
+
+    const bulkWrite: any = [];
+    _.forEach(productData, (pData) => {
+      const newProd = this.createProdByPrelist(preListProduct, pData);
+      bulkWrite.push({
+        insertOne: {
+          document: newProd
+        }
+      });
+    });
+    if (bulkWrite.length > 0) {
+      const res = await Product.bulkWrite(bulkWrite);
+      return res;
+    }
+    return null;
+  }
+
+  private createProdByPrelist(prelistProd: IPrelistProduct, pData: any) {
+    const upProd = { ...prelistProd, ...pData } as IProduct;
+    upProd.prelistId = prelistProd._id;
+    delete upProd._id;
+
+    return upProd;
+  }
+
+  async updatePrelistProductImages(productId: string, req: Request | any) {
+    Logger.info('<Service>:<ProductService>:<Product image uploading>');
+    const prelistProduct: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: new Types.ObjectId(productId)
+    })?.lean();
+    if (_.isEmpty(prelistProduct)) {
+      throw new Error('Product does not exist');
+    }
+    const files: Array<any> = req.files;
+
+    const productImageList: Partial<IProductImageList> | any =
+      prelistProduct.productImageList || {
+        profile: {},
+        first: {},
+        second: {},
+        third: {}
+      };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0] || 'profie';
+      const { key, url } = await this.s3Client.uploadFile(
+        productId,
+        fileName,
+        file.buffer
+      );
+
+      productImageList[fileName] = { key, docURL: url };
+    }
+    const res = await PrelistPoduct.findOneAndUpdate(
+      { _id: productId },
+      { $set: { productImageList } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 }

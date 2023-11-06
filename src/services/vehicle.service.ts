@@ -204,4 +204,14 @@ export class VehicleInfoService {
       throw new Error(err);
     }
   }
+
+  async getVehicleByVehicleId(productId: string): Promise<IVehiclesInfo> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Fetch: Get product by product id>'
+    );
+    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
+      _id: new Types.ObjectId(productId)
+    });
+    return vehicle;
+  }
 }

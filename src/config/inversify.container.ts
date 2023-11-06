@@ -3,7 +3,6 @@ import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
-import { TwilioService, S3Service, BuySellService } from '../services';
 import { s3Config, twilioConfig } from './constants';
 import {
   StoreController,
@@ -17,7 +16,9 @@ import {
   VehicleInfoController,
   EnquiryController,
   CategoryController,
-  BuySellController
+  BuySellController,
+  EmployeeController,
+  AnalyticController
 } from '../controllers';
 import {
   StoreService,
@@ -32,7 +33,12 @@ import {
   TwoFactorService,
   EnquiryService,
   SurepassService,
-  CategoryService
+  CategoryService,
+  EmployeeService,
+  TwilioService,
+  S3Service,
+  BuySellService,
+  AnalyticService
 } from '../services';
 
 const container = new Container();
@@ -81,6 +87,12 @@ container
 container.bind<ProductService>(TYPES.ProductService).to(ProductService);
 
 container
+  .bind<EmployeeController>(TYPES.EmployeeController)
+  .to(EmployeeController);
+
+container.bind<EmployeeService>(TYPES.EmployeeService).to(EmployeeService);
+
+container
   .bind<JobCardController>(TYPES.JobCardController)
   .to(JobCardController);
 
@@ -114,6 +126,11 @@ container
   .to(EnquiryController);
 
 container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
+
+container
+  .bind<AnalyticController>(TYPES.AnalyticController)
+  .to(AnalyticController);
+container.bind<AnalyticService>(TYPES.AnalyticService).to(AnalyticService);
 
 container
   .bind<CategoryController>(TYPES.CategoryController)

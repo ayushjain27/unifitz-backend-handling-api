@@ -52,4 +52,10 @@ router.post(
   vehicleInfoController.vehicleDetailsFromRC
 );
 
+router.get(
+  '/vehicle-detail/:vehicleId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getVehicleByVehicleId
+);
+
 export default router;

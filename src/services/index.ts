@@ -14,3 +14,5 @@ export * from './twoFactor.service';
 export * from './surepass.service';
 export * from './category.service';
 export * from './buySell.services';
+export * from './employee.service';
+export * from './analytic.service';
