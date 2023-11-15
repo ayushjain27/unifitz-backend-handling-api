@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import VechicleInfo, {
   IVehiclesInfo,
-  IVehicleImage
+  IVehicleImage,
+  vehicleInfoSchema
 } from './../models/Vehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
@@ -22,7 +23,7 @@ export class VehicleInfoService {
     TYPES.SurepassService
   );
 
-  async addOrUpdateVehicle(vehicleStore: IVehiclesInfo) {
+  async addVehicle(vehicleStore: IVehiclesInfo) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
 
     // Check if user exists
@@ -37,20 +38,10 @@ export class VehicleInfoService {
       userId: new Types.ObjectId(vehicleStore.userId)
     };
 
-    let newVehicleItem: IVehiclesInfo;
-
-    if (_.isEmpty(newVehicleStore.vehicleId)) {
-      newVehicleItem = await VechicleInfo.create(newVehicleStore);
-    } else {
-      newVehicleItem = await VechicleInfo.findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(newVehicleStore.vehicleId)
-        },
-        newVehicleStore,
-        { returnDocument: 'after' }
-      );
-    }
-
+    const newVehicleItem: IVehiclesInfo = await VechicleInfo.create(
+      newVehicleStore
+    );
+    Logger.info('<Service>:<VehicleService>:<Vehicle created successfully>');
     return newVehicleItem;
   }
 
@@ -205,13 +196,51 @@ export class VehicleInfoService {
     }
   }
 
-  async getVehicleByVehicleId(productId: string): Promise<IVehiclesInfo> {
+  async getVehicleByVehicleId(vehicleId: string): Promise<IVehiclesInfo> {
     Logger.info(
-      '<Service>:<ProductService>: <Product Fetch: Get product by product id>'
+      '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
     );
     const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
-      _id: new Types.ObjectId(productId)
+      _id: new Types.ObjectId(vehicleId)
     });
     return vehicle;
+  }
+
+  async update(
+    vehiclePayload: IVehiclesInfo,
+    vehicleId: string
+  ): Promise<IVehiclesInfo> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Update: updating vehicle>'
+    );
+
+    // check if user exist
+    let vehicle: IVehiclesInfo;
+    if (vehicleId) {
+      vehicle = await VechicleInfo.findOne({
+        _id: new Types.ObjectId(vehicleId)
+      });
+    }
+    if (!vehicle) {
+      Logger.error(
+        '<Service>:<updatedVehicle>:<Vehicle not found with that vehicle Id>'
+      );
+    }
+    const user: IUser = await User.findOne({
+      userId: new Types.ObjectId(vehiclePayload.userId)
+    }).lean();
+    if (_.isEmpty(user)) {
+      throw new Error('User not found');
+    }
+
+    let updatedVehicle: IVehiclesInfo = vehiclePayload;
+
+    updatedVehicle = await VechicleInfo.findOneAndUpdate(
+      { _id: new Types.ObjectId(vehicleId) },
+      updatedVehicle,
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<VehicleService>:<Vehicle updated successfully>');
+    return updatedVehicle;
   }
 }

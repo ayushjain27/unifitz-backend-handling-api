@@ -19,7 +19,7 @@ export class VehicleInfoController {
     this.vehicleInfoService = vehicleInfoService;
   }
 
-  addOrUpdateVehicle = async (req: Request, res: Response) => {
+  addVehicle = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res
@@ -31,7 +31,7 @@ export class VehicleInfoController {
       '<Controller>:<VehicleInfoController>:<Add vehicle info request initiated>'
     );
     try {
-      const result = await this.vehicleInfoService.addOrUpdateVehicle(
+      const result = await this.vehicleInfoService.addVehicle(
         addVehicleInfoRequest
       );
       res.send({
@@ -133,6 +133,39 @@ export class VehicleInfoController {
       );
       res.send({
         message: 'Vehicle get information Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateVehicle = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const vehicleId = req.params.vehicleId;
+    if (!vehicleId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Vehicle Id is not present' } });
+      return;
+    }
+    const vehRequest = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Update vehicle controller initiated>'
+    );
+
+    try {
+      const result = await this.vehicleInfoService.update(
+        vehRequest,
+        vehicleId
+      );
+      res.send({
+        message: 'Vehicle Update Successful',
         result
       });
     } catch (err) {
