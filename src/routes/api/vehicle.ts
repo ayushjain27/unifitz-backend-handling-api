@@ -58,4 +58,11 @@ router.put(
   vehicleInfoController.updateVehicle
 );
 
+router.post(
+  '/vehicleDetailsFromRC',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('vehicleDetailsFromRC'),
+  vehicleInfoController.vehicleDetailsFromRC
+);
+
 export default router;
