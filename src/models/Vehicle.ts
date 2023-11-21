@@ -5,7 +5,7 @@ export interface IVehiclesInfo extends Document {
   vehicleType: string;
   vehicleNumber: string;
   userId?: string;
-  vehicleImageList: IVehicleImage[];
+  vehicleImageList: IVehicleImageList;
   brand: string;
   modelName: string;
   fuel: string;
@@ -26,9 +26,21 @@ export interface IVehiclesInfo extends Document {
 }
 
 export interface IVehicleImage {
-  url: string;
+  docURL: string;
   key: string;
-  title: string;
+}
+export interface IVehicleImageList {
+  frontView: IVehicleImage;
+  leftView: IVehicleImage;
+  seatView: IVehicleImage;
+  odometer: IVehicleImage;
+  rightView: IVehicleImage;
+  backView: IVehicleImage;
+}
+
+export enum VehiclePurposeType {
+  BUY_SELL = 'BUY_SELL',
+  OWNED = 'OWNED'
 }
 
 export enum VehicleGearType {
@@ -52,14 +64,11 @@ export enum FuelType {
   LPG = 'LPG'
 }
 
-export const vehicleImageSchema: Schema = new Schema({
-  url: {
+export const vehicleImageSchema: Schema = new Schema<IVehicleImage>({
+  docURL: {
     type: String
   },
   key: {
-    type: String
-  },
-  title: {
     type: String
   }
 });
@@ -75,7 +84,14 @@ export const vehicleInfoSchema: Schema = new Schema(
       enum: VehicleType
     },
     vehicleImageList: {
-      type: [vehicleImageSchema]
+      type: {
+        frontView: vehicleImageSchema,
+        leftView: vehicleImageSchema,
+        seatView: vehicleImageSchema,
+        odometer: vehicleImageSchema,
+        rightView: vehicleImageSchema,
+        backView: vehicleImageSchema
+      }
     },
     vehicleNumber: {
       type: String
@@ -99,6 +115,11 @@ export const vehicleInfoSchema: Schema = new Schema(
     gearType: {
       type: String,
       enum: VehicleGearType
+    },
+    purpose: {
+      type: String,
+      enum: VehiclePurposeType,
+      required: true
     },
     fuelType: {
       type: String
