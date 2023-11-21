@@ -51,4 +51,11 @@ router.get(
   vehicleInfoController.getVehicleByVehicleId
 );
 
+router.put(
+  '/:vehicleId',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('addVehicle'),
+  vehicleInfoController.updateVehicle
+);
+
 export default router;
