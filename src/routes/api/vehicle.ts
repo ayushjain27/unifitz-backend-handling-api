@@ -38,18 +38,11 @@ router.post(
 );
 
 router.post(
-  '/updateOrDeleteVehicleImage',
+  '/deleteVehicleImage',
   uploadFiles.single('file'),
   roleAuth(ACL.ADD_VEHICLE),
-  vehicleInfoController.validate('updateOrDeleteVehicleImage'),
-  vehicleInfoController.updateOrDeleteVehicleImage
-);
-
-router.post(
-  '/vehicleDetailsFromRC',
-  roleAuth(ACL.ADD_VEHICLE),
-  vehicleInfoController.validate('vehicleDetailsFromRC'),
-  vehicleInfoController.vehicleDetailsFromRC
+  vehicleInfoController.validate('deleteVehicleImage'),
+  vehicleInfoController.deleteVehicleImage
 );
 
 router.get(

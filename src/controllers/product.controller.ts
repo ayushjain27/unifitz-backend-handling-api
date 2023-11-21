@@ -65,7 +65,7 @@ export class ProductController {
   uploadProductImages = async (req: Request, res: Response) => {
     const { productId } = req.body;
     Logger.info(
-      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
     );
     try {
       const result = await this.productService.updateProductImages(
