@@ -16,10 +16,10 @@ const vehicleInfoController = container.get<VehicleInfoController>(
 );
 
 router.post(
-  '/addOrUpdateVehicle',
+  '/addVehicle',
   roleAuth(ACL.ADD_VEHICLE),
   vehicleInfoController.validate('addVehicle'),
-  vehicleInfoController.addOrUpdateVehicle
+  vehicleInfoController.addVehicle
 );
 
 router.post(
@@ -49,6 +49,13 @@ router.get(
   '/vehicle-detail/:vehicleId',
   // roleAuth(ACL.STORE_GET_ALL),
   vehicleInfoController.getVehicleByVehicleId
+);
+
+router.put(
+  '/:vehicleId',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('addVehicle'),
+  vehicleInfoController.updateVehicle
 );
 
 export default router;
