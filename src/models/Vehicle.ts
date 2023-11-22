@@ -95,9 +95,7 @@ export const vehicleInfoSchema: Schema = new Schema(
     },
     vehicleNumber: {
       type: String,
-      required: true,
-      unique: true,
-      index: true
+      required: true
     },
     brand: {
       type: String
@@ -146,6 +144,8 @@ export const vehicleInfoSchema: Schema = new Schema(
     strict: false
   }
 );
+
+vehicleInfoSchema.index({ vehicleNumber: 1 }, { unique: true });
 
 const VechicleInfo = model<IVehiclesInfo & Document>(
   'vehicles',
