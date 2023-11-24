@@ -10,6 +10,8 @@ import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import { generateToken } from '../utils';
 import { SurepassService } from './surepass.service';
+import { VerifyB2BPartnersRequest } from '../interfaces';
+import { DocType } from '../enum/docType.enum';
 @injectable()
 export class AdminService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
@@ -176,7 +178,10 @@ export class AdminService {
     return hashed;
   }
 
-  async initiateB2BPartnersVerification(documentNo: string, role?: string) {
+  async initiateB2BPartnersVerification(
+    payload: VerifyB2BPartnersRequest,
+    role?: string
+  ) {
     Logger.info('<Service>:<AdminService>:<Initiate Verifying user business>');
     // validate the store from user phone number and user id
     let verifyResult: any = {};
@@ -185,8 +190,16 @@ export class AdminService {
     if (role === AdminRole.ADMIN) {
       try {
         // integrate surephass api based on doc type
-        verifyResult = await this.surepassService.getGstDetails(documentNo);
-        displayFields.address = verifyResult?.address;
+        switch (payload.documentType) {
+          case DocType.GST:
+            verifyResult = await this.surepassService.getGstDetails(
+              payload.documentNo
+            );
+            displayFields.address = verifyResult?.address;
+            break;
+          default:
+            throw new Error('Invalid Document Type');
+        }
         return { verifyResult, displayFields };
       } catch (err) {
         if (err.response) {

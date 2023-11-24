@@ -51,3 +51,8 @@ export interface VerifyAadharRequest {
   otp: string;
   storeId: string;
 }
+
+export interface VerifyB2BPartnersRequest {
+  documentNo: string;
+  documentType: DocType;
+}

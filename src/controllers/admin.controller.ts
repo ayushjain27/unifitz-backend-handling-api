@@ -8,6 +8,7 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
 import Request from '../types/request';
+import { VerifyB2BPartnersRequest } from '../interfaces';
 
 @injectable()
 export class AdminController {
@@ -208,11 +209,11 @@ export class AdminController {
     Logger.info(
       '<Controller>:<AdminController>:<Verify B2B Partners Initatiate>'
     );
-    const documentNo = req.body.documentNo;
+    const payload = req.body as VerifyB2BPartnersRequest;
     const role = req?.role;
     try {
       const result = await this.adminService.initiateB2BPartnersVerification(
-        documentNo,
+        payload,
         role
       );
       res.send({
