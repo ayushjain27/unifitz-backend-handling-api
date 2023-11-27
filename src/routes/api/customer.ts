@@ -8,7 +8,7 @@ import { CustomerController } from '../../controllers';
 import { roleAuth } from '../middleware/rbac';
 
 const storage = multer.memoryStorage();
-const uploadFiles = multer({ storage: storage });
+const uploadFile = multer({ storage: storage });
 
 const router: Router = Router();
 const customerController = container.get<CustomerController>(
@@ -25,7 +25,7 @@ router.put(
 
 router.post(
   '/uploadCustomerImage',
-  uploadFiles.array('file'),
+  uploadFile.single('file'),
   roleAuth(ACL.CUSTOMER_CREATE),
   customerController.uploadCustomerImage
 );
