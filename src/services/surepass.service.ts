@@ -27,7 +27,8 @@ const urls = {
   GSTIN: '/corporate/gstin',
   UDHYAM: '/corporate/udyog-aadhaar',
   GENERATE_AADHAR_OTP: '/aadhaar-v2/generate-otp',
-  VERIFY_AADHAR_OTP: '/aadhaar-v2/submit-otp'
+  VERIFY_AADHAR_OTP: '/aadhaar-v2/submit-otp',
+  RC: '/rc/rc-full'
 };
 @injectable()
 export class SurepassService {
@@ -73,6 +74,18 @@ export class SurepassService {
       const response = await axiosInstance.post(urls.VERIFY_AADHAR_OTP, {
         client_id: clientId,
         otp
+      });
+      if (!_.isEmpty(response.data.data)) {
+        return response.data.data;
+      }
+    }
+    return null;
+  }
+
+  async getRcDetails(vehicleNumber: string) {
+    if (vehicleNumber) {
+      const response = await axiosInstance.post(urls.RC, {
+        id_number: vehicleNumber
       });
       if (!_.isEmpty(response.data.data)) {
         return response.data.data;

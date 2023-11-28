@@ -526,8 +526,8 @@ export class StoreService {
         allRatings: {
           5: 100
         },
-        averageRating: 5,
-        totalRatings: 1,
+        averageRating: '-',
+        totalRatings: 0,
         totalReviews: 1
       };
     }

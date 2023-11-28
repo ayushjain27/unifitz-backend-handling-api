@@ -56,7 +56,7 @@ export class CustomerService {
       throw new Error('Files not found');
     }
 
-    const fileName = 'profie';
+    const fileName = 'profile';
     const { url } = await this.s3Client.uploadFile(
       customerId,
       fileName,

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
@@ -7,6 +8,7 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
 import Request from '../types/request';
+import { VerifyB2BPartnersRequest } from '../interfaces';
 
 @injectable()
 export class AdminController {
@@ -203,6 +205,36 @@ export class AdminController {
     }
   };
 
+  initiateB2BPartnersVerification = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdminController>:<Verify B2B Partners Initatiate>'
+    );
+    const payload = req.body as VerifyB2BPartnersRequest;
+    const role = req?.role;
+    try {
+      const result = await this.adminService.initiateB2BPartnersVerification(
+        payload,
+        role
+      );
+      res.send({
+        message: 'B2B Partners Verification Initatiation Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
+      }
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':
@@ -229,6 +261,13 @@ export class AdminController {
         return [
           body('userName', 'User Name does not exist').exists().isString(),
           body('status', 'Status does not exist').exists().isString()
+        ];
+
+      case 'initiateB2BPartnersVerification':
+        return [
+          body('documentNo', 'Document Number does not exist')
+            .exists()
+            .isString()
         ];
     }
   };

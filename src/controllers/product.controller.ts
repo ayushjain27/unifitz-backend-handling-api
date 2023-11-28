@@ -65,7 +65,7 @@ export class ProductController {
   uploadProductImages = async (req: Request, res: Response) => {
     const { productId } = req.body;
     Logger.info(
-      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
     );
     try {
       const result = await this.productService.updateProductImages(
@@ -423,7 +423,7 @@ export class ProductController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-  
+
   uploadPrelistPoductImages = async (req: Request, res: Response) => {
     const { productId } = req.body;
     Logger.info(
@@ -453,7 +453,7 @@ export class ProductController {
             .exists()
             .isIn(['product', 'service']),
 
-          body('itemName', 'Item Name does not exist').exists().isString(),
+          body('itemName', 'Item Name does not exist').exists().isString()
         ];
       case 'createPrelistProduct':
         return [

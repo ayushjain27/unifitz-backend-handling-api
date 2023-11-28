@@ -5,14 +5,19 @@ import secureRandomPassword from 'secure-random-password';
 import { TYPES } from '../config/inversify.types';
 import Payload from '../types/payload';
 import container from '../config/inversify.container';
-import Admin, { IAdmin } from '../models/Admin';
+import Admin, { AdminRole, IAdmin } from '../models/Admin';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import { generateToken } from '../utils';
-
+import { SurepassService } from './surepass.service';
+import { VerifyB2BPartnersRequest } from '../interfaces';
+import { DocType } from '../enum/docType.enum';
 @injectable()
 export class AdminService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private surepassService = container.get<SurepassService>(
+    TYPES.SurepassService
+  );
 
   async create(reqBody: IAdmin): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
@@ -171,5 +176,38 @@ export class AdminService {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
     return hashed;
+  }
+
+  async initiateB2BPartnersVerification(
+    payload: VerifyB2BPartnersRequest,
+    role?: string
+  ) {
+    Logger.info('<Service>:<AdminService>:<Initiate Verifying user business>');
+    // validate the store from user phone number and user id
+    let verifyResult: any = {};
+    const displayFields: any = {};
+
+    if (role === AdminRole.ADMIN) {
+      try {
+        // integrate surephass api based on doc type
+        switch (payload.documentType) {
+          case DocType.GST:
+            verifyResult = await this.surepassService.getGstDetails(
+              payload.documentNo
+            );
+            displayFields.address = verifyResult?.address;
+            break;
+          default:
+            throw new Error('Invalid Document Type');
+        }
+        return { verifyResult, displayFields };
+      } catch (err) {
+        if (err.response) {
+          return Promise.reject(err.response);
+        }
+        throw new Error(err);
+      }
+    }
+    throw new Error('Invalid and unauthenticated request');
   }
 }

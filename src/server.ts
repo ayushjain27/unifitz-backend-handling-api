@@ -20,9 +20,10 @@ import employee from './routes/api/employee';
 import jobCard from './routes/api/jobCard.route';
 import advertisement from './routes/api/advertisement.route';
 import favouriteStore from './routes/api/favouriteStore';
-import { ObjectId } from 'mongoose';
+// import { ObjectId } from 'mongoose';
 import vehicle from './routes/api/vehicle';
 import enquiry from './routes/api/enquiry.route';
+import buysell from './routes/api/buySell.route';
 
 const app = express();
 // Connect to MongoDB
@@ -57,6 +58,8 @@ app.use('/store', store);
 app.use('/file', file);
 
 app.use('/customer', customer);
+
+app.use('/buysell', buysell);
 
 app.use('/notification', notification);
 app.use('/product', product);

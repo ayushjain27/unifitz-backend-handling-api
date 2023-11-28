@@ -16,10 +16,10 @@ const vehicleInfoController = container.get<VehicleInfoController>(
 );
 
 router.post(
-  '/addOrUpdateVehicle',
+  '/addVehicle',
   roleAuth(ACL.ADD_VEHICLE),
   vehicleInfoController.validate('addVehicle'),
-  vehicleInfoController.addOrUpdateVehicle
+  vehicleInfoController.addVehicle
 );
 
 router.post(
@@ -38,17 +38,31 @@ router.post(
 );
 
 router.post(
-  '/updateOrDeleteVehicleImage',
+  '/deleteVehicleImage',
   uploadFiles.single('file'),
   roleAuth(ACL.ADD_VEHICLE),
-  vehicleInfoController.validate('updateOrDeleteVehicleImage'),
-  vehicleInfoController.updateOrDeleteVehicleImage
+  vehicleInfoController.validate('deleteVehicleImage'),
+  vehicleInfoController.deleteVehicleImage
 );
 
 router.get(
   '/vehicle-detail/:vehicleId',
   // roleAuth(ACL.STORE_GET_ALL),
   vehicleInfoController.getVehicleByVehicleId
+);
+
+router.put(
+  '/:vehicleId',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('addVehicle'),
+  vehicleInfoController.updateVehicle
+);
+
+router.post(
+  '/vehicleDetailsFromRC',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.validate('vehicleDetailsFromRC'),
+  vehicleInfoController.vehicleDetailsFromRC
 );
 
 export default router;

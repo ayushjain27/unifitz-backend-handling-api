@@ -1,3 +1,4 @@
+import { body } from 'express-validator';
 import { injectable } from 'inversify';
 import Logger from '../config/winston';
 // import { AdminRole } from './../models/Admin';
@@ -36,11 +37,11 @@ export class AnalyticService {
     return { totalManufacturer: totalManu, totalDistributers: totalDist };
   }
 
-  async getTotalStores(req: any) {
+  async getTotalStores(queryParams: any) {
     Logger.info(
       '<Service>:<AnalyticService>:<Get all store service initiated>'
     );
-    const query = req?.body;
+    const query = queryParams;
     let isFilterEmpty = true;
     if (_.isEmpty(query)) {
       const res = await Store.count();

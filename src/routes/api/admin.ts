@@ -6,6 +6,7 @@ import { ACL } from '../../enum/rbac.enum';
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { AdminController } from '../../controllers';
+import { validationHandler } from '../middleware/auth';
 
 const storage = multer.memoryStorage();
 const uploadFiles = multer({ storage: storage });
@@ -59,6 +60,14 @@ router.post(
   '/update-password',
   roleAuth(ACL.STORE_CREATE),
   adminController.updatePassword
+);
+
+router.post(
+  '/initiate-b2bPartners-verify',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.validate('initiateB2BPartnersVerification'),
+  validationHandler(),
+  adminController.initiateB2BPartnersVerification
 );
 
 export default router;
