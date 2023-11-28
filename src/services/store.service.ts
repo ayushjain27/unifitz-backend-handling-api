@@ -526,7 +526,7 @@ export class StoreService {
         allRatings: {
           5: 100
         },
-        averageRating: '_',
+        averageRating: '-',
         totalRatings: 0,
         totalReviews: 1
       };
