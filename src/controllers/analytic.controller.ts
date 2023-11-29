@@ -30,6 +30,21 @@ export class AnalyticController {
     }
   };
 
+  getVerifiedStores = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Get All verified stores controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.getVerifiedStores();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getTotalUsers = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
@@ -45,6 +60,27 @@ export class AnalyticController {
     }
   };
 
+  // getVerifiedStores = async (req: Request, res: Response) => {
+  //   Logger.info(
+  //     '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
+  //   );
+  //   const gstVerStores = await Store.count({
+  //     'verificationDetails.documentType': 'GST'
+  //   });
+  //   const aadharVerStores = await Store.count({
+  //     'verificationDetails.documentType': 'AADHAR'
+  //   });
+  //   try {
+  //     const result = await this.analyticService.getVerifiedStores();
+  //     res.send({
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  //   }
+  // };
+
   getTotalStores = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
@@ -54,7 +90,7 @@ export class AnalyticController {
       const result = await this.analyticService.getTotalStores(queryParams);
       if (result?.isFilterEmpty) {
         res.send({
-          result
+          ...result
         });
       } else {
         if (!_.isEmpty(req.body.category) || !_.isEmpty(req.body.subCategory)) {
@@ -64,7 +100,10 @@ export class AnalyticController {
             totalStores: filterStores?.stores?.length
           });
         } else {
-          res.send({ ...result, totalStores: result?.stores?.length });
+          res.send({
+            ...result,
+            totalStores: result?.stores?.length
+          });
         }
       }
     } catch (err) {

@@ -28,6 +28,19 @@ export class AnalyticService {
     return { total: result };
   }
 
+  async getVerifiedStores() {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all Category service initiated>'
+    );
+    const gstVerStores = await Store.count({
+      'verificationDetails.documentType': 'GST'
+    });
+    const aadharVerStores = await Store.count({
+      'verificationDetails.documentType': 'AADHAR'
+    });
+    return { gstVerified: gstVerStores, aadharVerified: aadharVerStores };
+  }
+
   async getTotalUsers() {
     Logger.info(
       '<Service>:<CategoryService>:<Get all users service initiated>'
@@ -46,7 +59,11 @@ export class AnalyticService {
     if (_.isEmpty(query)) {
       const res = await Store.count();
       const resData = await Store.find();
-      return { totalStores: res, stores: resData, isFilterEmpty };
+      return {
+        totalStores: res,
+        stores: resData,
+        isFilterEmpty
+      };
     } else {
       isFilterEmpty = false;
       let resData: any[] = [];
@@ -59,7 +76,10 @@ export class AnalyticService {
           'contactInfo.state': { $in: query?.state }
         });
       }
-      return { stores: resData, isFilterEmpty };
+      return {
+        stores: resData,
+        isFilterEmpty
+      };
     }
   }
 

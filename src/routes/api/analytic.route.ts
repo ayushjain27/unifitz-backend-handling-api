@@ -14,6 +14,7 @@ const analyticController = container.get<AnalyticController>(
 router.get('/getTotalConsumers', analyticController.getTotalCustomers);
 router.get('/getTotalUsers', analyticController.getTotalUsers);
 router.post('/getTotalStores', analyticController.getTotalStores);
+router.get('/getVerifiedStores', analyticController.getVerifiedStores);
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
 
 export default router;
