@@ -39,6 +39,29 @@ export class AdminController {
     }
   };
 
+  uploadDocuments = async (req: Request, res: Response) => {
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const { userId } = req.body;
+    Logger.info(
+      '<Controller>:<AdminController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.adminService.uploadDocuments(userId, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   updateUser = async (req: Request, res: Response) => {
     const errors = validationResult(req);
 
