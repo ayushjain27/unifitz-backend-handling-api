@@ -22,6 +22,13 @@ router.post(
   adminController.create
 );
 
+router.post(
+  '/uploadDocuments',
+  uploadFiles.array('files'),
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.uploadDocuments
+);
+
 router.put(
   '/:userName',
   roleAuth(ACL.ADMIN_USER_CREATE),
