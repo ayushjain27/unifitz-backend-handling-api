@@ -101,7 +101,7 @@ export class VehicleInfoService {
         | 'seatView'
         | 'odometer'
         | 'rightView'
-        | 'backView' = file.originalname?.split('.')[0] || 'frontView';
+        | 'backView' = file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         vehicleId,
         fileName,
