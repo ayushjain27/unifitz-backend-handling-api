@@ -59,7 +59,7 @@ export class AdminService {
     if (_.isEmpty(document)) {
       throw new Error('User does not exist');
     }
-    Logger.debug(`${document} document`);
+    // Logger.debug(`${document} document`);
     const files: Array<any> = req.files;
 
     const documentImageList: Partial<IDocumentImageList> | any =
