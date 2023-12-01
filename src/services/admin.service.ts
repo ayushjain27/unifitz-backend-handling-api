@@ -12,6 +12,9 @@ import { generateToken } from '../utils';
 import { SurepassService } from './surepass.service';
 import { VerifyB2BPartnersRequest } from '../interfaces';
 import { DocType } from '../enum/docType.enum';
+import { IDocumentImageList } from '../models/Admin';
+import { Types } from 'mongoose';
+
 @injectable()
 export class AdminService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
@@ -53,19 +56,70 @@ export class AdminService {
     return newAdmin;
   }
 
+  async uploadDocuments(userId: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<Upload Document Images initiated>');
+
+    const document: IAdmin = await Admin.findOne({
+      _id: new Types.ObjectId(userId)
+    });
+    if (_.isEmpty(document)) {
+      throw new Error('User does not exist');
+    }
+    // Logger.debug(`${document} document`);
+    const files: Array<any> = req.files;
+
+    const documentImageList: Partial<IDocumentImageList> | any =
+      document.documentImageList || {
+        panFrontView: {},
+        panBackView: {},
+        aadhaarFrontView: {},
+        aadhaarBackView: {}
+      };
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName:
+        | 'panFrontView'
+        | 'panBackView'
+        | 'aadhaarFrontView'
+        | 'aadhaarBackView' = file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        userId,
+        fileName,
+        file.buffer
+      );
+      documentImageList[fileName] = { key, docURL: url };
+    }
+
+    Logger.info(`<Service>:<AdminService>:<Upload all images - successful>`);
+
+    const res = await Admin.findOneAndUpdate(
+      { _id: userId },
+      { $set: { documentImageList } },
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
+    );
+    return res;
+  }
+
   async updateUser(reqBody: IAdmin, userName: string): Promise<any> {
     const user = await this.getAdminUserByUserName(userName);
-
     if (!user) {
       Logger.error('<Service>:<AdminService>:<Admin User not found>');
       throw new Error('Admin user not found');
     }
-    const updatedUser = { ...user, reqBody };
-    const res = await Admin.findOneAndUpdate(
-      { userName: userName },
-      updatedUser,
-      { returnDocument: 'after' }
-    );
+    // const updatedUser = { ...user, reqBody };
+    const query: any = {};
+    query.userName = reqBody.userName;
+    Logger.debug(`${query.userName}, ${query},${reqBody.userName}, ${reqBody}`);
+    const res = await Admin.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
     return res;
   }
 
