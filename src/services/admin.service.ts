@@ -65,7 +65,7 @@ export class AdminService {
     const documentImageList: Partial<IDocumentImageList> | any =
       document.documentImageList || {
         panFrontView: {},
-        panBackView: {},
+        gstView: {},
         aadhaarFrontView: {},
         aadhaarBackView: {}
       };
@@ -76,7 +76,7 @@ export class AdminService {
     for (const file of files) {
       const fileName:
         | 'panFrontView'
-        | 'panBackView'
+        | 'gstView'
         | 'aadhaarFrontView'
         | 'aadhaarBackView' = file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(

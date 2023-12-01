@@ -4,3 +4,10 @@ export const fileIndex = {
   third: 3,
   fourth: 4
 };
+
+export const window = {
+  env: {
+    VERSION_NAME: '1.0.0',
+    VERSION_CODE: '000'
+  }
+};
