@@ -112,7 +112,7 @@ export interface IDocumentImage {
 }
 export interface IDocumentImageList {
   panFrontView: IDocumentImage;
-  panBackView: IDocumentImage;
+  gstView: IDocumentImage;
   aadhaarFrontView: IDocumentImage;
   aadhaarBackView: IDocumentImage;
 }
@@ -190,7 +190,7 @@ const adminSchema: Schema = new Schema<IAdmin>(
     documentImageList: {
       type: {
         panFrontView: businessDocumentSchema,
-        panBackView: businessDocumentSchema,
+        gstView: businessDocumentSchema,
         aadhaarFrontView: businessDocumentSchema,
         aadhaarBackView: businessDocumentSchema
       }
@@ -225,8 +225,7 @@ const adminSchema: Schema = new Schema<IAdmin>(
       type: storeContactSchema
     },
     aboutUs: {
-      type: String,
-      required: true
+      type: String
     },
     businessCategory: {
       type: {
@@ -234,24 +233,21 @@ const adminSchema: Schema = new Schema<IAdmin>(
         subCategory: storeCatalogMapSchema,
         brand: storeCatalogMapSchema,
         marketBrand: {
-          type: String,
-          required: true
+          type: String
         }
       }
     },
     documents: {
       gstData: gstDocumentSchema,
       panNumber: {
-        type: String,
-        required: true
+        type: String
       },
       yearOfEstablishment: {
         type: String,
         required: true
       },
       websiteUrl: {
-        type: String,
-        required: true
+        type: String
       },
       businessOpenTime: {
         type: String,
@@ -262,12 +258,10 @@ const adminSchema: Schema = new Schema<IAdmin>(
         required: true
       },
       memberShip: {
-        type: String,
-        required: true
+        type: String
       },
       memberShipId: {
-        type: String,
-        required: true
+        type: String
       }
     },
     userName: {
