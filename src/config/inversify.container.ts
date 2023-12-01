@@ -3,7 +3,6 @@ import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
 import { TYPES } from './inversify.types';
-import { TwilioService, S3Service } from '../services';
 import { s3Config, twilioConfig } from './constants';
 import {
   StoreController,
@@ -16,7 +15,10 @@ import {
   FavouriteStoreController,
   VehicleInfoController,
   EnquiryController,
-  CategoryController
+  CategoryController,
+  BuySellController,
+  EmployeeController,
+  AnalyticController
 } from '../controllers';
 import {
   StoreService,
@@ -31,7 +33,12 @@ import {
   TwoFactorService,
   EnquiryService,
   SurepassService,
-  CategoryService
+  CategoryService,
+  EmployeeService,
+  TwilioService,
+  S3Service,
+  BuySellService,
+  AnalyticService
 } from '../services';
 
 const container = new Container();
@@ -80,6 +87,12 @@ container
 container.bind<ProductService>(TYPES.ProductService).to(ProductService);
 
 container
+  .bind<EmployeeController>(TYPES.EmployeeController)
+  .to(EmployeeController);
+
+container.bind<EmployeeService>(TYPES.EmployeeService).to(EmployeeService);
+
+container
   .bind<JobCardController>(TYPES.JobCardController)
   .to(JobCardController);
 
@@ -115,6 +128,11 @@ container
 container.bind<EnquiryService>(TYPES.EnquiryService).to(EnquiryService);
 
 container
+  .bind<AnalyticController>(TYPES.AnalyticController)
+  .to(AnalyticController);
+container.bind<AnalyticService>(TYPES.AnalyticService).to(AnalyticService);
+
+container
   .bind<CategoryController>(TYPES.CategoryController)
   .to(CategoryController);
 
@@ -122,5 +140,11 @@ container.bind<CategoryService>(TYPES.CategoryService).to(CategoryService);
 container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService);
 
 container.bind<SurepassService>(TYPES.SurepassService).to(SurepassService);
+
+container
+  .bind<BuySellController>(TYPES.BuySellController)
+  .to(BuySellController);
+
+container.bind<BuySellService>(TYPES.BuySellService).to(BuySellService);
 
 export default container;

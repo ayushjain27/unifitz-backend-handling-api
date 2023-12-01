@@ -11,6 +11,9 @@ export const TYPES = {
   ProductController: Symbol('ProductController'),
   ProductService: Symbol('ProductService'),
 
+  EmployeeController: Symbol('EmployeeController'),
+  EmployeeService: Symbol('EmployeeService'),
+
   JobCardController: Symbol('JobCardController'),
   JobCardService: Symbol('JobCardService'),
 
@@ -29,10 +32,16 @@ export const TYPES = {
   CategoryController: Symbol('categoryController'),
   CategoryService: Symbol('categoryService'),
 
+  AnalyticController: Symbol('analyticController'),
+  AnalyticService: Symbol('analyticService'),
+
   TwilioService: Symbol('TwilioService'),
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
   S3Service: Symbol('S3Service'),
   TwoFactorService: Symbol('TwoFactorService'),
-  SurepassService: Symbol('SurepassService')
+  SurepassService: Symbol('SurepassService'),
+
+  BuySellController: Symbol('BuySellController'),
+  BuySellService: Symbol('BuySellService')
 };

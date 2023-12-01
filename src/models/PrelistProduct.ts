@@ -1,7 +1,5 @@
-import { OverallStoreRatingResponse } from './../interfaces/store-request.interface';
-import mongoose, { model, Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import { catalogSchema, ICatalog } from './Catalog';
-// import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export enum OfferType {
   PRODUCT = 'product',
@@ -29,36 +27,23 @@ export const IImageSchema: Schema = new Schema<IImage>({
   }
 });
 
-export interface IProduct {
+export interface IPrelistProduct {
   _id?: string;
-  storeId?: string;
   offerType: OfferType;
   itemName: string;
   unit: string;
   mrp: number;
-  sellingPrice: number;
   productDescription: string;
   productImageList: IProductImageList;
-  overallRating?: OverallStoreRatingResponse;
   productCategory?: ICatalog[];
   productSubCategory?: ICatalog[];
   productBrand?: string;
   isActive: boolean;
   showPrice: boolean;
-  oemUserName?: string;
-  allowMarketPlaceHosting: boolean;
-  prelistId?: string;
-  partNumber?: string;
 }
 
-const productSchema: Schema = new Schema<IProduct>(
+const prelistProductSchema: Schema = new Schema<IPrelistProduct>(
   {
-    storeId: {
-      type: String
-    },
-    oemUserName: {
-      type: String
-    },
     offerType: {
       type: String,
       enum: OfferType,
@@ -77,33 +62,20 @@ const productSchema: Schema = new Schema<IProduct>(
     productBrand: {
       type: String
     },
-    allowMarketPlaceHosting: {
-      type: Boolean,
-      default: false
-    },
 
     unit: {
       type: String
     },
-    sellingPrice: {
-      type: Number
-    },
     mrp: {
-      type: Number
+      type: Number,
+      required: true
     },
     productDescription: {
       type: String
     },
-    isActive: {
-      type: Boolean,
-      default: true
-    },
     showPrice: {
       type: Boolean,
       default: true
-    },
-    partNumber: {
-      type: String
     },
     productImageList: {
       type: {
@@ -112,14 +84,12 @@ const productSchema: Schema = new Schema<IProduct>(
         second: IImageSchema,
         third: IImageSchema
       }
-    },
-    prelistId: {
-      type: Schema.Types.Mixed
     }
   },
   { timestamps: true }
 );
 
-const Product = model<IProduct>('product', productSchema);
-
-export default Product;
+export const PrelistPoduct = model<IPrelistProduct>(
+  'prelist-product',
+  prelistProductSchema
+);

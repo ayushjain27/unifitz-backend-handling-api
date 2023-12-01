@@ -1,6 +1,9 @@
+/* eslint-disable no-console */
 import VechicleInfo, {
   IVehiclesInfo,
-  IVehicleImage
+  IVehicleImage,
+  vehicleInfoSchema,
+  IVehicleImageList
 } from './../models/Vehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
@@ -12,12 +15,16 @@ import { TYPES } from '../config/inversify.types';
 import { S3Service } from './s3.service';
 
 import User, { IUser } from './../models/User';
+import { SurepassService } from './surepass.service';
 
 @injectable()
 export class VehicleInfoService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private surepassService = container.get<SurepassService>(
+    TYPES.SurepassService
+  );
 
-  async addOrUpdateVehicle(vehicleStore: IVehiclesInfo) {
+  async addVehicle(vehicleStore: IVehiclesInfo) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
 
     // Check if user exists
@@ -32,20 +39,10 @@ export class VehicleInfoService {
       userId: new Types.ObjectId(vehicleStore.userId)
     };
 
-    let newVehicleItem: IVehiclesInfo;
-
-    if (_.isEmpty(newVehicleStore.vehicleId)) {
-      newVehicleItem = await VechicleInfo.create(newVehicleStore);
-    } else {
-      newVehicleItem = await VechicleInfo.findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(newVehicleStore.vehicleId)
-        },
-        newVehicleStore,
-        { returnDocument: 'after' }
-      );
-    }
-
+    const newVehicleItem: IVehiclesInfo = await VechicleInfo.create(
+      newVehicleStore
+    );
+    Logger.info('<Service>:<VehicleService>:<Vehicle created successfully>');
     return newVehicleItem;
   }
 
@@ -69,54 +66,115 @@ export class VehicleInfoService {
     return allVehicles;
   }
 
-  async uploadVehicleImages(
+  async updateVehicleImages(
     vehicleId: string,
     req: Request | any
   ): Promise<any> {
-    Logger.info('<Service>:<VehicleService>:<Upload Banner initiated>');
+    Logger.info('<Service>:<VehicleService>:<Upload Vehicle Images initiated>');
 
-    const vehicleInfo: IVehiclesInfo = await VechicleInfo.findOne({
+    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
       _id: new Types.ObjectId(vehicleId)
     });
-    if (_.isEmpty(vehicleInfo)) {
+    if (_.isEmpty(vehicle)) {
       throw new Error('Vehicle does not exist');
     }
 
     const files: Array<any> = req.files;
 
+    const vehicleImageList: Partial<IVehicleImageList> | any =
+      vehicle.vehicleImageList || {
+        frontView: {},
+        leftView: {},
+        seatView: {},
+        odometer: {},
+        rightView: {},
+        backView: {}
+      };
+
     if (!files) {
       throw new Error('Files not found');
     }
-
-    const vehicleImages = [];
-
     for (const file of files) {
-      const fileName: string = file.originalname;
-
+      const fileName:
+        | 'frontView'
+        | 'leftView'
+        | 'seatView'
+        | 'odometer'
+        | 'rightView'
+        | 'backView' = file.originalname?.split('.')[0] || 'frontView';
       const { key, url } = await this.s3Client.uploadFile(
-        'vehicle',
+        vehicleId,
         fileName,
         file.buffer
       );
-      const vehImage = { title: fileName, key, url };
+      vehicleImageList[fileName] = { key, docURL: url };
 
-      vehicleImages.push(vehImage);
       Logger.info(
-        `<Service>:<VehicleService>:<Upload file for ${fileName} - successful>`
+        `<Service>:<VehicleService>:<Upload all images - successful>`
       );
+
+      Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+
+      const updatedVehicle = await VechicleInfo.findOneAndUpdate(
+        {
+          _id: vehicleId
+        },
+        {
+          $set: {
+            vehicleImageList: vehicleImageList
+          }
+        },
+        { returnDocument: 'after' }
+      );
+
+      return updatedVehicle;
+    }
+  }
+
+  async deleteVehicleImage(
+    vehicleId: string,
+    req: Request | any,
+    vehicleImageKey?: string // New parameter for image deletion
+  ): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Update Vehicle Image initiated>');
+
+    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
+      _id: new Types.ObjectId(vehicleId)
+    });
+
+    if (_.isEmpty(vehicle)) {
+      throw new Error('Vehicle does not exist');
     }
 
-    Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
+    // const files: Array<any> = req.files;
 
-    Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+    const vehicleImageList: Partial<IVehicleImageList> | any =
+      vehicle.vehicleImageList || {
+        frontView: {},
+        leftView: {},
+        seatView: {},
+        odometer: {},
+        rightView: {},
+        backView: {}
+      };
+
+    if (!vehicleImageKey) {
+      throw new Error('No Old Image reference found');
+    } else {
+      // If deleteImageKey is provided, delete the corresponding image
+      await this.s3Client.deleteFile(vehicleImageKey);
+
+      // Remove the deleted image from the vehicle image list
+      vehicleImageList[vehicleImageKey] = {};
+    }
 
     const updatedVehicle = await VechicleInfo.findOneAndUpdate(
       {
-        _id: new Types.ObjectId(vehicleId)
+        _id: vehicleId
       },
       {
         $set: {
-          vehicleImageList: vehicleImages
+          vehicleImageList: vehicleImageList
         }
       },
       { returnDocument: 'after' }
@@ -125,61 +183,126 @@ export class VehicleInfoService {
     return updatedVehicle;
   }
 
-  async updateOrDeleteVehicleImage(
-    reqBody: {
-      vehicleId: string;
-      vehicleImageKey: string;
-    },
-    req: Request | any
-  ) {
-    Logger.info('<Service>:<VehicleService>:<Upload Banner initiated>');
-    const { vehicleId, vehicleImageKey } = reqBody;
+  // async updateOrDeleteVehicleImage(
+  //   reqBody: {
+  //     vehicleId: string;
+  //     vehicleImageKey: string;
+  //   },
+  //   req: Request | any
+  // ) {
+  //   Logger.info('<Service>:<VehicleService>:<Upload Banner initiated>');
+  //   const { vehicleId, vehicleImageKey } = reqBody;
 
-    const vehicleInfo: IVehiclesInfo = await VechicleInfo.findOne({
+  //   const vehicleInfo: IVehiclesInfo = await VechicleInfo.findOne({
+  //     _id: new Types.ObjectId(vehicleId)
+  //   });
+  //   if (_.isEmpty(vehicleInfo)) {
+  //     throw new Error('Vehicle does not exist');
+  //   }
+  //   const vehImageList = [...vehicleInfo.vehicleImageList];
+
+  //   const file = req.file;
+
+  //   if (!vehicleImageKey) {
+  //     throw new Error('No Old Image reference found');
+  //   }
+  //   const updInd = _.findIndex(
+  //     vehImageList,
+  //     (vehImg: IVehicleImage) => vehImg.key === vehicleImageKey
+  //   );
+
+  //   if (!file) {
+  //     vehImageList.splice(updInd, 1);
+  //     await this.s3Client.deleteFile(vehicleImageKey);
+  //   } else {
+  //     const { key, url } = await this.s3Client.replaceFile(
+  //       vehicleImageKey,
+  //       file.buffer
+  //     );
+  //     vehImageList[updInd] = { ...vehImageList[updInd], key, url };
+  //   }
+
+  //   Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
+
+  //   Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+
+  //   const updatedVehicle = await VechicleInfo.findOneAndUpdate(
+  //     {
+  //       _id: new Types.ObjectId(vehicleId)
+  //     },
+  //     {
+  //       $set: {
+  //         vehicleImageList: vehImageList
+  //       }
+  //     },
+  //     { returnDocument: 'after' }
+  //   );
+
+  //   return updatedVehicle;
+  // }
+
+  async vehicleDetailsFromRC(reqBody: { vehicleNumber: string }): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Initiate fetching vehicle Details>'
+    );
+    // validate the store from user phone number and user id
+    const { vehicleNumber } = reqBody;
+    try {
+      // get the store data
+      const vehicleDetails = await this.surepassService.getRcDetails(
+        vehicleNumber
+      );
+      return vehicleDetails;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async getVehicleByVehicleId(vehicleId: string): Promise<IVehiclesInfo> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
+    );
+    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
       _id: new Types.ObjectId(vehicleId)
     });
-    if (_.isEmpty(vehicleInfo)) {
-      throw new Error('Vehicle does not exist');
-    }
-    const vehImageList = [...vehicleInfo.vehicleImageList];
+    return vehicle;
+  }
 
-    const file = req.file;
-
-    if (!vehicleImageKey) {
-      throw new Error('No Old Image reference found');
-    }
-    const updInd = _.findIndex(
-      vehImageList,
-      (vehImg: IVehicleImage) => vehImg.key === vehicleImageKey
+  async update(
+    vehiclePayload: IVehiclesInfo,
+    vehicleId: string
+  ): Promise<IVehiclesInfo> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Update: updating vehicle>'
     );
 
-    if (!file) {
-      vehImageList.splice(updInd, 1);
-      await this.s3Client.deleteFile(vehicleImageKey);
-    } else {
-      const { key, url } = await this.s3Client.replaceFile(
-        vehicleImageKey,
-        file.buffer
+    // check if user exist
+    let vehicle: IVehiclesInfo;
+    if (vehicleId) {
+      vehicle = await VechicleInfo.findOne({
+        _id: new Types.ObjectId(vehicleId)
+      });
+    }
+    if (!vehicle) {
+      Logger.error(
+        '<Service>:<updatedVehicle>:<Vehicle not found with that vehicle Id>'
       );
-      vehImageList[updInd] = { ...vehImageList[updInd], key, url };
+    }
+    const user: IUser = await User.findOne({
+      userId: new Types.ObjectId(vehiclePayload.userId)
+    }).lean();
+    if (_.isEmpty(user)) {
+      throw new Error('User not found');
     }
 
-    Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
+    let updatedVehicle: IVehiclesInfo = vehiclePayload;
 
-    Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
-
-    const updatedVehicle = await VechicleInfo.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(vehicleId)
-      },
-      {
-        $set: {
-          vehicleImageList: vehImageList
-        }
-      },
+    updatedVehicle = await VechicleInfo.findOneAndUpdate(
+      { _id: new Types.ObjectId(vehicleId) },
+      updatedVehicle,
       { returnDocument: 'after' }
     );
-
+    Logger.info('<Service>:<VehicleService>:<Vehicle updated successfully>');
     return updatedVehicle;
   }
 }

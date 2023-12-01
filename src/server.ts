@@ -14,13 +14,16 @@ import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
+import analytic from './routes/api/analytic.route';
 import product from './routes/api/product';
+import employee from './routes/api/employee';
 import jobCard from './routes/api/jobCard.route';
 import advertisement from './routes/api/advertisement.route';
 import favouriteStore from './routes/api/favouriteStore';
-import { ObjectId } from 'mongoose';
+// import { ObjectId } from 'mongoose';
 import vehicle from './routes/api/vehicle';
 import enquiry from './routes/api/enquiry.route';
+import buysell from './routes/api/buySell.route';
 
 const app = express();
 // Connect to MongoDB
@@ -56,8 +59,12 @@ app.use('/file', file);
 
 app.use('/customer', customer);
 
+app.use('/buysell', buysell);
+
 app.use('/notification', notification);
 app.use('/product', product);
+app.use('/employee', employee);
+app.use('/analytic', analytic);
 app.use('/job-card', jobCard);
 app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);

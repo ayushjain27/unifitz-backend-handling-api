@@ -6,6 +6,8 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Request from '../types/request';
 import { ProductService } from './../services/product.service';
+import { IPrelistProduct, PrelistPoduct } from '../models/PrelistProduct';
+import { IPrelistSearchRequest } from '../interfaces/prelist-product.interface';
 
 @injectable()
 export class ProductController {
@@ -36,10 +38,34 @@ export class ProductController {
     }
   };
 
+  createPrelistProduct = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const prodRequest = req.body;
+    Logger.info(
+      '<Controller>:<ProductController>:<Create prelistproduct controller initiated>'
+    );
+    try {
+      const result = await this.productService.createPreListProduct(
+        prodRequest
+      );
+      res.send({
+        message: 'Prelist Product Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   uploadProductImages = async (req: Request, res: Response) => {
     const { productId } = req.body;
     Logger.info(
-      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
     );
     try {
       const result = await this.productService.updateProductImages(
@@ -76,6 +102,48 @@ export class ProductController {
     }
   };
 
+  searchPrelistProductPaginated = async (req: Request, res: Response) => {
+    const {
+      productCategory,
+      productSubCategory,
+      itemName,
+      pageNo,
+      pageSize,
+      offerType
+    }: IPrelistSearchRequest = req.body;
+    // let { mrp } = req.body;
+    // if (mrp) {
+    //   mrp = (mrp as number).split(',').map(Number);
+    // } else {
+    //   mrp = [];
+    // }
+    Logger.info(
+      '<Controller>:<ProductController>:<Search and Filter Prelist Products pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ProductController>:<Search and Filter Prelist Products pagination request controller initiated>'
+      );
+      const result: IPrelistProduct[] =
+        await this.productService.searchAndFilterPrelistProductPaginated({
+          productCategory,
+          productSubCategory,
+          itemName,
+          pageNo,
+          pageSize,
+          offerType
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   getProductByProductId = async (req: Request, res: Response) => {
     const productId = req.params.productId;
 
@@ -90,6 +158,32 @@ export class ProductController {
     );
     try {
       const result = await this.productService.getProductByProductId(productId);
+      res.send({
+        message: 'Product Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getPrelistProductByProductId = async (req: Request, res: Response) => {
+    const productId = req.params.productId;
+
+    if (!productId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Product Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Get prelist products by product id controller initiated>'
+    );
+    try {
+      const result = await this.productService.getPrelistProductByProductId(
+        productId
+      );
       res.send({
         message: 'Product Fetch Successful',
         result
@@ -172,6 +266,31 @@ export class ProductController {
       const result = await this.productService.deleteProduct(productId);
       res.send({
         message: 'Products Deleted Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  prelistProductDelete = async (req: Request, res: Response) => {
+    const productId = req.params.productId;
+
+    if (!productId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Product Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Delete Prelist Product controller initiated>'
+    );
+
+    try {
+      const result = await this.productService.deletePrelistProduct(productId);
+      res.send({
+        message: 'Prelist Products Deleted Successful',
         result
       });
     } catch (err) {
@@ -279,12 +398,65 @@ export class ProductController {
     }
   };
 
+  createProductFromPrelist = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Creating Product from prelist product initiated>'
+    );
+    const prelistId = req.body.prelistId;
+    const productData = req.body.productData;
+    try {
+      const result = await this.productService.createProductFromPrelist(
+        prelistId,
+        productData
+      );
+      res.send({
+        message: 'Product Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  uploadPrelistPoductImages = async (req: Request, res: Response) => {
+    const { productId } = req.body;
+    Logger.info(
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
+    );
+    try {
+      const result = await this.productService.updatePrelistProductImages(
+        productId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
         return [
           body('storeId', 'Store Id does not exist').exists().isString(),
 
+          body('offerType', 'OfferType does not exist')
+            .exists()
+            .isIn(['product', 'service']),
+
+          body('itemName', 'Item Name does not exist').exists().isString()
+        ];
+      case 'createPrelistProduct':
+        return [
           body('offerType', 'OfferType does not exist')
             .exists()
             .isIn(['product', 'service']),
@@ -311,6 +483,13 @@ export class ProductController {
         return [
           body('productId', 'Product Id does not exist').exists().isString(),
           body('storeIdList', 'Store Id List does not exist').exists().isArray()
+        ];
+      case 'createProductFromPrelist':
+        return [
+          body('prelistId', 'Prelist Product Id does not exist')
+            .exists()
+            .isString(),
+          body('productData', 'Product Data does not exist').exists().isArray()
         ];
     }
   };

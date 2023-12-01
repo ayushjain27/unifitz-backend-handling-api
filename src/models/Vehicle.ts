@@ -1,12 +1,11 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IVehiclesInfo extends Document {
-  vehicleId?: string;
-  userId: string;
+  _id?: string;
   vehicleType: string;
-  vehicleImageList: IVehicleImage[];
   vehicleNumber: string;
-  category: string;
+  userId?: string;
+  vehicleImageList: IVehicleImageList;
   brand: string;
   modelName: string;
   fuel: string;
@@ -18,12 +17,25 @@ export interface IVehiclesInfo extends Document {
   kmsDriven: string;
   lastInsuanceDate: Date;
   lastServiceDate: Date;
+  color?: string;
+  bodyType?: string;
+  fitnessCertificate?: boolean;
+  registrationType?: string;
+  expectedPrice?: number;
+  noOfSeats?: number;
 }
 
 export interface IVehicleImage {
-  url: string;
+  docURL: string;
   key: string;
-  title: string;
+}
+export interface IVehicleImageList {
+  frontView: IVehicleImage;
+  leftView: IVehicleImage;
+  seatView: IVehicleImage;
+  odometer: IVehicleImage;
+  rightView: IVehicleImage;
+  backView: IVehicleImage;
 }
 
 export enum VehiclePurposeType {
@@ -52,19 +64,16 @@ export enum FuelType {
   LPG = 'LPG'
 }
 
-const vehicleImageSchema: Schema = new Schema({
-  url: {
+export const vehicleImageSchema: Schema = new Schema<IVehicleImage>({
+  docURL: {
     type: String
   },
   key: {
     type: String
-  },
-  title: {
-    type: String
   }
 });
 
-const vehicleInfoSchema: Schema = new Schema(
+export const vehicleInfoSchema: Schema = new Schema(
   {
     userId: {
       type: Types.ObjectId,
@@ -75,13 +84,20 @@ const vehicleInfoSchema: Schema = new Schema(
       enum: VehicleType
     },
     vehicleImageList: {
-      type: [vehicleImageSchema]
+      type: {
+        frontView: vehicleImageSchema,
+        leftView: vehicleImageSchema,
+        seatView: vehicleImageSchema,
+        odometer: vehicleImageSchema,
+        rightView: vehicleImageSchema,
+        backView: vehicleImageSchema
+      }
     },
     vehicleNumber: {
-      type: String
-    },
-    category: {
-      type: String
+      type: String,
+      required: true,
+      unique: true,
+      index: true
     },
     brand: {
       type: String
@@ -118,7 +134,13 @@ const vehicleInfoSchema: Schema = new Schema(
     },
     lastServiceDate: {
       type: Date
-    }
+    },
+    color: { type: String },
+    bodyType: { type: String },
+    fitnessCertificate: { type: Boolean },
+    registrationType: { type: String },
+    expectedPrice: { type: Number },
+    noOfSeats: { type: Number }
   },
   {
     strict: false
