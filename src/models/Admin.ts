@@ -148,7 +148,6 @@ export interface IGstInformation {
 export interface IDocuments {
   gstData: IGstInformation;
   panNumber: string;
-  yearOfEstablishment: string;
   websiteUrl: string;
   businessOpenTime: string;
   businessCloseTime: string;
@@ -241,10 +240,6 @@ const adminSchema: Schema = new Schema<IAdmin>(
       gstData: gstDocumentSchema,
       panNumber: {
         type: String
-      },
-      yearOfEstablishment: {
-        type: String,
-        required: true
       },
       websiteUrl: {
         type: String
