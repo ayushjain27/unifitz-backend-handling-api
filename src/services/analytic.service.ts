@@ -46,7 +46,7 @@ export class AnalyticService {
       '<Service>:<CategoryService>:<Get all users service initiated>'
     );
     const totalManu = await Admin.count({ companyType: 'Manufacturer' });
-    const totalDist = await Admin.count({ companyType: 'Distributers' });
+    const totalDist = await Admin.count({ companyType: 'Distributer' });
     return { totalManufacturer: totalManu, totalDistributers: totalDist };
   }
 
