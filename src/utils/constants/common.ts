@@ -7,7 +7,7 @@ export const fileIndex = {
 
 export const window = {
   env: {
-    VERSION_NAME: '1.0.0',
+    VERSION_NAME: '2.0.0',
     VERSION_CODE: '000'
   }
 };
