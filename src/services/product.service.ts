@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import ProductReview, { IProductReview } from './../models/ProductReview';
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -505,5 +506,31 @@ export class ProductService {
       { returnDocument: 'after' }
     );
     return res;
+  }
+
+  async searchAndFilterProduct(searchQuery: string): Promise<IProduct[]> {
+    Logger.info(
+      '<Service>:<ProductService>:<Search and Filter product service initiated>'
+    );
+    const query = {
+      $or: [
+        { itemName: new RegExp(searchQuery, 'i') },
+        { 'productCategory.catalogName': new RegExp(searchQuery, 'i') },
+        { 'productSubCategory.catalogName': new RegExp(searchQuery, 'i') },
+        { productBrand: new RegExp(searchQuery, 'i') }
+      ]
+    };
+    Logger.debug(query);
+
+    const product: any = await Product.aggregate([
+      {
+        $match: query
+      },
+      {
+        $limit: 10
+      }
+    ]);
+
+    return product;
   }
 }

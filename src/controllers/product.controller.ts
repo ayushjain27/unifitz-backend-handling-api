@@ -443,6 +443,29 @@ export class ProductController {
     }
   };
 
+  searchAndFilterProduct = async (req: Request, res: Response) => {
+    const searchQuery = req.query.searchQuery;
+    Logger.info(
+      '<Controller>:<ProductController>:<Search and Filter Products request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ProductController>:<Search and Filter Products request controller initiated>'
+      );
+      const result = await this.productService.searchAndFilterProduct(
+        searchQuery as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':

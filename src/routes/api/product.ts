@@ -129,4 +129,10 @@ router.post(
   productController.uploadPrelistPoductImages
 );
 
+router.get(
+  '/searchAndFilterProduct',
+  // roleAuth(ACL.STORE_GET_ALL),
+  productController.searchAndFilterProduct
+);
+
 export default router;
