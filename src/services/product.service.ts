@@ -512,19 +512,80 @@ export class ProductService {
     Logger.info(
       '<Service>:<ProductService>:<Search and Filter product service initiated>'
     );
-    const query = {
-      $or: [
-        { itemName: new RegExp(searchQuery, 'i') },
-        { 'productCategory.catalogName': new RegExp(searchQuery, 'i') },
-        { 'productSubCategory.catalogName': new RegExp(searchQuery, 'i') },
-        { productBrand: new RegExp(searchQuery, 'i') }
-      ]
-    };
-    Logger.debug(query);
+
+    const regexQuery = new RegExp(searchQuery, 'i');
 
     const product: any = await Product.aggregate([
       {
-        $match: query
+        $match: {
+          $or: [
+            { itemName: regexQuery },
+            { 'productCategory.catalogName': regexQuery },
+            { 'productSubCategory.catalogName': regexQuery },
+            { productBrand: regexQuery }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          matchedField: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$itemName' },
+                  regex: regexQuery
+                }
+              },
+              then: '$itemName',
+              else: {
+                $cond: {
+                  if: {
+                    $regexMatch: {
+                      input: {
+                        $arrayElemAt: ['$productCategory.catalogName', 0]
+                      },
+                      regex: regexQuery
+                    }
+                  },
+                  then: {
+                    $toString: {
+                      $arrayElemAt: ['$productCategory.catalogName', 0]
+                    }
+                  },
+                  else: {
+                    $cond: {
+                      if: {
+                        $regexMatch: {
+                          input: {
+                            $arrayElemAt: ['$productSubCategory.catalogName', 0]
+                          },
+                          regex: regexQuery
+                        }
+                      },
+                      then: {
+                        $toString: {
+                          $arrayElemAt: ['$productSubCategory.catalogName', 0]
+                        }
+                      },
+                      else: {
+                        $cond: {
+                          if: {
+                            $regexMatch: {
+                              input: { $toString: '$productBrand' },
+                              regex: regexQuery
+                            }
+                          },
+                          then: '$productBrand',
+                          else: null
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       {
         $limit: 10
