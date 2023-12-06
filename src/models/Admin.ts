@@ -22,7 +22,22 @@ export const businessDocumentSchema: Schema = new Schema<IDocumentImage>({
     type: String
   }
 });
-
+export const productCateoryMapSchema: Schema = new Schema({
+  name: {
+    type: String,
+    required: true
+  }
+});
+export const productSubCateoryMapSchema: Schema = new Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  category: {
+    type: String,
+    required: true
+  }
+});
 export const gstDocumentSchema: Schema = new Schema<IGstInformation>({
   clientId: {
     type: String
@@ -104,6 +119,7 @@ export interface IAdmin {
   aboutUs: string;
   businessCategory: IBusinessCategory;
   documents: IDocuments;
+  productCategory: IProductCategory;
 }
 
 export interface IDocumentImage {
@@ -118,10 +134,25 @@ export interface IDocumentImageList {
 }
 
 export interface IBusinessCategory {
-  category: ICatalogMap;
-  subCategory: ICatalogMap;
-  brand: ICatalogMap;
+  category: ICatalogMap[];
+  subCategory: ICatalogMap[];
+  brand: ICatalogMap[];
   marketBrand: string;
+}
+
+export interface IProductCatagoryMap {
+  name: string;
+}
+
+export interface IProductSubCatagoryMap {
+  name: string;
+  category: string;
+}
+
+export interface IProductCategory {
+  category: IProductCatagoryMap[];
+  subCategory: IProductSubCatagoryMap[];
+  brand: string;
 }
 
 export interface IGstInformation {
@@ -228,10 +259,34 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     businessCategory: {
       type: {
-        category: storeCatalogMapSchema,
-        subCategory: storeCatalogMapSchema,
-        brand: storeCatalogMapSchema,
+        category: {
+          type: [storeCatalogMapSchema],
+          required: true
+        },
+        subCategory: {
+          type: [storeCatalogMapSchema],
+          required: false
+        },
+        brand: {
+          type: [storeCatalogMapSchema],
+          required: false
+        },
         marketBrand: {
+          type: String
+        }
+      }
+    },
+    productCategory: {
+      type: {
+        category: {
+          type: [productCateoryMapSchema],
+          required: true
+        },
+        subCategory: {
+          type: [productSubCateoryMapSchema],
+          required: false
+        },
+        brand: {
           type: String
         }
       }
