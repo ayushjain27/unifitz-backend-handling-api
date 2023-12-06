@@ -8,6 +8,6 @@ export const fileIndex = {
 export const window = {
   env: {
     VERSION_NAME: '2.0.0',
-    VERSION_CODE: '000'
+    VERSION_CODE: '001'
   }
 };
