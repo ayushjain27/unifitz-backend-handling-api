@@ -528,7 +528,57 @@ export class ProductService {
       },
       {
         $addFields: {
-          matchedField: {
+          productCategoryLength: {
+            $size: {
+              $ifNull: ['$productCategory.catalogName', []]
+            }
+          },
+          productSubCategoryLength: {
+            $size: {
+              $ifNull: ['$productSubCategory.catalogName', []]
+            }
+          },
+          matchedFieldCategoryName: {
+            $reduce: {
+              input: {
+                $ifNull: ['$productCategory.catalogName', []]
+              },
+              initialValue: [],
+              in: {
+                $cond: {
+                  if: {
+                    $regexMatch: {
+                      input: { $toString: '$$this' },
+                      regex: regexQuery
+                    }
+                  },
+                  then: { $concatArrays: ['$$value', ['$$this']] },
+                  else: '$$value'
+                }
+              }
+            }
+          },
+          matchedFieldSubCategoryName: {
+            $reduce: {
+              input: {
+                $ifNull: ['$productSubCategory.catalogName', []]
+              },
+              initialValue: [],
+              in: {
+                $cond: {
+                  if: {
+                    $regexMatch: {
+                      input: { $toString: '$$this' },
+                      regex: regexQuery
+                    }
+                  },
+                  then: { $concatArrays: ['$$value', ['$$this']] },
+                  else: '$$value'
+                }
+              }
+            }
+          },
+          matchedFieldItemName: {
             $cond: {
               if: {
                 $regexMatch: {
@@ -536,53 +586,20 @@ export class ProductService {
                   regex: regexQuery
                 }
               },
-              then: '$itemName',
-              else: {
-                $cond: {
-                  if: {
-                    $regexMatch: {
-                      input: {
-                        $arrayElemAt: ['$productCategory.catalogName', 0]
-                      },
-                      regex: regexQuery
-                    }
-                  },
-                  then: {
-                    $toString: {
-                      $arrayElemAt: ['$productCategory.catalogName', 0]
-                    }
-                  },
-                  else: {
-                    $cond: {
-                      if: {
-                        $regexMatch: {
-                          input: {
-                            $arrayElemAt: ['$productSubCategory.catalogName', 0]
-                          },
-                          regex: regexQuery
-                        }
-                      },
-                      then: {
-                        $toString: {
-                          $arrayElemAt: ['$productSubCategory.catalogName', 0]
-                        }
-                      },
-                      else: {
-                        $cond: {
-                          if: {
-                            $regexMatch: {
-                              input: { $toString: '$productBrand' },
-                              regex: regexQuery
-                            }
-                          },
-                          then: '$productBrand',
-                          else: null
-                        }
-                      }
-                    }
-                  }
+              then: ['$itemName'],
+              else: []
+            }
+          },
+          matchedFieldProductBrand: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$productBrand' },
+                  regex: regexQuery
                 }
-              }
+              },
+              then: ['$productBrand'],
+              else: []
             }
           }
         }
