@@ -30,6 +30,21 @@ export class AnalyticController {
     }
   };
 
+  getVerifiedStores = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Get All verified stores controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.getVerifiedStores();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getTotalUsers = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
@@ -64,7 +79,10 @@ export class AnalyticController {
             totalStores: filterStores?.stores?.length
           });
         } else {
-          res.send({ ...result, totalStores: result?.stores?.length });
+          res.send({
+            result,
+            totalStores: result?.stores?.length
+          });
         }
       }
     } catch (err) {

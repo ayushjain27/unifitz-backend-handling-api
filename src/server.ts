@@ -24,6 +24,7 @@ import favouriteStore from './routes/api/favouriteStore';
 import vehicle from './routes/api/vehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
+import { window } from './utils/constants/common';
 
 const app = express();
 // Connect to MongoDB
@@ -197,7 +198,9 @@ app.post('/brand', async (req, res) => {
 
 const port = app.get('port');
 const server = app.listen(port, () =>
-  Logger.debug(`Server started on port ${port}`)
+  Logger.debug(
+    `Server started on port ${port} & v ${window?.env?.VERSION_NAME}(${window?.env?.VERSION_CODE})`
+  )
 );
 
 export default server;

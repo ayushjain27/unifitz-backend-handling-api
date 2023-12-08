@@ -13,6 +13,88 @@ import {
  * @param role:string
  * @param createdDate:Date
  */
+
+export const businessDocumentSchema: Schema = new Schema<IDocumentImage>({
+  docURL: {
+    type: String
+  },
+  key: {
+    type: String
+  }
+});
+export const productCateoryMapSchema: Schema = new Schema({
+  name: {
+    type: String,
+    required: true
+  }
+});
+export const productSubCateoryMapSchema: Schema = new Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  category: {
+    type: String,
+    required: true
+  }
+});
+export const gstDocumentSchema: Schema = new Schema<IGstInformation>({
+  clientId: {
+    type: String
+  },
+  gstin: {
+    type: String
+  },
+  panNumber: {
+    type: String
+  },
+  businessName: {
+    type: String
+  },
+  legalName: {
+    type: String
+  },
+  centerJurisdiction: {
+    type: String
+  },
+  stateJurisdiction: {
+    type: String
+  },
+  dateOfRegistration: {
+    type: String
+  },
+  constitutionOfBusiness: {
+    type: String
+  },
+  taxpayerType: {
+    type: String
+  },
+  gstinStatus: {
+    type: String
+  },
+  dateOfCancellation: {
+    type: String
+  },
+  fieldVisitConducted: {
+    type: String
+  },
+  natureOfCoreBusinessActivityCode: {
+    type: String
+  },
+  natureOfCoreBusinessActivityDescription: {
+    type: String
+  },
+  aadhaarValidation: {
+    type: String
+  },
+  aadhaarValidationDate: {
+    type: String
+  },
+  address: {
+    type: String
+  }
+});
+
 export interface IAdmin {
   _id?: Types.ObjectId | string;
   nameSalutation: string;
@@ -32,6 +114,77 @@ export interface IAdmin {
   isFirstTimeLoggedIn?: boolean;
   generatedPassword?: string;
   status: string;
+  documentImageList: IDocumentImageList;
+  wareHouseInfo: IContactInfo;
+  aboutUs: string;
+  // businessCategory: IBusinessCategory;
+  documents: IDocuments;
+  productCategory: IProductCategory;
+}
+
+export interface IDocumentImage {
+  docURL: string;
+  key: string;
+}
+export interface IDocumentImageList {
+  logo: IDocumentImage;
+  panFrontView: IDocumentImage;
+  gstView: IDocumentImage;
+  aadhaarFrontView: IDocumentImage;
+  aadhaarBackView: IDocumentImage;
+}
+
+// export interface IBusinessCategory {
+//   category: ICatalogMap[];
+//   subCategory: ICatalogMap[];
+//   brand: ICatalogMap[];
+//   marketBrand: string;
+// }
+
+export interface IProductCatagoryMap {
+  name: string;
+}
+
+export interface IProductSubCatagoryMap {
+  name: string;
+  category: string;
+}
+
+export interface IProductCategory {
+  category: IProductCatagoryMap[];
+  subCategory: IProductSubCatagoryMap[];
+  brand: string;
+}
+
+export interface IGstInformation {
+  clientId: string;
+  gstin: string;
+  panNumber: string;
+  businessName: string;
+  legalName: string;
+  centerJurisdiction: string;
+  stateJurisdiction: string;
+  dateOfRegistration: string;
+  constitutionOfBusiness: string;
+  taxpayerType: string;
+  gstinStatus: string;
+  dateOfCancellation: string;
+  fieldVisitConducted: string;
+  natureOfCoreBusinessActivityCode: string;
+  natureOfCoreBusinessActivityDescription: string;
+  aadhaarValidation: string;
+  aadhaarValidationDate: string;
+  address: string;
+}
+
+export interface IDocuments {
+  gstData: IGstInformation;
+  panNumber: string;
+  websiteUrl: string;
+  businessOpenTime: string;
+  businessCloseTime: string;
+  memberShip: string;
+  memberShipId: string;
 }
 
 export enum CompanyType {
@@ -65,6 +218,15 @@ const adminSchema: Schema = new Schema<IAdmin>(
       type: String,
       required: true
     },
+    documentImageList: {
+      type: {
+        logo: businessDocumentSchema,
+        panFrontView: businessDocumentSchema,
+        gstView: businessDocumentSchema,
+        aadhaarFrontView: businessDocumentSchema,
+        aadhaarBackView: businessDocumentSchema
+      }
+    },
     registrationDate: {
       type: Date
     },
@@ -91,7 +253,50 @@ const adminSchema: Schema = new Schema<IAdmin>(
     contactInfo: {
       type: storeContactSchema
     },
-
+    wareHouseInfo: {
+      type: storeContactSchema
+    },
+    aboutUs: {
+      type: String
+    },
+    productCategory: {
+      type: {
+        category: {
+          type: [productCateoryMapSchema],
+          required: true
+        },
+        subCategory: {
+          type: [productSubCateoryMapSchema],
+          required: false
+        },
+        brand: {
+          type: String
+        }
+      }
+    },
+    documents: {
+      gstData: gstDocumentSchema,
+      panNumber: {
+        type: String
+      },
+      websiteUrl: {
+        type: String
+      },
+      businessOpenTime: {
+        type: String,
+        required: true
+      },
+      businessCloseTime: {
+        type: String,
+        required: true
+      },
+      memberShip: {
+        type: String
+      },
+      memberShipId: {
+        type: String
+      }
+    },
     userName: {
       type: String,
       required: true,
