@@ -117,7 +117,7 @@ export interface IAdmin {
   documentImageList: IDocumentImageList;
   wareHouseInfo: IContactInfo;
   aboutUs: string;
-  businessCategory: IBusinessCategory;
+  // businessCategory: IBusinessCategory;
   documents: IDocuments;
   productCategory: IProductCategory;
 }
@@ -127,18 +127,19 @@ export interface IDocumentImage {
   key: string;
 }
 export interface IDocumentImageList {
+  logo: IDocumentImage;
   panFrontView: IDocumentImage;
   gstView: IDocumentImage;
   aadhaarFrontView: IDocumentImage;
   aadhaarBackView: IDocumentImage;
 }
 
-export interface IBusinessCategory {
-  category: ICatalogMap[];
-  subCategory: ICatalogMap[];
-  brand: ICatalogMap[];
-  marketBrand: string;
-}
+// export interface IBusinessCategory {
+//   category: ICatalogMap[];
+//   subCategory: ICatalogMap[];
+//   brand: ICatalogMap[];
+//   marketBrand: string;
+// }
 
 export interface IProductCatagoryMap {
   name: string;
@@ -219,6 +220,7 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     documentImageList: {
       type: {
+        logo: businessDocumentSchema,
         panFrontView: businessDocumentSchema,
         gstView: businessDocumentSchema,
         aadhaarFrontView: businessDocumentSchema,
@@ -256,25 +258,6 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     aboutUs: {
       type: String
-    },
-    businessCategory: {
-      type: {
-        category: {
-          type: [storeCatalogMapSchema],
-          required: true
-        },
-        subCategory: {
-          type: [storeCatalogMapSchema],
-          required: false
-        },
-        brand: {
-          type: [storeCatalogMapSchema],
-          required: false
-        },
-        marketBrand: {
-          type: String
-        }
-      }
     },
     productCategory: {
       type: {
