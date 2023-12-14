@@ -25,6 +25,8 @@ import vehicle from './routes/api/vehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
 import { window } from './utils/constants/common';
+import stateCityList from './utils/constants/statecityList.json';
+// import { stateCityList } from './utils/constants/statecityList';
 
 const app = express();
 // Connect to MongoDB
@@ -194,6 +196,10 @@ app.post('/brand', async (req, res) => {
   res.json({
     list: result
   });
+});
+
+app.get('/stateCityList', async (req, res) => {
+  res.json(stateCityList);
 });
 
 const port = app.get('port');
