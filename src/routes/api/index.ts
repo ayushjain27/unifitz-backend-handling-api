@@ -10,3 +10,4 @@ export * from './favouriteStore';
 export * from './enquiry.route';
 export * from './category.route';
 export * from './buySell.route';
+export * from './report';

@@ -16,3 +16,4 @@ export * from './category.service';
 export * from './buySell.services';
 export * from './employee.service';
 export * from './analytic.service';
+export * from './report.service';

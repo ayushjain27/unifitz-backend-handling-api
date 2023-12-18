@@ -43,5 +43,8 @@ export const TYPES = {
   SurepassService: Symbol('SurepassService'),
 
   BuySellController: Symbol('BuySellController'),
-  BuySellService: Symbol('BuySellService')
+  BuySellService: Symbol('BuySellService'),
+
+  ReportController: Symbol('ReportController'),
+  ReportService: Symbol('ReportService')
 };
