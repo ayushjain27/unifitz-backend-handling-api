@@ -1,7 +1,8 @@
 import { body } from 'express-validator';
 import { injectable } from 'inversify';
 import Logger from '../config/winston';
-// import { AdminRole } from './../models/Admin';
+import { AdminRole } from './../models/Admin';
+import { StoreResponse } from '../interfaces';
 // import {
 //   CategoryResponse,
 //   CategoryRequest
@@ -28,37 +29,70 @@ export class AnalyticService {
     return { total: result };
   }
 
-  async getVerifiedStores() {
+  async getVerifiedStores(userName: string, role: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
     const gstVerStores = await Store.count({
-      'verificationDetails.documentType': 'GST'
+      'verificationDetails.documentType': 'GST',
+      ...query
     });
     const aadharVerStores = await Store.count({
-      'verificationDetails.documentType': 'AADHAR'
+      'verificationDetails.documentType': 'AADHAR',
+      ...query
     });
     return { gstVerified: gstVerStores, aadharVerified: aadharVerStores };
   }
 
-  async getTotalUsers() {
+  async getTotalUsers(userName: string, role: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all users service initiated>'
     );
-    const totalManu = await Admin.count({ companyType: 'Manufacturer' });
-    const totalDist = await Admin.count({ companyType: 'Distributer' });
-    return { totalManufacturer: totalManu, totalDistributers: totalDist };
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+    const queryFilter: any = await Admin.find(query, {
+      'verificationDetails.verifyObj': 0
+    }).lean();
+    const totalManu = queryFilter.filter(
+      (val: any) => val.companyType === 'Manufacturer'
+    ).length;
+    const totalDist = queryFilter.filter(
+      (val: any) => val.companyType === 'Distributer'
+    ).length;
+    const totalDealer = queryFilter.filter(
+      (val: any) => val.companyType === 'Dealer'
+    ).length;
+    return {
+      totalManufacturer: totalManu,
+      totalDistributers: totalDist,
+      totalDealers: totalDealer
+    };
   }
 
   async getTotalStores(queryParams: any) {
     Logger.info(
       '<Service>:<AnalyticService>:<Get all store service initiated>'
     );
-    const query = queryParams;
+    const userName = queryParams?.userId;
+    const role = queryParams?.role;
+    const filterQuery = queryParams.body;
     let isFilterEmpty = true;
-    if (_.isEmpty(query)) {
-      const res = await Store.count();
-      const resData = await Store.find();
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    if (_.isEmpty(filterQuery)) {
+      const stores: any = await Store.find(query, {
+        'verificationDetails.verifyObj': 0
+      }).lean();
+      const res = stores.length;
+      const resData = stores;
       return {
         totalStores: res,
         stores: resData,
@@ -67,13 +101,17 @@ export class AnalyticService {
     } else {
       isFilterEmpty = false;
       let resData: any[] = [];
-      if ((query?.from || query?.to) && query?.state) {
-        resData = await this.getStoreFilterByDateState(query);
-      } else if ((query?.from || query?.to) && _.isEmpty(query?.state)) {
-        resData = await this.getStoreFilterByDate(query);
+      if ((filterQuery?.from || filterQuery?.to) && filterQuery?.state) {
+        resData = await this.getStoreFilterByDateState(filterQuery, query);
+      } else if (
+        (filterQuery?.from || filterQuery?.to) &&
+        _.isEmpty(filterQuery?.state)
+      ) {
+        resData = await this.getStoreFilterByDate(filterQuery, query);
       } else {
         resData = await Store.find({
-          'contactInfo.state': { $in: query?.state }
+          'contactInfo.state': { $in: filterQuery?.state },
+          ...query
         });
       }
       return {
@@ -83,20 +121,22 @@ export class AnalyticService {
     }
   }
 
-  getStoreFilterByDateState = async (query: any) => {
+  getStoreFilterByDateState = async (query: any, userQuery: any) => {
     let res: any[] = [];
     if (!_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
       res = await Store.find({
         $and: [
           { createdAt: { $gte: query?.from, $lte: query?.to } },
-          { 'contactInfo.state': { $in: query?.state } }
+          { 'contactInfo.state': { $in: query?.state } },
+          { ...userQuery }
         ]
       });
     } else if (_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
       res = await Store.find({
         $and: [
           { createdAt: { $lte: query?.to } },
-          { 'contactInfo.state': { $in: query?.state } }
+          { 'contactInfo.state': { $in: query?.state } },
+          { ...userQuery }
         ]
       });
     } else {
@@ -105,26 +145,30 @@ export class AnalyticService {
           {
             createdAt: { $gte: query?.from }
           },
-          { 'contactInfo.state': { $in: query?.state } }
+          { 'contactInfo.state': { $in: query?.state } },
+          { ...userQuery }
         ]
       });
     }
     return res;
   };
 
-  getStoreFilterByDate = async (query: any) => {
+  getStoreFilterByDate = async (query: any, userQuery: any) => {
     let res: any[] = [];
     if (!_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
       res = await Store.find({
-        createdAt: { $gte: query?.from, $lte: query?.to }
+        createdAt: { $gte: query?.from, $lte: query?.to },
+        ...userQuery
       });
     } else if (_.isEmpty(query?.from) && !_.isEmpty(query?.to)) {
       res = await Store.find({
-        createdAt: { $lte: query?.to }
+        createdAt: { $lte: query?.to },
+        ...userQuery
       });
     } else {
       res = await Store.find({
-        createdAt: { $gte: query?.from }
+        createdAt: { $gte: query?.from },
+        ...userQuery
       });
     }
     return res;
