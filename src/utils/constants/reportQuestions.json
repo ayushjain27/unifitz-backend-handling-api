@@ -1,0 +1,8 @@
+{
+    "questions": [
+        { "id": 1, "value": "Wrong Address or Relocated" },
+        { "id": 2, "value": "Permanently Closed" },
+        { "id": 3, "value": "Wrong Contact Number" },
+        { "id": 4, "value": "Others ( Please Specify )" }
+    ]
+}

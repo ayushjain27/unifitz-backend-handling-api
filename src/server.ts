@@ -26,6 +26,7 @@ import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
 import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
+import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 
 const app = express();
@@ -201,6 +202,10 @@ app.post('/brand', async (req, res) => {
 
 app.get('/stateCityList', async (req, res) => {
   res.json(stateCityList);
+});
+
+app.get('/reportQuestions', async (req, res) => {
+  res.json(questions);
 });
 
 const port = app.get('port');

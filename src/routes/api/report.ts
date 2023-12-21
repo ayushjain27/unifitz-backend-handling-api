@@ -19,12 +19,12 @@ const reportController = container.get<ReportController>(
 router.post(
   '/',
   roleAuth(ACL.STORE_CREATE),
-  // reportController.validate('createProduct'),
+  reportController.validate('createReport'),
   reportController.createReport
 );
 
 router.put(
-  '/:productId',
+  '/:reportId',
   roleAuth(ACL.STORE_CREATE),
   // reportController.validate('createProduct'),
   reportController.updateReport
@@ -36,6 +36,12 @@ router.get(
   '/:reportId',
   // roleAuth(ACL.STORE_GET_ALL),
   reportController.getAllReportsByReportId
+);
+
+router.post(
+  '/createNotes',
+  roleAuth(ACL.STORE_CREATE),
+  reportController.createNotes
 );
 
 export default router;

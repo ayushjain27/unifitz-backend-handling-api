@@ -112,18 +112,33 @@ export class ReportController {
     }
   };
 
-  //   validate = (method: string) => {
-  //     switch (method) {
-  //       case 'createProduct':
-  //         return [
-  //           body('storeId', 'Store Id does not exist').exists().isString(),
+  createNotes = async (req: Request, res: Response) => {
+    const { reportId } = req.body;
+    Logger.info(
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
+    );
+    const notesRequest = req.body;
+    try {
+      const result = await this.reportService.createNotes(
+        reportId,
+        notesRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
-  //           body('offerType', 'OfferType does not exist')
-  //             .exists()
-  //             .isIn(['product', 'service']),
-
-  //           body('itemName', 'Item Name does not exist').exists().isString()
-  //         ];
-  //     }
-  //   };
+  validate = (method: string) => {
+    switch (method) {
+      case 'createReport':
+        return [
+          body('storeId', 'Store Id does not exist').exists().isString(),
+          body('customerId', 'Customer Id does not exist').exists().isString()
+        ];
+    }
+  };
 }

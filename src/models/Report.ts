@@ -1,30 +1,45 @@
 import mongoose, { model, Schema } from 'mongoose';
 
 export enum reportStatus {
-  REPOTED = 'REPOTED',
+  REPORTED = 'REPORTED',
   INVESTIGATING = 'INVESTIGATING',
   CLOSED = 'CLOSED'
 }
+
+export interface INotesSchema {
+  _id?: string;
+  message: string;
+  name: string;
+}
+
+export const notesSchema: Schema = new Schema<INotesSchema>(
+  {
+    message: {
+      type: String
+    },
+    name: {
+      type: String
+    }
+  },
+  { timestamps: true }
+);
 
 export interface IReport {
   _id?: string;
   storeId?: string;
   customerId?: string;
   storeName?: string;
-  customerName: string;
-  remarks: string;
-  status: string;
-  sourceType: string;
+  customerName?: string;
+  notes?: INotesSchema[];
+  status?: string;
+  sourceType?: string;
   geoLocation: {
     // kind: string;
     type: string;
     coordinates: number[];
   };
-  questions: {
-    type: string;
-    answers: string[];
-  };
-  reportStatus: string;
+  answers: string[];
+  description?: string;
 }
 
 const reportSchema: Schema = new Schema<IReport>(
@@ -43,12 +58,8 @@ const reportSchema: Schema = new Schema<IReport>(
     customerName: {
       type: String
     },
-    remarks: {
-      type: String,
-      required: true
-    },
-    status: {
-      type: String
+    notes: {
+      type: [notesSchema]
     },
     sourceType: {
       type: String
@@ -58,16 +69,15 @@ const reportSchema: Schema = new Schema<IReport>(
       type: { type: String, default: 'Point' },
       coordinates: [{ type: Number }]
     },
-    questions: {
-      // kind: String,
-      type: { type: String },
-      answers: [{ type: String }]
-    },
-    reportStatus: {
+    answers: [{ type: String }],
+    status: {
       type: String,
       // required: true,
       enum: reportStatus,
-      default: reportStatus.REPOTED
+      default: reportStatus.REPORTED
+    },
+    description: {
+      type: String
     }
   },
   { timestamps: true }
