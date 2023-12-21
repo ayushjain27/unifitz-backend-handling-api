@@ -13,7 +13,7 @@ import Product, {
 } from '../models/Product';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
-import Report, { IReport } from '../models/Report';
+import Report, { INotesSchema, IReport } from '../models/Report';
 import Customer, { ICustomer } from './../models/Customer';
 import { AdminRole } from '../models/Admin';
 
@@ -47,7 +47,7 @@ export class ReportService {
     }
 
     let newRep: IReport = reportPayload;
-    // newRep.storeName = store?.oemUserName || '';
+    newRep.storeName = store?.basicInfo?.businessName || '';
     newRep.customerName = customer?.fullName || '';
     newRep = await Report.create(newRep);
     Logger.info('<Service>:<ReportService>:<Report created successfully>');
@@ -56,7 +56,7 @@ export class ReportService {
 
   async update(reportPayload: IReport, reportId: string): Promise<IReport> {
     Logger.info('<Service>:<ReportService>: <Report Update: updating report>');
-
+    console.log(reportPayload);
     // check if store id exist
     const { storeId, customerId } = reportPayload;
     let store: IStore;
@@ -92,7 +92,7 @@ export class ReportService {
 
     let updatedReport: IReport = reportPayload;
 
-    updatedReport = await Product.findOneAndUpdate(
+    updatedReport = await Report.findOneAndUpdate(
       { _id: new Types.ObjectId(reportId) },
       updatedReport,
       { returnDocument: 'after' }
@@ -120,5 +120,26 @@ export class ReportService {
       _id: new Types.ObjectId(reportId)
     }).lean();
     return report;
+  }
+
+  async createNotes(reportId: string, notesPayload: INotesSchema) {
+    Logger.info(
+      '<Service>:<NotesService>: <Notes Creation: creating new notes>'
+    );
+    const report: IReport = await Report.findOne({
+      _id: new Types.ObjectId(reportId)
+    })?.lean();
+    if (_.isEmpty(report)) {
+      throw new Error('Report does not exist');
+    }
+    const newNotes: INotesSchema = notesPayload;
+    const res = await Report.findOneAndUpdate(
+      { _id: reportId },
+      { $push: { notes: newNotes } },
+      { returnDocument: 'after' }
+    );
+    // newNotes = await Report.create(newNotes);
+    Logger.info('<Service>:<ReportService>:<Report created successfully>');
+    return res;
   }
 }
