@@ -18,14 +18,20 @@ const reportController = container.get<ReportController>(
 
 router.post(
   '/',
-  roleAuth(ACL.STORE_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   reportController.validate('createReport'),
   reportController.createReport
 );
 
 router.put(
-  '/:reportId',
+  '/updateReportStatus',
   roleAuth(ACL.STORE_CREATE),
+  reportController.updateReportStatus
+);
+
+router.put(
+  '/:reportId',
+  roleAuth(ACL.STORE_GET_ALL),
   // reportController.validate('createProduct'),
   reportController.updateReport
 );
@@ -40,7 +46,7 @@ router.get(
 
 router.post(
   '/createNotes',
-  roleAuth(ACL.STORE_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   reportController.createNotes
 );
 

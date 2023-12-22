@@ -142,4 +142,22 @@ export class ReportService {
     Logger.info('<Service>:<ReportService>:<Report created successfully>');
     return res;
   }
+
+  async updateStatus(statusRequest: any): Promise<IReport> {
+    Logger.info('<Service>:<ReportService>:<Update Report status>');
+    const query: any = {};
+    query._id = statusRequest.reportId;
+    await Report.findOneAndUpdate(query, {
+      $set: {
+        status: statusRequest.status
+      }
+    });
+    Logger.info(
+      '<Service>:<StoreService>: <Report: Report status updated successfully>'
+    );
+    const updatedReport = await Report.findOne({
+      _id: statusRequest.reportId
+    });
+    return updatedReport;
+  }
 }
