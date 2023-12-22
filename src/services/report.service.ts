@@ -148,21 +148,42 @@ export class ReportService {
     return res;
   }
 
-  async updateStatus(statusRequest: any): Promise<IReport> {
+  async updateStatus(reportId: string, statusRequest: any, userName?: string) {
     Logger.info('<Service>:<ReportService>:<Update Report status>');
-    const query: any = {};
-    query._id = statusRequest.reportId;
-    await Report.findOneAndUpdate(query, {
-      $set: {
-        status: statusRequest.status
-      }
-    });
+    const report: IReport = await Report.findOne({
+      _id: new Types.ObjectId(reportId)
+    })?.lean();
+    if (_.isEmpty(report)) {
+      throw new Error('Report does not exist');
+    }
+    const newNotes: INotesSchema = statusRequest;
+    newNotes.name = userName || '';
+    let res = '';
+    if (statusRequest?.message === '') {
+      res = await Report.findOneAndUpdate(
+        { _id: reportId },
+        {
+          $set: {
+            status: statusRequest.status
+          }
+        },
+        { returnDocument: 'after' }
+      );
+    } else {
+      res = await Report.findOneAndUpdate(
+        { _id: reportId },
+        {
+          $set: {
+            status: statusRequest.status
+          },
+          $push: { notes: newNotes }
+        },
+        { returnDocument: 'after' }
+      );
+    }
     Logger.info(
       '<Service>:<StoreService>: <Report: Report status updated successfully>'
     );
-    const updatedReport = await Report.findOne({
-      _id: statusRequest.reportId
-    });
-    return updatedReport;
+    return res;
   }
 }

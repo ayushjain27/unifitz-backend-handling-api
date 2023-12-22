@@ -135,11 +135,17 @@ export class ReportController {
   };
 
   updateReportStatus = async (req: Request, res: Response) => {
+    const { reportId } = req.body;
     const payload = req.body;
     Logger.info('<Controller>:<ReportController>:<Update Store Status>');
 
     try {
-      const result = await this.reportService.updateStatus(payload);
+      const userName = req?.userId;
+      const result = await this.reportService.updateStatus(
+        reportId,
+        payload,
+        userName
+      );
       Logger.info('<Controller>:<ReportController>: <Report: updated status>');
       res.send({
         message: 'Store Updation Successful',
