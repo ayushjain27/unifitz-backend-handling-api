@@ -132,6 +132,25 @@ export class ReportController {
     }
   };
 
+  updateReportStatus = async (req: Request, res: Response) => {
+    const payload = req.body;
+    Logger.info('<Controller>:<ReportController>:<Update Store Status>');
+
+    try {
+      const result = await this.reportService.updateStatus(payload);
+      Logger.info('<Controller>:<ReportController>: <Report: updated status>');
+      res.send({
+        message: 'Store Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createReport':
