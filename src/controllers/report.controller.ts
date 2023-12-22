@@ -119,9 +119,11 @@ export class ReportController {
     );
     const notesRequest = req.body;
     try {
+      const userName = req?.userId;
       const result = await this.reportService.createNotes(
         reportId,
-        notesRequest
+        notesRequest,
+        userName
       );
       res.send({
         result

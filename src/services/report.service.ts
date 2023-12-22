@@ -122,7 +122,11 @@ export class ReportService {
     return report;
   }
 
-  async createNotes(reportId: string, notesPayload: INotesSchema) {
+  async createNotes(
+    reportId: string,
+    notesPayload: INotesSchema,
+    userName?: string
+  ) {
     Logger.info(
       '<Service>:<NotesService>: <Notes Creation: creating new notes>'
     );
@@ -133,6 +137,7 @@ export class ReportService {
       throw new Error('Report does not exist');
     }
     const newNotes: INotesSchema = notesPayload;
+    newNotes.name = userName || '';
     const res = await Report.findOneAndUpdate(
       { _id: reportId },
       { $push: { notes: newNotes } },
