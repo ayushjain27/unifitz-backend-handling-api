@@ -27,6 +27,7 @@ export const notesSchema: Schema = new Schema<INotesSchema>(
 export interface IReport {
   _id?: string;
   storeId?: string;
+  oemUserName?: string;
   customerId?: string;
   storeName?: string;
   customerName?: string;
@@ -53,6 +54,9 @@ const reportSchema: Schema = new Schema<IReport>(
       required: true
     },
     storeName: {
+      type: String
+    },
+    oemUserName: {
       type: String
     },
     customerName: {

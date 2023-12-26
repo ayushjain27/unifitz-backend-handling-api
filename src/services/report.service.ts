@@ -48,6 +48,7 @@ export class ReportService {
 
     let newRep: IReport = reportPayload;
     newRep.storeName = store?.basicInfo?.businessName || '';
+    newRep.oemUserName = store?.oemUserName || '';
     newRep.customerName = customer?.fullName || '';
     newRep = await Report.create(newRep);
     Logger.info('<Service>:<ReportService>:<Report created successfully>');
