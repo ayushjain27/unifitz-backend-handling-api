@@ -2,15 +2,9 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import container from '../config/inversify.container';
-import mongoose, { Types } from 'mongoose';
-import Request from '../types/request';
+import { Types } from 'mongoose';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
-import Product, {
-  IImage,
-  IProduct,
-  IProductImageList
-} from '../models/Product';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import Report, { INotesSchema, IReport } from '../models/Report';
