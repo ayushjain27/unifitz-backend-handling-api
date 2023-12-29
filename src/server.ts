@@ -24,6 +24,10 @@ import favouriteStore from './routes/api/favouriteStore';
 import vehicle from './routes/api/vehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
+import { window } from './utils/constants/common';
+import stateCityList from './utils/constants/statecityList.json';
+import questions from './utils/constants/reportQuestions.json';
+import report from './routes/api/report';
 
 const app = express();
 // Connect to MongoDB
@@ -71,6 +75,7 @@ app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
 app.use('/enquiry', enquiry);
 app.use('/categories', category);
+app.use('/report', report);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -195,9 +200,19 @@ app.post('/brand', async (req, res) => {
   });
 });
 
+app.get('/stateCityList', async (req, res) => {
+  res.json(stateCityList);
+});
+
+app.get('/reportQuestions', async (req, res) => {
+  res.json(questions);
+});
+
 const port = app.get('port');
 const server = app.listen(port, () =>
-  Logger.debug(`Server started on port ${port}`)
+  Logger.debug(
+    `Server started on port ${port} & v ${window?.env?.VERSION_NAME}(${window?.env?.VERSION_CODE})`
+  )
 );
 
 export default server;

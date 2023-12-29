@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import ProductReview, { IProductReview } from './../models/ProductReview';
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -505,5 +506,109 @@ export class ProductService {
       { returnDocument: 'after' }
     );
     return res;
+  }
+
+  async searchAndFilterProduct(searchQuery: string): Promise<IProduct[]> {
+    Logger.info(
+      '<Service>:<ProductService>:<Search and Filter product service initiated>'
+    );
+
+    const regexQuery = new RegExp(searchQuery, 'i');
+
+    const product: any = await Product.aggregate([
+      {
+        $match: {
+          $or: [
+            { itemName: regexQuery },
+            { 'productCategory.catalogName': regexQuery },
+            { 'productSubCategory.catalogName': regexQuery },
+            { productBrand: regexQuery }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          productCategoryLength: {
+            $size: {
+              $ifNull: ['$productCategory.catalogName', []]
+            }
+          },
+          productSubCategoryLength: {
+            $size: {
+              $ifNull: ['$productSubCategory.catalogName', []]
+            }
+          },
+          matchedFieldCategoryName: {
+            $reduce: {
+              input: {
+                $ifNull: ['$productCategory.catalogName', []]
+              },
+              initialValue: [],
+              in: {
+                $cond: {
+                  if: {
+                    $regexMatch: {
+                      input: { $toString: '$$this' },
+                      regex: regexQuery
+                    }
+                  },
+                  then: { $concatArrays: ['$$value', ['$$this']] },
+                  else: '$$value'
+                }
+              }
+            }
+          },
+          matchedFieldSubCategoryName: {
+            $reduce: {
+              input: {
+                $ifNull: ['$productSubCategory.catalogName', []]
+              },
+              initialValue: [],
+              in: {
+                $cond: {
+                  if: {
+                    $regexMatch: {
+                      input: { $toString: '$$this' },
+                      regex: regexQuery
+                    }
+                  },
+                  then: { $concatArrays: ['$$value', ['$$this']] },
+                  else: '$$value'
+                }
+              }
+            }
+          },
+          matchedFieldItemName: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$itemName' },
+                  regex: regexQuery
+                }
+              },
+              then: ['$itemName'],
+              else: []
+            }
+          },
+          matchedFieldProductBrand: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$productBrand' },
+                  regex: regexQuery
+                }
+              },
+              then: ['$productBrand'],
+              else: []
+            }
+          }
+        }
+      },
+      {
+        $limit: 10
+      }
+    ]);
+
+    return product;
   }
 }
