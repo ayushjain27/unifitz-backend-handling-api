@@ -128,10 +128,14 @@ export class AnalyticController {
 
   getAnalyticsMapsData = async (req: Request, res: Response) => {
     const {
+      startDate,
+      endDate,
       category,
       subCategory,
       state
     }: {
+      startDate: string;
+      endDate: string;
       category: string;
       subCategory: string;
       state: string;
@@ -144,6 +148,8 @@ export class AnalyticController {
         '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
       );
       const result = await this.analyticService.searchAndFilterStoreData({
+        startDate,
+        endDate,
         category,
         subCategory,
         state
