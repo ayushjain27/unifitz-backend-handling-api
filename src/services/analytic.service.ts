@@ -175,6 +175,8 @@ export class AnalyticService {
   };
 
   async searchAndFilterStoreData(searchReqBody: {
+    startDate: string;
+    endDate: string;
     subCategory: string;
     category: string;
     state: string;
@@ -182,6 +184,11 @@ export class AnalyticService {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
+
+    const startDate = new Date(searchReqBody.startDate.toString());
+    const endDate = new Date(searchReqBody.endDate.toString());
+    endDate.setDate(endDate.getDate() + 1);
+
     const query = {
       // 'contactInfo.geoLocation': {
       //   $near: {
@@ -190,7 +197,8 @@ export class AnalyticService {
       // },
       'basicInfo.category.name': { $in: searchReqBody.category },
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
-      'contactInfo.state': { $in: searchReqBody.state }
+      'contactInfo.state': { $in: searchReqBody.state },
+      createdAt: { $gte: startDate, $lt: endDate }
     };
     if (!searchReqBody.category) {
       delete query['basicInfo.category.name'];
