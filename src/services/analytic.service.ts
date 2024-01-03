@@ -185,9 +185,13 @@ export class AnalyticService {
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
 
-    const startDate = new Date(searchReqBody.startDate.toString());
-    const endDate = new Date(searchReqBody.endDate.toString());
-    endDate.setDate(endDate.getDate() + 1);
+    let startDate = null;
+    let endDate = null;
+    if (searchReqBody.startDate) {
+      startDate = new Date(searchReqBody.startDate.toString());
+      endDate = new Date(searchReqBody.endDate.toString());
+      endDate.setDate(endDate.getDate() + 1);
+    }
 
     const query = {
       // 'contactInfo.geoLocation': {
@@ -208,6 +212,9 @@ export class AnalyticService {
     }
     if (!searchReqBody.state) {
       delete query['contactInfo.state'];
+    }
+    if (!startDate && !endDate) {
+      delete query.createdAt;
     }
     Logger.debug(query);
 
