@@ -1,6 +1,7 @@
 import { Router } from 'express';
 // import multer from 'multer';
-// import { ACL } from '../../enum/rbac.enum';
+import { ACL } from '../../enum/rbac.enum';
+import { roleAuth } from '../../routes/middleware/rbac';
 
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
@@ -12,9 +13,27 @@ const analyticController = container.get<AnalyticController>(
 );
 
 router.get('/getTotalConsumers', analyticController.getTotalCustomers);
-router.get('/getTotalUsers', analyticController.getTotalUsers);
-router.post('/getTotalStores', analyticController.getTotalStores);
-router.get('/getVerifiedStores', analyticController.getVerifiedStores);
-router.post('/getAnalyticsMapsData', analyticController.getAnalyticsMapsData);
+router.get(
+  '/getTotalUsers',
+  roleAuth(ACL.STORE_GET_ALL),
+  analyticController.getTotalUsers
+);
+router.post(
+  '/getTotalStores',
+  roleAuth(ACL.STORE_GET_ALL),
+  analyticController.getTotalStores
+);
+router.get(
+  '/getVerifiedStores',
+  roleAuth(ACL.STORE_GET_ALL),
+  analyticController.getVerifiedStores
+);
+
+router.post(
+  '/getAnalyticsMapsData',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getAnalyticsMapsData
+);
+// router.get('/getTotalCustomers', analyticController.getTotalCustomers);
 
 export default router;

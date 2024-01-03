@@ -34,8 +34,13 @@ export class AnalyticController {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All verified stores controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.analyticService.getVerifiedStores();
+      const result = await this.analyticService.getVerifiedStores(
+        userName,
+        role
+      );
       res.send({
         result
       });
@@ -49,8 +54,10 @@ export class AnalyticController {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.analyticService.getTotalUsers();
+      const result = await this.analyticService.getTotalUsers(userName, role);
       res.send({
         result
       });
@@ -65,7 +72,7 @@ export class AnalyticController {
       '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
     );
     try {
-      const queryParams = req.body;
+      const queryParams = req;
       const result = await this.analyticService.getTotalStores(queryParams);
       if (result?.isFilterEmpty) {
         res.send({
