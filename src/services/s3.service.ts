@@ -20,9 +20,10 @@ export class S3Service {
     url: string;
   }> {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
+    const timeStamp = String(new Date().getTime());
     const params = {
       Bucket: this.bucketName,
-      Key: `${keySalt}/${fileName}`,
+      Key: `${keySalt}/${timeStamp}/${fileName}`,
       Body: fileBuffer,
       ACL: 'public-read'
     };
