@@ -129,4 +129,40 @@ export class AnalyticService {
     }
     return res;
   };
+
+  async searchAndFilterStoreData(searchReqBody: {
+    subCategory: string;
+    category: string;
+    state: string;
+  }) {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated>'
+    );
+    const query = {
+      // 'contactInfo.geoLocation': {
+      //   $near: {
+      //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
+      //   }
+      // },
+      'basicInfo.category.name': { $in: searchReqBody.category },
+      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      'contactInfo.state': { $in: searchReqBody.state }
+    };
+    if (!searchReqBody.category) {
+      delete query['basicInfo.category.name'];
+    }
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+      delete query['basicInfo.subCategory.name'];
+    }
+    if (!searchReqBody.state) {
+      delete query['contactInfo.state'];
+    }
+    Logger.debug(query);
+
+    let res: any[] = [];
+    res = await Store.find(query, {
+      'verificationDetails.verifyObj': 0
+    });
+    return res;
+  }
 }

@@ -15,6 +15,6 @@ router.get('/getTotalConsumers', analyticController.getTotalCustomers);
 router.get('/getTotalUsers', analyticController.getTotalUsers);
 router.post('/getTotalStores', analyticController.getTotalStores);
 router.get('/getVerifiedStores', analyticController.getVerifiedStores);
-// router.get('/getTotalCustomers', analyticController.getTotalCustomers);
+router.post('/getAnalyticsMapsData', analyticController.getAnalyticsMapsData);
 
 export default router;
