@@ -22,13 +22,28 @@ export class AdvertisementService {
   ): Promise<IBanner> {
     Logger.info('<Service>:<AdvertisementService>:<Upload Banner initiated>');
 
-    const { title, description, altText, status } = bannerUploadRequest;
+    const {
+      title,
+      description,
+      altText,
+      status,
+      geoLocation,
+      location,
+      category,
+      subCategory,
+      bannerPlace,
+      bannerPosition,
+      distance
+    } = bannerUploadRequest;
     const file = req.file;
+    const categoryItem: any = category;
+    const subCategoryItem: any = subCategory;
+    const categoryList: any = JSON.parse(categoryItem);
+    const SubCategoryList: any = JSON.parse(subCategoryItem);
 
     if (!file) {
       throw new Error('File not found');
     }
-
     const { key, url } = await this.s3Client.uploadFile(
       'advertisement',
       file.originalname,
@@ -41,8 +56,18 @@ export class AdvertisementService {
       altText: _.isEmpty(altText) ? key : altText,
       slugUrl: key,
       url,
+      geoLocation: geoLocation,
+      location,
+      bannerPlace,
+      bannerPosition,
+      distance,
+      category: categoryList,
+      subCategory: SubCategoryList,
       status: _.isEmpty(status) ? BannerStatus.ACTIVE : status
     };
+    Logger.debug(
+      `${newBanner}${JSON.stringify(newBanner)}${geoLocation}geoLocation`
+    );
     const createdBanner = await Banner.create(newBanner);
 
     return createdBanner;
