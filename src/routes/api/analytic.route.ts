@@ -28,6 +28,12 @@ router.get(
   roleAuth(ACL.STORE_GET_ALL),
   analyticController.getVerifiedStores
 );
+
+router.post(
+  '/getAnalyticsMapsData',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getAnalyticsMapsData
+);
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
 
 export default router;

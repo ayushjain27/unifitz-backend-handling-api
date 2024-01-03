@@ -125,4 +125,37 @@ export class AnalyticController {
     });
     return { totalStores: res, stores: resData };
   };
+
+  getAnalyticsMapsData = async (req: Request, res: Response) => {
+    const {
+      category,
+      subCategory,
+      state
+    }: {
+      category: string;
+      subCategory: string;
+      state: string;
+    } = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result = await this.analyticService.searchAndFilterStoreData({
+        category,
+        subCategory,
+        state
+      });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }
