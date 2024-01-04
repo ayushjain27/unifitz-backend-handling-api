@@ -81,6 +81,7 @@ export class AnalyticService {
     subCategory: string;
     category: string;
     state: string;
+    city: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
@@ -103,6 +104,7 @@ export class AnalyticService {
       'basicInfo.category.name': { $in: searchReqBody.category },
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
       'contactInfo.state': { $in: searchReqBody.state },
+      'contactInfo.city': { $in: searchReqBody.city },
       createdAt: { $gte: startDate, $lt: endDate }
     };
     if (!searchReqBody.category) {
@@ -113,6 +115,9 @@ export class AnalyticService {
     }
     if (!searchReqBody.state) {
       delete query['contactInfo.state'];
+    }
+    if (!searchReqBody.city) {
+      delete query['contactInfo.city'];
     }
     if (!startDate && !endDate) {
       delete query.createdAt;

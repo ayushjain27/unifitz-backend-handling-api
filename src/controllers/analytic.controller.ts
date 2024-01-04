@@ -73,13 +73,15 @@ export class AnalyticController {
       endDate,
       category,
       subCategory,
-      state
+      state,
+      city
     }: {
       startDate: string;
       endDate: string;
       category: string;
       subCategory: string;
       state: string;
+      city: string;
     } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
@@ -93,7 +95,8 @@ export class AnalyticController {
         endDate,
         category,
         subCategory,
-        state
+        state,
+        city
       });
       res.send({
         result

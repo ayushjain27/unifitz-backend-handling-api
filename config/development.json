@@ -8,7 +8,7 @@
     "ISS": "Service_Plug",
     "AWS_KEY_ID": "AKIA3HHZ3WRZ5CBDGFRW",
     "ACCESS_KEY": "E2p4+ErfZZ4QGSuDipP3Cp0R132Lldd6zjnZKLCq",
-    "BUCKET_NAME": "serviceplug-prod",
+    "BUCKET_NAME": "serviceplug-dev",
     "2FACTOR_API_KEY": "072aa3d3-31b9-11ed-9c12-0200cd936042",
     "2FACTOR_API_URL": "https://2factor.in/API/V1",
     "2FACTOR_TEMPLATE_NAME": "ServiceplugLOGINOTP",
