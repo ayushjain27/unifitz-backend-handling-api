@@ -34,8 +34,13 @@ export class AnalyticController {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All verified stores controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.analyticService.getVerifiedStores();
+      const result = await this.analyticService.getVerifiedStores(
+        userName,
+        role
+      );
       res.send({
         result
       });
@@ -49,8 +54,10 @@ export class AnalyticController {
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.analyticService.getTotalUsers();
+      const result = await this.analyticService.getTotalUsers(userName, role);
       res.send({
         result
       });
@@ -60,62 +67,42 @@ export class AnalyticController {
     }
   };
 
-  getTotalStores = async (req: Request, res: Response) => {
+  getAnalyticsMapsData = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      category,
+      subCategory,
+      state
+    }: {
+      startDate: string;
+      endDate: string;
+      category: string;
+      subCategory: string;
+      state: string;
+    } = req.body;
     Logger.info(
-      '<Controller>:<AnalyticController>:<Get All users request controller initiated>'
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
     );
     try {
-      const queryParams = req.body;
-      const result = await this.analyticService.getTotalStores(queryParams);
-      if (result?.isFilterEmpty) {
-        res.send({
-          result
-        });
-      } else {
-        if (!_.isEmpty(req.body.category) || !_.isEmpty(req.body.subCategory)) {
-          const filterStores = await this.filterStoresByCatSubCat(result, req);
-          res.send({
-            ...filterStores,
-            totalStores: filterStores?.stores?.length
-          });
-        } else {
-          res.send({
-            result,
-            totalStores: result?.stores?.length
-          });
-        }
-      }
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result = await this.analyticService.searchAndFilterStoreData({
+        startDate,
+        endDate,
+        category,
+        subCategory,
+        state
+      });
+      res.send({
+        result
+      });
     } catch (err) {
       Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
-  };
-
-  public filterStoresByCatSubCat = async (list: any, query: any) => {
-    let res = 0;
-    const resData: any[] = [];
-    list?.stores.map((data: any) => {
-      let isCatMatched = false;
-      data.basicInfo?.category.map((cat: any) => {
-        if (
-          cat?.name === query?.body?.category &&
-          !_.isEmpty(query?.body?.subCategory)
-        ) {
-          isCatMatched = true;
-        } else if (cat?.name === query?.body?.category) {
-          res = res + 1;
-          resData.push(data);
-        }
-      });
-      if (isCatMatched) {
-        data.basicInfo?.subCategory.map((subCat: any) => {
-          if (subCat?.name === query.body.subCategory) {
-            res = res + 1;
-            resData.push(data);
-          }
-        });
-      }
-    });
-    return { totalStores: res, stores: resData };
   };
 }
