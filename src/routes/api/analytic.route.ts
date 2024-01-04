@@ -18,11 +18,7 @@ router.get(
   roleAuth(ACL.STORE_GET_ALL),
   analyticController.getTotalUsers
 );
-router.post(
-  '/getTotalStores',
-  roleAuth(ACL.STORE_GET_ALL),
-  analyticController.getTotalStores
-);
+
 router.get(
   '/getVerifiedStores',
   roleAuth(ACL.STORE_GET_ALL),
