@@ -11,9 +11,12 @@ export interface AdBannerUploadRequest {
     coordinates: number[];
   };
   location: string;
-  distance: string;
+  radius: string;
   bannerPlace: string;
   bannerPosition: string;
   category: ICatalogMap[];
   subCategory: ICatalogMap[];
+  startDate: string;
+  endDate: string;
+  externalUrl: string;
 }

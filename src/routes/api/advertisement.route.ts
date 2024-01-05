@@ -17,6 +17,13 @@ const adController = container.get<AdvertisementController>(
 
 // upload banner API
 router.post(
+  '/uploadBannerImage',
+  uploadFile.single('file'),
+  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  adController.uploadBannerImage
+);
+
+router.post(
   '/uploadBanner',
   uploadFile.single('file'),
   roleAuth(ACL.ADVERTISEMENT_CREATE),
@@ -29,6 +36,13 @@ router.get(
   roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.getAllBanner
 );
+
+router.get(
+  '/getBannerById',
+  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  adController.getBannerById
+);
+
 router.get(
   '/getCustBanners',
   roleAuth(ACL.ADVERTISEMENT_GET_CUSTOMER),
@@ -40,6 +54,12 @@ router.post(
   roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.validate('updateBannerStatus'),
   adController.updateBannerStatus
+);
+
+router.put(
+  '/updateBannerDetails/:bannerId',
+  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  adController.updateBannerDetails
 );
 
 router.delete(

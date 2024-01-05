@@ -1,6 +1,15 @@
 import { Document, model, Schema } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from '../Store';
 
+export const bannerDocumentSchema: Schema = new Schema<IBannerImage>({
+  docURL: {
+    type: String
+  },
+  key: {
+    type: String
+  }
+});
+
 export interface IBanner extends Document {
   url: string;
   title: string;
@@ -14,11 +23,20 @@ export interface IBanner extends Document {
     coordinates: number[];
   };
   location: string;
-  distance: string;
+  radius: string;
   bannerPlace: string;
   bannerPosition: string;
   category: ICatalogMap[];
   subCategory: ICatalogMap[];
+  bannerImage: IBannerImage;
+  startDate: string;
+  endDate: string;
+  externalUrl: string;
+}
+
+export interface IBannerImage {
+  docURL: string;
+  key: string;
 }
 
 export enum UserType {
@@ -64,13 +82,22 @@ const bannerSchema: Schema = new Schema(
     location: {
       type: String
     },
-    distance: {
+    radius: {
       type: String
     },
     bannerPlace: {
       type: String
     },
     bannerPosition: {
+      type: String
+    },
+    startDate: {
+      type: String
+    },
+    endDate: {
+      type: String
+    },
+    externalUrl: {
       type: String
     },
     category: {
@@ -80,6 +107,9 @@ const bannerSchema: Schema = new Schema(
     subCategory: {
       type: [storeCatalogMapSchema],
       required: false
+    },
+    bannerImage: {
+      type: bannerDocumentSchema
     }
   },
   { timestamps: true }
