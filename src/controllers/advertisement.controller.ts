@@ -17,6 +17,29 @@ export class AdvertisementController {
     this.adService = adService;
   }
 
+  uploadBannerImage = async (req: Request, res: Response) => {
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const { bannerId } = req.body;
+    Logger.info(
+      '<Controller>:<AdvertisementController>:<Upload Banner Image request initiated>'
+    );
+    try {
+      const result = await this.adService.uploadBannerImage(bannerId, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   uploadBanner = async (req: Request, res: Response) => {
     // Validate the request body
     const errors = validationResult(req);
@@ -25,12 +48,11 @@ export class AdvertisementController {
         .status(HttpStatusCodes.BAD_REQUEST)
         .json({ errors: errors.array() });
     }
-    const uploadBannerReq: AdBannerUploadRequest = req.body;
     Logger.info(
       '<Controller>:<AdvertisementController>:<Upload Banner request initiated>'
     );
     try {
-      const result = await this.adService.uploadBanner(uploadBannerReq, req);
+      const result = await this.adService.uploadBanner(req.body);
       res.send({
         result
       });
@@ -47,6 +69,22 @@ export class AdvertisementController {
     try {
       const result = await this.adService.getAllBanner();
       res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getBannerById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdvertisementController>:<Getting banner ID>');
+    try {
+      const bannerId = req.query.bannerId;
+      const result = await this.adService.getBannerById(bannerId as string);
+      Logger.info('<Controller>:<AdvertisementController>:<get successfully>');
+      res.send({
+        message: 'banner obtained successfully',
         result
       });
     } catch (err) {
@@ -90,6 +128,32 @@ export class AdvertisementController {
     }
     try {
       const result = await this.adService.updateBannerStatus(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateBannerDetails = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdvertisementController>:<Update Banner Status>'
+    );
+    // Validate the request body
+    const bannerId = req.params.bannerId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adService.updateBannerDetails(
+        req.body,
+        bannerId
+      );
       res.send({
         result
       });
