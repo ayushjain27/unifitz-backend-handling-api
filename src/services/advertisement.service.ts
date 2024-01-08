@@ -16,36 +16,60 @@ import _ from 'lodash';
 export class AdvertisementService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
-  async uploadBanner(
-    bannerUploadRequest: AdBannerUploadRequest,
-    req: Request | any
-  ): Promise<IBanner> {
-    Logger.info('<Service>:<AdvertisementService>:<Upload Banner initiated>');
-
-    const { title, description, altText, status } = bannerUploadRequest;
+  async uploadBannerImage(bannerId: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<AdvertisementService>:<Into the upload banner >');
     const file = req.file;
-
     if (!file) {
-      throw new Error('File not found');
+      throw new Error('File does not exist');
     }
+    const banner: IBanner = await Banner.findOne({ _id: bannerId })?.lean();
 
+    if (_.isEmpty(banner)) {
+      throw new Error('Banner does not exist');
+    }
     const { key, url } = await this.s3Client.uploadFile(
-      'advertisement',
-      file.originalname,
+      bannerId,
+      'banner',
       file.buffer
     );
-    Logger.info('<Service>:<AdvertisementService>:<Upload file - successful>');
-    const newBanner = {
-      title,
-      description,
-      altText: _.isEmpty(altText) ? key : altText,
+    const bannerLogo = { key, url };
+    const bannerDetails = {
+      ...banner,
+      altText: key,
       slugUrl: key,
       url,
-      status: _.isEmpty(status) ? BannerStatus.ACTIVE : status
+      banner: bannerLogo,
+      status: BannerStatus.ACTIVE,
+      _id: new Types.ObjectId(bannerId)
     };
-    const createdBanner = await Banner.create(newBanner);
+    const res = await Banner.findOneAndUpdate(
+      { _id: bannerId },
+      bannerDetails,
+      { returnDocument: 'after' }
+    );
+    return res;
+  }
+
+  async uploadBanner(addBanner: IBanner) {
+    Logger.info('<Service>:<AdvertisementService>:<Upload Banner initiated>');
+
+    const createdBanner = await Banner.create(addBanner);
+    Logger.info('<Service>:<AdvertisementService>:<Upload file - successful>');
 
     return createdBanner;
+  }
+
+  async getBannerById(bannerId: string): Promise<any> {
+    Logger.info('<Service>:<AdvertisementService>:<get Banner initiated>');
+
+    const banner: IBanner = await Banner.findOne({ _id: bannerId })?.lean();
+
+    if (_.isEmpty(banner)) {
+      throw new Error('Banner does not exist');
+    }
+    Logger.info('<Service>:<AdvertisementService>:<Upload banner successful>');
+
+    return banner;
   }
 
   async getAllBanner(): Promise<IBanner[]> {
@@ -84,6 +108,22 @@ export class AdvertisementService {
     );
 
     return banner;
+  }
+
+  async updateBannerDetails(reqBody: IBanner, bannerId: string): Promise<any> {
+    Logger.info('<Service>:<AdvertisementService>:<Update Banner status >');
+    const banner: IBanner = await Banner.findOne({ _id: bannerId })?.lean();
+
+    if (_.isEmpty(banner)) {
+      throw new Error('Banner does not exist');
+    }
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await Banner.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
   }
 
   async deleteBanner(reqBody: { slugUrl: string; bannerId: string }) {
