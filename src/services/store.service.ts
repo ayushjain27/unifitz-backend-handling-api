@@ -17,7 +17,7 @@ import {
   VerifyBusinessRequest
 } from '../interfaces';
 import Store, { IDocuments, IStore } from '../models/Store';
-import StoreReview from '../models/Store-Review';
+import StoreReview, { IStoreReview } from '../models/Store-Review';
 import User, { IUser } from '../models/User';
 import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
 import Request from '../types/request';
@@ -783,5 +783,11 @@ export class StoreService {
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  async getAllReviews(): Promise<IStoreReview[]> {
+    Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
+    const reviewResponse: IStoreReview[] = await StoreReview.find({});
+    return reviewResponse;
   }
 }

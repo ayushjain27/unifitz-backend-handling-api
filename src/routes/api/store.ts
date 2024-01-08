@@ -98,4 +98,11 @@ router.post(
   validationHandler(),
   storeController.verifyAadhar
 );
+
+router.get(
+  '/allReviews',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.getAllReviews
+);
+
 export default router;
