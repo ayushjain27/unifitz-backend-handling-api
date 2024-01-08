@@ -65,4 +65,6 @@ router.post(
   vehicleInfoController.vehicleDetailsFromRC
 );
 
+router.get('/all', roleAuth(ACL.ADD_VEHICLE), vehicleInfoController.getAll);
+
 export default router;

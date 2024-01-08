@@ -305,4 +305,10 @@ export class VehicleInfoService {
     Logger.info('<Service>:<VehicleService>:<Vehicle updated successfully>');
     return updatedVehicle;
   }
+
+  async getAll(): Promise<IVehiclesInfo[]> {
+    Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
+    const vehicleResponse: IVehiclesInfo[] = await VechicleInfo.find({});
+    return vehicleResponse;
+  }
 }
