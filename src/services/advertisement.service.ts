@@ -72,10 +72,47 @@ export class AdvertisementService {
     return banner;
   }
 
-  async getAllBanner(): Promise<IBanner[]> {
+  async getAllBanner(searchReqBody: {
+    coordinates: number[];
+    userType: string;
+    bannerPlace: string;
+  }): Promise<IBanner[]> {
     Logger.info('<Service>:<AdvertisementService>:<Get All Banner initiated>');
-    const banners: IBanner[] = await Banner.find().lean();
-    return banners;
+    let adResponse: any;
+    const query = {
+      userType: searchReqBody.userType,
+      bannerPlace: searchReqBody.bannerPlace
+    };
+    if (!searchReqBody.userType) {
+      delete query['userType'];
+    }
+    if (!searchReqBody.bannerPlace) {
+      delete query['bannerPlace'];
+    }
+    if (
+      _.isEmpty(searchReqBody.coordinates) &&
+      _.isEmpty(searchReqBody.userType) &&
+      _.isEmpty(searchReqBody.bannerPlace)
+    ) {
+      adResponse = await Banner.find().lean();
+    } else {
+      adResponse = Banner.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: searchReqBody.coordinates as [number, number]
+            },
+            // key: 'contactInfo.geoLocation',
+            spherical: true,
+            query: query,
+            distanceField: 'radius',
+            distanceMultiplier: 0.001
+          }
+        }
+      ]);
+    }
+    return adResponse;
   }
 
   async getAllBannerForCustomer(): Promise<IBanner[]> {

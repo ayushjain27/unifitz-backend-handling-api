@@ -63,11 +63,23 @@ export class AdvertisementController {
   };
 
   getAllBanner = async (req: Request, res: Response) => {
+    // const lat = req.query.lat;
+    // const long = req.query.long;
+    const {
+      coordinates,
+      userType,
+      bannerPlace
+    }: { coordinates: number[]; userType: string; bannerPlace: string } =
+      req.body;
     Logger.info(
       '<Controller>:<AdvertisementController>:<Get All Banner request initiated>'
     );
     try {
-      const result = await this.adService.getAllBanner();
+      const result = await this.adService.getAllBanner({
+        coordinates,
+        userType,
+        bannerPlace
+      });
       res.send({
         result
       });
