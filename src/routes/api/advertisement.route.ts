@@ -33,7 +33,7 @@ router.post(
 
 router.get(
   '/getAllBanner',
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.getAllBanner
 );
 
