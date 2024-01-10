@@ -10,6 +10,7 @@ export interface IStoreReview extends Document {
   storeId: string;
   review: string;
   rating: number;
+  isHide?: boolean;
 }
 
 const userSchema: Schema = new Schema(
@@ -47,6 +48,10 @@ const storeReviewSchema: Schema = new Schema(
     rating: {
       type: Number,
       required: true
+    },
+    isHide: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }
