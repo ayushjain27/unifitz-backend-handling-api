@@ -1,4 +1,4 @@
-import { AdBannerUploadRequest } from '../interfaces/advertisementRequest.interface';
+// import { AdBannerUploadRequest } from '../interfaces/advertisementRequest.interface';
 import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
