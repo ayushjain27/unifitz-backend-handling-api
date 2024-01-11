@@ -790,4 +790,33 @@ export class StoreService {
     const reviewResponse: IStoreReview[] = await StoreReview.find({});
     return reviewResponse;
   }
+
+  async updateStoreReviewStatus(
+    statusRequest: any,
+    reviewId: string
+  ): Promise<StoreReviewRequest> {
+    Logger.info('<Service>:<StoreService>:<Update store review status>');
+    let review: StoreReviewRequest;
+    if (reviewId) {
+      review = await StoreReview.findOne({
+        _id: new Types.ObjectId(reviewId)
+      });
+    }
+    if (!review) {
+      Logger.error(
+        '<Service>:<updatedStoreReview>:<Review not found with that review Id>'
+      );
+    }
+    Logger.info(
+      '<Service>:<StoreService>: <Store: store review status updated successfully>'
+    );
+
+    let updatedReview: StoreReviewRequest = statusRequest;
+    updatedReview = await StoreReview.findOneAndUpdate(
+      { _id: new Types.ObjectId(reviewId) },
+      updatedReview,
+      { returnDocument: 'after' }
+    );
+    return updatedReview;
+  }
 }
