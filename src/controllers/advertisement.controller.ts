@@ -1,4 +1,4 @@
-import { AdBannerUploadRequest } from './../interfaces/adBannerRequest.interface';
+import { AdBannerUploadRequest } from '../interfaces/advertisementRequest.interface';
 import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
@@ -68,9 +68,20 @@ export class AdvertisementController {
     const {
       coordinates,
       userType,
-      bannerPlace
-    }: { coordinates: number[]; userType: string; bannerPlace: string } =
-      req.body;
+      bannerPlace,
+      category
+    }: {
+      coordinates: number[];
+      userType: string;
+      bannerPlace: string;
+      category: string;
+    } = req.body;
+    let { subCategory } = req.body;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
     Logger.info(
       '<Controller>:<AdvertisementController>:<Get All Banner request initiated>'
     );
@@ -78,7 +89,9 @@ export class AdvertisementController {
       const result = await this.adService.getAllBanner({
         coordinates,
         userType,
-        bannerPlace
+        bannerPlace,
+        category,
+        subCategory
       });
       res.send({
         result

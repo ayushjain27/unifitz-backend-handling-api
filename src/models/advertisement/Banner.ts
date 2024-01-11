@@ -23,7 +23,7 @@ export interface IBanner extends Document {
     coordinates: number[];
   };
   location: string;
-  radius: string;
+  radius: number;
   bannerPlace: string;
   bannerPosition: string;
   category: ICatalogMap[];
@@ -83,7 +83,7 @@ const bannerSchema: Schema = new Schema(
       type: String
     },
     radius: {
-      type: String
+      type: Number
     },
     bannerPlace: {
       type: String

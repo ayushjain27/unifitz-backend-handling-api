@@ -31,7 +31,7 @@ router.post(
   adController.uploadBanner
 );
 
-router.get(
+router.post(
   '/getAllBanner',
   // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.getAllBanner
