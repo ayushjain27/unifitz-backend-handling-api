@@ -1,4 +1,4 @@
-import { AdBannerUploadRequest } from './../interfaces/adBannerRequest.interface';
+// import { AdBannerUploadRequest } from '../interfaces/advertisementRequest.interface';
 import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
@@ -63,11 +63,36 @@ export class AdvertisementController {
   };
 
   getAllBanner = async (req: Request, res: Response) => {
+    // const lat = req.query.lat;
+    // const long = req.query.long;
+    const {
+      coordinates,
+      userType,
+      bannerPlace,
+      category
+    }: {
+      coordinates: number[];
+      userType: string;
+      bannerPlace: string;
+      category: string;
+    } = req.body;
+    let { subCategory } = req.body;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
     Logger.info(
       '<Controller>:<AdvertisementController>:<Get All Banner request initiated>'
     );
     try {
-      const result = await this.adService.getAllBanner();
+      const result = await this.adService.getAllBanner({
+        coordinates,
+        userType,
+        bannerPlace,
+        category,
+        subCategory
+      });
       res.send({
         result
       });

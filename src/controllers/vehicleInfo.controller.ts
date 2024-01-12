@@ -200,6 +200,21 @@ export class VehicleInfoController {
     }
   };
 
+  getAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get all vehicles request controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAll();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':

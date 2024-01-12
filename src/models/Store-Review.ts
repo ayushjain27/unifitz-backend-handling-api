@@ -7,9 +7,11 @@ export interface IUser extends Document {
 export interface IStoreReview extends Document {
   userId: Types.ObjectId;
   user: IUser;
+  userPhoneNumber: string;
   storeId: string;
   review: string;
   rating: number;
+  isHide?: boolean;
 }
 
 const userSchema: Schema = new Schema(
@@ -36,6 +38,9 @@ const storeReviewSchema: Schema = new Schema(
       type: userSchema,
       requried: true
     },
+    userPhoneNumber: {
+      type: String
+    },
     storeId: {
       type: String,
       required: true
@@ -47,6 +52,10 @@ const storeReviewSchema: Schema = new Schema(
     rating: {
       type: Number,
       required: true
+    },
+    isHide: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

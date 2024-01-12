@@ -67,6 +67,11 @@ router.post(
   roleAuth(ACL.STORE_REVIEW_CREATE),
   storeController.addStoreReview
 );
+router.put(
+  '/:reviewId',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.updateStoreReview
+);
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
 router.get('/:storeId/reviews', storeController.getStoreReviews);
 router.put(
@@ -98,4 +103,11 @@ router.post(
   validationHandler(),
   storeController.verifyAadhar
 );
+
+router.get(
+  '/allReviews',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.getAllReviews
+);
+
 export default router;

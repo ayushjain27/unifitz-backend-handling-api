@@ -17,7 +17,7 @@ import {
   VerifyBusinessRequest
 } from '../interfaces';
 import Store, { IDocuments, IStore } from '../models/Store';
-import StoreReview from '../models/Store-Review';
+import StoreReview, { IStoreReview } from '../models/Store-Review';
 import User, { IUser } from '../models/User';
 import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
 import Request from '../types/request';
@@ -25,6 +25,7 @@ import { S3Service } from './s3.service';
 import { NotificationService } from './notification.service';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
+import Customer, { ICustomer } from './../models/Customer';
 
 @injectable()
 export class StoreService {
@@ -510,7 +511,17 @@ export class StoreService {
     storeReview: StoreReviewRequest
   ): Promise<StoreReviewRequest> {
     Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
+    let customer: ICustomer;
+    if (storeReview?.userId) {
+      customer = await Customer.findOne({
+        _id: new Types.ObjectId(storeReview?.userId)
+      })?.lean();
+    }
+    if (!storeReview?.userId) {
+      throw new Error('Customer not found');
+    }
     const newStoreReview = new StoreReview(storeReview);
+    newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
     await newStoreReview.save();
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
@@ -783,5 +794,40 @@ export class StoreService {
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  async getAllReviews(): Promise<IStoreReview[]> {
+    Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
+    const reviewResponse: IStoreReview[] = await StoreReview.find({});
+    return reviewResponse;
+  }
+
+  async updateStoreReviewStatus(
+    statusRequest: any,
+    reviewId: string
+  ): Promise<StoreReviewRequest> {
+    Logger.info('<Service>:<StoreService>:<Update store review status>');
+    let review: StoreReviewRequest;
+    if (reviewId) {
+      review = await StoreReview.findOne({
+        _id: new Types.ObjectId(reviewId)
+      });
+    }
+    if (!review) {
+      Logger.error(
+        '<Service>:<updatedStoreReview>:<Review not found with that review Id>'
+      );
+    }
+    Logger.info(
+      '<Service>:<StoreService>: <Store: store review status updated successfully>'
+    );
+
+    let updatedReview: StoreReviewRequest = statusRequest;
+    updatedReview = await StoreReview.findOneAndUpdate(
+      { _id: new Types.ObjectId(reviewId) },
+      updatedReview,
+      { returnDocument: 'after' }
+    );
+    return updatedReview;
   }
 }

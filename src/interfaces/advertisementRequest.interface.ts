@@ -1,6 +1,6 @@
 import { ICatalogMap } from '../models/Store';
 
-export interface AdBannerUploadRequest {
+export interface AdvertisementRequest {
   title: string;
   description: string;
   altText?: string;
@@ -11,7 +11,7 @@ export interface AdBannerUploadRequest {
     coordinates: number[];
   };
   location: string;
-  radius: string;
+  radius: number;
   bannerPlace: string;
   bannerPosition: string;
   category: ICatalogMap[];

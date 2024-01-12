@@ -8,7 +8,6 @@ import Banner, {
   IBanner,
   BannerStatus
 } from './../models/advertisement/Banner';
-import { AdBannerUploadRequest } from '../interfaces/adBannerRequest.interface';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
 
@@ -72,10 +71,72 @@ export class AdvertisementService {
     return banner;
   }
 
-  async getAllBanner(): Promise<IBanner[]> {
+  async getAllBanner(searchReqBody: {
+    coordinates: number[];
+    userType: string;
+    bannerPlace: string;
+    subCategory: string[];
+    category: string;
+  }): Promise<IBanner[]> {
+    Logger.debug(`${searchReqBody.coordinates} coordinates`);
     Logger.info('<Service>:<AdvertisementService>:<Get All Banner initiated>');
-    const banners: IBanner[] = await Banner.find().lean();
-    return banners;
+    let adResponse: any;
+    const query = {
+      userType: searchReqBody.userType,
+      bannerPlace: searchReqBody.bannerPlace,
+      // 'geoLocation.coordinates': searchReqBody.coordinates,
+      'category.name': searchReqBody.category,
+      'subCategory.name': { $in: searchReqBody.subCategory },
+      status: BannerStatus.ACTIVE
+    };
+    if (!searchReqBody.userType) {
+      delete query['userType'];
+    }
+    if (!searchReqBody.bannerPlace) {
+      delete query['bannerPlace'];
+    }
+    // if (!searchReqBody.coordinates) {
+    //   delete query['geoLocation.coordinates'];
+    // }
+    if (!searchReqBody.category) {
+      delete query['category.name'];
+    }
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+      delete query['subCategory.name'];
+    }
+    if (
+      _.isEmpty(searchReqBody.coordinates) &&
+      _.isEmpty(searchReqBody.userType) &&
+      _.isEmpty(searchReqBody.bannerPlace)
+    ) {
+      adResponse = await Banner.find().lean();
+    } else {
+      adResponse = Banner.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: searchReqBody.coordinates as [number, number]
+            },
+            // key: 'contactInfo.geoLocation',
+            spherical: true,
+            query: query,
+            distanceField: 'dist.calculated',
+            includeLocs: 'dist.location',
+            distanceMultiplier: 0.001
+            // maxDistance: 10 * 1000
+          }
+        },
+        {
+          $match: {
+            $expr: {
+              $gt: [{ $toInt: '$radius' }, '$dist.calculated']
+            }
+          }
+        }
+      ]);
+    }
+    return adResponse;
   }
 
   async getAllBannerForCustomer(): Promise<IBanner[]> {

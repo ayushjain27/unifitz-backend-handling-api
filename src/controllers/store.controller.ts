@@ -452,6 +452,52 @@ export class StoreController {
     }
   };
 
+  getAllReviews = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<StoreController>:<Get all stores reviews request controller initiated>'
+    );
+    try {
+      const result = await this.storeService.getAllReviews();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateStoreReview = async (req: Request, res: Response) => {
+    const payload = req.body;
+    const reviewId = req.params.reviewId;
+    if (!reviewId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Review Id is not present' } });
+      return;
+    }
+    Logger.info('<Controller>:<StoreController>:<Update Store Review Status>');
+
+    try {
+      const result = await this.storeService.updateStoreReviewStatus(
+        payload,
+        reviewId
+      );
+      Logger.info(
+        '<Controller>:<StoreController>: <Store: Sending notification of updated status>'
+      );
+      res.send({
+        message: 'Store Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateBusinessVerification':

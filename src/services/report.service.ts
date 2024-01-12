@@ -39,11 +39,12 @@ export class ReportService {
     if (!customerId) {
       throw new Error('Customer not found');
     }
-
     let newRep: IReport = reportPayload;
     newRep.storeName = store?.basicInfo?.businessName || '';
+    newRep.storePhoneNumber = store?.contactInfo?.phoneNumber?.primary || '';
     newRep.oemUserName = store?.oemUserName || '';
     newRep.customerName = customer?.fullName || '';
+    newRep.customerPhoneNumber = customer?.phoneNumber || '';
     newRep = await Report.create(newRep);
     Logger.info('<Service>:<ReportService>:<Report created successfully>');
     return newRep;
