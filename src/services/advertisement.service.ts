@@ -80,7 +80,7 @@ export class AdvertisementService {
   }): Promise<IBanner[]> {
     Logger.debug(`${searchReqBody.coordinates} coordinates`);
     Logger.info('<Service>:<AdvertisementService>:<Get All Banner initiated>');
-    let adResponse: any;
+    let bannerResponse: any;
     const query = {
       userType: searchReqBody.userType,
       bannerPlace: searchReqBody.bannerPlace,
@@ -109,9 +109,9 @@ export class AdvertisementService {
       _.isEmpty(searchReqBody.userType) &&
       _.isEmpty(searchReqBody.bannerPlace)
     ) {
-      adResponse = await Banner.find().lean();
+      bannerResponse = await Banner.find().lean();
     } else {
-      adResponse = Banner.aggregate([
+      bannerResponse = Banner.aggregate([
         {
           $geoNear: {
             near: {
@@ -136,7 +136,36 @@ export class AdvertisementService {
         }
       ]);
     }
-    return adResponse;
+    return bannerResponse;
+  }
+
+  async getAllBannerList(searchReqBody: {
+    coordinates: number[];
+    userType: string;
+    bannerPlace: string;
+  }): Promise<IBanner[]> {
+    let bannerResponse: any;
+    const query = {
+      userType: searchReqBody.userType,
+      bannerPlace: searchReqBody.bannerPlace,
+      status: BannerStatus.ACTIVE
+    };
+
+    if (
+      searchReqBody.userType === 'PARTNER_APP' ||
+      searchReqBody.userType === 'CUSTOMER_APP'
+    ) {
+      if (!searchReqBody.userType) {
+        delete query['userType'];
+      }
+      if (!searchReqBody.bannerPlace) {
+        delete query['bannerPlace'];
+      }
+      bannerResponse = await Banner.findOne(query)?.limit(6).lean();
+    } else {
+      bannerResponse = [];
+    }
+    return bannerResponse;
   }
 
   async getAllBannerForCustomer(): Promise<IBanner[]> {
