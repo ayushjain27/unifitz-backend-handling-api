@@ -7,6 +7,7 @@ export interface IUser extends Document {
 export interface IStoreReview extends Document {
   userId: Types.ObjectId;
   user: IUser;
+  userPhoneNumber: string;
   storeId: string;
   review: string;
   rating: number;
@@ -36,6 +37,9 @@ const storeReviewSchema: Schema = new Schema(
     user: {
       type: userSchema,
       requried: true
+    },
+    userPhoneNumber: {
+      type: String
     },
     storeId: {
       type: String,

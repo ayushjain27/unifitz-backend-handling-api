@@ -25,6 +25,7 @@ import { S3Service } from './s3.service';
 import { NotificationService } from './notification.service';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
+import Customer, { ICustomer } from './../models/Customer';
 
 @injectable()
 export class StoreService {
@@ -510,7 +511,17 @@ export class StoreService {
     storeReview: StoreReviewRequest
   ): Promise<StoreReviewRequest> {
     Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
+    let customer: ICustomer;
+    if (storeReview?.userId) {
+      customer = await Customer.findOne({
+        _id: new Types.ObjectId(storeReview?.userId)
+      })?.lean();
+    }
+    if (!storeReview?.userId) {
+      throw new Error('Customer not found');
+    }
     const newStoreReview = new StoreReview(storeReview);
+    newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
     await newStoreReview.save();
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
