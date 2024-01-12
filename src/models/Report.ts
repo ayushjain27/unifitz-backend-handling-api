@@ -31,6 +31,8 @@ export interface IReport {
   customerId?: string;
   storeName?: string;
   customerName?: string;
+  storePhoneNumber?: string;
+  customerPhoneNumber?: string;
   notes?: INotesSchema[];
   status?: string;
   sourceType?: string;
@@ -52,6 +54,12 @@ const reportSchema: Schema = new Schema<IReport>(
     customerId: {
       type: String,
       required: true
+    },
+    storePhoneNumber: {
+      type: String
+    },
+    customerPhoneNumber: {
+      type: String
     },
     storeName: {
       type: String
