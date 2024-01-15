@@ -10,28 +10,29 @@ export const bannerDocumentSchema: Schema = new Schema<IBannerImage>({
   }
 });
 
-export interface IBanner extends Document {
-  url: string;
-  title: string;
-  description: string;
-  altText: string;
-  slugUrl: string;
-  status: string;
-  userType: string;
-  geoLocation: {
+export interface IBanner {
+  _id?: string;
+  url?: string;
+  title?: string;
+  description?: string;
+  altText?: string;
+  slugUrl?: string;
+  status?: string;
+  userType?: string;
+  geoLocation?: {
     type: string;
     coordinates: number[];
   };
-  location: string;
-  radius: number;
-  bannerPlace: string;
-  bannerPosition: string;
-  category: ICatalogMap[];
-  subCategory: ICatalogMap[];
-  bannerImage: IBannerImage;
-  startDate: string;
-  endDate: string;
-  externalUrl: string;
+  location?: string;
+  radius?: number;
+  bannerPlace?: string;
+  bannerPosition?: string;
+  category?: ICatalogMap[];
+  subCategory?: ICatalogMap[];
+  bannerImage?: IBannerImage;
+  startDate?: string;
+  endDate?: string;
+  externalUrl?: string;
 }
 
 export interface IBannerImage {
