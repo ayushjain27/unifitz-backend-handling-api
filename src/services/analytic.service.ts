@@ -105,7 +105,8 @@ export class AnalyticService {
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
       'contactInfo.state': { $in: searchReqBody.state },
       'contactInfo.city': { $in: searchReqBody.city },
-      createdAt: { $gte: startDate, $lt: endDate }
+      createdAt: { $gte: startDate, $lt: endDate },
+      profileStatus: 'ONBOARDED'
     };
     if (!searchReqBody.category) {
       delete query['basicInfo.category.name'];
