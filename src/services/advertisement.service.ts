@@ -111,7 +111,7 @@ export class AdvertisementService {
     ) {
       bannerResponse = await Banner.find().lean();
     } else {
-      bannerResponse = await Banner.aggregate([
+      bannerResponse = Banner.aggregate([
         {
           $geoNear: {
             near: {
@@ -136,28 +136,6 @@ export class AdvertisementService {
         }
       ]);
     }
-    if (bannerResponse.length === 0) {
-      // If no banners are found, return default banners
-      return [
-        {
-          title: 'Default Banner 1',
-          url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/advertisement/India%27s%20No%201%20Multi%20Brand%20EV%20Showroom.jpg',
-          category: [{ name: 'Default Category 1' }]
-        },
-        {
-          title: 'Default Banner 2',
-          url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/advertisement/Group%20248.jpg',
-          category: [{ name: 'Default Category 2' }]
-        },
-        {
-          title: 'Default Banner 3',
-          url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/advertisement/India%27s%20No%201%20Multi%20Brand%20EV%20Showroom.png',
-          category: [{ name: 'Default Category 3' }]
-        }
-        // Add more default banners as necessary
-      ];
-    }
-
     return bannerResponse;
   }
 
