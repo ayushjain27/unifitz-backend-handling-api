@@ -130,7 +130,12 @@ export class AdvertisementService {
         {
           $match: {
             $expr: {
-              $gt: [{ $toInt: '$radius' }, '$dist.calculated']
+              $and: [
+                { $ne: ['$radius', null] }, // Check if 'radius' is not null
+                { $ne: ['$radius', undefined] }, // Check if 'radius' is defined
+                { $ne: ['$radius', ''] }, // Check if 'radius' is not an empty string
+                { $gt: [{ $toInt: '$radius' }, '$dist.calculated'] }
+              ]
             }
           }
         }
