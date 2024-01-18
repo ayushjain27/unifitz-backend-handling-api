@@ -17,3 +17,4 @@ export * from './buySell.services';
 export * from './employee.service';
 export * from './analytic.service';
 export * from './report.service';
+export * from './event.service';

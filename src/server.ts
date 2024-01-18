@@ -10,6 +10,7 @@ import Catalog, { ICatalog } from './models/Catalog';
 import file from './routes/api/file';
 import category from './routes/api/category.route';
 import admin from './routes/api/admin';
+import event from './routes/api/event.route';
 import store from './routes/api/store';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
@@ -76,6 +77,7 @@ app.use('/vehicle', vehicle);
 app.use('/enquiry', enquiry);
 app.use('/categories', category);
 app.use('/report', report);
+app.use(`/event`, event);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
