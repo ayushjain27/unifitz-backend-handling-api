@@ -28,9 +28,18 @@ import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
 import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
+import AWS from 'aws-sdk';
+import { s3Config } from './config/constants';
 
 const app = express();
 // Connect to MongoDB
+
+AWS.config.update({
+  accessKeyId: s3Config.AWS_KEY_ID,
+  secretAccessKey: s3Config.ACCESS_KEY,
+  region: 'ap-southeast-2'
+});
+
 connectDB();
 // Connect with firebase admin
 connectFirebaseAdmin();
@@ -215,4 +224,82 @@ const server = app.listen(port, () =>
   )
 );
 
+const sqs = new AWS.SQS();
+const ses = new AWS.SES();
+
+app.post('/sendToSQS', async (req, res) => {
+  // Check if 'to', 'subject', and 'message' properties exist in req.body
+  if (!req.body || !req.body.to || !req.body.subject || !req.body.message) {
+    return res.status(400).send({
+      error: 'To, subject, and message are required in the request body'
+    });
+  }
+
+  const params = {
+    MessageBody: JSON.stringify({
+      to: req.body.to,
+      subject: req.body.subject,
+      message: req.body.message
+    }),
+    QueueUrl:
+      'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
+  };
+  console.log(params, 'wkf');
+  // await sendEmail(req.body.to, req.body.subject, req.body.message);
+
+  sqs.sendMessage(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send({ error: 'Failed to send message to SQS' });
+    } else {
+      res.send(data);
+    }
+  });
+});
+
+// exports.handler = async (event: { Records: any }) => {
+//   const { Records } = event;
+
+//   for (const record of Records) {
+//     const body = JSON.parse(record.body);
+//     console.log(body,"wkfd")
+
+//     // Assuming 'to', 'subject', and 'message' are properties in the SQS message
+//     const to = body.to;
+//     const subject = body.subject;
+//     const message = body.message;
+
+//     // Send email using Gmail API
+//     await sendEmail(to, subject, message);
+//   }
+
+//   return { statusCode: 200, body: 'Messages processed successfully.' };
+// };
+
+// async function sendEmail(to: any, subject: any, message: any) {
+//   // Construct the email payload
+//   console.log("dw");
+//   console.log(to, subject, message,"wenj")
+// const emailParams = {
+//   Destination: {
+//     ToAddresses: [to]
+//   },
+//   Message: {
+//     Body: {
+//       Text: {
+//         Data: message
+//       }
+//     },
+//     Subject: {
+//       Data: subject
+//     }
+//   },
+//   Source: to // Replace with your verified SES email address
+// };
+
+// // Send email using AWS SES
+// const res = await ses.sendEmail(emailParams).promise();
+
+//   console.log('Email sent:', res.MessageId);
+// }
 export default server;
