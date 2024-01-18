@@ -111,7 +111,7 @@ export class AdvertisementService {
     ) {
       bannerResponse = await Banner.find().lean();
     } else {
-      bannerResponse = Banner.aggregate([
+      bannerResponse = await Banner.aggregate([
         {
           $geoNear: {
             near: {
@@ -140,6 +140,73 @@ export class AdvertisementService {
           }
         }
       ]);
+    }
+    if (bannerResponse.length === 0) {
+      if (
+        searchReqBody?.bannerPlace === 'Top Banner' &&
+        searchReqBody?.userType === 'CUSTOMER_WEB'
+      ) {
+        return [
+          {
+            title: 'Default 1',
+            category: [{ name: 'Default 1' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/295/1705474937295/Banner_1.jpeg'
+          }
+        ];
+      } else if (
+        searchReqBody?.bannerPlace === 'Center Banner' &&
+        searchReqBody?.userType === 'CUSTOMER_WEB'
+      ) {
+        return [
+          {
+            title: 'Default 2',
+            category: [{ name: 'Default 2' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/630/1705474969630/Banner_3.jpeg'
+          },
+          {
+            title: 'Default 3',
+            category: [{ name: 'Default 3' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/929/1705474993929/Banner_2.jpeg'
+          },
+          {
+            title: 'Default 4',
+            category: [{ name: 'Default 4' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/697/1705475034697/Banner_4.jpg'
+          }
+        ];
+      } else if (
+        searchReqBody?.bannerPlace === 'Right Banner' &&
+        searchReqBody?.userType === 'CUSTOMER_WEB'
+      ) {
+        return [
+          {
+            title: 'Default 5',
+            category: [{ name: 'Default 5' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/76/1705475086076/banner_5.jpeg'
+          },
+          {
+            title: 'Default 6',
+            category: [{ name: 'Default 6' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/646/1705475125646/banner_6.jpeg'
+          }
+        ];
+      } else if (searchReqBody?.userType === 'CUSTOMER_APP') {
+        return [
+          {
+            title: 'Default 7',
+            category: [{ name: 'Default 7' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/89/1705475155089/Banner_app.jpeg'
+          }
+        ];
+      } else {
+        return [
+          {
+            title: 'Default 8',
+            category: [{ name: 'Default 8' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/89/1705475155089/Banner_app.jpeg'
+          }
+        ];
+      }
     }
     return bannerResponse;
   }
