@@ -39,10 +39,12 @@ export class AnalyticService {
     }
     const gstVerStores = await Store.count({
       'verificationDetails.documentType': 'GST',
+      profileStatus: 'ONBOARDED',
       ...query
     });
     const aadharVerStores = await Store.count({
       'verificationDetails.documentType': 'AADHAR',
+      profileStatus: 'ONBOARDED',
       ...query
     });
     return { gstVerified: gstVerStores, aadharVerified: aadharVerStores };
