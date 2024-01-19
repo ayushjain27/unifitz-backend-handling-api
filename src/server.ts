@@ -227,11 +227,96 @@ const server = app.listen(port, () =>
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
 
+// const sqsParams = {
+//   MessageBody: JSON.stringify({
+//     to: req.body.to,
+//     subject: req.body.subject,
+//     message: req.body.message
+//   }),
+//   QueueUrl:
+//     'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
+// };
+// console.log(sqsParams, 'wkf');
+// const params = {
+//   Template: {
+//     TemplateName: 'WelcomeTemplate',
+//     SubjectPart: req.body.subject,
+//     HtmlPart: `<!DOCTYPE html>
+//     <html lang="en"
+//     <head>
+//     <meta charset="UTF-8">
+//     <title>Welcome to our community</title>
+//     <style>
+//     body{
+//       fontFamily: Arial, sans-serif;
+//       backgroud-color: #f4f4f4;
+//       margin: 0;
+//       padding: 0;
+//     }
+//     .container{
+//       max-width: 600px;
+//       margin: 0 auto;
+//       padding: 20px;
+//       backgroud-color: #fff;
+//       border-radius: 8px;
+//       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+//     }
+//     h1{
+//       color: #333;
+//     }
+//     p{
+//       color: #666;
+//     }
+//     .cta-button{
+//       dispaly: inline-block;
+//       pading: 10px 20px;
+//       backgroud-color: #ff6600;
+//       color: #fff;
+//       text-decoration: none;
+//       border-radius: 4px;
+//     }
+//     </style>
+//     </head>
+//     <body>
+//     <div class="container">
+//     <h1>Welcome to our community!</h1>
+//     <p>Dear User</p>
+//     <p>${req.body.message}</p>
+//     <p>Explore and discover the amazing features we offer:</p>
+//     <ul>
+//     <li>Engage  with like-minded individuals</li>
+//     <li>Access exclusive content</li>
+//     <li>Participate in exciting discussions<li/>
+//     </ul>
+//     <p>Click the button  below to get started:</p>
+//     <a href="https://www.serviceplug.in/" class="cta-button">Get Started</a>
+//     <p>If you have any questions or need assistance, feel free to reach out us.</p>
+//     <p>Best regards, <br> ${req.body.subject}</p>
+//     </div>
+//     </body>
+//     </html>`,
+//     TextPart: 'Plain text content goes here'
+//   }
+// };
+
+// ses.createTemplate(params, (err, data) => {
+//   if (err) {
+//     console.log('Error creating email template: ', err);
+//   } else {
+//     console.log('Email template created ', data);
+//   }
+// });
+
 app.post('/sendToSQS', async (req, res) => {
-  // Check if 'to', 'subject', and 'message' properties exist in req.body
-  if (!req.body || !req.body.to || !req.body.subject || !req.body.message) {
+  // Check if 'to', 'subject', and 'templateName' properties exist in req.body
+  if (
+    !req.body ||
+    !req.body.to ||
+    !req.body.subject ||
+    !req.body.templateName
+  ) {
     return res.status(400).send({
-      error: 'To, subject, and message are required in the request body'
+      error: 'To, subject, and templateName are required in the request body'
     });
   }
 
@@ -239,13 +324,14 @@ app.post('/sendToSQS', async (req, res) => {
     MessageBody: JSON.stringify({
       to: req.body.to,
       subject: req.body.subject,
-      message: req.body.message
+      templateName: req.body.templateName
     }),
     QueueUrl:
       'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
   };
+
   console.log(params, 'wkf');
-  // await sendEmail(req.body.to, req.body.subject, req.body.message);
+  await sendEmail(req.body.to, req.body.subject, req.body.templateName);
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
@@ -256,6 +342,36 @@ app.post('/sendToSQS', async (req, res) => {
     }
   });
 });
+
+async function sendEmail(to: any, subject: any, templateName: any) {
+  // Construct the email payload with template
+
+  const templateData = {
+    // Include properties that match the placeholders in your SES template
+    // For example:
+    firstName: "Ayush",
+    subject: subject
+    // lastName: "Doe",
+    // ...
+  };
+
+  const emailParams = {
+    Destination: {
+      ToAddresses: [to]
+    },
+    Template: templateName, // Replace with your SES template name
+    Source: 'ayush@serviceplug.in',
+    TemplateData: JSON.stringify(templateData) // Replace with your verified SES email address
+  };
+  console.log(emailParams)
+
+  // Send email using AWS SES
+  const res = await ses.sendTemplatedEmail(emailParams).promise();
+
+  console.log('Email sent:', res.MessageId);
+}
+
+export default server;
 
 // exports.handler = async (event: { Records: any }) => {
 //   const { Records } = event;
@@ -275,31 +391,3 @@ app.post('/sendToSQS', async (req, res) => {
 
 //   return { statusCode: 200, body: 'Messages processed successfully.' };
 // };
-
-// async function sendEmail(to: any, subject: any, message: any) {
-//   // Construct the email payload
-//   console.log("dw");
-//   console.log(to, subject, message,"wenj")
-// const emailParams = {
-//   Destination: {
-//     ToAddresses: [to]
-//   },
-//   Message: {
-//     Body: {
-//       Text: {
-//         Data: message
-//       }
-//     },
-//     Subject: {
-//       Data: subject
-//     }
-//   },
-//   Source: to // Replace with your verified SES email address
-// };
-
-// // Send email using AWS SES
-// const res = await ses.sendEmail(emailParams).promise();
-
-//   console.log('Email sent:', res.MessageId);
-// }
-export default server;
