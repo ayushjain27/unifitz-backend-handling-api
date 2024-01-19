@@ -62,10 +62,14 @@ export class EventController {
   getAllEvent = async (req: Request, res: Response) => {
     const {
       coordinates,
-      category
+      category,
+      state,
+      city
     }: {
       coordinates: number[];
       category: string;
+      state: string;
+      city: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -80,7 +84,9 @@ export class EventController {
       const result = await this.eventService.getAll(
         coordinates,
         subCategory,
-        category
+        category,
+        state,
+        city
       );
       res.send({
         result

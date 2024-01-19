@@ -62,11 +62,14 @@ export class EventService {
   async getAll(
     coordinates: number[],
     subCategory: string[],
-    category: string
+    category: string,
+    state: string,
+    city: string
   ): Promise<IEvent[]> {
     let eventResponse: any;
     const query = {
-      'geoLocation.coordinates': coordinates,
+      state: state,
+      city: city,
       'category.name': category,
       'subCategory.name': { $in: subCategory },
       status: EventStatus.ACTIVE
@@ -74,8 +77,11 @@ export class EventService {
 
     Logger.info('<Service>:<EventService>:<get event initiated>');
 
-    if (!coordinates) {
-      delete query['geoLocation.coordinates'];
+    if (!state) {
+      delete query['state'];
+    }
+    if (!city) {
+      delete query['city'];
     }
     if (!category) {
       delete query['category.name'];
