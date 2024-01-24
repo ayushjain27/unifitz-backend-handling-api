@@ -190,19 +190,30 @@ export class AdvertisementService {
             url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/646/1705475125646/banner_6.jpeg'
           }
         ];
-      } else if (searchReqBody?.userType === 'CUSTOMER_APP') {
+      } else if (
+        searchReqBody?.bannerPlace === 'Bottom Banner' &&
+        searchReqBody?.userType === 'CUSTOMER_WEB'
+      ) {
         return [
           {
             title: 'Default 7',
             category: [{ name: 'Default 7' }],
+            url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/757/1706080314757/banner_9.png'
+          }
+        ];
+      } else if (searchReqBody?.userType === 'CUSTOMER_APP') {
+        return [
+          {
+            title: 'Default 8',
+            category: [{ name: 'Default 8' }],
             url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/89/1705475155089/Banner_app.jpeg'
           }
         ];
       } else {
         return [
           {
-            title: 'Default 8',
-            category: [{ name: 'Default 8' }],
+            title: 'Default 9',
+            category: [{ name: 'Default 9' }],
             url: 'https://serviceplug-prod.s3.ap-south-1.amazonaws.com/89/1705475155089/Banner_app.jpeg'
           }
         ];
