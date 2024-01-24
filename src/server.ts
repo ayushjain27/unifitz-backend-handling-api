@@ -227,85 +227,79 @@ const server = app.listen(port, () =>
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
 
-// const sqsParams = {
-//   MessageBody: JSON.stringify({
-//     to: req.body.to,
-//     subject: req.body.subject,
-//     message: req.body.message
-//   }),
-//   QueueUrl:
-//     'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
-// };
-// console.log(sqsParams, 'wkf');
-// const params = {
-//   Template: {
-//     TemplateName: 'WelcomeTemplate',
-//     SubjectPart: req.body.subject,
-//     HtmlPart: `<!DOCTYPE html>
-//     <html lang="en"
-//     <head>
-//     <meta charset="UTF-8">
-//     <title>Welcome to our community</title>
-//     <style>
-//     body{
-//       fontFamily: Arial, sans-serif;
-//       backgroud-color: #f4f4f4;
-//       margin: 0;
-//       padding: 0;
-//     }
-//     .container{
-//       max-width: 600px;
-//       margin: 0 auto;
-//       padding: 20px;
-//       backgroud-color: #fff;
-//       border-radius: 8px;
-//       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-//     }
-//     h1{
-//       color: #333;
-//     }
-//     p{
-//       color: #666;
-//     }
-//     .cta-button{
-//       dispaly: inline-block;
-//       pading: 10px 20px;
-//       backgroud-color: #ff6600;
-//       color: #fff;
-//       text-decoration: none;
-//       border-radius: 4px;
-//     }
-//     </style>
-//     </head>
-//     <body>
-//     <div class="container">
-//     <h1>Welcome to our community!</h1>
-//     <p>Dear User</p>
-//     <p>${req.body.message}</p>
-//     <p>Explore and discover the amazing features we offer:</p>
-//     <ul>
-//     <li>Engage  with like-minded individuals</li>
-//     <li>Access exclusive content</li>
-//     <li>Participate in exciting discussions<li/>
-//     </ul>
-//     <p>Click the button  below to get started:</p>
-//     <a href="https://www.serviceplug.in/" class="cta-button">Get Started</a>
-//     <p>If you have any questions or need assistance, feel free to reach out us.</p>
-//     <p>Best regards, <br> ${req.body.subject}</p>
-//     </div>
-//     </body>
-//     </html>`,
-//     TextPart: 'Plain text content goes here'
-//   }
-// };
+app.get('/createTemplate', async (req, res) => {
+  const params = {
+    Template: {
+      TemplateName: 'MyTemplatesTest',
+      SubjectPart: 'Welcome to our community {{subject}}, {{User}}!', // Use a placeholder for dynamic subject
+      HtmlPart: `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Welcome to our community</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #fff;
+              border-radius: 8px;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+              color: #333;
+            }
+            p {
+              color: #666;
+            }
+            .cta-button {
+              display: inline-block;
+              padding: 10px 20px;
+              background-color: #ff6600;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 4px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Welcome to our community!</h1>
+            <p>Dear {{User}}</p>
+            <p>{{message}}</p> <!-- Escape $ character for the message -->
+            <p>Explore and discover the amazing features we offer:</p>
+            <ul>
+              <li>Engage with like-minded individuals</li>
+              <li>Access exclusive content</li>
+              <li>Participate in exciting discussions</li>
+            </ul>
+            <p>Click the button below to get started:</p>
+            <a href="https://www.serviceplug.in/" class="cta-button">Get Started</a>
+            <p>If you have any questions or need assistance, feel free to reach out to us.</p>
+            <p>Best regards, <br> {{subject}}</p> <!-- Escape $ character for the subject -->
+          </div>
+        </body>
+        </html>`,
+      TextPart: 'Plain text content goes here'
+    }
+  };
 
-// ses.createTemplate(params, (err, data) => {
-//   if (err) {
-//     console.log('Error creating email template: ', err);
-//   } else {
-//     console.log('Email template created ', data);
-//   }
-// });
+  ses.createTemplate(params, (err, data) => {
+    if (err) {
+      console.log('Error creating email template: ', err);
+      res.status(500).send({ error: 'Failed to create email template' });
+    } else {
+      console.log('Email template created ', data);
+      res.send(data);
+    }
+  });
+});
 
 app.post('/sendToSQS', async (req, res) => {
   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
@@ -313,6 +307,7 @@ app.post('/sendToSQS', async (req, res) => {
     !req.body ||
     !req.body.to ||
     !req.body.subject ||
+    !req.body.message ||
     !req.body.templateName
   ) {
     return res.status(400).send({
@@ -324,6 +319,7 @@ app.post('/sendToSQS', async (req, res) => {
     MessageBody: JSON.stringify({
       to: req.body.to,
       subject: req.body.subject,
+      message: req.body.message,
       templateName: req.body.templateName
     }),
     QueueUrl:
@@ -331,7 +327,12 @@ app.post('/sendToSQS', async (req, res) => {
   };
 
   console.log(params, 'wkf');
-  await sendEmail(req.body.to, req.body.subject, req.body.templateName);
+  await sendEmail(
+    req.body.to,
+    req.body.subject,
+    req.body.message,
+    req.body.templateName
+  );
 
   sqs.sendMessage(params, (err, data) => {
     if (err) {
@@ -343,14 +344,15 @@ app.post('/sendToSQS', async (req, res) => {
   });
 });
 
-async function sendEmail(to: any, subject: any, templateName: any) {
+async function sendEmail(to: any, subject: any, message: any, templateName: any) {
   // Construct the email payload with template
 
   const templateData = {
     // Include properties that match the placeholders in your SES template
     // For example:
-    firstName: "Ayush",
-    subject: subject
+    User: 'Ayush',
+    subject: subject,
+    message: message
     // lastName: "Doe",
     // ...
   };
@@ -363,7 +365,7 @@ async function sendEmail(to: any, subject: any, templateName: any) {
     Source: 'ayush@serviceplug.in',
     TemplateData: JSON.stringify(templateData) // Replace with your verified SES email address
   };
-  console.log(emailParams)
+  console.log(emailParams);
 
   // Send email using AWS SES
   const res = await ses.sendTemplatedEmail(emailParams).promise();
