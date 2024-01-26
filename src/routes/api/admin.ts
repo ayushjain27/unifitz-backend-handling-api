@@ -26,13 +26,13 @@ router.post(
 router.post(
   '/uploadDocuments',
   uploadFiles.array('files'),
-  roleAuth(ACL.ADMIN_USER_CREATE),
+  // roleAuth(ACL.ADMIN_USER_CREATE),
   adminController.uploadDocuments
 );
 
 router.put(
   '/:userName',
-  roleAuth(ACL.ADMIN_USER_CREATE),
+  // roleAuth(ACL.ADMIN_USER_CREATE),
   adminController.validate('updateUser'),
   adminController.updateUser
 );

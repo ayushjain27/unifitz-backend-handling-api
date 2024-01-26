@@ -84,6 +84,8 @@ export class AnalyticService {
     category: string;
     state: string;
     city: string;
+    role?: string;
+    userName?: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
@@ -97,7 +99,7 @@ export class AnalyticService {
       endDate.setDate(endDate.getDate() + 1);
     }
 
-    const query = {
+    const query: any = {
       // 'contactInfo.geoLocation': {
       //   $near: {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
@@ -128,6 +130,9 @@ export class AnalyticService {
     Logger.debug(query);
 
     let res: any[] = [];
+    if (searchReqBody.role === AdminRole.OEM) {
+      query.oemUserName = searchReqBody.userName;
+    }
     res = await Store.find(query, {
       'verificationDetails.verifyObj': 0
     });

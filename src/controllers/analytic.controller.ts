@@ -83,6 +83,8 @@ export class AnalyticController {
       state: string;
       city: string;
     } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
     );
@@ -96,7 +98,9 @@ export class AnalyticController {
         category,
         subCategory,
         state,
-        city
+        city,
+        role,
+        userName
       });
       res.send({
         result
