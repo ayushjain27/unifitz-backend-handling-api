@@ -10,14 +10,19 @@ export const eventDocumentSchema: Schema = new Schema<IEventImage>({
   }
 });
 
+export enum EventProfileStatus {
+  PARTNER = 'PARTNER',
+  CUSTOMER = 'CUSTOMER'
+}
+
 export interface IEvent {
   _id?: string;
   eventName: string;
   organizerName: string;
-  url?: string;
+  // url?: string;
   externalUrl?: string;
-  altText?: string;
-  slugUrl?: string;
+  // altText?: string;
+  // slugUrl?: string;
   status?: string;
   geoLocation?: {
     type: string;
@@ -33,6 +38,7 @@ export interface IEvent {
   phoneNumber: string;
   email: string;
   address: string;
+  eventType: string;
 }
 
 export interface IEventImage {
@@ -47,9 +53,9 @@ export enum EventStatus {
 
 const eventSchema: Schema = new Schema(
   {
-    url: {
-      type: String
-    },
+    // url: {
+    //   type: String
+    // },
     eventName: {
       type: String
     },
@@ -101,11 +107,16 @@ const eventSchema: Schema = new Schema(
     externalUrl: {
       type: String
     },
-    altText: {
-      type: String
-    },
-    slugUrl: {
-      type: String
+    // altText: {
+    //   type: String
+    // },
+    // slugUrl: {
+    //   type: String
+    // },
+    eventType: {
+      type: String,
+      required: true,
+      enum: EventProfileStatus
     }
   },
   { timestamps: true }

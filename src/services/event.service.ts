@@ -42,10 +42,13 @@ export class EventService {
     const imageUpload = { key, url };
     const eventDetails = {
       ...eventResult,
-      altText: key,
-      slugUrl: key,
-      url,
-      eventImage: imageUpload,
+      // altText: key,
+      // slugUrl: key,
+      // url,
+      eventImage: {
+        ...imageUpload,
+        docURL: url
+      },
       status: EventStatus.ACTIVE,
       _id: new Types.ObjectId(eventId)
     };
@@ -64,7 +67,8 @@ export class EventService {
     subCategory: string[],
     category: string,
     state: string,
-    city: string
+    city: string,
+    eventType: string
   ): Promise<IEvent[]> {
     let eventResponse: any;
     const query = {
@@ -72,7 +76,8 @@ export class EventService {
       city: city,
       'category.name': category,
       'subCategory.name': { $in: subCategory },
-      status: EventStatus.ACTIVE
+      status: EventStatus.ACTIVE,
+      eventType: eventType
     };
 
     Logger.info('<Service>:<EventService>:<get event initiated>');
@@ -83,6 +88,9 @@ export class EventService {
     if (!city) {
       delete query['city'];
     }
+    if (!eventType) {
+      delete query['eventType'];
+    }
     if (!category) {
       delete query['category.name'];
     }
@@ -92,7 +100,8 @@ export class EventService {
     if (
       _.isEmpty(coordinates) &&
       _.isEmpty(category) &&
-      _.isEmpty(subCategory)
+      _.isEmpty(subCategory) &&
+      _.isEmpty(eventType)
     ) {
       eventResponse = await EventModel.find().lean();
     } else {
@@ -153,11 +162,11 @@ export class EventService {
     return res;
   }
 
-  async deleteEvent(reqBody: { slugUrl: string; eventId: string }) {
+  async deleteEvent(reqBody: { imageKey: string; eventId: string }) {
     Logger.info('<Service>:<EventService>:<Delete event >');
 
     // Delete the event from the s3
-    await this.s3Client.deleteFile(reqBody.slugUrl);
+    await this.s3Client.deleteFile(reqBody.imageKey);
     const res = await EventModel.findOneAndDelete({
       _id: new Types.ObjectId(reqBody.eventId)
     });

@@ -114,13 +114,17 @@ export class StoreController {
     try {
       const userName = req?.userId;
       const role = req?.role;
+      const { userType, status, verifiedStore } = req.body;
       Logger.debug(
         `${JSON.stringify(req.headers)}, ${JSON.stringify(req.body)}requests`
       );
       Logger.debug(`${userName}, ${role}, role`);
       const result: StoreResponse[] = await this.storeService.getAll(
         userName,
-        role
+        role,
+        userType,
+        status,
+        verifiedStore
       );
       res.send({
         result

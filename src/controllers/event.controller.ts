@@ -64,12 +64,14 @@ export class EventController {
       coordinates,
       category,
       state,
-      city
+      city,
+      eventType
     }: {
       coordinates: number[];
       category: string;
       state: string;
       city: string;
+      eventType: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -86,7 +88,8 @@ export class EventController {
         subCategory,
         category,
         state,
-        city
+        city,
+        eventType
       );
       res.send({
         result
