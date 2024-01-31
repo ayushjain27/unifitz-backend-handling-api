@@ -88,6 +88,9 @@ export class EventService {
     if (!city) {
       delete query['city'];
     }
+    if (!coordinates) {
+      delete query['status'];
+    }
     if (!eventType) {
       delete query['eventType'];
     }
@@ -103,7 +106,33 @@ export class EventService {
       _.isEmpty(subCategory) &&
       _.isEmpty(eventType)
     ) {
-      eventResponse = await EventModel.find().lean();
+      eventResponse = await EventModel.aggregate([
+        {
+          $match: query
+        },
+        {
+          $set: {
+            eventCompleted: {
+              $dateDiff: {
+                startDate: { $toDate: '$endDate' },
+                endDate: new Date(),
+                unit: 'day'
+              }
+            }
+          }
+        },
+        {
+          $set: {
+            status: {
+              $cond: {
+                if: { $lt: ['$eventCompleted', 0] },
+                then: 'ACTIVE',
+                else: 'DISABLED'
+              }
+            }
+          }
+        }
+      ]);
     } else {
       eventResponse = EventModel.aggregate([
         {
@@ -119,6 +148,28 @@ export class EventService {
             includeLocs: 'dist.location',
             distanceMultiplier: 0.001
             // maxDistance: 10 * 1000
+          }
+        },
+        {
+          $set: {
+            eventCompleted: {
+              $dateDiff: {
+                startDate: { $toDate: '$endDate' },
+                endDate: new Date(),
+                unit: 'day'
+              }
+            }
+          }
+        },
+        {
+          $set: {
+            status: {
+              $cond: {
+                if: { $lt: ['$eventCompleted', 0] },
+                then: 'ACTIVE',
+                else: 'DISABLED'
+              }
+            }
           }
         }
       ]);
