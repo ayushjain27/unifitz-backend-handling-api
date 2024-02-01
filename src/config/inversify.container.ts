@@ -20,7 +20,8 @@ import {
   EmployeeController,
   AnalyticController,
   ReportController,
-  EventController
+  EventController,
+  OfferController
 } from '../controllers';
 import {
   StoreService,
@@ -42,7 +43,8 @@ import {
   BuySellService,
   AnalyticService,
   ReportService,
-  EventService
+  EventService,
+  OfferService
 } from '../services';
 
 const container = new Container();
@@ -157,5 +159,8 @@ container.bind<ReportService>(TYPES.ReportService).to(ReportService);
 
 container.bind<EventController>(TYPES.EventController).to(EventController);
 container.bind<EventService>(TYPES.EventService).to(EventService);
+
+container.bind<OfferController>(TYPES.OfferController).to(OfferController);
+container.bind<OfferService>(TYPES.OfferService).to(OfferService);
 
 export default container;

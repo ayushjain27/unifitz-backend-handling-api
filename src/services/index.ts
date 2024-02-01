@@ -18,3 +18,4 @@ export * from './employee.service';
 export * from './analytic.service';
 export * from './report.service';
 export * from './event.service';
+export * from './offer.service';
