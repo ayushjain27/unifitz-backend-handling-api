@@ -165,7 +165,7 @@ export class EventService {
           $set: {
             status: {
               $cond: {
-                if: { $lte: ['$eventCompleted', 0] },
+                if: { $lte: ['$eventCompleted', 1] },
                 then: 'ACTIVE',
                 else: 'DISABLED'
               }

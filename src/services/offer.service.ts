@@ -125,7 +125,7 @@ export class OfferService {
           $set: {
             status: {
               $cond: {
-                if: { $lt: ['$offerCompleted', 0] },
+                if: { $lte: ['$offerCompleted', 1] },
                 then: 'ACTIVE',
                 else: 'DISABLED'
               }
@@ -165,11 +165,16 @@ export class OfferService {
           $set: {
             status: {
               $cond: {
-                if: { $lt: ['$offerCompleted', 0] },
+                if: { $lte: ['$offerCompleted', 1] },
                 then: 'ACTIVE',
                 else: 'DISABLED'
               }
             }
+          }
+        },
+        {
+          $match: {
+            status: { $eq: 'ACTIVE' }
           }
         }
       ]);
@@ -203,7 +208,7 @@ export class OfferService {
     if (_.isEmpty(offerResult)) {
       throw new Error('Offer does not exist');
     }
-    console.log(offerResult,"flnjr")
+    console.log(offerResult, 'flnjr');
     const query: any = {};
     query._id = reqBody._id;
     const res = await OfferModel.findOneAndUpdate(query, reqBody, {
