@@ -31,8 +31,8 @@ export interface IEvent {
   category?: ICatalogMap[];
   subCategory?: ICatalogMap[];
   eventImage?: IEventImage;
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date;
+  endDate?: Date;
   state: string; //<String>
   city: string;
   phoneNumber: string;
@@ -73,10 +73,10 @@ const eventSchema: Schema = new Schema(
       coordinates: [{ type: Number }]
     },
     startDate: {
-      type: String
+      type: Date
     },
     endDate: {
-      type: String
+      type: Date
     },
     category: {
       type: [storeCatalogMapSchema],

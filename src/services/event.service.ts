@@ -125,7 +125,7 @@ export class EventService {
           $set: {
             status: {
               $cond: {
-                if: { $lt: ['$eventCompleted', 0] },
+                if: { $lte: ['$eventCompleted', 1] },
                 then: 'ACTIVE',
                 else: 'DISABLED'
               }
@@ -165,11 +165,16 @@ export class EventService {
           $set: {
             status: {
               $cond: {
-                if: { $lt: ['$eventCompleted', 0] },
+                if: { $lte: ['$eventCompleted', 0] },
                 then: 'ACTIVE',
                 else: 'DISABLED'
               }
             }
+          }
+        },
+        {
+          $match: {
+            status: { $eq: 'ACTIVE' }
           }
         }
       ]);
