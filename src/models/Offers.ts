@@ -30,6 +30,7 @@ export interface IOffer {
   };
   category?: ICatalogMap[];
   subCategory?: ICatalogMap[];
+  brand?: ICatalogMap[];
   offerImage?: IOfferImage;
   startDate?: string;
   endDate?: string;
@@ -80,6 +81,10 @@ const offerSchema: Schema = new Schema(
       required: true
     },
     subCategory: {
+      type: [storeCatalogMapSchema],
+      required: false
+    },
+    brand: {
       type: [storeCatalogMapSchema],
       required: false
     },
