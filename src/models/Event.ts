@@ -117,7 +117,7 @@ const eventSchema: Schema = new Schema(
       type: String,
       required: true,
       enum: EventProfileStatus
-    }
+    },
   },
   { timestamps: true }
 );

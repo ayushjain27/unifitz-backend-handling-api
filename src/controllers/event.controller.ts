@@ -180,4 +180,56 @@ export class EventController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  addToInterest = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    Logger.info(
+      '<Controller>:<EventController>:<Add to interest request initiated>'
+    );
+    try {
+      const result = await this.eventService.addToInterest(
+        interestRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  checkInterestEventsAndOffers = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    // const addToFavouriteRequest: AddToFavouriteRequest = {
+    //   customerId,
+    //   storeId
+    // };
+    Logger.info(
+      '<Controller>:<EventController>:<Check if interested events and offers request initiated>'
+    );
+    try {
+      const result = await this.eventService.checkInterestEventsAndOffers(
+        interestRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }
