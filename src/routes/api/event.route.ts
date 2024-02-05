@@ -36,4 +36,9 @@ router.post(
   eventController.addToInterest
 );
 
+router.post(
+  '/checkInterestEventsAndOffers',
+  eventController.checkInterestEventsAndOffers
+);
+
 export default router;
