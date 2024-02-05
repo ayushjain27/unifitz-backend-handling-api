@@ -34,7 +34,7 @@ router.delete(
   roleAuth(ACL.STORE_CREATE),
   storeController.deleteStore
 );
-router.get(
+router.post(
   '/allStores',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.getAllStores

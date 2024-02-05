@@ -1,7 +1,7 @@
 import { model, ObjectId, Schema, Types } from 'mongoose';
 import { DocType } from '../enum/docType.enum';
 export interface ICatalogMap {
-  _id: ObjectId;
+  _id?: ObjectId;
   name: string;
 }
 

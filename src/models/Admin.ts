@@ -120,6 +120,8 @@ export interface IAdmin {
   // businessCategory: IBusinessCategory;
   documents: IDocuments;
   productCategory: IProductCategory;
+  updateCount?: string;
+  lastModifyResult?: Date;
 }
 
 export interface IDocumentImage {
@@ -228,6 +230,9 @@ const adminSchema: Schema = new Schema<IAdmin>(
       }
     },
     registrationDate: {
+      type: Date
+    },
+    lastModifyResult: {
       type: Date
     },
     companyType: {

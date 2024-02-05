@@ -115,7 +115,13 @@ export class AdminService {
     // const updatedUser = { ...user, reqBody };
     const query: any = {};
     query.userName = reqBody.userName;
-    Logger.debug(`${query.userName}, ${query},${reqBody.userName}, ${reqBody}`);
+
+    if (reqBody.lastModifyResult) {
+      reqBody.updateCount = String(
+        reqBody.updateCount ? Number(reqBody.updateCount) + 1 : 1
+      );
+    }
+    Logger.debug(`${query.updateCount},${reqBody.userName}, ${reqBody}`);
     const res = await Admin.findOneAndUpdate(query, reqBody, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }

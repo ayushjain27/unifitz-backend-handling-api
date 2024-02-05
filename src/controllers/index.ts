@@ -13,3 +13,5 @@ export * from './buySell.controller';
 export * from './employee.controller';
 export * from './analytic.controller';
 export * from './report.controller';
+export * from './event.controller';
+export * from './offer.controller';

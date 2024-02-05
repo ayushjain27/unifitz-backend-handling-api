@@ -296,13 +296,39 @@ export class StoreService {
     const res = await Store.findOneAndDelete(query);
     return res;
   }
-  async getAll(userName?: string, role?: string) {
+  async getAll(
+    userName?: string,
+    role?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string
+  ) {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
-    const query: any = {};
+    let query: any = {};
+    let stores: any;
+    const userRoleType = userType === 'OEM' ? true : false;
+
+    query = {
+      isVerified: Boolean(verifiedStore),
+      profileStatus: status,
+      oemUserName: { $exists: userRoleType }
+    };
+    if (_.isEmpty(userType) && _.isEmpty(status)) {
+      stores = await Store.find().lean();
+    }
+    if (!verifiedStore) {
+      delete query['isVerified'];
+    }
+    if (!status) {
+      delete query['profileStatus'];
+    }
+    if (!userType) {
+      delete query['oemUserName'];
+    }
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
-    const stores: StoreResponse[] = await Store.find(query, {
+    stores = await Store.find(query, {
       'verificationDetails.verifyObj': 0
     }).lean();
 

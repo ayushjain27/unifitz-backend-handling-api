@@ -517,12 +517,23 @@ export class ProductService {
 
     const product: any = await Product.aggregate([
       {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      { $unwind: { path: '$storeInfo' } },
+      { $project: { 'storeInfo.verificationDetails.verifyObj': 0 } },
+      {
         $match: {
           $or: [
             { itemName: regexQuery },
             { 'productCategory.catalogName': regexQuery },
             { 'productSubCategory.catalogName': regexQuery },
-            { productBrand: regexQuery }
+            { productBrand: regexQuery },
+            { 'storeInfo.basicInfo.businessName': regexQuery }
           ]
         }
       },
@@ -536,6 +547,18 @@ export class ProductService {
           productSubCategoryLength: {
             $size: {
               $ifNull: ['$productSubCategory.catalogName', []]
+            }
+          },
+          matchedFieldStoreName: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$storeInfo.basicInfo.businessName' },
+                  regex: regexQuery
+                }
+              },
+              then: ['$storeInfo.basicInfo.businessName'],
+              else: []
             }
           },
           matchedFieldCategoryName: {

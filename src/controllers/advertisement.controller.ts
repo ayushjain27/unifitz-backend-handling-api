@@ -93,9 +93,20 @@ export class AdvertisementController {
         category,
         subCategory
       });
-      res.send({
-        result
-      });
+      if (result.length !== 0) {
+        res.send({
+          result
+        });
+      } else {
+        const result = await this.adService.getAllBannerList({
+          coordinates,
+          userType,
+          bannerPlace
+        });
+        res.send({
+          result
+        });
+      }
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

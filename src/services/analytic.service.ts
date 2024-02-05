@@ -39,10 +39,12 @@ export class AnalyticService {
     }
     const gstVerStores = await Store.count({
       'verificationDetails.documentType': 'GST',
+      profileStatus: 'ONBOARDED',
       ...query
     });
     const aadharVerStores = await Store.count({
       'verificationDetails.documentType': 'AADHAR',
+      profileStatus: 'ONBOARDED',
       ...query
     });
     return { gstVerified: gstVerStores, aadharVerified: aadharVerStores };
@@ -82,6 +84,8 @@ export class AnalyticService {
     category: string;
     state: string;
     city: string;
+    role?: string;
+    userName?: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
@@ -95,7 +99,7 @@ export class AnalyticService {
       endDate.setDate(endDate.getDate() + 1);
     }
 
-    const query = {
+    const query: any = {
       // 'contactInfo.geoLocation': {
       //   $near: {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
@@ -105,7 +109,8 @@ export class AnalyticService {
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
       'contactInfo.state': { $in: searchReqBody.state },
       'contactInfo.city': { $in: searchReqBody.city },
-      createdAt: { $gte: startDate, $lt: endDate }
+      createdAt: { $gte: startDate, $lt: endDate },
+      profileStatus: 'ONBOARDED'
     };
     if (!searchReqBody.category) {
       delete query['basicInfo.category.name'];
@@ -125,6 +130,9 @@ export class AnalyticService {
     Logger.debug(query);
 
     let res: any[] = [];
+    if (searchReqBody.role === AdminRole.OEM) {
+      query.oemUserName = searchReqBody.userName;
+    }
     res = await Store.find(query, {
       'verificationDetails.verifyObj': 0
     });
