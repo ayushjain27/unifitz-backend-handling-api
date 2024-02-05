@@ -31,4 +31,9 @@ router.delete('/deleteEvent', eventController.deleteEvent);
 
 router.post('/updateEventStatus', eventController.updateEventStatus);
 
+router.post(
+  '/addToInterest',
+  eventController.addToInterest
+);
+
 export default router;

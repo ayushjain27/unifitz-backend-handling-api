@@ -39,6 +39,7 @@ export interface IEvent {
   email: string;
   address: string;
   eventType: string;
+  isInterested: boolean;
 }
 
 export interface IEventImage {
@@ -117,6 +118,10 @@ const eventSchema: Schema = new Schema(
       type: String,
       required: true,
       enum: EventProfileStatus
+    },
+    isInterested: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }
