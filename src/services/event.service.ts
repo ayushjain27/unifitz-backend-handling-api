@@ -256,7 +256,7 @@ export class EventService {
     eventOffersId: string;
     isInterested: boolean;
   }): Promise<any> {
-    Logger.info('<Service>:<EventService>:<Update event status >');
+    Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
     const store: IStore = await Store.findOne(
       { storeId: reqBody.storeId },
@@ -288,4 +288,27 @@ export class EventService {
     return newInterest;
     // return eventResult;
   }
+
+  async checkInterestEventsAndOffers(reqBody: {
+    storeId: string;
+    customerId: string;
+    eventOffersId: string;
+    isInterested: boolean;
+  }) {
+    const interestedEventsAndOffers = await InterestedEventAndOffer.findOne({
+      storeId: reqBody.storeId,
+      customerId: reqBody.customerId,
+      eventOffersId: reqBody.eventOffersId 
+    }).lean();
+
+    if (_.isEmpty(interestedEventsAndOffers)) {
+      return { isInterest: false, interestId: null };
+    } else {
+      return {
+        isInterest: interestedEventsAndOffers.isInterested, // Corrected key
+        interestId: interestedEventsAndOffers?._id
+      };
+    }
+  }
+
 }
