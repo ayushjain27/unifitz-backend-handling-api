@@ -1,5 +1,6 @@
 import { Document, model, Schema } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from './Store';
+import { IInterestedEventAndOffer, interestedEventAndOfferSchema } from './InterestedEventsAndOffers';
 
 export const eventDocumentSchema: Schema = new Schema<IEventImage>({
   docURL: {
@@ -39,6 +40,7 @@ export interface IEvent {
   email: string;
   address: string;
   eventType: string;
+  interested: IInterestedEventAndOffer[]
 }
 
 export interface IEventImage {
@@ -118,6 +120,9 @@ const eventSchema: Schema = new Schema(
       required: true,
       enum: EventProfileStatus
     },
+    interested:  {
+      type: [interestedEventAndOfferSchema]
+    }
   },
   { timestamps: true }
 );
