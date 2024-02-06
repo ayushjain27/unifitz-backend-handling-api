@@ -1,8 +1,8 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IInterestedEventAndOffer {
-  storeId: string;
-  customerId: string;
+  storeId?: string;
+  customerId?: string;
   eventOffersId: string;
   isInterested: boolean;
   name?: string;
@@ -10,11 +10,12 @@ export interface IInterestedEventAndOffer {
   eventName?: string;
   offerName?: string;
   email?: string;
+  interestType: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-const interestedEventAndOfferSchema: Schema = new Schema(
+export const interestedEventAndOfferSchema: Schema = new Schema(
   {
     storeId: {
       type: String
@@ -42,6 +43,9 @@ const interestedEventAndOfferSchema: Schema = new Schema(
       type: String
     },
     email: {
+      type: String
+    },
+    interestType: {
       type: String
     }
   },
