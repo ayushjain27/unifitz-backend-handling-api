@@ -10,7 +10,9 @@ import EventModel, { IEvent, EventStatus } from './../models/Event';
 import Store, { IStore } from './../models/Store';
 import Customer, { ICustomer } from './../models/Customer';
 import OfferModel, { IOffer } from './../models/Offers';
-import InterestedEventAndOffer, { IInterestedEventAndOffer } from './../models/InterestedEventsAndOffers';
+import InterestedEventAndOffer, {
+  IInterestedEventAndOffer
+} from './../models/InterestedEventsAndOffers';
 
 @injectable()
 export class EventService {
@@ -255,60 +257,48 @@ export class EventService {
     customerId: string;
     eventOffersId: string;
     isInterested: boolean;
+    interestType: string;
   }): Promise<any> {
     Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
-    const store: IStore = await Store.findOne(
-      { storeId: reqBody.storeId },
-      { verificationDetails: 0 }
-    ).lean();
-
-    // Check if Customer exists
-    const customer: ICustomer = await Customer.findOne({
-      _id: new Types.ObjectId(reqBody.customerId)
-    }).lean();
-
-    // Check if Event exists
-    const event: IEvent = await EventModel.findOne({
-      _id: new Types.ObjectId(reqBody.eventOffersId)
-    }).lean();
-
-     // Check if Offer exists
-    const offer: IOffer = await OfferModel.findOne({
-      _id: new Types.ObjectId(reqBody.eventOffersId)
-    }).lean();
+    const [store, customer, event, offer] = await Promise.all([
+      Store.findOne(
+        { storeId: reqBody.storeId },
+        { verificationDetails: 0 }
+      ).lean(),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      EventModel.findOne({
+        _id: new Types.ObjectId(reqBody.eventOffersId)
+      }).lean(),
+      OfferModel.findOne({
+        _id: new Types.ObjectId(reqBody.eventOffersId)
+      }).lean()
+    ]);
 
     let newInterest: IInterestedEventAndOffer = reqBody;
     newInterest.name = store?.basicInfo?.businessName || customer?.fullName;
-    newInterest.phoneNumber = store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber;
+    newInterest.phoneNumber =
+      store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber;
     newInterest.eventName = event?.eventName || '';
     newInterest.offerName = offer?.offerName || '';
     newInterest.email = event?.email || offer?.email;
     newInterest = await InterestedEventAndOffer.create(newInterest);
-    return newInterest;
-    // return eventResult;
-  }
-
-  async checkInterestEventsAndOffers(reqBody: {
-    storeId: string;
-    customerId: string;
-    eventOffersId: string;
-    isInterested: boolean;
-  }) {
-    const interestedEventsAndOffers = await InterestedEventAndOffer.findOne({
-      storeId: reqBody.storeId,
-      customerId: reqBody.customerId,
-      eventOffersId: reqBody.eventOffersId 
-    }).lean();
-
-    if (_.isEmpty(interestedEventsAndOffers)) {
-      return { isInterest: false, interestId: null };
+    let res;
+    if (reqBody.interestType === 'event') {
+        res = await EventModel.findOneAndUpdate(
+            { _id: reqBody.eventOffersId },
+            { $push: { interested: newInterest } },
+            { returnDocument: 'after' }
+        );
     } else {
-      return {
-        isInterest: interestedEventsAndOffers.isInterested, // Corrected key
-        interestId: interestedEventsAndOffers?._id
-      };
+        res = await OfferModel.findOneAndUpdate(
+          { _id: reqBody.eventOffersId },
+          { $push: { interested: newInterest } },
+          { returnDocument: 'after' }
+        );
     }
+    
+    return res;
+    
   }
-
 }
