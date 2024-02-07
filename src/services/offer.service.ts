@@ -137,7 +137,7 @@ export class OfferService {
         {
           $lookup: {
             from: 'interestedEventsAndOffers',
-            let: { event_id: '$_id'},
+            let: { event_id: { $toString: '$_id' }},
             pipeline: [
               {
                 $match: {
@@ -209,7 +209,7 @@ export class OfferService {
         {
           $lookup: {
             from: 'interestedEventsAndOffers',
-            let: { event_id: '$_id'},
+            let: { event_id: { $toString: '$_id' }},
             pipeline: [
               {
                 $match: {
