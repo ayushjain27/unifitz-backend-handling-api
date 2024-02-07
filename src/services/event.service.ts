@@ -48,9 +48,6 @@ export class EventService {
     const imageUpload = { key, url };
     const eventDetails = {
       ...eventResult,
-      // altText: key,
-      // slugUrl: key,
-      // url,
       eventImage: {
         ...imageUpload,
         docURL: url
