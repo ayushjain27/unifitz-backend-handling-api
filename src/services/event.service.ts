@@ -74,7 +74,9 @@ export class EventService {
     category: string,
     state: string,
     city: string,
-    eventType: string
+    eventType: string,
+    storeId: string,
+    customerId: string
   ): Promise<IEvent[]> {
     let eventResponse: any;
     const query = {
@@ -137,7 +139,34 @@ export class EventService {
               }
             }
           }
-        }
+        },
+        {
+          $lookup: {
+            from: 'interestedEventsAndOffers',
+            let: { event_id: '$_id'},
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$eventOffersId', '$$event_id'] },
+                      { $or: [
+                        { $eq: ['$storeId', storeId] },
+                        { $eq: ['$customerId', customerId] }
+                      ]}
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'interested'
+          }
+        },
+        {
+          $unwind: {
+            path: '$interested',
+          }
+        },
       ]);
     } else {
       eventResponse = EventModel.aggregate([
@@ -182,7 +211,29 @@ export class EventService {
           $match: {
             status: { $eq: 'ACTIVE' }
           }
-        }
+        },
+        {
+          $lookup: {
+            from: 'interestedeventsandoffers',
+            let: { event_id: { $toString: '$_id' }},
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$eventOffersId', '$$event_id'] },
+                      { $or: [
+                        { $eq: ['$storeId', storeId] },
+                        { $eq: ['$customerId', customerId] }
+                      ]}
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'interested'
+          }
+        },
       ]);
     }
 
@@ -283,22 +334,6 @@ export class EventService {
     newInterest.offerName = offer?.offerName || '';
     newInterest.email = event?.email || offer?.email;
     newInterest = await InterestedEventAndOffer.create(newInterest);
-    let res;
-    if (reqBody.interestType === 'event') {
-        res = await EventModel.findOneAndUpdate(
-            { _id: reqBody.eventOffersId },
-            { $push: { interested: newInterest } },
-            { returnDocument: 'after' }
-        );
-    } else {
-        res = await OfferModel.findOneAndUpdate(
-          { _id: reqBody.eventOffersId },
-          { $push: { interested: newInterest } },
-          { returnDocument: 'after' }
-        );
-    }
-    
-    return res;
-    
+    return newInterest;
   }
 }
