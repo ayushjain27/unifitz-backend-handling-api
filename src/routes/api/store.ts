@@ -74,7 +74,7 @@ router.put(
 );
 router.get('/:storeId/ratings', storeController.getOverallStoreRatings);
 router.get('/:storeId/reviews', storeController.getStoreReviews);
-router.put(
+router.post(
   '/updateStatus',
   roleAuth(ACL.STORE_CREATE),
   storeController.updateStoreStatus

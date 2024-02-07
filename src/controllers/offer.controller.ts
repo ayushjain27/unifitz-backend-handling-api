@@ -66,13 +66,17 @@ export class OfferController {
       category,
       state,
       city,
-      offerType
+      offerType,
+      storeId,
+      customerId
     }: {
       coordinates: number[];
       category: string;
       state: string;
       city: string;
       offerType: string;
+      storeId: string;
+      customerId: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -90,7 +94,9 @@ export class OfferController {
         category,
         state,
         city,
-        offerType
+        offerType,
+        storeId,
+        customerId
       );
       res.send({
         result
