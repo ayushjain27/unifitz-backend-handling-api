@@ -76,7 +76,6 @@ export class EventController {
       eventType: string;
       storeId: string;
       customerId: string;
-      eventOffersId: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
