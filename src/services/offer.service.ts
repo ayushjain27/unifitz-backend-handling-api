@@ -68,7 +68,9 @@ export class OfferService {
     category: string,
     state: string,
     city: string,
-    offerType: string
+    offerType: string,
+    storeId: string,
+    customerId: string
   ): Promise<IOffer[]> {
     let offerResponse: any;
     const query = {
@@ -131,7 +133,34 @@ export class OfferService {
               }
             }
           }
-        }
+        },
+        {
+          $lookup: {
+            from: 'interestedEventsAndOffers',
+            let: { event_id: '$_id'},
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$eventOffersId', '$$event_id'] },
+                      { $or: [
+                        { $eq: ['$storeId', storeId] },
+                        { $eq: ['$customerId', customerId] }
+                      ]}
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'interested'
+          }
+        },
+        {
+          $unwind: {
+            path: '$interested',
+          }
+        },
       ]);
     } else {
       offerResponse = OfferModel.aggregate([
@@ -176,7 +205,34 @@ export class OfferService {
           $match: {
             status: { $eq: 'ACTIVE' }
           }
-        }
+        },
+        {
+          $lookup: {
+            from: 'interestedEventsAndOffers',
+            let: { event_id: '$_id'},
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$eventOffersId', '$$event_id'] },
+                      { $or: [
+                        { $eq: ['$storeId', storeId] },
+                        { $eq: ['$customerId', customerId] }
+                      ]}
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'interested'
+          }
+        },
+        {
+          $unwind: {
+            path: '$interested',
+          }
+        },
       ]);
     }
 
