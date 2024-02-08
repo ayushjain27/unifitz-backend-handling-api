@@ -341,8 +341,8 @@ export class EventService {
       email: store?.contactInfo?.email || customer?.email,
       organiserName:event?.organizerName || offer?.businessName,
     };
-    sendEmail(templateData, event?.email || offer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
-    sendEmail(templateData, store?.contactInfo?.email || customer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
+    sendEmail(templateData, event?.email || offer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
+    sendEmail(templateData, store?.contactInfo?.email || customer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
     return newInterest;
   }
 }
