@@ -13,6 +13,16 @@ import OfferModel, { IOffer } from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
+import {sendEmail} from '../utils/common';
+
+// import AWS from 'aws-sdk';
+// import { s3Config } from '../config/constants';
+
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-southeast-2'
+// });
 
 @injectable()
 export class EventService {
@@ -139,7 +149,7 @@ export class EventService {
         },
         {
           $lookup: {
-            from: 'interestedEventsAndOffers',
+            from: 'interestedeventsandoffers',
             let: { event_id: { $toString: '$_id' }},
             pipeline: [
               {
@@ -157,11 +167,6 @@ export class EventService {
               }
             ],
             as: 'interested'
-          }
-        },
-        {
-          $unwind: {
-            path: '$interested',
           }
         },
       ]);
@@ -305,7 +310,6 @@ export class EventService {
     customerId: string;
     eventOffersId: string;
     isInterested: boolean;
-    interestType: string;
   }): Promise<any> {
     Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
@@ -324,13 +328,20 @@ export class EventService {
     ]);
 
     let newInterest: IInterestedEventAndOffer = reqBody;
-    newInterest.name = store?.basicInfo?.businessName || customer?.fullName;
+    newInterest.name = store?.basicInfo?.ownerName || customer?.fullName;
     newInterest.phoneNumber =
       store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber;
     newInterest.eventName = event?.eventName || '';
     newInterest.offerName = offer?.offerName || '';
     newInterest.email = event?.email || offer?.email;
     newInterest = await InterestedEventAndOffer.create(newInterest);
+    const templateData = {
+      name: store?.basicInfo?.ownerName || customer?.fullName,
+      phoneNumber:store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
+      email: event?.email || offer?.email,
+      organiserName:event?.organizerName || '',
+    };
+    await sendEmail(templateData, event?.email || offer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
     return newInterest;
   }
 }

@@ -10,7 +10,6 @@ export interface IInterestedEventAndOffer {
   eventName?: string;
   offerName?: string;
   email?: string;
-  interestType: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -43,9 +42,6 @@ export const interestedEventAndOfferSchema: Schema = new Schema(
       type: String
     },
     email: {
-      type: String
-    },
-    interestType: {
       type: String
     }
   },
