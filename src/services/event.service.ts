@@ -338,10 +338,11 @@ export class EventService {
     const templateData = {
       name: store?.basicInfo?.ownerName || customer?.fullName,
       phoneNumber:store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
-      email: event?.email || offer?.email,
-      organiserName:event?.organizerName || '',
+      email: store?.contactInfo?.email || customer?.email,
+      organiserName:event?.organizerName || offer?.businessName,
     };
     sendEmail(templateData, event?.email || offer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
+    sendEmail(templateData, store?.contactInfo?.email || customer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
     return newInterest;
   }
 }
