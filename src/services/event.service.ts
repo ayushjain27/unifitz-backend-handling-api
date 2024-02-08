@@ -341,7 +341,7 @@ export class EventService {
       email: event?.email || offer?.email,
       organiserName:event?.organizerName || '',
     };
-    await sendEmail(templateData, event?.email || offer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
+    sendEmail(templateData, event?.email || offer?.email, 'ayush@serviceplug.in', 'VerifyTestDetailsScheme')
     return newInterest;
   }
 }
