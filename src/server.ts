@@ -234,8 +234,8 @@ const ses = new AWS.SES();
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'MyTemplatesTest',
-      SubjectPart: 'Welcome to our community {{subject}}, {{User}}!', // Use a placeholder for dynamic subject
+      TemplateName: 'VerifyTestDetailsScheme',
+      SubjectPart: 'Congratulations {{name}}!', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -274,25 +274,17 @@ app.get('/createTemplate', async (req, res) => {
         </head>
         <body>
           <div class="container">
-            <h1>Welcome to our community!</h1>
-            <p>Dear {{User}}</p>
-            <p>{{message}}</p> <!-- Escape $ character for the message -->
+            <p>Dear {{organiserName}}</p>
             <p>Explore and discover the amazing features we offer:</p>
-            <ul>
-              <li>Engage with like-minded individuals</li>
-              <li>Access exclusive content</li>
-              <li>Participate in exciting discussions</li>
-            </ul>
-            <p>Click the button below to get started:</p>
-            <a href="https://www.serviceplug.in/" class="cta-button">Get Started</a>
-            <p>If you have any questions or need assistance, feel free to reach out to us.</p>
-            <p>Best regards, <br> {{subject}}</p> <!-- Escape $ character for the subject -->
+            <p>Congratulation, here is the New Customer Details (Mr/Ms {{name}} and {{phoneNumber}} & {{email}} ) is Interested in your products and Services. we request you to please Contact the valuable Customers ASAP.
+            <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
           </div>
         </body>
         </html>`,
       TextPart: 'Plain text content goes here'
     }
   };
+  console.log(params)
 
   ses.createTemplate(params, (err, data) => {
     if (err) {
@@ -304,26 +296,13 @@ app.get('/createTemplate', async (req, res) => {
     }
   });
 });
-
 app.post('/sendToSQS', async (req, res) => {
   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
-  if (
-    !req.body ||
-    !req.body.to ||
-    !req.body.subject ||
-    !req.body.message ||
-    !req.body.templateName
-  ) {
-    return res.status(400).send({
-      error: 'To, subject, and templateName are required in the request body'
-    });
-  }
 
   const params = {
     MessageBody: JSON.stringify({
       to: req.body.to,
-      subject: req.body.subject,
-      message: req.body.message,
+      name: req.body.name,
       templateName: req.body.templateName
     }),
     QueueUrl:
@@ -333,8 +312,10 @@ app.post('/sendToSQS', async (req, res) => {
   console.log(params, 'wkf');
   await sendEmail(
     req.body.to,
-    req.body.subject,
-    req.body.message,
+    req.body.name,
+    req.body.phoneNumber,
+    req.body.email,
+    req.body.organiserName,
     req.body.templateName
   );
 
@@ -348,15 +329,18 @@ app.post('/sendToSQS', async (req, res) => {
   });
 });
 
-async function sendEmail(to: any, subject: any, message: any, templateName: any) {
+
+async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organiserName:any, templateName: any) {
   // Construct the email payload with template
 
   const templateData = {
     // Include properties that match the placeholders in your SES template
     // For example:
     User: 'Ayush',
-    subject: subject,
-    message: message
+    name: name,
+    phoneNumber: phoneNumber,
+    organiserName: organiserName,
+    email: email,
     // lastName: "Doe",
     // ...
   };

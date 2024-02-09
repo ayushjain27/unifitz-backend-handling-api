@@ -136,18 +136,20 @@ export class OfferService {
         },
         {
           $lookup: {
-            from: 'interestedEventsAndOffers',
-            let: { event_id: '$_id'},
+            from: 'interestedeventsandoffers',
+            let: { offer_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      { $eq: ['$eventOffersId', '$$offer_id'] },
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -155,12 +157,7 @@ export class OfferService {
             ],
             as: 'interested'
           }
-        },
-        {
-          $unwind: {
-            path: '$interested',
-          }
-        },
+        }
       ]);
     } else {
       offerResponse = OfferModel.aggregate([
@@ -208,18 +205,20 @@ export class OfferService {
         },
         {
           $lookup: {
-            from: 'interestedEventsAndOffers',
-            let: { event_id: '$_id'},
+            from: 'interestedeventsandoffers',
+            let: { offer_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      { $eq: ['$eventOffersId', '$$offer_id'] },
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -227,12 +226,7 @@ export class OfferService {
             ],
             as: 'interested'
           }
-        },
-        {
-          $unwind: {
-            path: '$interested',
-          }
-        },
+        }
       ]);
     }
 
