@@ -17,7 +17,8 @@ export enum OfferProfileStatus {
 
 export interface IOffer {
   _id?: string;
-  businessName?: string;
+  storeId: string;
+  storeName?: string;
   offerName: string;
   // url?: string;
   externalUrl?: string;
@@ -54,7 +55,10 @@ export enum OfferStatus {
 
 const offerSchema: Schema = new Schema(
   {
-    businessName: {
+    storeId: {
+      type: String
+    },
+    storeName: {
       type: String
     },
     offerName: {

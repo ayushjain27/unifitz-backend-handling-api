@@ -339,7 +339,7 @@ export class EventService {
       name: store?.basicInfo?.ownerName || customer?.fullName,
       phoneNumber:store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
       email: store?.contactInfo?.email || customer?.email,
-      organiserName:event?.organizerName || offer?.businessName,
+      organiserName:event?.organizerName || offer?.storeName,
     };
     sendEmail(templateData, event?.email || offer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
     sendEmail(templateData, store?.contactInfo?.email || customer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
