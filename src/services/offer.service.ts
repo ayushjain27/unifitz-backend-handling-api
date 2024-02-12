@@ -26,7 +26,7 @@ export class OfferService {
     console.log(store,"sdkflnj")
     let newOffer: IOffer = offerRequest;
     newOffer.storeName = store?.basicInfo?.businessName;
-    newOffer.geoLocation = store?.contactInfo?.geoLocation
+    newOffer.geoLocation.coordinates = store?.contactInfo?.geoLocation?.coordinates
     newOffer = await OfferModel.create(offerRequest);
     console.log(newOffer,"l;dkme")
     Logger.info('<Service>:<OfferService>:<Offer created successfully>');
