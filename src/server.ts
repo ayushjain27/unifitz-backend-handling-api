@@ -234,7 +234,7 @@ const ses = new AWS.SES();
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'VerifyTestDetailsScheme',
+      TemplateName: 'EmailProductionVerify',
       SubjectPart: 'Congratulations {{name}}!', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">

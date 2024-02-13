@@ -341,8 +341,8 @@ export class EventService {
       email: store?.contactInfo?.email || customer?.email,
       organiserName:event?.organizerName || offer?.storeName,
     };
-    sendEmail(templateData, event?.email || offer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
-    sendEmail(templateData, store?.contactInfo?.email || customer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
+    sendEmail(templateData, event?.email || offer?.email, store?.contactInfo?.email || customer?.email, 'EmailProductionVerify')
+    sendEmail(templateData, store?.contactInfo?.email || customer?.email, store?.contactInfo?.email || customer?.email, 'EmailProductionVerify')
     return newInterest;
   }
 }
