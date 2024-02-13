@@ -3,7 +3,7 @@ import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { AdminRole } from '../models/Admin';
+import { AdminRole, IAdmin } from '../models/Admin';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
@@ -255,6 +255,53 @@ export class AdminController {
           .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
           .json({ message: err.message });
       }
+    }
+  };
+
+  searchDistributorsPartnersPaginated = async (req: Request, res: Response) => {
+    const {
+      category,
+      brand,
+      pageNo,
+      pageSize,
+      coordinates
+    }: {
+      category: string;
+      brand: string;
+      pageNo: number;
+      pageSize: number;
+      coordinates: number[];
+    } = req.body;
+    let { subCategory } = req.body;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
+    Logger.info(
+      '<Controller>:<AdminController>:<Search and Filter Distributors partners pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<AdminController>:<Search and Filter Distributors partners pagination request controller initiated>'
+      );
+      const result: IAdmin[] =
+        await this.adminService.searchAndFilterPaginated({
+          category,
+          subCategory,
+          brand,
+          pageNo,
+          pageSize,
+          coordinates
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
