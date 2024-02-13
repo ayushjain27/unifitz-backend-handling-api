@@ -122,6 +122,8 @@ export class ProductService {
     pageNo: number;
     pageSize: number;
     offerType: string;
+    userName?: string;
+    role?: string;
   }): Promise<IPrelistProduct[]> {
     Logger.info(
       '<Service>:<ProductService>:<Search and Filter prelist product service initiated>'
@@ -131,9 +133,13 @@ export class ProductService {
       itemName: new RegExp(searchReqBody.itemName, 'i'),
       offerType: searchReqBody.offerType,
       'productCategory.catalogName': searchReqBody.productCategory,
-      'productSubCategory.catalogName': searchReqBody.productSubCategory
+      'productSubCategory.catalogName': searchReqBody.productSubCategory,
+      oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
+    if (searchReqBody?.role !== AdminRole.OEM) {
+      delete query['oemUserName'];
+    }
     if (!searchReqBody.itemName) {
       delete query['itemName'];
     }
@@ -184,6 +190,44 @@ export class ProductService {
       _id: new Types.ObjectId(productId)
     }).lean();
     return product;
+  }
+
+  async updatePrelistProduct(
+    reqBody: IPrelistProduct,
+    productId: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Update Product details >');
+    const productResult: IPrelistProduct = await PrelistPoduct.findOne({
+      _id: productId
+    })?.lean();
+
+    if (_.isEmpty(productResult)) {
+      throw new Error('Product does not exist');
+    }
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await PrelistPoduct.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
+  }
+
+  async updateProductStatus(reqBody: {
+    productId: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Update product status >');
+
+    const productResult: IPrelistProduct = await PrelistPoduct.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(reqBody.productId)
+      },
+      { $set: { status: reqBody.status } },
+      { returnDocument: 'after' }
+    );
+
+    return productResult;
   }
 
   async getAllProductsByStoreId(storeId: string): Promise<IProduct[]> {

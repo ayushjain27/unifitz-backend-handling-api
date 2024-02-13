@@ -1,6 +1,9 @@
 import { Document, model, Schema } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from './Store';
-import { IInterestedEventAndOffer, interestedEventAndOfferSchema } from './InterestedEventsAndOffers';
+import {
+  IInterestedEventAndOffer,
+  interestedEventAndOfferSchema
+} from './InterestedEventsAndOffers';
 
 export const offerDocumentSchema: Schema = new Schema<IOfferImage>({
   docURL: {
@@ -41,7 +44,7 @@ export interface IOffer {
   email: string;
   address: string;
   offerType: string;
-  interested: IInterestedEventAndOffer[]
+  interested: IInterestedEventAndOffer[];
 }
 
 export interface IOfferImage {
@@ -122,7 +125,7 @@ const offerSchema: Schema = new Schema(
       required: true,
       enum: OfferProfileStatus
     },
-    interested:  {
+    interested: {
       type: [interestedEventAndOfferSchema]
     }
   },

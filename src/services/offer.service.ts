@@ -137,17 +137,19 @@ export class OfferService {
         {
           $lookup: {
             from: 'interestedEventsAndOffers',
-            let: { event_id: { $toString: '$_id' }},
+            let: { event_id: '$_id' },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
                       { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -158,9 +160,9 @@ export class OfferService {
         },
         {
           $unwind: {
-            path: '$interested',
+            path: '$interested'
           }
-        },
+        }
       ]);
     } else {
       offerResponse = OfferModel.aggregate([
@@ -209,17 +211,19 @@ export class OfferService {
         {
           $lookup: {
             from: 'interestedEventsAndOffers',
-            let: { event_id: { $toString: '$_id' }},
+            let: { event_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
                       { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -230,9 +234,9 @@ export class OfferService {
         },
         {
           $unwind: {
-            path: '$interested',
+            path: '$interested'
           }
-        },
+        }
       ]);
     }
 

@@ -140,17 +140,19 @@ export class EventService {
         {
           $lookup: {
             from: 'interestedEventsAndOffers',
-            let: { event_id: { $toString: '$_id' }},
+            let: { event_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
                       { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -161,9 +163,9 @@ export class EventService {
         },
         {
           $unwind: {
-            path: '$interested',
+            path: '$interested'
           }
-        },
+        }
       ]);
     } else {
       eventResponse = EventModel.aggregate([
@@ -212,17 +214,19 @@ export class EventService {
         {
           $lookup: {
             from: 'interestedeventsandoffers',
-            let: { event_id: { $toString: '$_id' }},
+            let: { event_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
                       { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -230,7 +234,7 @@ export class EventService {
             ],
             as: 'interested'
           }
-        },
+        }
       ]);
     }
 
