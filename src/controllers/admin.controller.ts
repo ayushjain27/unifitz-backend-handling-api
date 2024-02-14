@@ -289,8 +289,8 @@ export class AdminController {
       Logger.info(
         '<Controller>:<AdminController>:<Search and Filter Distributors partners pagination request controller initiated>'
       );
-      const result: IAdmin[] =
-        await this.adminService.searchAndFilterPaginated({
+      const result: IAdmin[] = await this.adminService.searchAndFilterPaginated(
+        {
           category,
           subCategory,
           brand,

@@ -460,8 +460,10 @@ export class StoreController {
     Logger.info(
       '<Controller>:<StoreController>:<Get all stores reviews request controller initiated>'
     );
+    const userId = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.storeService.getAllReviews();
+      const result = await this.storeService.getAllReviews(userId, role);
       res.send({
         result
       });
