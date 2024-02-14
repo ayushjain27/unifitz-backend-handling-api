@@ -8,7 +8,7 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
 import Request from '../types/request';
-import { VerifyB2BPartnersRequest } from '../interfaces';
+import { DistributedPartnersReviewRequest, VerifyB2BPartnersRequest } from '../interfaces';
 
 @injectable()
 export class AdminController {
@@ -264,13 +264,17 @@ export class AdminController {
       brand,
       pageNo,
       pageSize,
-      coordinates
+      productCategory,
+      productSubCategory,
+      productBrand
     }: {
       category: string;
       brand: string;
       pageNo: number;
       pageSize: number;
-      coordinates: number[];
+      productCategory: string;
+      productSubCategory: string;
+      productBrand: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -292,9 +296,91 @@ export class AdminController {
           brand,
           pageNo,
           pageSize,
-          coordinates
-        }
+          productCategory,
+          productSubCategory,
+          productBrand
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  addStoreReview = async (req: Request, res: Response) => {
+    const storeReview: DistributedPartnersReviewRequest = req.body;
+    Logger.info('<Controller>:<StoreController>:<Create store ratings>');
+    try {
+      const result = await this.adminService.addReview(storeReview);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getOverallStoreRatings = async (req: Request, res: Response) => {
+    const userName = req.params.userName;
+    Logger.info('<Controller>:<AdminController>:<Get distributor partners ratings>');
+    try {
+      const result = await this.adminService.getOverallRatings(userName);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getStoreReviews = async (req: Request, res: Response) => {
+    const userName = req.params.userName;
+    const pageSize = Number(req.query.pageSize) || 15;
+    const pageNo = Number(req.query.pageNo) || 0;
+    Logger.info('<Controller>:<AdminController>:<Get disributors partners reviews>');
+    try {
+      const result = await this.adminService.getReviews(
+        userName,
+        pageNo,
+        pageSize
       );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getDistributorPartnersByuserName = async (req: Request, res: Response) => {
+    const userName = req.query.userName;
+    Logger.info(
+      '<Controller>:<AdminController>:<Get distributed partners by userName request controller initiated>'
+    );
+    try {
+      let result: IAdmin[];
+      if (!userName) {
+        throw new Error('userName required');
+      } else {
+        result = await this.adminService.getById(
+          { userName } as {
+            userName: string;
+          }
+        );
+      }
       res.send({
         result
       });

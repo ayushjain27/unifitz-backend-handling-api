@@ -10,10 +10,12 @@ import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import { generateToken } from '../utils';
 import { SurepassService } from './surepass.service';
-import { VerifyB2BPartnersRequest } from '../interfaces';
+import { DistributedPartnersReviewRequest, OverallStoreRatingResponse, VerifyB2BPartnersRequest } from '../interfaces';
 import { DocType } from '../enum/docType.enum';
 import { IDocumentImageList } from '../models/Admin';
 import { Types } from 'mongoose';
+import DistributorPartnersReview from '../models/DistributorPartnersReview';
+import Store, { IStore } from '../models/Store';
 
 @injectable()
 export class AdminService {
@@ -277,7 +279,10 @@ export class AdminService {
     category: string;
     pageNo: number;
     pageSize: number;
-    coordinates: number[];
+    productCategory: string;
+    productSubCategory: string;
+    productBrand: string;
+
   }): Promise<IAdmin[]> {
     Logger.info(
       '<Service>:<AdminService>:<Search and Filter distributors partners service initiated>'
@@ -291,6 +296,9 @@ export class AdminService {
       'category.name': searchReqBody.category,
       'subCategory.name': { $in: searchReqBody.subCategory },
       'brand.name': searchReqBody.brand,
+      'productCategory.category.name': searchReqBody.productCategory,
+      'productCategory.subCategory.name': searchReqBody.productSubCategory,
+      'productCategory.brand': searchReqBody.productBrand,
       companyType: 'Distributer'
     };
     if (!searchReqBody.category) {
@@ -301,6 +309,15 @@ export class AdminService {
     }
     if (!searchReqBody.brand) {
       delete query['brand.name'];
+    }
+    if (!searchReqBody.productCategory) {
+      delete query['productCategory.category.name'];
+    }
+    if (!searchReqBody.productSubCategory) {
+      delete query['productCategory.subCategory.name'];
+    }
+    if (!searchReqBody.productBrand) {
+      delete query['productCategory.brand'];
     }
     Logger.debug(query);
 
@@ -332,17 +349,135 @@ export class AdminService {
       }
     ]);
 
-    // if (stores && Array.isArray(stores)) {
-    //   stores = await Promise.all(
-    //     stores.map(async (store) => {
-    //       const updatedStore = { ...store };
-    //       updatedStore.overAllRating = await this.getOverallRatings(
-    //         updatedStore.storeId
-    //       );
-    //       return updatedStore;
-    //     })
-    //   );
-    // }
+    if (distributedPartners && Array.isArray(distributedPartners)) {
+      distributedPartners = await Promise.all(
+        distributedPartners.map(async (distributedPartners) => {
+          const updatedDistributedPartners = { ...distributedPartners };
+          updatedDistributedPartners.overAllRating = await this.getOverallRatings(
+            updatedDistributedPartners.userName
+          );
+          return updatedDistributedPartners;
+        })
+      );
+    }
     return distributedPartners;
+  }
+
+  async addReview(
+    distributedPartersReview: DistributedPartnersReviewRequest
+  ): Promise<DistributedPartnersReviewRequest> {
+    Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
+    let store: IStore;
+    if (distributedPartersReview?.storeId) {
+      store = await Store.findOne(
+        { storeId: distributedPartersReview.storeId },
+        { verificationDetails: 0 }
+      )?.lean();
+    }
+    if (!distributedPartersReview?.storeId) {
+      throw new Error('Store not found');
+    }
+    const newDistributedPartnersReview = new DistributorPartnersReview(distributedPartersReview);
+    newDistributedPartnersReview.ownerName = store?.basicInfo?.ownerName || '';
+    await newDistributedPartnersReview.save();
+    Logger.info('<Service>:<AdminService>:<Distributors Partners Ratings added successfully>');
+    return newDistributedPartnersReview;
+  }
+
+  async getOverallRatings(
+    userName: string
+  ): Promise<OverallStoreRatingResponse> {
+    Logger.info('<Service>:<AdminService>:<Get Overall Ratings initiate>');
+    const distributorPartnersReviews = await DistributorPartnersReview.find({ userName });
+    if (distributorPartnersReviews.length === 0) {
+      return {
+        allRatings: {
+          5: 100
+        },
+        averageRating: '-',
+        totalRatings: 0,
+        totalReviews: 1
+      };
+    }
+    let ratingsCount = 0;
+    let totalRatings = 0;
+    let totalReviews = 0;
+    const allRatings: { [key: number]: number } = {};
+
+    distributorPartnersReviews.forEach(({ rating, review }) => {
+      if (rating) totalRatings++;
+      if (review) totalReviews++;
+      ratingsCount = ratingsCount + rating;
+      if (!allRatings[rating]) {
+        allRatings[rating] = 1;
+      } else {
+        allRatings[rating]++;
+      }
+    });
+
+    for (const key in allRatings) {
+      allRatings[key] = Math.trunc(
+        (allRatings[key] * 100) / distributorPartnersReviews.length
+      );
+    }
+
+    const averageRating = Number(
+      ratingsCount / distributorPartnersReviews.length
+    ).toPrecision(2);
+    Logger.info(
+      '<Service>:<AdminService>:<Get Overall Ratings performed successfully>'
+    );
+    return {
+      allRatings,
+      averageRating,
+      totalRatings,
+      totalReviews
+    };
+  }
+
+  async getReviews(
+    userName: string,
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any[]> {
+    Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
+    const storeReviews = await DistributorPartnersReview.find({ userName })
+      .skip(pageNo * pageSize)
+      .limit(pageSize)
+      .lean();
+    Logger.info(
+      '<Service>:<StoreService>:<Get Ratings performed successfully>'
+    );
+    if (storeReviews.length === 0 && !pageNo) {
+      return [
+        {
+          ownerName: 'Service Plug',
+          userName: 'SERVICEPLUG',
+          rating: 5,
+          review:
+            'Thank you for onboarding with us. May you have a wonderful experience.'
+        }
+      ];
+    } else {
+      return storeReviews;
+    }
+  }
+
+  async getById(
+    req: { userName: string },
+    role?: string
+  ): Promise<IAdmin[]> {
+    Logger.info(
+      '<Service>:<AdminService>:<Get distributor partners by userName service initiated>'
+    );
+    const query: any = {};
+    query.userName = req.userName;
+    let distributorPartnersResponse: any;
+    distributorPartnersResponse = Admin.aggregate([
+        {
+          $match: query
+        }
+      ]);
+    return distributorPartnersResponse;
   }
 }
