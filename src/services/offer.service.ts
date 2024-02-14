@@ -7,16 +7,29 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import OfferModel, { IOffer, OfferStatus } from './../models/Offers';
+import Store, { IStore } from '../models/Store';
 
 @injectable()
 export class OfferService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
   async create(offerRequest: IOffer): Promise<any> {
+    console.log(offerRequest, 'ewl;kjr');
     Logger.info(
       '<Service>:<OfferService>: <Offer onboarding: creating new offer>'
     );
-    const newOffer = await OfferModel.create(offerRequest);
+    const { storeId } = offerRequest;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
+    console.log(store, 'sdkflnj');
+    let newOffer: IOffer = offerRequest;
+    newOffer.storeName = store?.basicInfo?.businessName;
+    newOffer.geoLocation.coordinates =
+      store?.contactInfo?.geoLocation?.coordinates;
+    newOffer = await OfferModel.create(offerRequest);
+    console.log(newOffer, 'l;dkme');
     Logger.info('<Service>:<OfferService>:<Offer created successfully>');
     return newOffer;
   }
@@ -136,14 +149,14 @@ export class OfferService {
         },
         {
           $lookup: {
-            from: 'interestedEventsAndOffers',
-            let: { event_id: '$_id' },
+            from: 'interestedeventsandoffers',
+            let: { offer_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ['$eventOffersId', '$$event_id'] },
+                      { $eq: ['$eventOffersId', '$$offer_id'] },
                       {
                         $or: [
                           { $eq: ['$storeId', storeId] },
@@ -156,11 +169,6 @@ export class OfferService {
               }
             ],
             as: 'interested'
-          }
-        },
-        {
-          $unwind: {
-            path: '$interested'
           }
         }
       ]);
@@ -210,14 +218,14 @@ export class OfferService {
         },
         {
           $lookup: {
-            from: 'interestedEventsAndOffers',
-            let: { event_id: { $toString: '$_id' } },
+            from: 'interestedeventsandoffers',
+            let: { offer_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ['$eventOffersId', '$$event_id'] },
+                      { $eq: ['$eventOffersId', '$$offer_id'] },
                       {
                         $or: [
                           { $eq: ['$storeId', storeId] },
@@ -230,11 +238,6 @@ export class OfferService {
               }
             ],
             as: 'interested'
-          }
-        },
-        {
-          $unwind: {
-            path: '$interested'
           }
         }
       ]);

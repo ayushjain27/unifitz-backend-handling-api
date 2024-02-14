@@ -1,9 +1,5 @@
 import { Document, model, Schema } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from './Store';
-import {
-  IInterestedEventAndOffer,
-  interestedEventAndOfferSchema
-} from './InterestedEventsAndOffers';
 
 export const offerDocumentSchema: Schema = new Schema<IOfferImage>({
   docURL: {
@@ -21,7 +17,8 @@ export enum OfferProfileStatus {
 
 export interface IOffer {
   _id?: string;
-  businessName?: string;
+  storeId: string;
+  storeName?: string;
   offerName: string;
   // url?: string;
   externalUrl?: string;
@@ -44,7 +41,6 @@ export interface IOffer {
   email: string;
   address: string;
   offerType: string;
-  interested: IInterestedEventAndOffer[];
 }
 
 export interface IOfferImage {
@@ -59,7 +55,10 @@ export enum OfferStatus {
 
 const offerSchema: Schema = new Schema(
   {
-    businessName: {
+    storeId: {
+      type: String
+    },
+    storeName: {
       type: String
     },
     offerName: {
@@ -124,9 +123,6 @@ const offerSchema: Schema = new Schema(
       type: String,
       required: true,
       enum: OfferProfileStatus
-    },
-    interested: {
-      type: [interestedEventAndOfferSchema]
     }
   },
   { timestamps: true }

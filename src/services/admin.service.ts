@@ -270,4 +270,79 @@ export class AdminService {
     }
     throw new Error('Invalid and unauthenticated request');
   }
+
+  async searchAndFilterPaginated(searchReqBody: {
+    brand: string;
+    subCategory: string[];
+    category: string;
+    pageNo: number;
+    pageSize: number;
+    coordinates: number[];
+  }): Promise<IAdmin[]> {
+    Logger.info(
+      '<Service>:<AdminService>:<Search and Filter distributors partners service initiated>'
+    );
+    const query = {
+      // 'contactInfo.geoLocation': {
+      //   $near: {
+      //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
+      //   }
+      // },
+      'category.name': searchReqBody.category,
+      'subCategory.name': { $in: searchReqBody.subCategory },
+      'brand.name': searchReqBody.brand,
+      companyType: 'Distributer'
+    };
+    if (!searchReqBody.category) {
+      delete query['category.name'];
+    }
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+      delete query['subCategory.name'];
+    }
+    if (!searchReqBody.brand) {
+      delete query['brand.name'];
+    }
+    Logger.debug(query);
+
+    let distributedPartners: any = await Admin.aggregate([
+      // {
+      //   $geoNear: {
+      //     near: {
+      //       type: 'Point',
+      //       coordinates: searchReqBody.coordinates as [number, number]
+      //     },
+      //     key: 'contactInfo.geoLocation',
+      //     spherical: true,
+      //     query: query,
+      //     distanceField: 'contactInfo.distance',
+      //     distanceMultiplier: 0.001
+      //   }
+      // },
+      {
+        $match: query
+      },
+      {
+        $skip: searchReqBody.pageNo * searchReqBody.pageSize
+      },
+      {
+        $limit: searchReqBody.pageSize
+      },
+      {
+        $project: { 'verificationDetails.verifyObj': 0 }
+      }
+    ]);
+
+    // if (stores && Array.isArray(stores)) {
+    //   stores = await Promise.all(
+    //     stores.map(async (store) => {
+    //       const updatedStore = { ...store };
+    //       updatedStore.overAllRating = await this.getOverallRatings(
+    //         updatedStore.storeId
+    //       );
+    //       return updatedStore;
+    //     })
+    //   );
+    // }
+    return distributedPartners;
+  }
 }

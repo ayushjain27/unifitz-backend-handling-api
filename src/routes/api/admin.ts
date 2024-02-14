@@ -77,4 +77,10 @@ router.post(
   adminController.initiateB2BPartnersVerification
 );
 
+router.post(
+  '/search_paginated',
+  // roleAuth(ACL.STORE_GET_ALL),
+  adminController.searchDistributorsPartnersPaginated
+);
+
 export default router;
