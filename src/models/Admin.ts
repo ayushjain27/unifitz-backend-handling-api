@@ -122,6 +122,7 @@ export interface IAdmin {
   productCategory: IProductCategory;
   updateCount?: string;
   lastModifyResult?: Date;
+  overAllRating?: any;
 }
 
 export interface IDocumentImage {
