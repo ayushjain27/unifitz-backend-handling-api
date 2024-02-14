@@ -56,3 +56,11 @@ export interface VerifyB2BPartnersRequest {
   documentNo: string;
   documentType: DocType;
 }
+
+export interface DistributedPartnersReviewRequest {
+  userName: string;
+  ownerName: string;
+  review: string;
+  rating: number;
+  storeId: string;
+}

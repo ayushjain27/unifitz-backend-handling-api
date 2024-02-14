@@ -83,4 +83,19 @@ router.post(
   adminController.searchDistributorsPartnersPaginated
 );
 
+router.post(
+  '/review',
+  adminController.addStoreReview
+);
+
+router.get('/:userName/ratings', adminController.getOverallStoreRatings);
+
+router.get('/:userName/reviews', adminController.getStoreReviews);
+
+router.get(
+  '/userName',
+  // roleAuth(ACL.STORE_GET_SINGLE),
+  adminController.getDistributorPartnersByuserName
+);
+
 export default router;
