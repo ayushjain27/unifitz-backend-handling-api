@@ -263,18 +263,12 @@ export class AdminController {
       category,
       brand,
       pageNo,
-      pageSize,
-      productCategory,
-      productSubCategory,
-      productBrand
+      pageSize
     }: {
       category: string;
       brand: string;
       pageNo: number;
       pageSize: number;
-      productCategory: string;
-      productSubCategory: string;
-      productBrand: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -295,10 +289,7 @@ export class AdminController {
           subCategory,
           brand,
           pageNo,
-          pageSize,
-          productCategory,
-          productSubCategory,
-          productBrand
+          pageSize
         });
       res.send({
         result

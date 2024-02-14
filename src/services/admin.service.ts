@@ -279,10 +279,6 @@ export class AdminService {
     category: string;
     pageNo: number;
     pageSize: number;
-    productCategory: string;
-    productSubCategory: string;
-    productBrand: string;
-
   }): Promise<IAdmin[]> {
     Logger.info(
       '<Service>:<AdminService>:<Search and Filter distributors partners service initiated>'
@@ -296,9 +292,6 @@ export class AdminService {
       'category.name': searchReqBody.category,
       'subCategory.name': { $in: searchReqBody.subCategory },
       'brand.name': searchReqBody.brand,
-      'productCategory.category.name': searchReqBody.productCategory,
-      'productCategory.subCategory.name': searchReqBody.productSubCategory,
-      'productCategory.brand': searchReqBody.productBrand,
       companyType: 'Distributer'
     };
     if (!searchReqBody.category) {
@@ -309,15 +302,6 @@ export class AdminService {
     }
     if (!searchReqBody.brand) {
       delete query['brand.name'];
-    }
-    if (!searchReqBody.productCategory) {
-      delete query['productCategory.category.name'];
-    }
-    if (!searchReqBody.productSubCategory) {
-      delete query['productCategory.subCategory.name'];
-    }
-    if (!searchReqBody.productBrand) {
-      delete query['productCategory.brand'];
     }
     Logger.debug(query);
 
