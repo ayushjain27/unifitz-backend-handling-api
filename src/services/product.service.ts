@@ -544,9 +544,15 @@ export class ProductService {
 
       productImageList[fileName] = { key, docURL: url };
     }
+    const producttDetails = {
+      ...prelistProduct,
+      productImageList,
+      status: 'ACTIVE',
+      _id: new Types.ObjectId(productId)
+    };
     const res = await PrelistPoduct.findOneAndUpdate(
       { _id: productId },
-      { $set: { productImageList } },
+      producttDetails,
       { returnDocument: 'after' }
     );
     return res;
