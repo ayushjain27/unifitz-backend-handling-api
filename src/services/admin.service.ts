@@ -321,7 +321,7 @@ export class AdminService {
     }
     Logger.debug(query);
 
-    const distributedPartners: any = await Admin.aggregate([
+    let distributedPartners: any = await Admin.aggregate([
       // {
       //   $geoNear: {
       //     near: {
