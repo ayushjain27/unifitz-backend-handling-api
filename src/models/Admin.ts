@@ -122,7 +122,7 @@ export interface IAdmin {
   productCategory: IProductCategory;
   updateCount?: string;
   lastModifyResult?: Date;
-  overAllRating?: any;
+  lastLogin: Date;
 }
 
 export interface IDocumentImage {
@@ -329,6 +329,10 @@ const adminSchema: Schema = new Schema<IAdmin>(
       type: String,
       enum: UserStatus,
       default: UserStatus.ACTIVE
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now
     }
   },
   { timestamps: true, strict: false }
