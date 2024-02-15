@@ -305,6 +305,15 @@ export class AdminService {
       'brand.name': { $in: store.basicInfo.brand.map(brand => brand.name) },
       companyType: 'Distributer'
     };
+    if (!store.basicInfo.category.map(category => category.name)) {
+      delete query['category.name'];
+    }
+    if (!store.basicInfo.subCategory.map(subCategory => subCategory.name)) {
+      delete query['subCategory.name'];
+    }
+    if (!store.basicInfo.brand.map(brand => brand.name)) {
+      delete query['brand.name'];
+    }
     Logger.debug(query);
 
     let distributedPartners: any = await Admin.aggregate([
