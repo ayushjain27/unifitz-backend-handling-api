@@ -274,35 +274,37 @@ export class AdminService {
   }
 
   async searchAndFilterPaginated(searchReqBody: {
-    brand: string;
-    subCategory: string[];
-    category: string;
     pageNo: number;
     pageSize: number;
+    storeId: string;
   }): Promise<IAdmin[]> {
     Logger.info(
       '<Service>:<AdminService>:<Search and Filter distributors partners service initiated>'
     );
+
+    const { storeId } = searchReqBody;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
+    if (!store) {
+      Logger.error('<Service>:<AdminService>:< store id not found>');
+      throw new Error('Store not found');
+    }
+
+    console.log(store.basicInfo.brand,"store details")
+
     const query = {
       // 'contactInfo.geoLocation': {
       //   $near: {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
       //   }
       // },
-      'category.name': searchReqBody.category,
-      'subCategory.name': { $in: searchReqBody.subCategory },
-      'brand.name': searchReqBody.brand,
+      'category.name': { $in: store.basicInfo.category.map(category => category.name) },
+      'subCategory.name': { $in: store.basicInfo.subCategory.map(subCategory => subCategory.name) },
+      'brand.name': { $in: store.basicInfo.brand.map(brand => brand.name) },
       companyType: 'Distributer'
     };
-    if (!searchReqBody.category) {
-      delete query['category.name'];
-    }
-    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
-      delete query['subCategory.name'];
-    }
-    if (!searchReqBody.brand) {
-      delete query['brand.name'];
-    }
     Logger.debug(query);
 
     let distributedPartners: any = await Admin.aggregate([

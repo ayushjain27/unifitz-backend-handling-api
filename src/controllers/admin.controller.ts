@@ -260,22 +260,14 @@ export class AdminController {
 
   searchDistributorsPartnersPaginated = async (req: Request, res: Response) => {
     const {
-      category,
-      brand,
       pageNo,
-      pageSize
+      pageSize,
+      storeId
     }: {
-      category: string;
-      brand: string;
       pageNo: number;
       pageSize: number;
+      storeId: string;
     } = req.body;
-    let { subCategory } = req.body;
-    if (subCategory) {
-      subCategory = (subCategory as string).split(',');
-    } else {
-      subCategory = [];
-    }
     Logger.info(
       '<Controller>:<AdminController>:<Search and Filter Distributors partners pagination request controller initiated>'
     );
@@ -285,11 +277,9 @@ export class AdminController {
       );
       const result: IAdmin[] = await this.adminService.searchAndFilterPaginated(
         {
-          category,
-          subCategory,
-          brand,
           pageNo,
-          pageSize
+          pageSize,
+          storeId
         });
       res.send({
         result
