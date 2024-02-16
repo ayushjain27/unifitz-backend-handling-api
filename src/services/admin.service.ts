@@ -297,9 +297,9 @@ export class AdminService {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
       //   }
       // },
-      'category.name': store.basicInfo.category.map(category => category.name),
-      'subCategory.name': store.basicInfo.subCategory.map(subCategory => subCategory.name),
-      'brand.name': store.basicInfo.brand.map(brand => brand.name),
+      'category.name': { $in: store.basicInfo.category.map(category => category.name) },
+      'subCategory.name': { $in: store.basicInfo.subCategory.map(subCategory => subCategory.name) },
+      'brand.name': { $in: store.basicInfo.brand.map(brand => brand.name) },
       companyType: 'Distributer'
     };
     if (!store.basicInfo.category.map(category => category.name)) {
