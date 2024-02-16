@@ -299,7 +299,6 @@ export class AdminService {
       // },
       'category.name': { $in: store.basicInfo.category.map(category => category.name) },
       'subCategory.name': { $in: store.basicInfo.subCategory.map(subCategory => subCategory.name) },
-      'brand.name': { $in: store.basicInfo.brand.map(brand => brand.name) },
       companyType: 'Distributer'
     };
     if (!store.basicInfo.category.map(category => category.name)) {
@@ -307,9 +306,6 @@ export class AdminService {
     }
     if (!store.basicInfo.category.map(category => category.name)) {
       delete query['subCategory.name'];
-    }
-    if (!store.basicInfo.category.map(category => category.name)) {
-      delete query['brand.name'];
     }
     Logger.debug(query);
 
