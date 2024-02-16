@@ -274,50 +274,42 @@ export class AdminService {
   }
 
   async searchAndFilterPaginated(searchReqBody: {
-    brand: string;
-    subCategory: string[];
-    category: string;
     pageNo: number;
     pageSize: number;
-    productCategory: string;
-    productSubCategory: string;
-    productBrand: string;
-
+    storeId: string;
   }): Promise<IAdmin[]> {
     Logger.info(
       '<Service>:<AdminService>:<Search and Filter distributors partners service initiated>'
     );
+
+    const { storeId } = searchReqBody;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
+    if (!store) {
+      Logger.error('<Service>:<ProductService>:< store id not found>');
+      throw new Error('Store not found');
+    }
     const query = {
       // 'contactInfo.geoLocation': {
       //   $near: {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
       //   }
       // },
-      'category.name': searchReqBody.category,
-      'subCategory.name': { $in: searchReqBody.subCategory },
-      'brand.name': searchReqBody.brand,
-      'productCategory.category.name': searchReqBody.productCategory,
-      'productCategory.subCategory.name': searchReqBody.productSubCategory,
-      'productCategory.brand': searchReqBody.productBrand,
+      'category.name': store.basicInfo.category.map(category => category.name),
+      'subCategory.name': store.basicInfo.subCategory.map(subCategory => subCategory.name),
+      'brand.name': store.basicInfo.brand.map(brand => brand.name),
       companyType: 'Distributer'
     };
-    if (!searchReqBody.category) {
+    if (!store.basicInfo.category.map(category => category.name)) {
       delete query['category.name'];
     }
-    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+    if (!store.basicInfo.category.map(category => category.name)) {
       delete query['subCategory.name'];
     }
-    if (!searchReqBody.brand) {
+    if (!store.basicInfo.category.map(category => category.name)) {
       delete query['brand.name'];
-    }
-    if (!searchReqBody.productCategory) {
-      delete query['productCategory.category.name'];
-    }
-    if (!searchReqBody.productSubCategory) {
-      delete query['productCategory.subCategory.name'];
-    }
-    if (!searchReqBody.productBrand) {
-      delete query['productCategory.brand'];
     }
     Logger.debug(query);
 
