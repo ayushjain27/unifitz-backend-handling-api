@@ -274,45 +274,50 @@ export class AdminService {
   }
 
   async searchAndFilterPaginated(searchReqBody: {
+    brand: string;
+    subCategory: string[];
+    category: string;
     pageNo: number;
     pageSize: number;
-    storeId: string;
+    productCategory: string;
+    productSubCategory: string;
+    productBrand: string;
+
   }): Promise<IAdmin[]> {
     Logger.info(
       '<Service>:<AdminService>:<Search and Filter distributors partners service initiated>'
     );
-
-    const { storeId } = searchReqBody;
-    let store: IStore;
-    if (storeId) {
-      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
-    }
-    if (!store) {
-      Logger.error('<Service>:<AdminService>:< store id not found>');
-      throw new Error('Store not found');
-    }
-
-    console.log(store.basicInfo.brand,"store details")
-
     const query = {
       // 'contactInfo.geoLocation': {
       //   $near: {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
       //   }
       // },
-      'category.name': { $in: store.basicInfo.category.map(category => category.name) },
-      'subCategory.name': { $in: store.basicInfo.subCategory.map(subCategory => subCategory.name) },
-      'brand.name': { $in: store.basicInfo.brand.map(brand => brand.name) },
+      'category.name': searchReqBody.category,
+      'subCategory.name': { $in: searchReqBody.subCategory },
+      'brand.name': searchReqBody.brand,
+      'productCategory.category.name': searchReqBody.productCategory,
+      'productCategory.subCategory.name': searchReqBody.productSubCategory,
+      'productCategory.brand': searchReqBody.productBrand,
       companyType: 'Distributer'
     };
-    if (!store.basicInfo.category.map(category => category.name)) {
+    if (!searchReqBody.category) {
       delete query['category.name'];
     }
-    if (!store.basicInfo.subCategory.map(subCategory => subCategory.name)) {
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
       delete query['subCategory.name'];
     }
-    if (!store.basicInfo.brand.map(brand => brand.name)) {
+    if (!searchReqBody.brand) {
       delete query['brand.name'];
+    }
+    if (!searchReqBody.productCategory) {
+      delete query['productCategory.category.name'];
+    }
+    if (!searchReqBody.productSubCategory) {
+      delete query['productCategory.subCategory.name'];
+    }
+    if (!searchReqBody.productBrand) {
+      delete query['productCategory.brand'];
     }
     Logger.debug(query);
 
