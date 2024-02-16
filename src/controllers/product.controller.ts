@@ -516,8 +516,16 @@ export class ProductController {
   };
 
   getProductByOemUserName = async (req: Request, res: Response) => {
-    const oemUserName = req.params.oemUserName;
-    if (!oemUserName) {
+    const {
+      productCategory,
+      productSubCategory,
+      oemUserName
+    }: {
+      productCategory: string;
+      productSubCategory: string;
+      oemUserName: string;
+    } = req.body;
+    if (!req.body.oemUserName) {
       res
         .status(HttpStatusCodes.BAD_REQUEST)
         .json({ errors: { message: 'oemUserName is not present' } });
@@ -527,7 +535,7 @@ export class ProductController {
       '<Controller>:<ProductController>:<Get products by oemUserName controller initiated>'
     );
     try {
-      const result = await this.productService.getProductByOemUserName(oemUserName);
+      const result = await this.productService.getProductByOemUserName({productCategory, productSubCategory, oemUserName});
       res.send({
         message: 'Product Fetch Successful',
         result

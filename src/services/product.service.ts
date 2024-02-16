@@ -685,11 +685,51 @@ export class ProductService {
     return product;
   }
 
-  async getProductByOemUserName(oemUserName: string): Promise<IPrelistProduct[]> {
+  async getProductByOemUserName(searchReqBody: {
+    productCategory: string;
+    productSubCategory: string;
+    oemUserName: string;}): Promise<IPrelistProduct[]> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: Get product by OemUserName>'
     );
-    const product: IPrelistProduct[] = await PrelistPoduct.find({oemUserName})
+    const query = {
+      'productCategory.catalogName': searchReqBody?.productCategory,
+      'productSubCategory.catalogName': searchReqBody?.productSubCategory,
+      oemUserName: searchReqBody?.oemUserName
+    };
+    if (!searchReqBody?.productCategory) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!searchReqBody?.productSubCategory) {
+      delete query['productSubCategory.catalogName'];
+    }
+    if (!searchReqBody?.oemUserName) {
+      delete query['oemUserName'];
+    }
+    Logger.debug(query);
+
+    let product: any = await PrelistPoduct.aggregate([
+      // {
+      //   $geoNear: {
+      //     near: {
+      //       type: 'Point',
+      //       coordinates: searchReqBody.coordinates as [number, number]
+      //     },
+      //     key: 'contactInfo.geoLocation',
+      //     spherical: true,
+      //     query: query,
+      //     distanceField: 'contactInfo.distance',
+      //     distanceMultiplier: 0.001
+      //   }
+      // },
+      {
+        $match: query
+      },
+      {
+        $project: { 'verificationDetails.verifyObj': 0 }
+      }
+    ]);
+
     return product;
   }
 }
