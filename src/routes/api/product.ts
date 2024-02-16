@@ -142,7 +142,7 @@ router.get(
   productController.searchAndFilterProduct
 );
 
-router.post(
+router.get(
   '/oemUserName',
   // roleAuth(ACL.STORE_GET_ALL),
   productController.getProductByOemUserName
