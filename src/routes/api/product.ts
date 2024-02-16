@@ -142,4 +142,10 @@ router.get(
   productController.searchAndFilterProduct
 );
 
+router.get(
+  '/oemUserName/:oemUserName',
+  // roleAuth(ACL.STORE_GET_ALL),
+  productController.getProductByOemUserName
+);
+
 export default router;

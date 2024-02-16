@@ -684,4 +684,13 @@ export class ProductService {
 
     return product;
   }
+
+  async getProductByOemUserName(oemUserName: string): Promise<IProduct> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Fetch: Get product by OemUserName>'
+    );
+    const product: IProduct = await Product.findOne({oemUserName})
+    // product.overallRating = await this.getOverallRatings(productId);
+    return product;
+  }
 }
