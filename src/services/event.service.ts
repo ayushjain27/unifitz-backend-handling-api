@@ -361,13 +361,13 @@ export class EventService {
     sendEmail(
       templateData,
       event?.email || offer?.email,
-      store?.contactInfo?.email || customer?.email,
+      'Support@serviceplug.in',
       'VerifyTestDetailsScheme'
     );
     sendEmail(
       templateData,
       store?.contactInfo?.email || customer?.email,
-      store?.contactInfo?.email || customer?.email,
+      'Support@serviceplug.in',
       'VerifyTestDetailsScheme'
     );
     return newInterest;
