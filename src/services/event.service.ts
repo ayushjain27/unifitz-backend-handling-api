@@ -360,13 +360,13 @@ export class EventService {
     };
     sendEmail(
       templateData,
-      'ayush@serviceplug.in',
+      event?.email || offer?.email,
       'support@serviceplug.in',
       'EventsOfferscheme'
     );
     sendEmail(
       templateData,
-      'ayush@serviceplug.in',
+      store?.contactInfo?.email || customer?.email,
       'support@serviceplug.in',
       'EventsOfferscheme'
     );
