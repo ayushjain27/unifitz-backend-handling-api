@@ -123,7 +123,7 @@ const offerSchema: Schema = new Schema(
       type: String,
       required: true,
       enum: OfferProfileStatus
-    },
+    }
   },
   { timestamps: true }
 );

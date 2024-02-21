@@ -14,21 +14,22 @@ export class OfferService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
   async create(offerRequest: IOffer): Promise<any> {
-    console.log(offerRequest,"ewl;kjr")
+    console.log(offerRequest, 'ewl;kjr');
     Logger.info(
       '<Service>:<OfferService>: <Offer onboarding: creating new offer>'
     );
-    const {storeId} = offerRequest;
+    const { storeId } = offerRequest;
     let store: IStore;
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
-    console.log(store,"sdkflnj")
+    console.log(store, 'sdkflnj');
     let newOffer: IOffer = offerRequest;
     newOffer.storeName = store?.basicInfo?.businessName;
-    newOffer.geoLocation.coordinates = store?.contactInfo?.geoLocation?.coordinates
+    newOffer.geoLocation.coordinates =
+      store?.contactInfo?.geoLocation?.coordinates;
     newOffer = await OfferModel.create(offerRequest);
-    console.log(newOffer,"l;dkme")
+    console.log(newOffer, 'l;dkme');
     Logger.info('<Service>:<OfferService>:<Offer created successfully>');
     return newOffer;
   }
@@ -139,9 +140,15 @@ export class OfferService {
           $set: {
             status: {
               $cond: {
-                if: { $lte: ['$offerCompleted', 1] },
-                then: 'ACTIVE',
-                else: 'DISABLED'
+                if: { $eq: ['$status', 'DISABLED'] },
+                then: 'DISABLED',
+                else: {
+                  $cond: {
+                    if: { $lte: ['$offerCompleted', 1] },
+                    then: 'ACTIVE',
+                    else: 'DISABLED'
+                  }
+                }
               }
             }
           }
@@ -203,9 +210,15 @@ export class OfferService {
           $set: {
             status: {
               $cond: {
-                if: { $lte: ['$offerCompleted', 1] },
-                then: 'ACTIVE',
-                else: 'DISABLED'
+                if: { $eq: ['$status', 'DISABLED'] },
+                then: 'DISABLED',
+                else: {
+                  $cond: {
+                    if: { $lte: ['$offerCompleted', 1] },
+                    then: 'ACTIVE',
+                    else: 'DISABLED'
+                  }
+                }
               }
             }
           }

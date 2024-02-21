@@ -3,12 +3,12 @@ import { Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { AdminRole } from '../models/Admin';
+import { AdminRole, IAdmin } from '../models/Admin';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
 import Request from '../types/request';
-import { VerifyB2BPartnersRequest } from '../interfaces';
+import { DistributedPartnersReviewRequest, VerifyB2BPartnersRequest } from '../interfaces';
 
 @injectable()
 export class AdminController {
@@ -255,6 +255,121 @@ export class AdminController {
           .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
           .json({ message: err.message });
       }
+    }
+  };
+
+  searchDistributorsPartnersPaginated = async (req: Request, res: Response) => {
+    const {
+      pageNo,
+      pageSize,
+      storeId
+    }: {
+      pageNo: number;
+      pageSize: number;
+      storeId: string;
+    } = req.body;
+    Logger.info(
+      '<Controller>:<AdminController>:<Search and Filter Distributors partners pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<AdminController>:<Search and Filter Distributors partners pagination request controller initiated>'
+      );
+      const result: IAdmin[] = await this.adminService.searchAndFilterPaginated(
+        {
+          pageNo,
+          pageSize,
+          storeId
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  addStoreReview = async (req: Request, res: Response) => {
+    const storeReview: DistributedPartnersReviewRequest = req.body;
+    Logger.info('<Controller>:<StoreController>:<Create store ratings>');
+    try {
+      const result = await this.adminService.addReview(storeReview);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getOverallStoreRatings = async (req: Request, res: Response) => {
+    const userName = req.params.userName;
+    Logger.info('<Controller>:<AdminController>:<Get distributor partners ratings>');
+    try {
+      const result = await this.adminService.getOverallRatings(userName);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getStoreReviews = async (req: Request, res: Response) => {
+    const userName = req.params.userName;
+    const pageSize = Number(req.query.pageSize) || 15;
+    const pageNo = Number(req.query.pageNo) || 0;
+    Logger.info('<Controller>:<AdminController>:<Get disributors partners reviews>');
+    try {
+      const result = await this.adminService.getReviews(
+        userName,
+        pageNo,
+        pageSize
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getDistributorPartnersByuserName = async (req: Request, res: Response) => {
+    const userName = req.query.userName;
+    Logger.info(
+      '<Controller>:<AdminController>:<Get distributed partners by userName request controller initiated>'
+    );
+    try {
+      let result: IAdmin[];
+      if (!userName) {
+        throw new Error('userName required');
+      } else {
+        result = await this.adminService.getById(
+          { userName } as {
+            userName: string;
+          }
+        );
+      }
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 

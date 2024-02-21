@@ -77,4 +77,25 @@ router.post(
   adminController.initiateB2BPartnersVerification
 );
 
+router.post(
+  '/search_paginated',
+  // roleAuth(ACL.STORE_GET_ALL),
+  adminController.searchDistributorsPartnersPaginated
+);
+
+router.post(
+  '/review',
+  adminController.addStoreReview
+);
+
+router.get('/:userName/ratings', adminController.getOverallStoreRatings);
+
+router.get('/:userName/reviews', adminController.getStoreReviews);
+
+router.get(
+  '/userName',
+  // roleAuth(ACL.STORE_GET_SINGLE),
+  adminController.getDistributorPartnersByuserName
+);
+
 export default router;

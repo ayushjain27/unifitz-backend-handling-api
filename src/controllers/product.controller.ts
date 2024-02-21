@@ -111,12 +111,15 @@ export class ProductController {
       pageSize,
       offerType
     }: IPrelistSearchRequest = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
     // let { mrp } = req.body;
     // if (mrp) {
     //   mrp = (mrp as number).split(',').map(Number);
     // } else {
     //   mrp = [];
     // }
+    Logger.debug(`${userName} ${role} pppppppppp`);
     Logger.info(
       '<Controller>:<ProductController>:<Search and Filter Prelist Products pagination request controller initiated>'
     );
@@ -131,7 +134,9 @@ export class ProductController {
           itemName,
           pageNo,
           pageSize,
-          offerType
+          offerType,
+          userName,
+          role
         });
       res.send({
         result
@@ -186,6 +191,50 @@ export class ProductController {
       );
       res.send({
         message: 'Product Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updatePrelistProduct = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Update Product Status>');
+    // Validate the request body
+    const productId = req.params.productId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.updatePrelistProduct(
+        req.body,
+        productId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateProductStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Update Product Status>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.updateProductStatus(req.body);
+      res.send({
         result
       });
     } catch (err) {
@@ -466,6 +515,37 @@ export class ProductController {
     }
   };
 
+  getProductByOemUserName = async (req: Request, res: Response) => {
+    const {
+      productCategory,
+      productSubCategory,
+      oemUserName
+    }: {
+      productCategory: string;
+      productSubCategory: string;
+      oemUserName: string;
+    } = req.body;
+    if (!req.body.oemUserName) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'oemUserName is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Get products by oemUserName controller initiated>'
+    );
+    try {
+      const result = await this.productService.getProductByOemUserName({productCategory, productSubCategory, oemUserName});
+      res.send({
+        message: 'Product Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
@@ -484,8 +564,8 @@ export class ProductController {
             .exists()
             .isIn(['product', 'service']),
 
-          body('itemName', 'Item Name does not exist').exists().isString(),
-          body('mrp', 'MRP does not exist').exists().isNumeric()
+          body('itemName', 'Item Name does not exist').exists().isString()
+          // body('mrp', 'MRP does not exist').exists().isNumeric()
         ];
       case 'reviewProduct':
         return [

@@ -199,9 +199,7 @@ export class EventController {
       '<Controller>:<EventController>:<Add to interest request initiated>'
     );
     try {
-      const result = await this.eventService.addToInterest(
-        interestRequest
-      );
+      const result = await this.eventService.addToInterest(interestRequest);
       res.send({
         result
       });

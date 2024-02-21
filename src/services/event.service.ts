@@ -13,7 +13,7 @@ import OfferModel, { IOffer } from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
-import {sendEmail} from '../utils/common';
+import { sendEmail } from '../utils/common';
 
 // import AWS from 'aws-sdk';
 // import { s3Config } from '../config/constants';
@@ -140,9 +140,15 @@ export class EventService {
           $set: {
             status: {
               $cond: {
-                if: { $lte: ['$eventCompleted', 1] },
-                then: 'ACTIVE',
-                else: 'DISABLED'
+                if: { $eq: ['$status', 'DISABLED'] },
+                then: 'DISABLED',
+                else: {
+                  $cond: {
+                    if: { $lte: ['$eventCompleted', 1] },
+                    then: 'ACTIVE',
+                    else: 'DISABLED'
+                  }
+                }
               }
             }
           }
@@ -150,17 +156,19 @@ export class EventService {
         {
           $lookup: {
             from: 'interestedeventsandoffers',
-            let: { event_id: { $toString: '$_id' }},
+            let: { event_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
                       { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -168,7 +176,7 @@ export class EventService {
             ],
             as: 'interested'
           }
-        },
+        }
       ]);
     } else {
       eventResponse = EventModel.aggregate([
@@ -202,9 +210,15 @@ export class EventService {
           $set: {
             status: {
               $cond: {
-                if: { $lte: ['$eventCompleted', 1] },
-                then: 'ACTIVE',
-                else: 'DISABLED'
+                if: { $eq: ['$status', 'DISABLED'] },
+                then: 'DISABLED',
+                else: {
+                  $cond: {
+                    if: { $lte: ['$eventCompleted', 1] },
+                    then: 'ACTIVE',
+                    else: 'DISABLED'
+                  }
+                }
               }
             }
           }
@@ -217,17 +231,19 @@ export class EventService {
         {
           $lookup: {
             from: 'interestedeventsandoffers',
-            let: { event_id: { $toString: '$_id' }},
+            let: { event_id: { $toString: '$_id' } },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $and: [
                       { $eq: ['$eventOffersId', '$$event_id'] },
-                      { $or: [
-                        { $eq: ['$storeId', storeId] },
-                        { $eq: ['$customerId', customerId] }
-                      ]}
+                      {
+                        $or: [
+                          { $eq: ['$storeId', storeId] },
+                          { $eq: ['$customerId', customerId] }
+                        ]
+                      }
                     ]
                   }
                 }
@@ -235,7 +251,7 @@ export class EventService {
             ],
             as: 'interested'
           }
-        },
+        }
       ]);
     }
 
@@ -337,12 +353,23 @@ export class EventService {
     newInterest = await InterestedEventAndOffer.create(newInterest);
     const templateData = {
       name: store?.basicInfo?.ownerName || customer?.fullName,
-      phoneNumber:store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
+      phoneNumber:
+        store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
       email: store?.contactInfo?.email || customer?.email,
-      organiserName:event?.organizerName || offer?.storeName,
+      organiserName: event?.organizerName || offer?.storeName
     };
-    sendEmail(templateData, event?.email || offer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
-    sendEmail(templateData, store?.contactInfo?.email || customer?.email, store?.contactInfo?.email || customer?.email, 'VerifyTestDetailsScheme')
+    sendEmail(
+      templateData,
+      'ayush@serviceplug.in',
+      'support@serviceplug.in',
+      'EventsOfferscheme'
+    );
+    sendEmail(
+      templateData,
+      'ayush@serviceplug.in',
+      'support@serviceplug.in',
+      'EventsOfferscheme'
+    );
     return newInterest;
   }
 }

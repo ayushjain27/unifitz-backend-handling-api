@@ -822,9 +822,34 @@ export class StoreService {
     }
   }
 
-  async getAllReviews(): Promise<IStoreReview[]> {
+  async getAllReviews(userName: string, role: string): Promise<IStoreReview[]> {
     Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
-    const reviewResponse: IStoreReview[] = await StoreReview.find({});
+    let reviewResponse: any = []
+    if(role === 'ADMIN'){
+    reviewResponse = await StoreReview.find({});
+    }
+    else{
+      reviewResponse = await StoreReview.aggregate([
+        {
+          $lookup: {
+            from: 'stores',
+            localField: 'storeId',
+            foreignField: 'storeId',
+            as: 'storeInfo'
+          }
+        },
+        { $unwind: { path: '$storeInfo' } },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                { $eq: ['$storeInfo.oemUserName', userName] }
+              ]
+            }
+          }
+        },
+      ])
+    }
     return reviewResponse;
   }
 
