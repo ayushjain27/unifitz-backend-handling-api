@@ -39,7 +39,7 @@ const app = express();
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
   secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-southeast-2'
+  region: 'ap-south-1'
 });
 
 connectDB();
@@ -234,7 +234,7 @@ const ses = new AWS.SES();
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'VerifyTestDetailsScheme',
+      TemplateName: 'EventsOfferscheme',
       SubjectPart: 'Congratulations {{name}}!', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
@@ -296,70 +296,70 @@ app.get('/createTemplate', async (req, res) => {
     }
   });
 });
-app.post('/sendToSQS', async (req, res) => {
-  // Check if 'to', 'subject', and 'templateName' properties exist in req.body
+// app.post('/sendToSQS', async (req, res) => {
+//   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
 
-  const params = {
-    MessageBody: JSON.stringify({
-      to: req.body.to,
-      name: req.body.name,
-      templateName: req.body.templateName
-    }),
-    QueueUrl:
-      'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
-  };
+//   const params = {
+//     MessageBody: JSON.stringify({
+//       to: req.body.to,
+//       name: req.body.name,
+//       templateName: req.body.templateName
+//     }),
+//     QueueUrl:
+//       'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
+//   };
 
-  console.log(params, 'wkf');
-  await sendEmail(
-    req.body.to,
-    req.body.name,
-    req.body.phoneNumber,
-    req.body.email,
-    req.body.organiserName,
-    req.body.templateName
-  );
+//   console.log(params, 'wkf');
+//   await sendEmail(
+//     req.body.to,
+//     req.body.name,
+//     req.body.phoneNumber,
+//     req.body.email,
+//     req.body.organiserName,
+//     req.body.templateName
+//   );
 
-  sqs.sendMessage(params, (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send({ error: 'Failed to send message to SQS' });
-    } else {
-      res.send(data);
-    }
-  });
-});
+//   sqs.sendMessage(params, (err, data) => {
+//     if (err) {
+//       console.error(err);
+//       res.status(500).send({ error: 'Failed to send message to SQS' });
+//     } else {
+//       res.send(data);
+//     }
+//   });
+// });
 
 
-async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organiserName:any, templateName: any) {
-  // Construct the email payload with template
+// async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organiserName:any, templateName: any) {
+//   // Construct the email payload with template
 
-  const templateData = {
-    // Include properties that match the placeholders in your SES template
-    // For example:
-    User: 'Ayush',
-    name: name,
-    phoneNumber: phoneNumber,
-    organiserName: organiserName,
-    email: email,
-    // lastName: "Doe",
-    // ...
-  };
+//   const templateData = {
+//     // Include properties that match the placeholders in your SES template
+//     // For example:
+//     User: 'Ayush',
+//     name: name,
+//     phoneNumber: phoneNumber,
+//     organiserName: organiserName,
+//     email: email,
+//     // lastName: "Doe",
+//     // ...
+//   };
 
-  const emailParams = {
-    Destination: {
-      ToAddresses: [to]
-    },
-    Template: templateName, // Replace with your SES template name
-    Source: 'ayush@serviceplug.in',
-    TemplateData: JSON.stringify(templateData) // Replace with your verified SES email address
-  };
-  console.log(emailParams);
+//   const emailParams = {
+//     Destination: {
+//       ToAddresses: [to]
+//     },
+//     Template: templateName, // Replace with your SES template name
+//     Source: 'ayush@serviceplug.in',
+//     TemplateData: JSON.stringify(templateData) // Replace with your verified SES email address
+//   };
+//   console.log(emailParams);
 
-  // Send email using AWS SES
-  const res = await ses.sendTemplatedEmail(emailParams).promise();
+//   // Send email using AWS SES
+//   const res = await ses.sendTemplatedEmail(emailParams).promise();
 
-  console.log('Email sent:', res.MessageId);
-}
+//   console.log('Email sent:', res.MessageId);
+// }
 
 export default server;
 

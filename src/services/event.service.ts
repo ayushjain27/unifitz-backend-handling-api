@@ -360,15 +360,15 @@ export class EventService {
     };
     sendEmail(
       templateData,
-      event?.email || offer?.email,
-      'Support@serviceplug.in',
-      'VerifyTestDetailsScheme'
+      'ayush@serviceplug.in',
+      'support@serviceplug.in',
+      'EventsOfferscheme'
     );
     sendEmail(
       templateData,
-      store?.contactInfo?.email || customer?.email,
-      'Support@serviceplug.in',
-      'VerifyTestDetailsScheme'
+      'ayush@serviceplug.in',
+      'support@serviceplug.in',
+      'EventsOfferscheme'
     );
     return newInterest;
   }
