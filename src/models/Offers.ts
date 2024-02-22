@@ -15,9 +15,22 @@ export enum OfferProfileStatus {
   CUSTOMER = 'CUSTOMER'
 }
 
+export enum OemOfferType {
+  PARTNER_OFFER = 'PARTNER_OFFER',
+  CONSUMER_OFFER = 'CONSUMER_OFFER'
+}
+
+export enum OemOfferProfileStatus {
+  DRAFT = 'DRAFT',
+  ONBOARDED = 'ONBOARDED',
+  REJECTED = 'REJECTED'
+}
+
 export interface IOffer {
+  offerItemName: string;
+  offerId: string;
   _id?: string;
-  storeId: string;
+  storeId?: string;
   storeName?: string;
   offerName: string;
   // url?: string;
@@ -41,6 +54,10 @@ export interface IOffer {
   email: string;
   address: string;
   offerType: string;
+  oemUserName?: string;
+  oemOfferType?: string;
+  oemOfferStatus?: string;
+  rejectionReason?: string;
 }
 
 export interface IOfferImage {
@@ -59,6 +76,9 @@ const offerSchema: Schema = new Schema(
       type: String
     },
     storeName: {
+      type: String
+    },
+    oemUserName: {
       type: String
     },
     offerName: {
@@ -123,6 +143,22 @@ const offerSchema: Schema = new Schema(
       type: String,
       required: true,
       enum: OfferProfileStatus
+    },
+    oemOfferType: {
+      type: String
+    },
+    oemOfferStatus: {
+      type: String
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
+    },
+    offerId: {
+      type: String
+    },
+    offerItemName: {
+      type: String
     }
   },
   { timestamps: true }

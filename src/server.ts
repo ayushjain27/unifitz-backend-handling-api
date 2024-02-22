@@ -284,7 +284,7 @@ app.get('/createTemplate', async (req, res) => {
       TextPart: 'Plain text content goes here'
     }
   };
-  console.log(params)
+  console.log(params);
 
   ses.createTemplate(params, (err, data) => {
     if (err) {
@@ -329,8 +329,14 @@ app.post('/sendToSQS', async (req, res) => {
   });
 });
 
-
-async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organiserName:any, templateName: any) {
+async function sendEmail(
+  to: any,
+  name: any,
+  phoneNumber: any,
+  email: any,
+  organiserName: any,
+  templateName: any
+) {
   // Construct the email payload with template
 
   const templateData = {
@@ -340,7 +346,7 @@ async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organi
     name: name,
     phoneNumber: phoneNumber,
     organiserName: organiserName,
-    email: email,
+    email: email
     // lastName: "Doe",
     // ...
   };

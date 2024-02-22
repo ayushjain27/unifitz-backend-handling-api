@@ -8,28 +8,60 @@ import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import OfferModel, { IOffer, OfferStatus } from './../models/Offers';
 import Store, { IStore } from '../models/Store';
+import Admin, { AdminRole, IAdmin } from '../models/Admin';
+import OfferImpressionModel from '../models/OffersUserImpression';
+import { OemOfferType, OemOfferProfileStatus } from './../models/Offers';
 
 @injectable()
 export class OfferService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
-  async create(offerRequest: IOffer): Promise<any> {
+  async create(
+    offerRequest: IOffer,
+    userName: string,
+    role: string
+  ): Promise<any> {
     console.log(offerRequest, 'ewl;kjr');
     Logger.info(
       '<Service>:<OfferService>: <Offer onboarding: creating new offer>'
     );
-    const { storeId } = offerRequest;
+    const { storeId, oemUserName, oemOfferType } = offerRequest;
+    let newOffer: IOffer = offerRequest;
     let store: IStore;
+    let user: IAdmin;
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
-    console.log(store, 'sdkflnj');
-    let newOffer: IOffer = offerRequest;
+    if (oemOfferType === OemOfferType.PARTNER_OFFER) {
+      const userName = oemUserName;
+      user = await Admin.findOne({ userName })?.lean();
+    }
+    if (role === AdminRole.OEM) {
+      newOffer.oemOfferStatus = OemOfferProfileStatus.DRAFT;
+    }
+    if (role === AdminRole.ADMIN) {
+      newOffer.oemOfferStatus = OemOfferProfileStatus.ONBOARDED;
+    }
+    const lastCreatedOffer: any = await OfferModel.find({})
+      .sort({ createdAt: 'desc' })
+      .limit(1)
+      .exec();
+
+    const offerId: number =
+      !lastCreatedOffer[0] || !lastCreatedOffer[0]?.offerId
+        ? new Date().getFullYear() * 100
+        : +lastCreatedOffer[0].offerId + 1;
+
+    newOffer.offerId = String(offerId);
+    newOffer.offerItemName = `OFF${String(offerId).slice(-4)}`;
+
     newOffer.storeName = store?.basicInfo?.businessName;
     newOffer.geoLocation.coordinates =
-      store?.contactInfo?.geoLocation?.coordinates;
+      oemOfferType === OemOfferType.PARTNER_OFFER
+        ? user?.contactInfo?.geoLocation?.coordinates
+        : store?.contactInfo?.geoLocation?.coordinates;
     newOffer = await OfferModel.create(offerRequest);
-    console.log(newOffer, 'l;dkme');
+
     Logger.info('<Service>:<OfferService>:<Offer created successfully>');
     return newOffer;
   }
@@ -83,7 +115,9 @@ export class OfferService {
     city: string,
     offerType: string,
     storeId: string,
-    customerId: string
+    customerId: string,
+    userName: string,
+    role?: string
   ): Promise<IOffer[]> {
     let offerResponse: any;
     const query = {
@@ -92,8 +126,13 @@ export class OfferService {
       'category.name': category,
       'subCategory.name': { $in: subCategory },
       status: OfferStatus.ACTIVE,
-      offerType: offerType
+      offerType: offerType,
+      oemUserName: userName
     };
+
+    if (role !== AdminRole.OEM) {
+      delete query['oemUserName'];
+    }
 
     Logger.info('<Service>:<OfferService>:<get offer initiated>');
 
@@ -176,6 +215,55 @@ export class OfferService {
             ],
             as: 'interested'
           }
+        },
+        {
+          $lookup: {
+            from: 'offerimpressions',
+            localField: 'offerId',
+            foreignField: 'offerId',
+            as: 'userImpression'
+          }
+        },
+        {
+          $addFields: {
+            impressionCount: {
+              $size: '$userImpression'
+            }
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            storeId: 1,
+            storeName: 1,
+            offerName: 1,
+            status: 1,
+            geoLocation: 1,
+            startDate: 1,
+            endDate: 1,
+            category: 1,
+            subCategory: 1,
+            brand: 1,
+            state: 1,
+            city: 1,
+            phoneNumber: 1,
+            email: 1,
+            address: 1,
+            externalUrl: 1,
+            offerType: 1,
+            oemUserName: 1,
+            oemOfferType: 1,
+            oemOfferStatus: 1,
+            rejectionReason: 1,
+            offerId: 1,
+            offerItemName: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            offerCompleted: 1,
+            interested: 1,
+            offerImage: 1,
+            impressionCount: 1
+          }
         }
       ]);
     } else {
@@ -225,6 +313,7 @@ export class OfferService {
         },
         {
           $match: {
+            oemOfferStatus: { $eq: 'ONBOARDED' },
             status: { $eq: 'ACTIVE' }
           }
         },
@@ -307,17 +396,94 @@ export class OfferService {
   async updateOfferStatus(reqBody: {
     offerId: string;
     status: string;
+    oemOfferStatus: string;
   }): Promise<any> {
     Logger.info('<Service>:<OfferService>:<Update offer status >');
+
+    const query = {
+      status: reqBody.status,
+      oemOfferStatus: reqBody.oemOfferStatus
+    };
+
+    if (!reqBody.status) {
+      delete query['status'];
+    }
+    if (!reqBody.oemOfferStatus) {
+      delete query['oemOfferStatus'];
+    }
 
     const eventResult: IOffer = await OfferModel.findOneAndUpdate(
       {
         _id: new Types.ObjectId(reqBody.offerId)
       },
-      { $set: { status: reqBody.status } },
+      {
+        $set: query
+      },
       { returnDocument: 'after' }
     );
 
     return eventResult;
+  }
+
+  async userImpression(reqBody: {
+    offerId: string;
+    offerName: string;
+    userName: string;
+    userId: string;
+    email: string;
+    offerType: string;
+    phoneNumber: string;
+  }): Promise<any> {
+    const offerResult: IOffer = await OfferModel.findOne({
+      offerId: reqBody.offerId
+    })?.lean();
+
+    if (_.isEmpty(offerResult)) {
+      throw new Error('Offer does not exist');
+    }
+
+    const userResult = await Admin.findOne({
+      _id: reqBody.userId
+    })?.lean();
+
+    if (_.isEmpty(userResult)) {
+      throw new Error('User does not exist');
+    }
+    const query: any = {
+      userId: reqBody.userId,
+      offerId: reqBody.offerId
+    };
+
+    const res = await OfferImpressionModel.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    // console.log(`${JSON.stringify(res)} ${res}`);
+    if (res) {
+      return res;
+    }
+    Logger.info('<Service>:<OfferService>:<offer Impression status >');
+
+    const offerImpressionResult = await OfferImpressionModel.create(reqBody);
+
+    return offerImpressionResult;
+  }
+
+  async getUserImpression(): Promise<any> {
+    Logger.info('<Service>:<OfferService>: <getting all the offers list>');
+
+    const offersResult = await OfferImpressionModel.find().lean();
+    Logger.info('<Service>:<OfferService>:<Offers fetched successfully>');
+    return offersResult;
+  }
+
+  async deleteImpression(reqBody: { offerId: string }) {
+    Logger.info('<Service>:<OfferService>:<Delete offer >');
+
+    // Delete the event from the s3
+    const res = await OfferImpressionModel.findOneAndDelete({
+      _id: new Types.ObjectId(reqBody.offerId)
+    });
+    return res;
   }
 }

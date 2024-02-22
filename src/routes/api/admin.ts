@@ -83,10 +83,7 @@ router.post(
   adminController.searchDistributorsPartnersPaginated
 );
 
-router.post(
-  '/review',
-  adminController.addStoreReview
-);
+router.post('/review', adminController.addStoreReview);
 
 router.get('/:userName/ratings', adminController.getOverallStoreRatings);
 

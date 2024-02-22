@@ -25,8 +25,14 @@ export class OfferController {
     Logger.info(
       '<Controller>:<OfferController>:<Create offer controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.offerService.create(offerRequest);
+      const result = await this.offerService.create(
+        offerRequest,
+        userName,
+        role
+      );
       res.send({
         message: 'Offer Creation Successful',
         result
@@ -79,6 +85,9 @@ export class OfferController {
       customerId: string;
     } = req.body;
     let { subCategory } = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
+
     if (subCategory) {
       subCategory = (subCategory as string).split(',');
     } else {
@@ -96,7 +105,9 @@ export class OfferController {
         city,
         offerType,
         storeId,
-        customerId
+        customerId,
+        userName,
+        role
       );
       res.send({
         result
@@ -180,6 +191,67 @@ export class OfferController {
     try {
       const result = await this.offerService.updateOfferStatus(req.body);
       res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  userImpression = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OfferController>:<Create Offer impreesion>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.offerService.userImpression(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getUserImpression = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OfferController>:<Get Offer impreesion>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.offerService.getUserImpression();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteImpression = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OfferController>:<Delete Offer>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.offerService.deleteImpression(req.body);
+      res.send({
+        message: 'Offer deleted successfully',
         result
       });
     } catch (err) {

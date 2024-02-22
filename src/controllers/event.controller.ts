@@ -208,4 +208,44 @@ export class EventController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  userImpression = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<EventController>:<Create Event impreesion>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.eventService.userImpression(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getUserImpression = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<EventController>:<Get Event impreesion>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.eventService.getUserImpression();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }

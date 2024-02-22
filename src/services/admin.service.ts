@@ -10,7 +10,11 @@ import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import { generateToken } from '../utils';
 import { SurepassService } from './surepass.service';
-import { DistributedPartnersReviewRequest, OverallStoreRatingResponse, VerifyB2BPartnersRequest } from '../interfaces';
+import {
+  DistributedPartnersReviewRequest,
+  OverallStoreRatingResponse,
+  VerifyB2BPartnersRequest
+} from '../interfaces';
 import { DocType } from '../enum/docType.enum';
 import { IDocumentImageList } from '../models/Admin';
 import { Types } from 'mongoose';
@@ -122,6 +126,7 @@ export class AdminService {
       reqBody.updateCount = String(
         reqBody.updateCount ? Number(reqBody.updateCount) + 1 : 1
       );
+      reqBody.status = 'DISABLED';
     }
     Logger.debug(`${query.updateCount},${reqBody.userName}, ${reqBody}`);
     const res = await Admin.findOneAndUpdate(query, reqBody, {
@@ -337,9 +342,8 @@ export class AdminService {
       distributedPartners = await Promise.all(
         distributedPartners.map(async (distributedPartners) => {
           const updatedDistributedPartners = { ...distributedPartners };
-          updatedDistributedPartners.overAllRating = await this.getOverallRatings(
-            updatedDistributedPartners.userName
-          );
+          updatedDistributedPartners.overAllRating =
+            await this.getOverallRatings(updatedDistributedPartners.userName);
           return updatedDistributedPartners;
         })
       );
@@ -361,10 +365,14 @@ export class AdminService {
     if (!distributedPartersReview?.storeId) {
       throw new Error('Store not found');
     }
-    const newDistributedPartnersReview = new DistributorPartnersReview(distributedPartersReview);
+    const newDistributedPartnersReview = new DistributorPartnersReview(
+      distributedPartersReview
+    );
     newDistributedPartnersReview.ownerName = store?.basicInfo?.ownerName || '';
     await newDistributedPartnersReview.save();
-    Logger.info('<Service>:<AdminService>:<Distributors Partners Ratings added successfully>');
+    Logger.info(
+      '<Service>:<AdminService>:<Distributors Partners Ratings added successfully>'
+    );
     return newDistributedPartnersReview;
   }
 
@@ -372,7 +380,9 @@ export class AdminService {
     userName: string
   ): Promise<OverallStoreRatingResponse> {
     Logger.info('<Service>:<AdminService>:<Get Overall Ratings initiate>');
-    const distributorPartnersReviews = await DistributorPartnersReview.find({ userName });
+    const distributorPartnersReviews = await DistributorPartnersReview.find({
+      userName
+    });
     if (distributorPartnersReviews.length === 0) {
       return {
         allRatings: {
@@ -447,21 +457,17 @@ export class AdminService {
     }
   }
 
-  async getById(
-    req: { userName: string },
-    role?: string
-  ): Promise<IAdmin[]> {
+  async getById(req: { userName: string }, role?: string): Promise<IAdmin[]> {
     Logger.info(
       '<Service>:<AdminService>:<Get distributor partners by userName service initiated>'
     );
     const query: any = {};
     query.userName = req.userName;
-    let distributorPartnersResponse: any;
-    distributorPartnersResponse = Admin.aggregate([
-        {
-          $match: query
-        }
-      ]);
+    const distributorPartnersResponse = Admin.aggregate([
+      {
+        $match: query
+      }
+    ]);
     return distributorPartnersResponse;
   }
 }
