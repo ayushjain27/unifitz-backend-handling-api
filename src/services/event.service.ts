@@ -377,14 +377,14 @@ export class EventService {
     sendEmail(
       templateData,
       event?.email || offer?.email,
-      store?.contactInfo?.email || customer?.email,
-      'VerifyTestDetailsScheme'
+      'support@serviceplug.in',
+      'EventsOfferscheme'
     );
     sendEmail(
       templateData,
       store?.contactInfo?.email || customer?.email,
-      store?.contactInfo?.email || customer?.email,
-      'VerifyTestDetailsScheme'
+      'support@serviceplug.in',
+      'EventsOfferscheme'
     );
     return newInterest;
   }

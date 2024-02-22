@@ -514,6 +514,37 @@ export class ProductController {
     }
   };
 
+  getProductByOemUserName = async (req: Request, res: Response) => {
+    const {
+      productCategory,
+      productSubCategory,
+      oemUserName
+    }: {
+      productCategory: string;
+      productSubCategory: string;
+      oemUserName: string;
+    } = req.body;
+    if (!req.body.oemUserName) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'oemUserName is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<ProductController>:<Get products by oemUserName controller initiated>'
+    );
+    try {
+      const result = await this.productService.getProductByOemUserName({productCategory, productSubCategory, oemUserName});
+      res.send({
+        message: 'Product Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
