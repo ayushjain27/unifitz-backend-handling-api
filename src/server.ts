@@ -234,7 +234,7 @@ const ses = new AWS.SES();
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'EventsOfferscheme',
+      TemplateName: 'EventsOffersUsersScheme',
       SubjectPart: 'Congratulations {{name}}!', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
@@ -274,9 +274,8 @@ app.get('/createTemplate', async (req, res) => {
         </head>
         <body>
           <div class="container">
-            <p>Dear {{organiserName}}</p>
-            <p>Explore and discover the amazing features we offer:</p>
-            <p>Congratulation, here is the New Customer Details (Mr/Ms {{name}} and {{phoneNumber}} & {{email}} ) is Interested in your products and Services. we request you to please Contact the valuable Customers ASAP.
+            <p>Dear {{name}}</p>
+            <p>Thank you for reaching out to us with your enquiry about {{eventOfferName}}. We apppreciate your interest in {{organiserName}}</p>
             <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
           </div>
         </body>

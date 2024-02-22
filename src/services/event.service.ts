@@ -327,6 +327,7 @@ export class EventService {
     customerId: string;
     eventOffersId: string;
     isInterested: boolean;
+    eventofferType: string;
   }): Promise<any> {
     Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
@@ -343,7 +344,6 @@ export class EventService {
         _id: new Types.ObjectId(reqBody.eventOffersId)
       }).lean()
     ]);
-
     let newInterest: IInterestedEventAndOffer = reqBody;
     newInterest.name = store?.basicInfo?.ownerName || customer?.fullName;
     newInterest.phoneNumber =
@@ -359,6 +359,14 @@ export class EventService {
       email: store?.contactInfo?.email || customer?.email,
       organiserName: event?.organizerName || offer?.storeName
     };
+    const templateDataUsers = {
+      name: store?.basicInfo?.ownerName || customer?.fullName,
+      phoneNumber:
+        store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
+      email: store?.contactInfo?.email || customer?.email,
+      eventOfferName: event?.eventName || offer?.offerName,
+      organiserName: event?.organizerName || offer?.storeName
+    };
     sendEmail(
       templateData,
       event?.email || offer?.email,
@@ -366,10 +374,10 @@ export class EventService {
       'EventsOfferscheme'
     );
     sendEmail(
-      templateData,
+      templateDataUsers,
       store?.contactInfo?.email || customer?.email,
       'support@serviceplug.in',
-      'EventsOfferscheme'
+      'EventsOffersUsersScheme'
     );
     return newInterest;
   }
