@@ -1,15 +1,24 @@
 import { model, Schema } from 'mongoose';
 
-export enum Role {
-  MECHANIC = 'mechanic'
+export enum EmployeeStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE'
 }
-
 export interface IEmployee {
   _id?: string;
   storeId: string;
   name: string;
-  role: Role;
+  role: string;
   address?: string;
+  phoneNumber: string;
+  status: string;
+  profilePhoto: string;
+  joiningDate?: Date;
+  leavingDate?: Date;
+  isAadharVerified?: boolean;
+  aadharDetails?: object; 
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const employeeSchema: Schema = new Schema<IEmployee>(
@@ -24,11 +33,36 @@ const employeeSchema: Schema = new Schema<IEmployee>(
     },
     role: {
       type: String,
-      enum: Role,
       required: true
     },
     address: {
       type: String
+    },
+    phoneNumber: {
+      type: String,
+      required: true
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: EmployeeStatus,
+      default: EmployeeStatus.ACTIVE
+    },
+    joiningDate: {
+      type: Date
+    },
+    leavingDate: {
+      type: Date
+    },
+    profilePhoto: {
+      type: String
+    },
+    isAadharVerified: {
+      type: Boolean,
+      default: false
+    },
+    aadharDetails: {
+      type: Object
     }
   },
   { timestamps: true }
