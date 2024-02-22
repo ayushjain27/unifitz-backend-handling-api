@@ -8,7 +8,7 @@ import { ACL } from '../../enum/rbac.enum';
 import { EmployeeController } from '../../controllers';
 
 const storage = multer.memoryStorage();
-const uploadFiles = multer({ storage: storage });
+const uploadFile = multer({ storage: storage });
 
 const router: Router = Router();
 const employeeController = container.get<EmployeeController>(
@@ -22,10 +22,30 @@ router.post(
   employeeController.createEmployee
 );
 
+router.post(
+  '/uploadEmployeeImage',
+  uploadFile.single('file'),
+  roleAuth(ACL.STORE_CREATE),
+  employeeController.uploadEmployeeImage
+);
+
 router.get(
   '/:storeId',
-  // roleAuth(ACL.STORE_GET_ALL)
+  roleAuth(ACL.STORE_CREATE),
   employeeController.getEmployeesByStoreId
+);
+
+router.put(
+  '/:employeeId',
+  roleAuth(ACL.STORE_CREATE),
+  employeeController.validate('createEmployee'),
+  employeeController.update
+);
+
+router.get(
+  '/employeeDetail/:employeeId',
+  roleAuth(ACL.STORE_CREATE),
+  employeeController.getEmployeesByEmployeeId
 );
 
 export default router;
