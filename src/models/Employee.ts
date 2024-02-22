@@ -12,7 +12,7 @@ export interface IEmployee {
   address?: string;
   phoneNumber: string;
   status: string;
-  profilePhoto: string;
+  profilePhoto?: string;
   joiningDate?: Date;
   leavingDate?: Date;
   isAadharVerified?: boolean;
