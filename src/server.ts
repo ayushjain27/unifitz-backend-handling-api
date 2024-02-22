@@ -329,7 +329,6 @@ app.get('/createTemplate', async (req, res) => {
 //   });
 // });
 
-
 // async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organiserName:any, templateName: any) {
 //   // Construct the email payload with template
 

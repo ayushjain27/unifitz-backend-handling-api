@@ -114,7 +114,8 @@ export class OfferService {
       'subCategory.name': { $in: subCategory },
       status: OfferStatus.ACTIVE,
       offerType: offerType,
-      oemUserName: userName
+      oemUserName: userName,
+      storeId: storeId
     };
 
     if (role !== AdminRole.OEM) {
@@ -125,6 +126,9 @@ export class OfferService {
 
     if (!state) {
       delete query['state'];
+    }
+    if (!storeId) {
+      delete query['storeId'];
     }
     if (!city) {
       delete query['city'];
