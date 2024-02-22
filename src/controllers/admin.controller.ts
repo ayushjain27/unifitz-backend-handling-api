@@ -8,7 +8,10 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { AdminService } from '../services/admin.service';
 import Request from '../types/request';
-import { DistributedPartnersReviewRequest, VerifyB2BPartnersRequest } from '../interfaces';
+import {
+  DistributedPartnersReviewRequest,
+  VerifyB2BPartnersRequest
+} from '../interfaces';
 
 @injectable()
 export class AdminController {
@@ -280,7 +283,8 @@ export class AdminController {
           pageNo,
           pageSize,
           storeId
-        });
+        }
+      );
       res.send({
         result
       });
@@ -310,7 +314,9 @@ export class AdminController {
 
   getOverallStoreRatings = async (req: Request, res: Response) => {
     const userName = req.params.userName;
-    Logger.info('<Controller>:<AdminController>:<Get distributor partners ratings>');
+    Logger.info(
+      '<Controller>:<AdminController>:<Get distributor partners ratings>'
+    );
     try {
       const result = await this.adminService.getOverallRatings(userName);
       res.send({
@@ -328,7 +334,9 @@ export class AdminController {
     const userName = req.params.userName;
     const pageSize = Number(req.query.pageSize) || 15;
     const pageNo = Number(req.query.pageNo) || 0;
-    Logger.info('<Controller>:<AdminController>:<Get disributors partners reviews>');
+    Logger.info(
+      '<Controller>:<AdminController>:<Get disributors partners reviews>'
+    );
     try {
       const result = await this.adminService.getReviews(
         userName,
@@ -356,11 +364,9 @@ export class AdminController {
       if (!userName) {
         throw new Error('userName required');
       } else {
-        result = await this.adminService.getById(
-          { userName } as {
-            userName: string;
-          }
-        );
+        result = await this.adminService.getById({ userName } as {
+          userName: string;
+        });
       }
       res.send({
         result

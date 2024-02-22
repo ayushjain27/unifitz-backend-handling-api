@@ -119,7 +119,6 @@ export class ProductController {
     // } else {
     //   mrp = [];
     // }
-    Logger.debug(`${userName} ${role} pppppppppp`);
     Logger.info(
       '<Controller>:<ProductController>:<Search and Filter Prelist Products pagination request controller initiated>'
     );

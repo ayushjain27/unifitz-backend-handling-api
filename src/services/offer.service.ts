@@ -8,28 +8,47 @@ import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import OfferModel, { IOffer, OfferStatus } from './../models/Offers';
 import Store, { IStore } from '../models/Store';
+import Admin, { AdminRole, IAdmin } from '../models/Admin';
+import { OemOfferType, OemOfferProfileStatus } from './../models/Offers';
 
 @injectable()
 export class OfferService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
-  async create(offerRequest: IOffer): Promise<any> {
+  async create(
+    offerRequest: IOffer,
+    userName: string,
+    role: string
+  ): Promise<any> {
     console.log(offerRequest, 'ewl;kjr');
     Logger.info(
       '<Service>:<OfferService>: <Offer onboarding: creating new offer>'
     );
-    const { storeId } = offerRequest;
+    const { storeId, oemUserName, oemOfferType } = offerRequest;
+    let newOffer: IOffer = offerRequest;
     let store: IStore;
+    let user: IAdmin;
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
-    console.log(store, 'sdkflnj');
-    let newOffer: IOffer = offerRequest;
+    if (oemOfferType === OemOfferType.PARTNER_OFFER) {
+      const userName = oemUserName;
+      user = await Admin.findOne({ userName })?.lean();
+    }
+    if (role === AdminRole.OEM) {
+      newOffer.oemOfferStatus = OemOfferProfileStatus.DRAFT;
+    }
+    if (role === AdminRole.ADMIN) {
+      newOffer.oemOfferStatus = OemOfferProfileStatus.ONBOARDED;
+    }
+
     newOffer.storeName = store?.basicInfo?.businessName;
     newOffer.geoLocation.coordinates =
-      store?.contactInfo?.geoLocation?.coordinates;
+      oemOfferType === OemOfferType.PARTNER_OFFER
+        ? user?.contactInfo?.geoLocation?.coordinates
+        : store?.contactInfo?.geoLocation?.coordinates;
     newOffer = await OfferModel.create(offerRequest);
-    console.log(newOffer, 'l;dkme');
+
     Logger.info('<Service>:<OfferService>:<Offer created successfully>');
     return newOffer;
   }
@@ -83,7 +102,9 @@ export class OfferService {
     city: string,
     offerType: string,
     storeId: string,
-    customerId: string
+    customerId: string,
+    userName: string,
+    role?: string
   ): Promise<IOffer[]> {
     let offerResponse: any;
     const query = {
@@ -92,8 +113,13 @@ export class OfferService {
       'category.name': category,
       'subCategory.name': { $in: subCategory },
       status: OfferStatus.ACTIVE,
-      offerType: offerType
+      offerType: offerType,
+      oemUserName: userName
     };
+
+    if (role !== AdminRole.OEM) {
+      delete query['oemUserName'];
+    }
 
     Logger.info('<Service>:<OfferService>:<get offer initiated>');
 
@@ -225,6 +251,7 @@ export class OfferService {
         },
         {
           $match: {
+            oemOfferStatus: { $eq: 'ONBOARDED' },
             status: { $eq: 'ACTIVE' }
           }
         },
@@ -307,14 +334,29 @@ export class OfferService {
   async updateOfferStatus(reqBody: {
     offerId: string;
     status: string;
+    oemOfferStatus: string;
   }): Promise<any> {
     Logger.info('<Service>:<OfferService>:<Update offer status >');
+
+    const query = {
+      status: reqBody.status,
+      oemOfferStatus: reqBody.oemOfferStatus
+    };
+
+    if (!reqBody.status) {
+      delete query['status'];
+    }
+    if (!reqBody.oemOfferStatus) {
+      delete query['oemOfferStatus'];
+    }
 
     const eventResult: IOffer = await OfferModel.findOneAndUpdate(
       {
         _id: new Types.ObjectId(reqBody.offerId)
       },
-      { $set: { status: reqBody.status } },
+      {
+        $set: query
+      },
       { returnDocument: 'after' }
     );
 

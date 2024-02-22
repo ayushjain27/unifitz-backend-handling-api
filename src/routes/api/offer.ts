@@ -13,7 +13,7 @@ const uploadFile = multer({ storage: storage });
 const router: Router = Router();
 const offerController = container.get<OfferController>(TYPES.OfferController);
 
-router.post('/', offerController.createOffer);
+router.post('/', roleAuth(ACL.STORE_GET_ALL), offerController.createOffer);
 
 router.post(
   '/uploadImage',
@@ -21,7 +21,11 @@ router.post(
   offerController.uploadImage
 );
 
-router.post('/getAllOffer', offerController.getAllOffer);
+router.post(
+  '/getAllOffer',
+  roleAuth(ACL.STORE_GET_ALL),
+  offerController.getAllOffer
+);
 
 router.get('/getOfferById', offerController.getOfferById);
 

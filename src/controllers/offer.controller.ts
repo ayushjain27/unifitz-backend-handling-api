@@ -25,8 +25,14 @@ export class OfferController {
     Logger.info(
       '<Controller>:<OfferController>:<Create offer controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.offerService.create(offerRequest);
+      const result = await this.offerService.create(
+        offerRequest,
+        userName,
+        role
+      );
       res.send({
         message: 'Offer Creation Successful',
         result
@@ -79,6 +85,9 @@ export class OfferController {
       customerId: string;
     } = req.body;
     let { subCategory } = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
+
     if (subCategory) {
       subCategory = (subCategory as string).split(',');
     } else {
@@ -96,7 +105,9 @@ export class OfferController {
         city,
         offerType,
         storeId,
-        customerId
+        customerId,
+        userName,
+        role
       );
       res.send({
         result
