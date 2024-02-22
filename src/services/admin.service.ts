@@ -302,14 +302,18 @@ export class AdminService {
       //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
       //   }
       // },
-      'category.name': { $in: store.basicInfo.category.map(category => category.name) },
-      'subCategory.name': { $in: store.basicInfo.subCategory.map(subCategory => subCategory.name) },
+      'category.name': {
+        $in: store.basicInfo.category.map((category) => category.name)
+      },
+      'subCategory.name': {
+        $in: store.basicInfo.subCategory.map((subCategory) => subCategory.name)
+      },
       companyType: 'Distributer'
     };
-    if (!store.basicInfo.category.map(category => category.name)) {
+    if (!store.basicInfo.category.map((category) => category.name)) {
       delete query['category.name'];
     }
-    if (!store.basicInfo.category.map(category => category.name)) {
+    if (!store.basicInfo.category.map((category) => category.name)) {
       delete query['subCategory.name'];
     }
     Logger.debug(query);

@@ -35,10 +35,4 @@ router.delete('/deleteOffer', offerController.deleteOffer);
 
 router.post('/updateOfferStatus', offerController.updateOfferStatus);
 
-router.post('/userImpression', offerController.userImpression);
-
-router.get('/getUserImpression', offerController.getUserImpression);
-
-router.delete('/deleteImpression', offerController.deleteImpression);
-
 export default router;

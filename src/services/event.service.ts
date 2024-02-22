@@ -15,8 +15,6 @@ import InterestedEventAndOffer, {
 } from './../models/InterestedEventsAndOffers';
 import Admin, { AdminRole, IAdmin } from '../models/Admin';
 import { sendEmail } from '../utils/common';
-import EventImpressionModel from '../models/EventUserImpression';
-
 // import AWS from 'aws-sdk';
 // import { s3Config } from '../config/constants';
 
@@ -34,19 +32,6 @@ export class EventService {
     Logger.info(
       '<Service>:<EventService>: <Event onboarding: creating new event>'
     );
-    const eventData: IEvent = eventRequest;
-    const lastCreatedEvent: any = await OfferModel.find({})
-      .sort({ createdAt: 'desc' })
-      .limit(1)
-      .exec();
-
-    const eventId: number =
-      !lastCreatedEvent[0] || !lastCreatedEvent[0]?.eventId
-        ? new Date().getFullYear() * 1000
-        : +lastCreatedEvent[0].eventId + 1;
-
-    eventData.eventId = String(eventId);
-    eventData.eventItemName = `EV${String(eventId).slice(-4)}`;
 
     const newEvent = await EventModel.create(eventRequest);
     Logger.info('<Service>:<EventService>:<Event created successfully>');
@@ -387,57 +372,5 @@ export class EventService {
       'EventsOfferscheme'
     );
     return newInterest;
-  }
-
-  async userImpression(reqBody: {
-    eventId: string;
-    eventName: string;
-    userName: string;
-    userId: string;
-    email: string;
-    eventType: string;
-    phoneNumber: string;
-  }): Promise<any> {
-    const eventResult: IOffer = await EventModel.findOne({
-      eventId: reqBody.eventId
-    })?.lean();
-
-    if (_.isEmpty(eventResult)) {
-      throw new Error('Event does not exist');
-    }
-
-    const userResult = await Admin.findOne({
-      _id: reqBody.userId
-    })?.lean();
-
-    if (_.isEmpty(userResult)) {
-      throw new Error('User does not exist');
-    }
-    const query: any = {
-      userId: reqBody.userId,
-      eventId: reqBody.eventId
-    };
-
-    const res = await EventImpressionModel.findOneAndUpdate(query, reqBody, {
-      returnDocument: 'after',
-      projection: { 'verificationDetails.verifyObj': 0 }
-    });
-    // console.log(`${JSON.stringify(res)} ${res}`);
-    if (res) {
-      return res;
-    }
-    Logger.info('<Service>:<EventService>:<Event Impression status >');
-
-    const offerImpressionResult = await EventImpressionModel.create(reqBody);
-
-    return offerImpressionResult;
-  }
-
-  async getUserImpression(): Promise<any> {
-    Logger.info('<Service>:<EventService>: <getting all the Event list>');
-
-    const offersResult = await EventImpressionModel.find().lean();
-    Logger.info('<Service>:<EventService>:<Event fetched successfully>');
-    return offersResult;
   }
 }

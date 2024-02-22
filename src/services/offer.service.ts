@@ -9,7 +9,6 @@ import { S3Service } from './s3.service';
 import OfferModel, { IOffer, OfferStatus } from './../models/Offers';
 import Store, { IStore } from '../models/Store';
 import Admin, { AdminRole, IAdmin } from '../models/Admin';
-import OfferImpressionModel from '../models/OffersUserImpression';
 import { OemOfferType, OemOfferProfileStatus } from './../models/Offers';
 
 @injectable()
@@ -42,18 +41,6 @@ export class OfferService {
     if (role === AdminRole.ADMIN) {
       newOffer.oemOfferStatus = OemOfferProfileStatus.ONBOARDED;
     }
-    const lastCreatedOffer: any = await OfferModel.find({})
-      .sort({ createdAt: 'desc' })
-      .limit(1)
-      .exec();
-
-    const offerId: number =
-      !lastCreatedOffer[0] || !lastCreatedOffer[0]?.offerId
-        ? new Date().getFullYear() * 100
-        : +lastCreatedOffer[0].offerId + 1;
-
-    newOffer.offerId = String(offerId);
-    newOffer.offerItemName = `OFF${String(offerId).slice(-4)}`;
 
     newOffer.storeName = store?.basicInfo?.businessName;
     newOffer.geoLocation.coordinates =
@@ -215,55 +202,6 @@ export class OfferService {
             ],
             as: 'interested'
           }
-        },
-        {
-          $lookup: {
-            from: 'offerimpressions',
-            localField: 'offerId',
-            foreignField: 'offerId',
-            as: 'userImpression'
-          }
-        },
-        {
-          $addFields: {
-            impressionCount: {
-              $size: '$userImpression'
-            }
-          }
-        },
-        {
-          $project: {
-            _id: 1,
-            storeId: 1,
-            storeName: 1,
-            offerName: 1,
-            status: 1,
-            geoLocation: 1,
-            startDate: 1,
-            endDate: 1,
-            category: 1,
-            subCategory: 1,
-            brand: 1,
-            state: 1,
-            city: 1,
-            phoneNumber: 1,
-            email: 1,
-            address: 1,
-            externalUrl: 1,
-            offerType: 1,
-            oemUserName: 1,
-            oemOfferType: 1,
-            oemOfferStatus: 1,
-            rejectionReason: 1,
-            offerId: 1,
-            offerItemName: 1,
-            createdAt: 1,
-            updatedAt: 1,
-            offerCompleted: 1,
-            interested: 1,
-            offerImage: 1,
-            impressionCount: 1
-          }
         }
       ]);
     } else {
@@ -423,67 +361,5 @@ export class OfferService {
     );
 
     return eventResult;
-  }
-
-  async userImpression(reqBody: {
-    offerId: string;
-    offerName: string;
-    userName: string;
-    userId: string;
-    email: string;
-    offerType: string;
-    phoneNumber: string;
-  }): Promise<any> {
-    const offerResult: IOffer = await OfferModel.findOne({
-      offerId: reqBody.offerId
-    })?.lean();
-
-    if (_.isEmpty(offerResult)) {
-      throw new Error('Offer does not exist');
-    }
-
-    const userResult = await Admin.findOne({
-      _id: reqBody.userId
-    })?.lean();
-
-    if (_.isEmpty(userResult)) {
-      throw new Error('User does not exist');
-    }
-    const query: any = {
-      userId: reqBody.userId,
-      offerId: reqBody.offerId
-    };
-
-    const res = await OfferImpressionModel.findOneAndUpdate(query, reqBody, {
-      returnDocument: 'after',
-      projection: { 'verificationDetails.verifyObj': 0 }
-    });
-    // console.log(`${JSON.stringify(res)} ${res}`);
-    if (res) {
-      return res;
-    }
-    Logger.info('<Service>:<OfferService>:<offer Impression status >');
-
-    const offerImpressionResult = await OfferImpressionModel.create(reqBody);
-
-    return offerImpressionResult;
-  }
-
-  async getUserImpression(): Promise<any> {
-    Logger.info('<Service>:<OfferService>: <getting all the offers list>');
-
-    const offersResult = await OfferImpressionModel.find().lean();
-    Logger.info('<Service>:<OfferService>:<Offers fetched successfully>');
-    return offersResult;
-  }
-
-  async deleteImpression(reqBody: { offerId: string }) {
-    Logger.info('<Service>:<OfferService>:<Delete offer >');
-
-    // Delete the event from the s3
-    const res = await OfferImpressionModel.findOneAndDelete({
-      _id: new Types.ObjectId(reqBody.offerId)
-    });
-    return res;
   }
 }

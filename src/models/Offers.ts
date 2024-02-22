@@ -27,8 +27,6 @@ export enum OemOfferProfileStatus {
 }
 
 export interface IOffer {
-  offerItemName: string;
-  offerId: string;
   _id?: string;
   storeId?: string;
   storeName?: string;
@@ -153,12 +151,6 @@ const offerSchema: Schema = new Schema(
     rejectionReason: {
       type: String,
       default: ''
-    },
-    offerId: {
-      type: String
-    },
-    offerItemName: {
-      type: String
     }
   },
   { timestamps: true }
