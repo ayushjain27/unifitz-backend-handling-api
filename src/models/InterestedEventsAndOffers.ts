@@ -12,6 +12,7 @@ export interface IInterestedEventAndOffer {
   email?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  eventofferType: string;
 }
 
 export const interestedEventAndOfferSchema: Schema = new Schema(
@@ -43,6 +44,10 @@ export const interestedEventAndOfferSchema: Schema = new Schema(
     },
     email: {
       type: String
+    },
+    eventofferType: {
+      type: String,
+      required: true
     }
   },
   { timestamps: true }
