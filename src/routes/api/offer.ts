@@ -27,6 +27,12 @@ router.post(
   offerController.getAllOffer
 );
 
+router.get(
+  '/getAllOfferByInterest',
+  roleAuth(ACL.STORE_GET_ALL),
+  offerController.getAllOfferByInterest
+);
+
 router.get('/getOfferById', offerController.getOfferById);
 
 router.put('/updateOffer/:offerId', offerController.updateOffer);

@@ -23,6 +23,8 @@ router.post(
 
 router.post('/getAllEvent', eventController.getAllEvent);
 
+router.get('/getAllEventByInterest', eventController.getAllEventByInterest);
+
 router.get('/getEventById', eventController.getEventById);
 
 router.put('/updateEvent/:eventId', eventController.updateEvent);
@@ -32,5 +34,7 @@ router.delete('/deleteEvent', eventController.deleteEvent);
 router.post('/updateEventStatus', eventController.updateEventStatus);
 
 router.post('/addToInterest', eventController.addToInterest);
+
+router.get('/getAllInterest', eventController.getAllInterest);
 
 export default router;
