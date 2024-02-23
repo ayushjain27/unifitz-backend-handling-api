@@ -84,9 +84,6 @@ export class EmployeeController {
   update = async (req: Request, res: Response) => {
     const employeePayload: IEmployee = req.body;
     const employeeId = req.params.employeeId;
-    employeePayload.phoneNumber = appendCodeToPhone(
-      employeePayload?.phoneNumber
-    );
     Logger.info(
       '<Controller>:<EmployeeController>:<Employee update controller initiated>'
     );
