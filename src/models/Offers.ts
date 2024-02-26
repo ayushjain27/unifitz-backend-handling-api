@@ -56,6 +56,7 @@ export interface IOffer {
   oemOfferType?: string;
   oemOfferStatus?: string;
   rejectionReason?: string;
+  offerId?: string;
 }
 
 export interface IOfferImage {
@@ -151,6 +152,9 @@ const offerSchema: Schema = new Schema(
     rejectionReason: {
       type: String,
       default: ''
+    },
+    offerId: {
+      type: String
     }
   },
   { timestamps: true }

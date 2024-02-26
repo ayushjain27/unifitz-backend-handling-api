@@ -72,7 +72,7 @@ export class OfferService {
       file.buffer
     );
     const imageUpload = { key, url };
-    const offerDetails = {
+    const offerDetails: any = {
       ...offerResult,
       // altText: key,
       // slugUrl: key,
@@ -84,6 +84,8 @@ export class OfferService {
       status: OfferStatus.ACTIVE,
       _id: new Types.ObjectId(offerId)
     };
+
+    offerDetails.offerId = offerId;
     const res = await OfferModel.findOneAndUpdate(
       { _id: offerId },
       offerDetails,
@@ -114,7 +116,7 @@ export class OfferService {
       'subCategory.name': { $in: subCategory },
       status: OfferStatus.ACTIVE,
       offerType: offerType,
-      oemUserName: userName
+      oemUserName: userName,
     };
 
     if (role !== AdminRole.OEM) {
@@ -285,6 +287,27 @@ export class OfferService {
     Logger.info('<Service>:<OfferService>:<Offer get all successfully>');
 
     return offerResponse;
+  }
+
+  async getAllOfferByInterest(userName: any, role: any): Promise<any> {
+    Logger.info('<Service>:<OfferService>:<get offer initiated>');
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const eventResult = await OfferModel.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: 'interestedeventsandoffers',
+          localField: 'offerId',
+          foreignField: 'eventOffersId',
+          as: 'interested'
+        }
+      }
+    ]);
+
+    return eventResult;
   }
 
   async getOfferById(offerId: string): Promise<any> {

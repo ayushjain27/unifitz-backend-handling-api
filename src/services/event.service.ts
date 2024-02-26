@@ -32,7 +32,6 @@ export class EventService {
     Logger.info(
       '<Service>:<EventService>: <Event onboarding: creating new event>'
     );
-
     const newEvent = await EventModel.create(eventRequest);
     Logger.info('<Service>:<EventService>:<Event created successfully>');
     return newEvent;
@@ -66,6 +65,8 @@ export class EventService {
       status: EventStatus.ACTIVE,
       _id: new Types.ObjectId(eventId)
     };
+
+    eventDetails.eventId = eventId;
     const res = await EventModel.findOneAndUpdate(
       { _id: eventId },
       eventDetails,
@@ -261,6 +262,23 @@ export class EventService {
     return eventResponse;
   }
 
+  async getAllEventByInterest(): Promise<any> {
+    Logger.info('<Service>:<EventService>:<get event initiated>');
+
+    const eventResult = await EventModel.aggregate([
+      {
+        $lookup: {
+          from: 'interestedeventsandoffers',
+          localField: 'eventId',
+          foreignField: 'eventOffersId',
+          as: 'interested'
+        }
+      }
+    ]);
+
+    return eventResult;
+  }
+
   async getEventById(eventId: string): Promise<any> {
     Logger.info('<Service>:<EventService>:<get event initiated>');
 
@@ -380,5 +398,14 @@ export class EventService {
       'EventsOffersUsersScheme'
     );
     return newInterest;
+  }
+
+  async getAllInterest(): Promise<any> {
+    Logger.info('<Service>:<EventService>:<get event offer interest >');
+
+    const interestResult: IInterestedEventAndOffer =
+      await InterestedEventAndOffer.find().lean();
+
+    return interestResult;
   }
 }

@@ -106,6 +106,21 @@ export class EventController {
     }
   };
 
+  getAllEventByInterest = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<EventController>:<Getting all event >');
+    try {
+      const result = await this.eventService.getAllEventByInterest();
+      Logger.info('<Controller>:<EventController>:<get successfully>');
+      res.send({
+        message: 'Event obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getEventById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<EventController>:<Getting banner ID>');
     try {
@@ -200,6 +215,27 @@ export class EventController {
     );
     try {
       const result = await this.eventService.addToInterest(interestRequest);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllInterest = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    Logger.info(
+      '<Controller>:<EventController>:<Get to interest request initiated>'
+    );
+    try {
+      const result = await this.eventService.getAllInterest();
       res.send({
         result
       });

@@ -118,6 +118,26 @@ export class OfferController {
     }
   };
 
+  getAllOfferByInterest = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OfferController>:<Getting all Offer >');
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.offerService.getAllOfferByInterest(
+        userName,
+        role
+      );
+      Logger.info('<Controller>:<OfferController>:<get successfully>');
+      res.send({
+        message: 'Offer obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getOfferById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<OfferController>:<Getting offer ID>');
     try {
