@@ -15,3 +15,4 @@ export * from './analytic.controller';
 export * from './report.controller';
 export * from './event.controller';
 export * from './offer.controller';
+export * from './storeCustomer.controller';

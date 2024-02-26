@@ -30,6 +30,7 @@ import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
 import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
+import storeCustomer from './routes/api/storeCustomer';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 
@@ -89,6 +90,7 @@ app.use('/categories', category);
 app.use('/report', report);
 app.use(`/event`, event);
 app.use(`/offer`, offer);
+app.use('/storeCustomer', storeCustomer)
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
