@@ -11,6 +11,7 @@ import file from './routes/api/file';
 import category from './routes/api/category.route';
 import admin from './routes/api/admin';
 import event from './routes/api/event.route';
+import business from './routes/api/business.route';
 import offer from './routes/api/offer';
 import store from './routes/api/store';
 import user from './routes/api/user';
@@ -88,6 +89,7 @@ app.use('/enquiry', enquiry);
 app.use('/categories', category);
 app.use('/report', report);
 app.use(`/event`, event);
+app.use('/business', business);
 app.use(`/offer`, offer);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
@@ -283,14 +285,14 @@ app.get('/createTemplate', async (req, res) => {
       TextPart: 'Plain text content goes here'
     }
   };
-  console.log(params);
+  // console.log(params);
 
   ses.createTemplate(params, (err, data) => {
     if (err) {
-      console.log('Error creating email template: ', err);
+      // console.log('Error creating email template: ', err);
       res.status(500).send({ error: 'Failed to create email template' });
     } else {
-      console.log('Email template created ', data);
+      // console.log('Email template created ', data);
       res.send(data);
     }
   });
