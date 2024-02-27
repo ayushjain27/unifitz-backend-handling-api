@@ -106,6 +106,26 @@ getStoreCustomersByStoreId = async (req: Request, res: Response) => {
     }
   };
 
+  createStoreCustomerVehicle = async (req: Request, res: Response) => {
+    const { storeVehicleId } = req.body;
+    Logger.info(
+      '<Controller>:<StoreCustomerController>:<Upload Store Customer request initiated>'
+    );
+    const storeCustomerVehicleRequest = req.body;
+    try {
+      const result = await this.storeCustomerService.createStoreCustomerVehicle(
+        storeVehicleId,
+        storeCustomerVehicleRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
 //   update = async (req: Request, res: Response) => {
 //     const employeePayload: IEmployee = req.body;
 //     const employeeId = req.params.employeeId;

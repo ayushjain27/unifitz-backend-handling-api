@@ -7,7 +7,7 @@ import { S3Service } from './s3.service';
 import { Employee, IEmployee } from '../models/Employee';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import StoreCustomer, { IStoreCustomer } from '../models/StoreCustomer';
+import StoreCustomer, { IStoreCustomer, IStoreCustomerVehicleInfo } from '../models/StoreCustomer';
 
 @injectable()
 export class StoreCustomerService {
@@ -74,6 +74,27 @@ export class StoreCustomerService {
     const storeCustomers: IStoreCustomer = await StoreCustomer.find({ phoneNumber }).lean();
     Logger.info('<Service>:<StoreCustomerService>:<Store Customer fetched successfully>');
     return storeCustomers;
+  }
+
+  async createStoreCustomerVehicle(
+    storeVehicleId: string,
+    storeCustomerVehiclePayload: IStoreCustomerVehicleInfo
+  ) {
+    Logger.info(
+      '<Service>:<StoreCustomerService>: <Vehicle Creation: creating new store customer vehicle>'
+    );
+    const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({ _id: new Types.ObjectId(storeVehicleId)})?.lean();
+    if (_.isEmpty(storeCustomer)) {
+      throw new Error('Customer does not exist');
+    }
+    const storeCustomerVehicle: IStoreCustomerVehicleInfo = storeCustomerVehiclePayload;
+    const res = await StoreCustomer.findOneAndUpdate(
+      { _id: storeVehicleId },
+      { $push: { storeCustomerVehicleInfo: storeCustomerVehicle } },
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<StoreCustomerService>:<Customer created successfully>');
+    return res;
   }
 
 //   async update(

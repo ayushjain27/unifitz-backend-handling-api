@@ -41,6 +41,12 @@ router.get(
   storeCustomerController.getStoreCustomerByPhoneNumber
 );
 
+router.post(
+  '/createStoreCustomerVehicle',
+  roleAuth(ACL.STORE_CREATE),
+  storeCustomerController.createStoreCustomerVehicle
+);
+
 // router.get(
 //   '/employeeDetail/:employeeId',
 //   roleAuth(ACL.STORE_CREATE),
