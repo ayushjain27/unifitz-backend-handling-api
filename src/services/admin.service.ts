@@ -308,7 +308,8 @@ export class AdminService {
       'subCategory.name': {
         $in: store.basicInfo.subCategory.map((subCategory) => subCategory.name)
       },
-      companyType: 'Distributer'
+      companyType: 'Distributer',
+      status: 'ACTIVE'
     };
     if (!store.basicInfo.category.map((category) => category.name)) {
       delete query['category.name'];
