@@ -448,13 +448,25 @@ export class ProductService {
           userId: 1,
           review: 1,
           rating: 1,
+          name: 1,
           createdAt: 1,
           'user.fullName': 1,
           'user.profileImageUrl': 1
-        }
+        },   
       }
     ]);
-    return productReviews;
+    if (productReviews.length === 0 && !pageNo) {
+      return [
+        {
+          name: 'Service Plug',
+          rating: 5,
+          review:
+            'Thank you for onboarding with us. May you have a wonderful experience.'
+        }
+      ];
+    } else {
+      return productReviews;
+    }
   }
 
   async duplicateProductToStores(productId: string, storeIdList: string[]) {
