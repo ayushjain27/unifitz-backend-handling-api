@@ -22,7 +22,8 @@ import {
   ReportController,
   EventController,
   OfferController,
-  StoreCustomerController
+  StoreCustomerController,
+  BusinessController
 } from '../controllers';
 import {
   StoreService,
@@ -46,7 +47,8 @@ import {
   ReportService,
   EventService,
   OfferService,
-  StoreCustomerService
+  StoreCustomerService,
+  BusinessService
 } from '../services';
 
 const container = new Container();
@@ -165,10 +167,10 @@ container.bind<EventService>(TYPES.EventService).to(EventService);
 container.bind<OfferController>(TYPES.OfferController).to(OfferController);
 container.bind<OfferService>(TYPES.OfferService).to(OfferService);
 
-container
-  .bind<StoreCustomerController>(TYPES.StoreCustomerController)
-  .to(StoreCustomerController);
-
+container.bind<StoreCustomerController>(TYPES.StoreCustomerController).to(StoreCustomerController);
 container.bind<StoreCustomerService>(TYPES.StoreCustomerService).to(StoreCustomerService);
+
+container.bind<BusinessController>(TYPES.BusinessController).to(BusinessController);
+container.bind<BusinessService>(TYPES.BusinessService).to(BusinessService);
 
 export default container;

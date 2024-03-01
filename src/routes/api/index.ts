@@ -12,3 +12,4 @@ export * from './category.route';
 export * from './buySell.route';
 export * from './report';
 export * from './event.route';
+export * from './business.route';
