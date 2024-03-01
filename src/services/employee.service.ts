@@ -24,7 +24,7 @@ export class EmployeeService {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
     if (!store) {
-      Logger.error('<Service>:<EmployeeService>:< store id not found>');
+      Logger.error('<Service>:<EmployeeService>:< Store id not found>');
       throw new Error('Store not found');
     }
     let newEmp: IEmployee = employeePayload;

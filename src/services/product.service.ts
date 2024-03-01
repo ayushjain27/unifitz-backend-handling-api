@@ -318,6 +318,7 @@ export class ProductService {
     productReviewPayload: {
       productId: string;
       review: string;
+      storeId: string;
       rating: number;
     },
     custPhoneNumber: string
@@ -328,6 +329,15 @@ export class ProductService {
     Logger.info(
       '<Service>:<ProductService>: <Product Review: adding product review>'
     );
+    const { storeId } = productReviewPayload;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
+    if (!store) {
+      Logger.error('<Service>:<ProductService>:< Store id not found>');
+      throw new Error('Store not found');
+    }
     let customer: ICustomer;
     if (custPhoneNumber) {
       customer = await customerService.getByPhoneNumber(custPhoneNumber);
@@ -340,6 +350,8 @@ export class ProductService {
       review: productReviewPayload.review || '',
       rating: productReviewPayload.rating,
       productId: new Types.ObjectId(productReviewPayload.productId),
+      name: store?.basicInfo?.ownerName || customer?.fullName,
+      storeId: productReviewPayload?.storeId,
       userId: customer._id
     };
 
