@@ -5,16 +5,16 @@ import { Document, model, Schema, Types } from 'mongoose';
  */
 
 export enum FuelType {
-  CNG = 'cng',
-  DIESEL = 'diesel',
-  PETROL = 'petrol',
-  EV = 'ev'
+  CNG = 'CNG',
+  DIESEL = 'DIESEL',
+  PETROL = 'PETROL',
+  EV = 'EV'
 }
 export enum OwnerType {
-  FIRST = 'first',
-  SECOND = 'second',
-  THIRD = 'third',
-  FOURTH_AND_ABOVE = 'fourth and above'
+  FIRST = 'FIRST',
+  SECOND = 'SECOND',
+  THIRD = 'THIRD',
+  FOURTH_AND_ABOVE = 'FOURTH AND ABOVE'
 }
 export enum VehicleType {
   CYCLE = 'CYCLE',
@@ -133,7 +133,7 @@ export interface IStoreCustomer {
   updatedAt?: Date;
 }
 
-const storeCustomerSchema: Schema = new Schema(
+export const storeCustomerSchema: Schema = new Schema(
   {
     name: {
       type: String,

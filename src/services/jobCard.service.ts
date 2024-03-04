@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
-import JobCard, { IJobCard, JobStatus } from './../models/JobCard';
+import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
@@ -46,10 +46,52 @@ export class JobCardService {
       });
       await Promise.all(promises);
 
-      newJobCard.refImageList = uploadedKeys;
+      // newJobCard.refImageList = uploadedKeys;
     }
     newJobCard = await JobCard.create(newJobCard);
     Logger.info('<Service>:<JobCardService>:<Job Card created successfully>');
     return newJobCard;
   }
+
+  async createStoreLineItems(
+    customerId: string,
+    storeCustomerLineItemsPayload: ILineItem
+  ) {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
+    );
+    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(customerId)})?.lean();
+    if (_.isEmpty(storeCustomer)) {
+      throw new Error('Customer does not exist');
+    }
+    const storeCustomerLineItems: ILineItem = storeCustomerLineItemsPayload;
+    const res = await JobCard.findOneAndUpdate(
+      { _id: customerId },
+      { $push: { lineItems: storeCustomerLineItems } },
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<JobCardService>:<Line Items created successfully>');
+    return res;
+  }
+
+  async getStoreJobCardsByStoreId(storeId: string): Promise<IJobCard[]> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
+    );
+
+    const storeJobCard: IJobCard[] = await JobCard.find({ storeId }).lean();
+    Logger.info('<Service>:<JobCardService>:<Store Job Cards fetched successfully>');
+    return storeJobCard;
+  }
+
+  async getJobCardById(jobCardId: string): Promise<IJobCard> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
+    );
+    const jobCard: IJobCard = await JobCard.findOne({
+      _id: new Types.ObjectId(jobCardId)
+    }).lean();
+    return jobCard;
+  }
+
 }
