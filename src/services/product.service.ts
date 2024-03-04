@@ -452,21 +452,10 @@ export class ProductService {
           createdAt: 1,
           'user.fullName': 1,
           'user.profileImageUrl': 1
-        },   
+        }
       }
     ]);
-    if (productReviews.length === 0 && !pageNo) {
-      return [
-        {
-          name: 'Service Plug',
-          rating: 5,
-          review:
-            'Thank you for onboarding with us. May you have a wonderful experience.'
-        }
-      ];
-    } else {
-      return productReviews;
-    }
+    return productReviews;
   }
 
   async duplicateProductToStores(productId: string, storeIdList: string[]) {
@@ -712,7 +701,8 @@ export class ProductService {
   async getProductByOemUserName(searchReqBody: {
     productCategory: string;
     productSubCategory: string;
-    oemUserName: string;}): Promise<IPrelistProduct[]> {
+    oemUserName: string;
+  }): Promise<IPrelistProduct[]> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: Get product by OemUserName>'
     );
