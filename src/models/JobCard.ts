@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
+import { IStoreCustomer, storeCustomerSchema } from './StoreCustomer';
 
 export enum FuelType {
   CNG = 'cng',
@@ -28,32 +29,22 @@ export enum JobStatus {
   CANCELLED = 'CANCELLED'
 }
 
-export interface ILineItem extends Document {
-  item: Types.ObjectId;
+export interface ILineItem {
+  item: string;
   description: string;
   quantity: number;
   rate: number;
 }
-export interface IJobCard extends Document {
+export interface IJobCard {
   storeId: string;
   createdBy: string;
-  customerName: string;
-  mobileNumber: string;
   billingAddress: string;
-  vehicleType: string;
-  brand: string;
-  modelName: string;
-  fuelType: FuelType;
-  totalKmsRun: string;
-  vehicleNumber: string;
-  ownerType: OwnerType;
-  mechanic: string;
-  registrationYear: string;
   fuelPoints: FuelPoints;
-  lineItems: [ILineItem];
-  refImageList: [{ key: string; docURL: string }];
+  lineItems: ILineItem[];
+  // refImageList: [{ key: string; docURL: string }];
   jobStatus: JobStatus;
   comment: string;
+  customerDetails?: IStoreCustomer[];
 }
 
 const jobCardSchema: Schema = new Schema(
@@ -62,44 +53,7 @@ const jobCardSchema: Schema = new Schema(
       type: String,
       required: true
     },
-    customerName: {
-      type: String,
-      required: true
-    },
-    mobileNumber: {
-      type: String,
-      required: true
-    },
     billingAddress: {
-      type: String
-    },
-    vehicleType: {
-      type: String
-    },
-    brand: {
-      type: String
-    },
-    modelName: {
-      type: String
-    },
-    fuelType: {
-      type: String,
-      enum: FuelType
-    },
-    totalKmsRun: {
-      type: String
-    },
-    vehicleNumber: {
-      type: String
-    },
-    ownerType: {
-      type: String,
-      enum: OwnerType
-    },
-    mechanic: {
-      type: String
-    },
-    registrationYear: {
       type: String
     },
     fuelPoints: {
@@ -109,27 +63,28 @@ const jobCardSchema: Schema = new Schema(
     lineItems: {
       type: [
         {
-          item: Types.ObjectId,
+          item: String,
           description: String,
           quantity: Number,
           rate: Number
         }
       ]
     },
-    refImageList: {
-      type: [
-        {
-          key: String,
-          docURL: String
-        }
-      ]
-    },
+    // refImageList: {
+    //   type: [
+    //     {
+    //       key: String,
+    //       docURL: String
+    //     }
+    //   ]
+    // },
     jobStatus: {
       type: String,
       enum: JobStatus,
       default: JobStatus.CREATED,
       required: true
     },
+    customerDetails: [storeCustomerSchema],
     comment: {
       type: String
     }
@@ -137,6 +92,6 @@ const jobCardSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const JobCard = model<IJobCard & Document>('jobCard', jobCardSchema);
+const JobCard = model<IJobCard>('jobCard', jobCardSchema);
 
 export default JobCard;

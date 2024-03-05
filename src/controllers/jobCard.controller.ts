@@ -36,20 +36,79 @@ export class JobCardController {
     }
   };
 
+  createLineItems = async (req: Request, res: Response) => {
+    const { customerId } = req.body;
+    Logger.info(
+      '<Controller>:<JobCardController>:<Upload Store Customer request initiated>'
+    );
+    const storeCustomerLineItemsRequest = req.body;
+    try {
+      const result = await this.jobCardService.createStoreLineItems (
+        customerId,
+        storeCustomerLineItemsRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getJobCardsByStoreId = async (req: Request, res: Response) => {
+    const storeId = req.params.storeId;
+
+    if (!storeId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Store Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<JobCardController>:<Get store job Card by store id controller initiated>'
+    );
+    try {
+      const result = await this.jobCardService.getStoreJobCardsByStoreId(storeId);
+      res.send({
+        message: 'Store Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getJobCardById = async (req: Request, res: Response) => {
+    const jobCardId = req.query.id;
+
+    if (!jobCardId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Job Card with same id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<JobCardController>:<Get job card by id controller initiated>'
+    );
+    try {
+      const result = await this.jobCardService.getJobCardById(jobCardId as string);
+      res.send({
+        message: 'Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
         return [
-          body('storeId', 'Store Id does not exist').exists().isString(),
-
-          body('customerName', 'Customer name does not existzz')
-            .exists()
-            .isString(),
-
-          body('mobileNumber', 'Mobile number does not exist')
-            .exists()
-            .isString()
-        ];
+          body('storeId', 'Store Id does not exist').exists().isString()];
     }
   };
 }
