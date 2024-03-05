@@ -15,14 +15,36 @@ export class StoreCustomerService {
 
   async create(storeCustomerPayload: IStoreCustomer): Promise<IStoreCustomer> {
     Logger.info(
-      '<Service>:<StoreCustomerService>: <Store Customer Creation: creating new store customer>'
+      '<Service>:<StoreCustomerService>: <Store Customer Creation: creating/updating store customer>'
     );
+    try {
+        const { phoneNumber, storeId } = storeCustomerPayload;
 
-    let newstoreCust: IStoreCustomer = storeCustomerPayload;
-    newstoreCust = await StoreCustomer.create(newstoreCust);
-    Logger.info('<Service>:<StoreCustomerService>:<Store Customer created successfully>');
-    return newstoreCust;
-  }
+        // Search for an existing document based on phoneNumber and storeId
+        const existingCustomer = await StoreCustomer.findOne({ phoneNumber: phoneNumber, storeId: storeId });
+
+        if (existingCustomer) {
+            // Update the existing document
+            const updatedCustomer = await StoreCustomer.findOneAndUpdate(
+                { phoneNumber: phoneNumber, storeId: storeId },
+                storeCustomerPayload,
+                { new: true }
+            );
+
+            Logger.info('<Service>:<StoreCustomerService>:<Store Customer updated successfully>');
+            return updatedCustomer;
+        } else {
+            // Create a new document
+            const newCustomer = await StoreCustomer.create(storeCustomerPayload);
+            Logger.info('<Service>:<StoreCustomerService>:<New Store Customer created successfully>');
+            return newCustomer;
+        }
+    } catch (err) {
+        Logger.error(err.message);
+        throw err; // Rethrow the error to propagate it to the caller
+    }
+}
+
 
 //   async updateEmployeeImage(employeeId: string, req: Request | any) {
 //     Logger.info('<Service>:<CustomerService>:<Customer image uploading>');
