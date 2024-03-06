@@ -147,9 +147,9 @@ export const vehicleInfoSchema: Schema = new Schema(
   }
 );
 
-const VechicleInfo = model<IVehiclesInfo & Document>(
+const VehicleInfo = model<IVehiclesInfo & Document>(
   'vehicles',
   vehicleInfoSchema
 );
 
-export default VechicleInfo;
+export default VehicleInfo;

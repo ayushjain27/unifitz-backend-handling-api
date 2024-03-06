@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import VechicleInfo, {
+import VehicleInfo, {
   IVehiclesInfo,
   IVehicleImage,
   vehicleInfoSchema,
@@ -39,7 +39,7 @@ export class VehicleInfoService {
       userId: new Types.ObjectId(vehicleStore.userId)
     };
 
-    const newVehicleItem: IVehiclesInfo = await VechicleInfo.create(
+    const newVehicleItem: IVehiclesInfo = await VehicleInfo.create(
       newVehicleStore
     );
     Logger.info('<Service>:<VehicleService>:<Vehicle created successfully>');
@@ -59,7 +59,7 @@ export class VehicleInfoService {
       throw new Error('User not found');
     }
 
-    const allVehicles = await VechicleInfo.find({
+    const allVehicles = await VehicleInfo.find({
       userId: new Types.ObjectId(userId),
       purpose
     }).lean();
@@ -72,7 +72,7 @@ export class VehicleInfoService {
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Upload Vehicle Images initiated>');
 
-    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
+    const vehicle: IVehiclesInfo = await VehicleInfo.findOne({
       _id: new Types.ObjectId(vehicleId)
     });
     if (_.isEmpty(vehicle)) {
@@ -115,7 +115,7 @@ export class VehicleInfoService {
 
       Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
 
-      const updatedVehicle = await VechicleInfo.findOneAndUpdate(
+      const updatedVehicle = await VehicleInfo.findOneAndUpdate(
         {
           _id: vehicleId
         },
@@ -138,7 +138,7 @@ export class VehicleInfoService {
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Update Vehicle Image initiated>');
 
-    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
+    const vehicle: IVehiclesInfo = await VehicleInfo.findOne({
       _id: new Types.ObjectId(vehicleId)
     });
 
@@ -168,7 +168,7 @@ export class VehicleInfoService {
       vehicleImageList[vehicleImageKey] = {};
     }
 
-    const updatedVehicle = await VechicleInfo.findOneAndUpdate(
+    const updatedVehicle = await VehicleInfo.findOneAndUpdate(
       {
         _id: vehicleId
       },
@@ -193,7 +193,7 @@ export class VehicleInfoService {
   //   Logger.info('<Service>:<VehicleService>:<Upload Banner initiated>');
   //   const { vehicleId, vehicleImageKey } = reqBody;
 
-  //   const vehicleInfo: IVehiclesInfo = await VechicleInfo.findOne({
+  //   const vehicleInfo: IVehiclesInfo = await VehicleInfo.findOne({
   //     _id: new Types.ObjectId(vehicleId)
   //   });
   //   if (_.isEmpty(vehicleInfo)) {
@@ -226,7 +226,7 @@ export class VehicleInfoService {
 
   //   Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
 
-  //   const updatedVehicle = await VechicleInfo.findOneAndUpdate(
+  //   const updatedVehicle = await VehicleInfo.findOneAndUpdate(
   //     {
   //       _id: new Types.ObjectId(vehicleId)
   //     },
@@ -262,7 +262,7 @@ export class VehicleInfoService {
     Logger.info(
       '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
     );
-    const vehicle: IVehiclesInfo = await VechicleInfo.findOne({
+    const vehicle: IVehiclesInfo = await VehicleInfo.findOne({
       _id: new Types.ObjectId(vehicleId)
     });
     return vehicle;
@@ -279,7 +279,7 @@ export class VehicleInfoService {
     // check if user exist
     let vehicle: IVehiclesInfo;
     if (vehicleId) {
-      vehicle = await VechicleInfo.findOne({
+      vehicle = await VehicleInfo.findOne({
         _id: new Types.ObjectId(vehicleId)
       });
     }
@@ -297,7 +297,7 @@ export class VehicleInfoService {
 
     let updatedVehicle: IVehiclesInfo = vehiclePayload;
 
-    updatedVehicle = await VechicleInfo.findOneAndUpdate(
+    updatedVehicle = await VehicleInfo.findOneAndUpdate(
       { _id: new Types.ObjectId(vehicleId) },
       updatedVehicle,
       { returnDocument: 'after' }
@@ -308,7 +308,7 @@ export class VehicleInfoService {
 
   async getAll(): Promise<IVehiclesInfo[]> {
     Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
-    const vehicleResponse: IVehiclesInfo[] = await VechicleInfo.find({});
+    const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.find({});
     return vehicleResponse;
   }
 }
