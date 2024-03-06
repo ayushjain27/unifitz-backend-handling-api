@@ -56,7 +56,6 @@ export interface IStoreCustomerVehicleInfo {
   vehicleNumber: string;
   ownerType: OwnerType;
   role: string;
-  phoneNumber?: string;
   registrationYear: Date;
   insurance: string;
   insuranceExpiryDate: Date;
@@ -81,9 +80,7 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
     },
     vehicleNumber: {
       type: String,
-      required: true,
-      unique: true,
-      index: true
+      required: true
     },
     brand: {
       type: String
@@ -126,7 +123,6 @@ export interface IStoreCustomer {
   name: string;
   phoneNumber: string;
   email: string;
-  address: string;
   storeId: string;
   storeCustomerVehicleInfo?: IStoreCustomerVehicleInfo[];
   createdAt?: Date;
@@ -146,9 +142,6 @@ export const storeCustomerSchema: Schema = new Schema(
     email: {
       type: String,
       required: true
-    },
-    address: {
-      type: String
     },
     storeId: {
       type: String,
