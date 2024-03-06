@@ -119,32 +119,28 @@ export class StoreCustomerController {
     }
   };
 
-  // uploadStoreCustomerVehicleImages = async (req: Request, res: Response) => {
-  //   // Validate the request body
-  //   const errors = validationResult(req);
-  //   if (!errors.isEmpty()) {
-  //     return res
-  //       .status(HttpStatusCodes.BAD_REQUEST)
-  //       .json({ errors: errors.array() });
-  //   }
-  //   const { vehicleId } = req.body;
-  //   Logger.info(
-  //     '<Controller>:<StoreCustomerController>:<Upload Store Customer Vehicle request initiated>'
-  //   );
-  //   try {
-  //     const result =
-  //       await this.storeCustomerService.uploadStoreCustomerVehicleImages(
-  //         vehicleId,
-  //         req
-  //       );
-  //     res.send({
-  //       result
-  //     });
-  //   } catch (err) {
-  //     Logger.error(err.message);
-  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-  //   }
-  // };
+  uploadStoreCustomerVehicleImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    Logger.info(
+      '<Controller>:<StoreCustomerController>:<Upload Store Customer Vehicle request initiated>'
+    );
+    try {
+      const result =
+        await this.storeCustomerService.uploadStoreCustomerVehicleImages(req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
   validate = (method: string) => {
     switch (method) {

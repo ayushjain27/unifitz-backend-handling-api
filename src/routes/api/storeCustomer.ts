@@ -22,12 +22,12 @@ router.post(
   storeCustomerController.createStoreCustomer
 );
 
-// router.post(
-//   '/uploadVehicleImages',
-//   uploadFile.array('files'),
-//   roleAuth(ACL.STORE_CREATE),
-//   storeCustomerController.uploadStoreCustomerVehicleImages
-// );
+router.post(
+  '/uploadVehicleImages',
+  uploadFile.array('files'),
+  roleAuth(ACL.STORE_CREATE),
+  storeCustomerController.uploadStoreCustomerVehicleImages
+);
 
 router.get(
   '/storeCustomerDetails/:storeId',

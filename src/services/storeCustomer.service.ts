@@ -9,7 +9,8 @@ import { Types } from 'mongoose';
 import _ from 'lodash';
 import StoreCustomer, {
   IStoreCustomer,
-  IStoreCustomerVehicleInfo
+  IStoreCustomerVehicleInfo,
+  IVehicleImageList
 } from '../models/StoreCustomer';
 
 @injectable()
@@ -107,8 +108,6 @@ export class StoreCustomerService {
       );
     }
 
-    console.log(vehicleIndex, 'dfwklenj');
-
     // Check if storeCustomerVehicleId exists
     if (vehicleIndex >= 0) {
       const res = await StoreCustomer.findOneAndUpdate(
@@ -139,68 +138,77 @@ export class StoreCustomerService {
     }
   }
 
-  // async uploadStoreCustomerVehicleImages(
-  //   vehicleId: string,
-  //   req: Request | any
-  // ): Promise<any> {
-  //   Logger.info('<Service>:<StoreCustomerService>:<Upload Store Customer Vehicle Images initiated>');
+  async uploadStoreCustomerVehicleImages(
+    req: Request | any
+  ): Promise<any> {
+    Logger.info('<Service>:<StoreCustomerService>:<Upload Store Customer Vehicle Images initiated>');
 
-  //   const vehicle: IStoreCustomerVehicleInfo = await StoreCustomer.storeCustomerVehicleInfo.findOne({
-  //     _id: new Types.ObjectId(vehicleId)
-  //   });
-  //   if (_.isEmpty(vehicle)) {
-  //     throw new Error('Vehicle does not exist');
-  //   }
+    const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({
+      _id: new Types.ObjectId(req.body.customerId)
+    })?.lean();
+    if (_.isEmpty(storeCustomer)) {
+      throw new Error('Customer does not exist');
+    }
+    const { vehicleNumber } = req.body;
+    let vehicleIndex = -1;
+    if (storeCustomer) {
+      // Find the index of the vehicle with the provided storeCustomerVehicleId
+      vehicleIndex = storeCustomer.storeCustomerVehicleInfo.findIndex(
+        (vehicle) => vehicle.vehicleNumber === vehicleNumber
+      );
+    }
 
-  //   const files: Array<any> = req.files;
+    const files: Array<any> = req.files;
 
-  //   const vehicleImageList: Partial<IVehicleImageList> | any =
-  //     vehicle.vehicleImageList || {
-  //       frontView: {},
-  //       leftView: {},
-  //       seatView: {},
-  //       odometer: {},
-  //       rightView: {},
-  //       backView: {}
-  //     };
+    let vehicleInfo: IStoreCustomerVehicleInfo = storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
 
-  //   if (!files) {
-  //     throw new Error('Files not found');
-  //   }
-  //   for (const file of files) {
-  //     const fileName:
-  //       | 'frontView'
-  //       | 'leftView'
-  //       | 'seatView'
-  //       | 'odometer'
-  //       | 'rightView'
-  //       | 'backView' = file.originalname?.split('.')[0] || 'frontView';
-  //     const { key, url } = await this.s3Client.uploadFile(
-  //       vehicleId,
-  //       fileName,
-  //       file.buffer
-  //     );
-  //     vehicleImageList[fileName] = { key, docURL: url };
+    const vehicleImageList: Partial<IVehicleImageList> | any =
+    vehicleInfo.vehicleImageList || {
+        frontView: {},
+        leftView: {},
+        seatView: {},
+        odometer: {},
+        rightView: {},
+        backView: {}
+      };
 
-  //     Logger.info(
-  //       `<Service>:<VehicleService>:<Upload all images - successful>`
-  //     );
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName:
+        | 'frontView'
+        | 'leftView'
+        | 'seatView'
+        | 'odometer'
+        | 'rightView'
+        | 'backView' = file.originalname?.split('.')[0] || 'frontView';
+      const { key, url } = await this.s3Client.uploadFile(
+        req.body.vehicleNumber,
+        fileName,
+        file.buffer
+      );
+      vehicleImageList[fileName] = { key, docURL: url };
 
-  //     Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+      Logger.info(
+        `<Service>:<VehicleService>:<Upload all images - successful>`
+      );
 
-  //     const updatedVehicle = await VehicleInfo.findOneAndUpdate(
-  //       {
-  //         _id: vehicleId
-  //       },
-  //       {
-  //         $set: {
-  //           vehicleImageList: vehicleImageList
-  //         }
-  //       },
-  //       { returnDocument: 'after' }
-  //     );
+      Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
 
-  //     return updatedVehicle;
-  //   }
-  // }
+      const updatedVehicle = await StoreCustomer.findOneAndUpdate(
+        {
+          vehicleNumber: req.body.vehicleNumber
+        },
+        {
+          $set: {
+            [`storeCustomerVehicleInfo.${vehicleIndex}.vehicleImageList`] : vehicleImageList
+          }
+        },
+        { returnDocument: 'after' }
+      );
+
+      return updatedVehicle;
+    }
+  }
 }
