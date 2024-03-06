@@ -10,12 +10,7 @@ export enum FuelType {
   PETROL = 'PETROL',
   EV = 'EV'
 }
-export enum OwnerType {
-  FIRST = 'FIRST',
-  SECOND = 'SECOND',
-  THIRD = 'THIRD',
-  FOURTH_AND_ABOVE = 'FOURTH AND ABOVE'
-}
+
 export enum VehicleType {
   CYCLE = 'CYCLE',
   TWO_WHEELER = 'TWO_WHEELER',
@@ -54,7 +49,7 @@ export interface IStoreCustomerVehicleInfo {
   fuelType: FuelType;
   totalKmsRun: string;
   vehicleNumber: string;
-  ownerType: OwnerType;
+  ownerType: string;
   role: string;
   registrationYear: Date;
   insurance: string;
@@ -93,8 +88,7 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
       enum: FuelType
     },
     ownerType: {
-      type: String,
-      enum: OwnerType
+      type: String
     },
     totalKmsRun: {
       type: String
