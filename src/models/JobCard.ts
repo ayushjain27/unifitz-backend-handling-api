@@ -1,18 +1,6 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 import { IStoreCustomer, storeCustomerSchema } from './StoreCustomer';
 
-export enum FuelType {
-  CNG = 'cng',
-  DIESEL = 'diesel',
-  PETROL = 'petrol',
-  EV = 'ev'
-}
-export enum OwnerType {
-  FIRST = 'first',
-  SECOND = 'second',
-  THIRD = 'third',
-  FOURTH_AND_ABOVE = 'fourth and above'
-}
 export enum FuelPoints {
   ONE = '1 (25%)',
   TWO = '2 (55%)',
@@ -43,7 +31,6 @@ export interface IJobCard {
   lineItems: ILineItem[];
   // refImageList: [{ key: string; docURL: string }];
   jobStatus: JobStatus;
-  comment: string;
   customerDetails?: IStoreCustomer[];
 }
 
@@ -85,9 +72,6 @@ const jobCardSchema: Schema = new Schema(
       required: true
     },
     customerDetails: [storeCustomerSchema],
-    comment: {
-      type: String
-    }
   },
   { timestamps: true }
 );

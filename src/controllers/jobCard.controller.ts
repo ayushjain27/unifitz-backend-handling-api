@@ -37,7 +37,7 @@ export class JobCardController {
   };
 
   createLineItems = async (req: Request, res: Response) => {
-    const { customerId } = req.body;
+    const { customerId, vehicleId } = req.body;
     Logger.info(
       '<Controller>:<JobCardController>:<Upload Store Customer request initiated>'
     );
