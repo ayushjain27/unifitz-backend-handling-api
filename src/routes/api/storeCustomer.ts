@@ -23,10 +23,10 @@ router.post(
 );
 
 // router.post(
-//   '/uploadEmployeeImage',
-//   uploadFile.single('file'),
+//   '/uploadVehicleImages',
+//   uploadFile.array('files'),
 //   roleAuth(ACL.STORE_CREATE),
-//   employeeController.uploadEmployeeImage
+//   storeCustomerController.uploadStoreCustomerVehicleImages
 // );
 
 router.get(

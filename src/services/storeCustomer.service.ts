@@ -7,7 +7,10 @@ import { S3Service } from './s3.service';
 import { Employee, IEmployee } from '../models/Employee';
 import { Types } from 'mongoose';
 import _ from 'lodash';
-import StoreCustomer, { IStoreCustomer, IStoreCustomerVehicleInfo } from '../models/StoreCustomer';
+import StoreCustomer, {
+  IStoreCustomer,
+  IStoreCustomerVehicleInfo
+} from '../models/StoreCustomer';
 
 @injectable()
 export class StoreCustomerService {
@@ -18,141 +21,186 @@ export class StoreCustomerService {
       '<Service>:<StoreCustomerService>: <Store Customer Creation: creating/updating store customer>'
     );
     try {
-        const { phoneNumber, storeId } = storeCustomerPayload;
+      const { phoneNumber, storeId } = storeCustomerPayload;
 
-        // Search for an existing document based on phoneNumber and storeId
-        const existingCustomer = await StoreCustomer.findOne({ phoneNumber: phoneNumber, storeId: storeId });
+      // Search for an existing document based on phoneNumber and storeId
+      const existingCustomer = await StoreCustomer.findOne({
+        phoneNumber: phoneNumber,
+        storeId: storeId
+      });
 
-        if (existingCustomer) {
-            // Update the existing document
-            const updatedCustomer = await StoreCustomer.findOneAndUpdate(
-                { phoneNumber: phoneNumber, storeId: storeId },
-                storeCustomerPayload,
-                { new: true }
-            );
+      if (existingCustomer) {
+        // Update the existing document
+        const updatedCustomer = await StoreCustomer.findOneAndUpdate(
+          { phoneNumber: phoneNumber, storeId: storeId },
+          storeCustomerPayload,
+          { new: true }
+        );
 
-            Logger.info('<Service>:<StoreCustomerService>:<Store Customer updated successfully>');
-            return updatedCustomer;
-        } else {
-            // Create a new document
-            const newCustomer = await StoreCustomer.create(storeCustomerPayload);
-            Logger.info('<Service>:<StoreCustomerService>:<New Store Customer created successfully>');
-            return newCustomer;
-        }
+        Logger.info(
+          '<Service>:<StoreCustomerService>:<Store Customer updated successfully>'
+        );
+        return updatedCustomer;
+      } else {
+        // Create a new document
+        const newCustomer = await StoreCustomer.create(storeCustomerPayload);
+        Logger.info(
+          '<Service>:<StoreCustomerService>:<New Store Customer created successfully>'
+        );
+        return newCustomer;
+      }
     } catch (err) {
-        Logger.error(err.message);
-        throw err; // Rethrow the error to propagate it to the caller
+      Logger.error(err.message);
+      throw err; // Rethrow the error to propagate it to the caller
     }
-}
-
-
-//   async updateEmployeeImage(employeeId: string, req: Request | any) {
-//     Logger.info('<Service>:<CustomerService>:<Customer image uploading>');
-//     const employee: IEmployee = await Employee.findOne({
-//       _id: new Types.ObjectId(employeeId)
-//     })?.lean();
-//     if (_.isEmpty(employee)) {
-//       throw new Error('employee does not exist');
-//     }
-//     const file: any = req.file;
-
-//     let profilePhoto: any = employee.profilePhoto || '';
-
-//     if (!file) {
-//       throw new Error('Files not found');
-//     }
-
-//     const fileName = 'profile';
-//     const { url } = await this.s3Client.uploadFile(
-//       employeeId,
-//       fileName,
-//       file.buffer
-//     );
-//     profilePhoto = url;
-
-//     const res = await Employee.findOneAndUpdate(
-//       { _id: employeeId },
-//       { $set: { profilePhoto } },
-//       { returnDocument: 'after' }
-//     );
-//     return res;
-//   }
+  }
 
   async getStoreCustomerByStoreId(storeId: string): Promise<IStoreCustomer[]> {
     Logger.info(
       '<Service>:<StoreCustomerService>: <Store Customer Fetch: getting all the store customers by store id>'
     );
 
-    const storeCustomers: IStoreCustomer[] = await StoreCustomer.find({ storeId }).lean();
-    Logger.info('<Service>:<StoreCustomerService>:<Store Customer fetched successfully>');
+    const storeCustomers: IStoreCustomer[] = await StoreCustomer.find({
+      storeId
+    }).lean();
+    Logger.info(
+      '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
+    );
     return storeCustomers;
   }
 
-  async getStoreCustomerByPhoneNumber(phoneNumber: string): Promise<IStoreCustomer> {
+  async getStoreCustomerByPhoneNumber(
+    phoneNumber: string
+  ): Promise<IStoreCustomer> {
     Logger.info(
       '<Service>:<StoreCustomerService>: <Store Customer Fetch: getting all the store customers by store id>'
     );
 
-    const storeCustomers: IStoreCustomer = await StoreCustomer.find({ phoneNumber }).lean();
-    Logger.info('<Service>:<StoreCustomerService>:<Store Customer fetched successfully>');
+    const storeCustomers: IStoreCustomer = await StoreCustomer.find({
+      phoneNumber
+    }).lean();
+    Logger.info(
+      '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
+    );
     return storeCustomers;
   }
 
   async createStoreCustomerVehicle(
-    storeVehicleId: string,
+    customerId: string,
     storeCustomerVehiclePayload: IStoreCustomerVehicleInfo
   ) {
     Logger.info(
       '<Service>:<StoreCustomerService>: <Vehicle Creation: creating new store customer vehicle>'
     );
-    const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({ _id: new Types.ObjectId(storeVehicleId)})?.lean();
+    const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({
+      _id: new Types.ObjectId(customerId)
+    })?.lean();
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
-    const storeCustomerVehicle: IStoreCustomerVehicleInfo = storeCustomerVehiclePayload;
-    const res = await StoreCustomer.findOneAndUpdate(
-      { _id: storeVehicleId },
-      { $push: { storeCustomerVehicleInfo: storeCustomerVehicle } },
-      { returnDocument: 'after' }
-    );
-    Logger.info('<Service>:<StoreCustomerService>:<Customer created successfully>');
-    return res;
+    const { vehicleNumber } = storeCustomerVehiclePayload
+    let vehicleIndex = -1;
+    if (storeCustomer) {
+      // Find the index of the vehicle with the provided storeCustomerVehicleId
+      vehicleIndex = storeCustomer.storeCustomerVehicleInfo.findIndex(
+        (vehicle) => vehicle.vehicleNumber === vehicleNumber
+      );
+    }
+
+    console.log(vehicleIndex, 'dfwklenj');
+
+    // Check if storeCustomerVehicleId exists
+    if (vehicleIndex >= 0) {
+      const res = await StoreCustomer.findOneAndUpdate(
+        {
+          _id: customerId, // Ensure the vehicle ID also matches
+        },
+        { $set: { [`storeCustomerVehicleInfo.${vehicleIndex}`]: storeCustomerVehiclePayload } }, // Use the update object constructed dynamically
+        { returnDocument: 'after' }
+      );
+      
+
+      Logger.info(
+        '<Service>:<StoreCustomerService>:<Customer updated successfully>'
+      );
+
+      return res;
+    } else {
+      // Push new vehicle info
+      const res = await StoreCustomer.findOneAndUpdate(
+        { _id: customerId },
+        { $push: { storeCustomerVehicleInfo: storeCustomerVehiclePayload } },
+        { returnDocument: 'after' }
+      );
+      Logger.info(
+        '<Service>:<StoreCustomerService>:<New vehicle added successfully>'
+      );
+      return res;
+    }
   }
 
-//   async update(
-//     employeeId: string,
-//     employeePayload: IEmployee
-//   ): Promise<IEmployee> {
-//     Logger.info(
-//       '<Service>:<EmployeeService>: <Employee onboarding: creating new employee>'
-//     );
-//     await Employee.findOneAndUpdate(
-//       {
-//         _id: new Types.ObjectId(employeeId)
-//       },
-//       employeePayload
-//     );
-//     const updatedEmployeePayload = Employee.findById(
-//       new Types.ObjectId(employeeId)
-//     );
-//     Logger.info('<Service>:<EmployeeService>:<Employee updated successfully>');
-//     return updatedEmployeePayload;
-//   }
+  // async uploadStoreCustomerVehicleImages(
+  //   vehicleId: string,
+  //   req: Request | any
+  // ): Promise<any> {
+  //   Logger.info('<Service>:<StoreCustomerService>:<Upload Store Customer Vehicle Images initiated>');
 
-//   async getEmployeesByEmployeeId(
-//     storeId: string,
-//     employeeId: string
-//   ): Promise<IEmployee> {
-//     Logger.info(
-//       '<Service>:<EmployeeService>: <Employee Fetch: getting all the employees by store id>'
-//     );
-//     let employee: IEmployee = await Employee.findOne({ storeId }).lean();
-//     if (_.isEmpty(employee)) {
-//       throw new Error('Store Id not exists');
-//     }
-//     employee = await Employee.findOne({ _id: new Types.ObjectId(employeeId) }).lean();
-//     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
-//     return employee;
-//   }
+  //   const vehicle: IStoreCustomerVehicleInfo = await StoreCustomer.storeCustomerVehicleInfo.findOne({
+  //     _id: new Types.ObjectId(vehicleId)
+  //   });
+  //   if (_.isEmpty(vehicle)) {
+  //     throw new Error('Vehicle does not exist');
+  //   }
+
+  //   const files: Array<any> = req.files;
+
+  //   const vehicleImageList: Partial<IVehicleImageList> | any =
+  //     vehicle.vehicleImageList || {
+  //       frontView: {},
+  //       leftView: {},
+  //       seatView: {},
+  //       odometer: {},
+  //       rightView: {},
+  //       backView: {}
+  //     };
+
+  //   if (!files) {
+  //     throw new Error('Files not found');
+  //   }
+  //   for (const file of files) {
+  //     const fileName:
+  //       | 'frontView'
+  //       | 'leftView'
+  //       | 'seatView'
+  //       | 'odometer'
+  //       | 'rightView'
+  //       | 'backView' = file.originalname?.split('.')[0] || 'frontView';
+  //     const { key, url } = await this.s3Client.uploadFile(
+  //       vehicleId,
+  //       fileName,
+  //       file.buffer
+  //     );
+  //     vehicleImageList[fileName] = { key, docURL: url };
+
+  //     Logger.info(
+  //       `<Service>:<VehicleService>:<Upload all images - successful>`
+  //     );
+
+  //     Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+
+  //     const updatedVehicle = await VehicleInfo.findOneAndUpdate(
+  //       {
+  //         _id: vehicleId
+  //       },
+  //       {
+  //         $set: {
+  //           vehicleImageList: vehicleImageList
+  //         }
+  //       },
+  //       { returnDocument: 'after' }
+  //     );
+
+  //     return updatedVehicle;
+  //   }
+  // }
 }
-
