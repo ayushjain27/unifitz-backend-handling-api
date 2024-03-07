@@ -508,7 +508,7 @@ export class StoreController {
     switch (method) {
       case 'initiateBusinessVerification':
         return [
-          body('storeId', 'Store Id does not exist').exists().isString(),
+          // body('storeId', 'Store Id does not exist').exists().isString(),
           body('documentNo', 'Document Number does not exist')
             .exists()
             .isString(),

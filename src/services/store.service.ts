@@ -653,23 +653,25 @@ export class StoreService {
         },
         { verificationDetails: 0 }
       ).lean();
-      const userDetails = await User.findOne({ phoneNumber, role }).lean();
-      if (_.isEmpty(storeDetails)) {
-        throw new Error('Store does not exist');
-      }
+      Logger.debug(`${phoneNumber} ${role} user resulttttttttt`)
+      if (role !== 'ADMIN' && role !== 'OEM') {
+        const userDetails = await User.findOne({ phoneNumber, role }).lean();
+        if (_.isEmpty(storeDetails)) {
+          throw new Error('Store does not exist');
+        }
 
-      if (_.isEmpty(userDetails)) {
-        throw new Error('User does not exist');
-      }
+        if (_.isEmpty(userDetails)) {
+          throw new Error('User does not exist');
+        }
 
-      // Check if role is store owner and user id matches with store user id
-      if (
-        role === 'STORE_OWNER' &&
-        String(storeDetails?.userId) !== String(userDetails._id)
-      ) {
-        throw new Error('Invalid and unauthenticated request');
+        // Check if role is store owner and user id matches with store user id
+        if (
+          role === 'STORE_OWNER' &&
+          String(storeDetails?.userId) !== String(userDetails._id)
+        ) {
+          throw new Error('Invalid and unauthenticated request');
+        }
       }
-
       // integrate surephass api based on doc type
       switch (payload.documentType) {
         case DocType.GST:
@@ -720,25 +722,30 @@ export class StoreService {
         },
         { verificationDetails: 0 }
       ).lean();
-      const userDetails = await User.findOne({ phoneNumber, role }).lean();
-      if (_.isEmpty(storeDetails)) {
-        throw new Error('Store does not exist');
-      }
 
-      if (_.isEmpty(userDetails)) {
-        throw new Error('User does not exist');
-      }
+      if (role !== 'ADMIN' && role !== 'OEM') {
 
-      // Check if role is store owner and user id matches with store user id
-      if (
-        role === 'STORE_OWNER' &&
-        String(storeDetails?.userId) !== String(userDetails._id)
-      ) {
-        throw new Error('Invalid and unauthenticated request');
+        const userDetails = await User.findOne({ phoneNumber, role }).lean();
+        if (_.isEmpty(storeDetails)) {
+          throw new Error('Store does not exist');
+        }
+
+        if (_.isEmpty(userDetails)) {
+          throw new Error('User does not exist');
+        }
+
+        // Check if role is store owner and user id matches with store user id
+        if (
+          role === 'STORE_OWNER' &&
+          String(storeDetails?.userId) !== String(userDetails._id)
+        ) {
+          throw new Error('Invalid and unauthenticated request');
+        }
       }
       const updatedStore = await this.updateStoreDetails(
         payload.verificationDetails,
         payload.documentType,
+        payload.gstAdhaarNumber,
         storeDetails
       );
 
@@ -754,6 +761,7 @@ export class StoreService {
   private async updateStoreDetails(
     verifyResult: any,
     documentType: string,
+    gstAdhaarNumber: string,
     storeDetails: IStore
   ) {
     let isVerified = false;
@@ -768,7 +776,7 @@ export class StoreService {
       {
         $set: {
           isVerified,
-          verificationDetails: { documentType, verifyObj: verifyResult }
+          verificationDetails: { documentType, verifyObj: verifyResult, gstAdhaarNumber }
         }
       },
       {
@@ -788,22 +796,27 @@ export class StoreService {
     Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
     // validate the store from user phone number and user id
     let verifyResult: any = {};
+    const gstAdhaarNumber = payload?.gstAdhaarNumber ? payload?.gstAdhaarNumber : '';
 
     try {
       // get the store data
       const storeDetails = await Store.findOne({
         storeId: payload.storeId
       }).lean();
-      const userDetails = await User.findOne(
-        { phoneNumber, role },
-        { verificationDetails: 0 }
-      ).lean();
+
       if (_.isEmpty(storeDetails)) {
         throw new Error('Store does not exist');
       }
 
-      if (_.isEmpty(userDetails)) {
-        throw new Error('User does not exist');
+      if (role !== 'ADMIN' && role !== 'OEM') {
+        const userDetails = await User.findOne(
+          { phoneNumber, role },
+          { verificationDetails: 0 }
+        ).lean();
+
+        if (_.isEmpty(userDetails)) {
+          throw new Error('User does not exist');
+        }
       }
 
       const verifyResult = await this.surepassService.verifyOtpForAadharVerify(
@@ -813,6 +826,7 @@ export class StoreService {
       const updatedStore = await this.updateStoreDetails(
         verifyResult,
         DocType.AADHAR,
+        gstAdhaarNumber,
         storeDetails
       );
 
@@ -825,10 +839,10 @@ export class StoreService {
   async getAllReviews(userName: string, role: string): Promise<IStoreReview[]> {
     Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
     let reviewResponse: any = []
-    if(role === 'ADMIN'){
-    reviewResponse = await StoreReview.find({});
+    if (role === 'ADMIN') {
+      reviewResponse = await StoreReview.find({});
     }
-    else{
+    else {
       reviewResponse = await StoreReview.aggregate([
         {
           $lookup: {

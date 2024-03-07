@@ -534,9 +534,173 @@ export class ProductController {
       '<Controller>:<ProductController>:<Get products by oemUserName controller initiated>'
     );
     try {
-      const result = await this.productService.getProductByOemUserName({productCategory, productSubCategory, oemUserName});
+      const result = await this.productService.getProductByOemUserName({
+        productCategory,
+        productSubCategory,
+        oemUserName
+      });
       res.send({
         message: 'Product Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createPartnerProduct = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const prodRequest = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
+    Logger.info(
+      '<Controller>:<ProductController>:<Create partner product controller initiated>'
+    );
+    try {
+      const result = await this.productService.createPartnerProduct(
+        prodRequest,
+        userName,
+        role
+      );
+      res.send({
+        message: 'Product Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  partnerProductGetAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      // const role = req?.role;
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.productService.partnerProductGetAll(
+        userName,
+        role
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getPartnerProductById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Getting banner ID>');
+    try {
+      const partnerProductId = req.query.partnerProductId;
+      const result = await this.productService.getPartnerProductById(
+        partnerProductId as string
+      );
+      Logger.info('<Controller>:<ProductController>:<get successfully>');
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updatePartnerProduct = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Update Product Status>');
+    // Validate the request body
+    const partnerProductId = req.params.partnerProductId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.updatePartnerProduct(
+        req.body,
+        partnerProductId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deletePartnerProduct = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Delete Product>');
+    // Validate the request body
+    const partnerProductId = req.params.partnerProductId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.deletePartnerProduct(
+        partnerProductId
+      );
+      res.send({
+        message: 'Product deleted successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updatePartnerProductStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Update Product Status>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.updatePartnerProductStatus(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updatePartnerProductImages = async (req: Request, res: Response) => {
+    const { partnerProductId } = req.body;
+    Logger.info(
+      '<Controller>:<ProductController>:<Upload Product request initiated>'
+    );
+    try {
+      const result = await this.productService.updatePartnerProductImages(
+        partnerProductId,
+        req
+      );
+      res.send({
         result
       });
     } catch (err) {

@@ -12,6 +12,7 @@ import category from './routes/api/category.route';
 import admin from './routes/api/admin';
 import event from './routes/api/event.route';
 import business from './routes/api/business.route';
+import schoolofAuto from './routes/api/schoolOfAuto.route';
 import offer from './routes/api/offer';
 import store from './routes/api/store';
 import user from './routes/api/user';
@@ -90,6 +91,7 @@ app.use('/categories', category);
 app.use('/report', report);
 app.use(`/event`, event);
 app.use('/business', business);
+app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';

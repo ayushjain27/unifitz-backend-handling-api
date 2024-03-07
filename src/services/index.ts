@@ -20,3 +20,4 @@ export * from './report.service';
 export * from './event.service';
 export * from './offer.service';
 export * from './business.service';
+export * from './schoolOfAuto.service';

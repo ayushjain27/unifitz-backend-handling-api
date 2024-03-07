@@ -148,4 +148,41 @@ router.post(
   productController.getProductByOemUserName
 );
 
+///////////////// b2b partner product api lists /////////////////////
+
+router.post(
+  '/partner',
+  roleAuth(ACL.STORE_CREATE),
+  productController.createPartnerProduct
+);
+
+router.get(
+  '/partner/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.partnerProductGetAll
+);
+
+router.get('/partner/productId', productController.getPartnerProductById);
+
+router.put(
+  '/partner/update/:partnerProductId',
+  productController.updatePartnerProduct
+);
+
+router.delete(
+  '/partner/delete/:partnerProductId',
+  productController.deletePartnerProduct
+);
+
+router.post(
+  '/partner/updateStatus',
+  productController.updatePartnerProductStatus
+);
+
+router.post(
+  '/partner/uploadImages',
+  uploadFiles.array('files'),
+  productController.updatePartnerProductImages
+);
+
 export default router;

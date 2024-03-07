@@ -20,6 +20,10 @@ import { OverallStoreRatingResponse } from '../interfaces';
 import { AdminRole } from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
+import {
+  PartnersPoduct,
+  IB2BPartnersProduct
+} from '../models/B2BPartnersProduct';
 
 @injectable()
 export class ProductService {
@@ -688,7 +692,8 @@ export class ProductService {
   async getProductByOemUserName(searchReqBody: {
     productCategory: string;
     productSubCategory: string;
-    oemUserName: string;}): Promise<IPrelistProduct[]> {
+    oemUserName: string;
+  }): Promise<IPrelistProduct[]> {
     Logger.info(
       '<Service>:<ProductService>: <Product Fetch: Get product by OemUserName>'
     );
@@ -708,7 +713,7 @@ export class ProductService {
     }
     Logger.debug(query);
 
-    let product: any = await PrelistPoduct.aggregate([
+    const product: any = await PrelistPoduct.aggregate([
       // {
       //   $geoNear: {
       //     near: {
@@ -731,5 +736,156 @@ export class ProductService {
     ]);
 
     return product;
+  }
+
+  async createPartnerProduct(
+    productPayload: IB2BPartnersProduct,
+    userName?: string,
+    role?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>: <creating new  partner product>');
+
+    const newProd = productPayload;
+    if (role === AdminRole.OEM) {
+      newProd.oemUserName = userName;
+    }
+    const productResult = await PartnersPoduct.create(newProd);
+    Logger.info(
+      '<Service>:<ProductService>:<Partner Product created successfully>'
+    );
+    return productResult;
+  }
+
+  async partnerProductGetAll(userName: string, role?: string): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const product: IB2BPartnersProduct[] = await PartnersPoduct.find(
+      query
+    ).lean();
+
+    return product;
+  }
+
+  async getPartnerProductById(partnerProductId: string): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get event initiated>');
+
+    const newProd: IB2BPartnersProduct = await PartnersPoduct.findOne({
+      _id: partnerProductId
+    })?.lean();
+
+    if (_.isEmpty(newProd)) {
+      throw new Error('Partner product does not exist');
+    }
+    Logger.info('<Service>:<ProductService>:<Upload product successful>');
+
+    return newProd;
+  }
+
+  async updatePartnerProduct(
+    reqBody: IB2BPartnersProduct,
+    partnerProductId: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Update Product details >');
+    const partnerResult: IB2BPartnersProduct = await PartnersPoduct.findOne({
+      _id: partnerProductId
+    })?.lean();
+
+    if (_.isEmpty(partnerResult)) {
+      throw new Error('Product does not exist');
+    }
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await PartnersPoduct.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
+  }
+
+  async deletePartnerProduct(
+    partnerProductId: string
+    //   reqBody: {
+    //   imageKey: string;
+    //   partnerProductId: string;
+    // }
+  ) {
+    Logger.info('<Service>:<ProductService>:<Delete product >');
+
+    // Delete the event from the s3
+    // await this.s3Client.deleteFile(reqBody.imageKey);
+    const res = await PartnersPoduct.findOneAndDelete({
+      _id: new Types.ObjectId(partnerProductId)
+    });
+    return res;
+  }
+
+  async updatePartnerProductStatus(reqBody: {
+    partnerProductId: string;
+    status: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Update product status >');
+
+    const productResult: IB2BPartnersProduct =
+      await PartnersPoduct.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(reqBody.partnerProductId)
+        },
+        { $set: { status: reqBody.status } },
+        { returnDocument: 'after' }
+      );
+
+    return productResult;
+  }
+
+  async updatePartnerProductImages(
+    partnerProductId: string,
+    req: Request | any
+  ) {
+    Logger.info('<Service>:<ProductService>:<Product image uploading>');
+    const prelistProduct: IB2BPartnersProduct = await PartnersPoduct.findOne({
+      _id: new Types.ObjectId(partnerProductId)
+    })?.lean();
+    if (_.isEmpty(prelistProduct)) {
+      throw new Error('Product does not exist');
+    }
+    const files: Array<any> = req.files;
+
+    const productImageList: Partial<IProductImageList> | any =
+      prelistProduct.productImageList || {
+        profile: {},
+        first: {},
+        second: {},
+        third: {}
+      };
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
+        file.originalname?.split('.')[0] || 'profie';
+      const { key, url } = await this.s3Client.uploadFile(
+        partnerProductId,
+        fileName,
+        file.buffer
+      );
+
+      productImageList[fileName] = { key, docURL: url };
+    }
+    const producttDetails = {
+      ...prelistProduct,
+      productImageList,
+      status: 'ACTIVE',
+      _id: new Types.ObjectId(partnerProductId)
+    };
+    const res = await PartnersPoduct.findOneAndUpdate(
+      { _id: partnerProductId },
+      producttDetails,
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 }
