@@ -72,7 +72,7 @@ router.post(
 
 router.post(
   '/review',
-  roleAuth(ACL.STORE_REVIEW_CREATE),
+  roleAuth(ACL.STORE_CREATE),
   productController.validate('reviewProduct'),
   productController.addProductReview
 );

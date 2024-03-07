@@ -1,19 +1,20 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IProductReview {
-  userId: Types.ObjectId;
+  userId?: Types.ObjectId;
   productId: Types.ObjectId;
   review: string;
   rating: number;
+  storeId?: string;
+  name?: string;
 }
 
 const productReviewSchema: Schema = new Schema<IProductReview>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      required: true
+      // required: true
     },
-
     productId: {
       type: Schema.Types.ObjectId,
       required: true
@@ -25,7 +26,13 @@ const productReviewSchema: Schema = new Schema<IProductReview>(
     rating: {
       type: Number,
       required: true
-    }
+    },
+    storeId: {
+      type: String
+    },
+    name: {
+      type: String
+    },
   },
   { timestamps: true }
 );
