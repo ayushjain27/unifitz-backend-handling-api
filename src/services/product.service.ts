@@ -16,7 +16,7 @@ import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import { CustomerService } from './customer.service';
 import { ICustomer } from '../models/Customer';
-import { OverallStoreRatingResponse } from '../interfaces';
+import { OverallStoreRatingResponse, PartnersProductStoreRatingResponse } from '../interfaces';
 import { AdminRole } from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
@@ -900,5 +900,56 @@ export class ProductService {
       { returnDocument: 'after' }
     );
     return res;
+  }
+
+  async getOverallPartnerProductRatings(
+    partnerProductId: string
+  ): Promise<PartnersProductStoreRatingResponse> {
+    Logger.info('<Service>:<ProductService>:<Get Overall Ratings initiate>');
+    const productReviews = await ProductReview.find({ _id: partnerProductId });
+    if (productReviews.length === 0) {
+      return {
+        allRatings: {
+          5: 100
+        },
+        averageRating: '-',
+        totalRatings: 0,
+        totalReviews: 1
+      };
+    }
+    let ratingsCount = 0;
+    let totalRatings = 0;
+    let totalReviews = 0;
+    const allRatings: { [key: number]: number } = {};
+
+    productReviews.forEach(({ rating, review }) => {
+      if (rating) totalRatings++;
+      if (review) totalReviews++;
+      ratingsCount = ratingsCount + rating;
+      if (!allRatings[rating]) {
+        allRatings[rating] = 1;
+      } else {
+        allRatings[rating]++;
+      }
+    });
+
+    for (const key in allRatings) {
+      allRatings[key] = Math.trunc(
+        (allRatings[key] * 100) / productReviews.length
+      );
+    }
+
+    const averageRating = Number(
+      ratingsCount / productReviews.length
+    ).toPrecision(2);
+    Logger.info(
+      '<Service>:<ProductService>:<Get Overall Ratings performed successfully>'
+    );
+    return {
+      allRatings,
+      averageRating,
+      totalRatings,
+      totalReviews
+    };
   }
 }

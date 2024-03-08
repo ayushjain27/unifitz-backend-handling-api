@@ -306,6 +306,7 @@ export class StoreController {
         .json({ message: err.message });
     }
   };
+  
   addStoreReview = async (req: Request, res: Response) => {
     const storeReview: StoreReviewRequest = req.body;
     Logger.info('<Controller>:<StoreController>:<Create store ratings>');

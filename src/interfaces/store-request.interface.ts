@@ -66,3 +66,10 @@ export interface DistributedPartnersReviewRequest {
   rating: number;
   storeId: string;
 }
+
+export interface PartnersProductStoreRatingResponse {
+  allRatings: { [key: number]: number };
+  averageRating: string | number;
+  totalRatings: number;
+  totalReviews: number;
+}
