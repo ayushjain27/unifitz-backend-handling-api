@@ -70,18 +70,18 @@ router.post(
   productController.multiDelete
 );
 
-router.post(
-  '/review',
-  roleAuth(ACL.STORE_CREATE),
-  productController.validate('reviewProduct'),
-  productController.addProductReview
-);
-router.get(
-  '/reviews',
-  // roleAuth(ACL.STORE_REVIEW_CREATE),
-  productController.validate('getReviews'),
-  productController.getProductReviews
-);
+// router.post(
+//   '/review',
+//   roleAuth(ACL.STORE_CREATE),
+//   productController.validate('reviewProduct'),
+//   productController.addProductReview
+// );
+// router.get(
+//   '/reviews',
+//   // roleAuth(ACL.STORE_REVIEW_CREATE),
+//   productController.validate('getReviews'),
+//   productController.getProductReviews
+// );
 
 router.post(
   '/duplicateProductToStores',
@@ -183,6 +183,19 @@ router.post(
   '/partner/uploadImages',
   uploadFiles.array('files'),
   productController.updatePartnerProductImages
+);
+
+router.post(
+  '/partner/review',
+  roleAuth(ACL.STORE_CREATE),
+  productController.validate('reviewProduct'),
+  productController.addProductReview
+);
+router.get(
+  '/partner/reviews',
+  // roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('getReviews'),
+  productController.getProductReviews
 );
 
 export default router;
