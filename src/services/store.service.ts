@@ -313,8 +313,11 @@ export class StoreService {
       profileStatus: status,
       oemUserName: { $exists: userRoleType }
     };
-    if (_.isEmpty(userType) && _.isEmpty(status)) {
-      stores = await Store.find().lean();
+    if (!userType) {
+      delete query['oemUserName'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
     }
     if (!verifiedStore) {
       delete query['isVerified'];
@@ -322,15 +325,20 @@ export class StoreService {
     if (!status) {
       delete query['profileStatus'];
     }
-    if (!userType) {
-      delete query['oemUserName'];
+    if (_.isEmpty(userType) && _.isEmpty(status) && _.isEmpty(verifiedStore)) {
+      stores = await Store.find(query, {
+        'verificationDetails.verifyObj': 0
+      }).lean();
     }
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+    if (
+      !_.isEmpty(userType) ||
+      !_.isEmpty(status) ||
+      !_.isEmpty(verifiedStore)
+    ) {
+      stores = await Store.find(query, {
+        'verificationDetails.verifyObj': 0
+      }).lean();
     }
-    stores = await Store.find(query, {
-      'verificationDetails.verifyObj': 0
-    }).lean();
 
     //STARTS --- Update Script for all the stores
     // const bulkWrite = [];

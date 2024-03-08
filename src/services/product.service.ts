@@ -726,7 +726,7 @@ export class ProductService {
     }
     Logger.debug(query);
 
-    const product: any = await PrelistPoduct.aggregate([
+    const product: any = await PartnersPoduct.aggregate([
       // {
       //   $geoNear: {
       //     near: {
