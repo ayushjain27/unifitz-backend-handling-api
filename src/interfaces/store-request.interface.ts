@@ -44,12 +44,14 @@ export interface ApproveBusinessVerifyRequest {
   documentType: DocType;
   storeId?: string;
   verificationDetails: object;
+  gstAdhaarNumber: string;
 }
 
 export interface VerifyAadharRequest {
   clientId: string;
   otp: string;
   storeId: string;
+  gstAdhaarNumber: string;
 }
 
 export interface VerifyB2BPartnersRequest {
@@ -63,4 +65,11 @@ export interface DistributedPartnersReviewRequest {
   review: string;
   rating: number;
   storeId: string;
+}
+
+export interface PartnersProductStoreRatingResponse {
+  allRatings: { [key: number]: number };
+  averageRating: string | number;
+  totalRatings: number;
+  totalReviews: number;
 }

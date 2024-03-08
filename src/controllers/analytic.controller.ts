@@ -112,4 +112,50 @@ export class AnalyticController {
         .json({ message: err.message });
     }
   };
+
+  getPlusFeatureData = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      category,
+      subCategory,
+      state,
+      city
+    }: {
+      startDate: string;
+      endDate: string;
+      category: string;
+      subCategory: string;
+      state: string;
+      city: string;
+    } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result = await this.analyticService.getPlusFeatureData({
+        startDate,
+        endDate,
+        category,
+        subCategory,
+        state,
+        city,
+        role,
+        userName
+      });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

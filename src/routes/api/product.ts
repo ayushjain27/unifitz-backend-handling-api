@@ -70,18 +70,18 @@ router.post(
   productController.multiDelete
 );
 
-router.post(
-  '/review',
-  roleAuth(ACL.STORE_REVIEW_CREATE),
-  productController.validate('reviewProduct'),
-  productController.addProductReview
-);
-router.get(
-  '/reviews',
-  // roleAuth(ACL.STORE_REVIEW_CREATE),
-  productController.validate('getReviews'),
-  productController.getProductReviews
-);
+// router.post(
+//   '/review',
+//   roleAuth(ACL.STORE_CREATE),
+//   productController.validate('reviewProduct'),
+//   productController.addProductReview
+// );
+// router.get(
+//   '/reviews',
+//   // roleAuth(ACL.STORE_REVIEW_CREATE),
+//   productController.validate('getReviews'),
+//   productController.getProductReviews
+// );
 
 router.post(
   '/duplicateProductToStores',
@@ -146,6 +146,59 @@ router.post(
   '/oemUserName',
   // roleAuth(ACL.STORE_GET_ALL),
   productController.getProductByOemUserName
+);
+
+///////////////// b2b partner product api lists /////////////////////
+
+router.post(
+  '/partner',
+  roleAuth(ACL.STORE_CREATE),
+  productController.createPartnerProduct
+);
+
+router.get(
+  '/partner/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.partnerProductGetAll
+);
+
+router.get('/partner/productId', productController.getPartnerProductById);
+
+router.put(
+  '/partner/update/:partnerProductId',
+  productController.updatePartnerProduct
+);
+
+router.delete(
+  '/partner/delete/:partnerProductId',
+  productController.deletePartnerProduct
+);
+
+router.post(
+  '/partner/updateStatus',
+  productController.updatePartnerProductStatus
+);
+
+router.post(
+  '/partner/uploadImages',
+  uploadFiles.array('files'),
+  productController.updatePartnerProductImages
+);
+
+router.post(
+  '/partner/review',
+  roleAuth(ACL.STORE_CREATE),
+  productController.validate('reviewProduct'),
+  productController.addProductReview
+);
+
+router.get('/:partnerProductId/ratings', productController.getOverallPartnerProductRatings);
+
+router.get(
+  '/partner/reviews',
+  // roleAuth(ACL.STORE_REVIEW_CREATE),
+  productController.validate('getReviews'),
+  productController.getProductReviews
 );
 
 export default router;

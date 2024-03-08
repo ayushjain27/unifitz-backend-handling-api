@@ -306,6 +306,7 @@ export class StoreController {
         .json({ message: err.message });
     }
   };
+  
   addStoreReview = async (req: Request, res: Response) => {
     const storeReview: StoreReviewRequest = req.body;
     Logger.info('<Controller>:<StoreController>:<Create store ratings>');
@@ -508,7 +509,7 @@ export class StoreController {
     switch (method) {
       case 'initiateBusinessVerification':
         return [
-          body('storeId', 'Store Id does not exist').exists().isString(),
+          // body('storeId', 'Store Id does not exist').exists().isString(),
           body('documentNo', 'Document Number does not exist')
             .exists()
             .isString(),

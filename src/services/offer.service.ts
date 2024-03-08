@@ -116,7 +116,7 @@ export class OfferService {
       'subCategory.name': { $in: subCategory },
       status: OfferStatus.ACTIVE,
       offerType: offerType,
-      oemUserName: userName,
+      oemUserName: userName
     };
 
     if (role !== AdminRole.OEM) {

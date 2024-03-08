@@ -165,6 +165,7 @@ export interface IDocuments {
 
 export interface IVerificationDetails {
   documentType: DocType;
+  gstAdhaarNumber?: string;
   verifyObj: unknown;
 }
 

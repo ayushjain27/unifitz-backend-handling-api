@@ -23,4 +23,22 @@ router.post(
   jobCardController.createJobCard
 );
 
+router.post(
+  '/createLineItems',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.createLineItems
+);
+
+router.get(
+  '/jobCardDetails/:storeId',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getJobCardsByStoreId
+);
+
+router.get(
+  '/jobCardById',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getJobCardById
+);
+
 export default router;
