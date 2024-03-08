@@ -906,7 +906,7 @@ export class ProductService {
     partnerProductId: string
   ): Promise<PartnersProductStoreRatingResponse> {
     Logger.info('<Service>:<ProductService>:<Get Overall Ratings initiate>');
-    const productReviews = await ProductReview.find({ _id: partnerProductId });
+    const productReviews = await ProductReview.find({ productId: partnerProductId });
     if (productReviews.length === 0) {
       return {
         allRatings: {
