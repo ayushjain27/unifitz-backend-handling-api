@@ -191,8 +191,11 @@ router.post(
   productController.validate('reviewProduct'),
   productController.addProductReview
 );
+
+router.get('/:partnerProductId/ratings', productController.getOverallPartnerProductRatings);
+
 router.get(
-  '/partner/reviews',
+  '/reviews',
   // roleAuth(ACL.STORE_REVIEW_CREATE),
   productController.validate('getReviews'),
   productController.getProductReviews

@@ -709,6 +709,22 @@ export class ProductController {
     }
   };
 
+  getOverallPartnerProductRatings = async (req: Request, res: Response) => {
+    const partnerProductId = req.params.partnerProductId;
+    Logger.info('<Controller>:<ProductController>:<Get partners product ratings>');
+    try {
+      const result = await this.productService.getOverallPartnerProductRatings(partnerProductId);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
