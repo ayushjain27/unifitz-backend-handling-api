@@ -37,14 +37,14 @@ export class JobCardController {
   };
 
   createLineItems = async (req: Request, res: Response) => {
-    const { customerId, vehicleId } = req.body;
+    const { jobCardId } = req.body;
     Logger.info(
       '<Controller>:<JobCardController>:<Upload Store Customer request initiated>'
     );
     const storeCustomerLineItemsRequest = req.body;
     try {
       const result = await this.jobCardService.createStoreLineItems (
-        customerId,
+        jobCardId,
         storeCustomerLineItemsRequest
       );
       res.send({

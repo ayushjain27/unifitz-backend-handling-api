@@ -54,19 +54,19 @@ export class JobCardService {
   }
 
   async createStoreLineItems(
-    customerId: string,
+    jobCardId: string,
     storeCustomerLineItemsPayload: ILineItem
   ) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
     );
-    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(customerId)})?.lean();
+    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId)})?.lean();
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
     const storeCustomerLineItems: ILineItem = storeCustomerLineItemsPayload;
     const res = await JobCard.findOneAndUpdate(
-      { _id: customerId },
+      { _id: jobCardId },
       { $push: { lineItems: storeCustomerLineItems } },
       { returnDocument: 'after' }
     );
