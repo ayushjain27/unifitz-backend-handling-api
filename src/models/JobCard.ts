@@ -3,7 +3,7 @@ import { IStoreCustomer, storeCustomerSchema } from './StoreCustomer';
 
 export enum FuelPoints {
   ONE = '1 (25%)',
-  TWO = '2 (55%)',
+  TWO = '2 (50%)',
   THREE = '3 (75%)',
   FOUR = '4 (100%)'
 }

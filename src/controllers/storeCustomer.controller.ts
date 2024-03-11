@@ -46,7 +46,6 @@ export class StoreCustomerController {
 
   getStoreCustomersByStoreId = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
-
     if (!storeId) {
       res
         .status(HttpStatusCodes.BAD_REQUEST)
