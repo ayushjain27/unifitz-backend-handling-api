@@ -104,6 +104,36 @@ export class JobCardController {
     }
   };
 
+  updateJobCard = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const jobCardId = req.params.jobCardId;
+    if (!jobCardId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'job Card Id is not present' } });
+      return;
+    }
+    const jobCardRequest = req.body;
+    Logger.info(
+      '<Controller>:<JobCardController>:<Update job card controller initiated>'
+    );
+
+    try {
+      const result = await this.jobCardService.updateJobCard(jobCardRequest, jobCardId);
+      res.send({
+        message: 'Job Card Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
