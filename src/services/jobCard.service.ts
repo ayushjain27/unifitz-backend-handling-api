@@ -94,4 +94,42 @@ export class JobCardService {
     return jobCard;
   }
 
+  async updateJobCard(jobCardPayload: IJobCard, jobCardId: string): Promise<IJobCard> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Update: updating job card>'
+    );
+
+    // check if store id exist
+    const { storeId } = jobCardPayload;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
+    if (!store) {
+      Logger.error('<Service>:<JobCardService>:< Store id not found>');
+      throw new Error('Store not found');
+    }
+    let jobCard: IJobCard;
+    if (jobCardId) {
+      jobCard = await JobCard.findOne({
+        productId: new Types.ObjectId(jobCardId)
+      });
+    }
+    if (!jobCard) {
+      Logger.error(
+        '<Service>:<JobCardService>:<Job Card not found with that job Card Id>'
+      );
+      throw new Error('Store Customer not found');
+    }
+
+    let updatedJobCard: IJobCard = jobCardPayload;
+    updatedJobCard = await JobCard.findOneAndUpdate(
+      { _id: new Types.ObjectId(jobCardId) },
+      updatedJobCard,
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<JobCardService>:<Job Card updated successfully>');
+    return updatedJobCard;
+  }
+
 }
