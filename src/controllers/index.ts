@@ -18,4 +18,4 @@ export * from './offer.controller';
 export * from './storeCustomer.controller';
 export * from './business.controller';
 export * from './schoolOfAuto.controller';
-export * from './staticId.controller';
+
