@@ -26,6 +26,7 @@ import { NotificationService } from './notification.service';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from './../models/Customer';
+import { StaticIds } from './../models/StaticId';
 
 @injectable()
 export class StoreService {
@@ -60,19 +61,22 @@ export class StoreService {
 
     storePayload.userId = ownerDetails._id;
 
-    const lastCreatedStoreId = await Store.find({}, { verificationDetails: 0 })
-      .sort({ createdAt: 'desc' })
-      .select('storeId')
-      .limit(1)
-      .exec();
+    const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
+    
+    const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
 
-    const storeId: number = !lastCreatedStoreId[0]
-      ? new Date().getFullYear() * 100
-      : +lastCreatedStoreId[0].storeId + 1;
+    await StaticIds.findOneAndUpdate(
+      {}, 
+      { storeId: newStoreId }
+    );
+
+    //   ? new Date().getFullYear() * 100
+    //   : +lastCreatedStoreId[0].storeId + 1;
     Logger.info(
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
-    storePayload.storeId = '' + storeId;
+
+    storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
@@ -84,6 +88,7 @@ export class StoreService {
     );
     return newStore;
   }
+
   async update(
     storeRequest: StoreRequest,
     userName?: string,
