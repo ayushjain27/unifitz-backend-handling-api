@@ -33,6 +33,7 @@ import stateCityList from './utils/constants/statecityList.json';
 import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
+import staticId from './routes/api/staticId.route';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit'
@@ -105,6 +106,7 @@ app.use('/business', business);
 app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer)
+app.use('/static-id', staticId);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({

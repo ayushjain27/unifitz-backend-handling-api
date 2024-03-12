@@ -61,5 +61,8 @@ export const TYPES = {
   BusinessService: Symbol('BusinessService'),
 
   SchoolOfAutoController: Symbol('SchoolOfAutoController'),
-  SchoolOfAutoService: Symbol('SchoolOfAutoService')
+  SchoolOfAutoService: Symbol('SchoolOfAutoService'),
+
+  StaticIdController: Symbol('StaticIdController'),
+  StaticIdService: Symbol('StaticIdService'),
 };
