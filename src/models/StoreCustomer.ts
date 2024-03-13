@@ -118,6 +118,7 @@ export interface IStoreCustomer {
   phoneNumber: string;
   email: string;
   storeId: string;
+  billingAddress: string;
   storeCustomerVehicleInfo?: IStoreCustomerVehicleInfo[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -136,6 +137,9 @@ export const storeCustomerSchema: Schema = new Schema(
     email: {
       type: String,
       required: true
+    },
+    billingAddress: {
+      type: String
     },
     storeId: {
       type: String,
