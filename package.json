@@ -42,6 +42,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "node-pushnotifications": "^2.0.3",
+    "pdfkit": "^0.14.0",
     "reflect-metadata": "^0.1.13",
     "secure-random-password": "^0.2.3",
     "ts-node": "^10.8.2",
