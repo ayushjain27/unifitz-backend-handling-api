@@ -18,6 +18,7 @@ export enum JobStatus {
 }
 
 export interface ILineItem {
+  _id?: string;
   item: string;
   description: string;
   quantity: number;
