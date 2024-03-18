@@ -587,7 +587,6 @@ app.get('/createPdf', async (req, res) => {
   doc.underline(370, doc.y + 5, 210, 2);
 }
 
-console.log(doc.y, doc.page.height-200)
 if(doc.y > doc.page.height-200){
   doc.addPage();
   doc.moveDown(2);
@@ -621,18 +620,27 @@ if(doc.y > doc.page.height-200){
     .text('Partner Name', 0, doc.y + 15, { width: 200, align: 'right' });
 }
 
-  // doc.moveUp(4);
-  // doc.text(`Rs ${totalAmount}`, 470, doc.y - 13, {
-  //   width: 100,
-  //   align: 'right'
-  // });
-  // // doc.moveUp(2);
-  // doc.text(`Rs ${tax}`, 470, doc.y + 13, { width: 100, align: 'right' });
-  // // doc.moveUp(1);
-  // doc.font('Helvetica-Bold');
-  // doc.text(`Rs ${totalBill}`, 470, doc.y + 15, { width: 100, align: 'right' });
-
-  // doc.addPage();
+if(doc.y > doc.page.height-150){
+  doc.addPage();
+  doc.moveDown(2);
+doc.font('Helvetica');
+doc.text('Declaration : All Products and Services,Price,Warranty Please contact respective Partners', 80, doc.y, {
+  width: '100%',
+  align: 'center'
+});
+}else{
+  doc.moveDown(2);
+  doc.font('Helvetica-Bold');
+  doc.fontSize(12).text('Declaration :', 40, doc.y+20, {
+    width: 500,
+    align: 'left'
+  });
+  doc.font('Helvetica');
+  doc.fontSize(12).text('All Products and Services,Price,Warranty Please contact respective Partners', 120, doc.y-14, {
+    width: 500,
+    align: 'left'
+  });
+}
 
   // Finalize the PDF
   doc.end();
