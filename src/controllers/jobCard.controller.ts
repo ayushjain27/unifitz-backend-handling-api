@@ -134,6 +134,62 @@ export class JobCardController {
     }
   };
 
+  updateLineItems = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const jobCardId = req.body.jobCardId;
+    const lineItemsId = req.params.lineItemsId;
+    if (!jobCardId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'line Items Id is not present' } });
+      return;
+    }
+    const lineItemsRequest = req.body;
+    Logger.info(
+      '<Controller>:<JobCardController>:<Update line items controller initiated>'
+    );
+
+    try {
+      const result = await this.jobCardService.updateLineItems(lineItemsRequest, jobCardId, lineItemsId);
+      res.send({
+        message: 'Line Items Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getJobCardLineItemsById = async (req: Request, res: Response) => {
+    const jobCardId = req.query.jobCardId;
+    const lineItemsId = req.query.lineItemsId;
+
+    if (!jobCardId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Job Card with same id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<JobCardController>:<Get job card by id controller initiated>'
+    );
+    try {
+      const result = await this.jobCardService.getJobCardLineItemsById(jobCardId as string, lineItemsId as string);
+      res.send({
+        message: 'Job Card Line Items Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
