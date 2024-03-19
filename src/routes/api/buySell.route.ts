@@ -13,28 +13,28 @@ const buySellController = container.get<BuySellController>(
 
 router.post(
   '/addToSellVehicle',
-  roleAuth(ACL.CUSTOMER_CREATE),
+  roleAuth(ACL.ADD_VEHICLE),
   buySellController.validate('addorGetSellVehicle'),
   buySellController.addSellVehicle
 );
 
 router.post(
   '/getAllSellVehicleByUser',
-  roleAuth(ACL.CUSTOMER_CREATE),
+  roleAuth(ACL.ADD_VEHICLE),
   // buySellController.validate('addorGetSellVehicle'),
   buySellController.getAllSellVehicleByUser
 );
 
 router.post(
   '/getBuySellVehicleById',
-  roleAuth(ACL.CUSTOMER_CREATE),
+  roleAuth(ACL.ADD_VEHICLE),
   // buySellController.validate('addorGetSellVehicle'),
   buySellController.getBuyVehicleById
 );
 
 router.post(
   '/updateSellVehicle',
-  roleAuth(ACL.CUSTOMER_CREATE),
+  roleAuth(ACL.ADD_VEHICLE),
   buySellController.updateSellVehicle
 );
 
