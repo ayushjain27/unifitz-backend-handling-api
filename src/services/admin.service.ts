@@ -20,6 +20,7 @@ import { IDocumentImageList } from '../models/Admin';
 import { Types } from 'mongoose';
 import DistributorPartnersReview from '../models/DistributorPartnersReview';
 import Store, { IStore } from '../models/Store';
+import { StaticIds } from './../models/StaticId';
 
 @injectable()
 export class AdminService {
@@ -38,15 +39,13 @@ export class AdminService {
     // Build user object based on IAdmin
 
     // User the unique user ID
-    const lastCreatedAdmin = await Admin.find({})
-      .sort({ createdAt: 'desc' })
-      .limit(1)
-      .exec();
+    const lastCreatedAdmin = await StaticIds.find({}).limit(1).exec();
+    const userId = String(parseInt(lastCreatedAdmin[0].userId) + 1);
 
-    const userId: number =
-      !lastCreatedAdmin[0] || !lastCreatedAdmin[0]?.userId
-        ? new Date().getFullYear() * 100
-        : +lastCreatedAdmin[0].userId + 1;
+    await StaticIds.findOneAndUpdate(
+      {}, 
+      { userId: userId }
+    );
 
     upAdminFields.userId = String(userId);
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;

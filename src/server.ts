@@ -35,6 +35,7 @@ import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
+import { rateLimit } from 'express-rate-limit'
 
 const app = express();
 // Connect to MongoDB
@@ -57,6 +58,15 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morganMiddleware);
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 900, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+})
+
+app.use(limiter)
 // @route   GET /
 // @desc    Liveliness base API
 // @access  Public

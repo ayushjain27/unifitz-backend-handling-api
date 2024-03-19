@@ -3,7 +3,7 @@ import { IStoreCustomer, storeCustomerSchema } from './StoreCustomer';
 
 export enum FuelPoints {
   ONE = '1 (25%)',
-  TWO = '2 (55%)',
+  TWO = '2 (50%)',
   THREE = '3 (75%)',
   FOUR = '4 (100%)'
 }
@@ -18,6 +18,7 @@ export enum JobStatus {
 }
 
 export interface ILineItem {
+  _id?: string;
   item: string;
   description: string;
   quantity: number;
@@ -26,7 +27,6 @@ export interface ILineItem {
 export interface IJobCard {
   storeId: string;
   createdBy: string;
-  billingAddress: string;
   fuelPoints: FuelPoints;
   lineItems: ILineItem[];
   // refImageList: [{ key: string; docURL: string }];
@@ -39,9 +39,6 @@ const jobCardSchema: Schema = new Schema(
     storeId: {
       type: String,
       required: true
-    },
-    billingAddress: {
-      type: String
     },
     fuelPoints: {
       type: String,

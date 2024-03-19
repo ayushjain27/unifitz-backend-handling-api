@@ -50,7 +50,7 @@ export interface IStoreCustomerVehicleInfo {
   totalKmsRun: string;
   vehicleNumber: string;
   ownerType: string;
-  role: string;
+  employeeName: string;
   registrationYear: Date;
   insurance: string;
   insuranceExpiryDate: Date;
@@ -93,7 +93,7 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
     totalKmsRun: {
       type: String
     },
-    role: {
+    employeeName: {
       type: String
     },
     registrationYear: {
@@ -116,8 +116,9 @@ export interface IStoreCustomer {
   _id?: string;
   name: string;
   phoneNumber: string;
-  email: string;
+  email?: string;
   storeId: string;
+  billingAddress: string;
   storeCustomerVehicleInfo?: IStoreCustomerVehicleInfo[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -134,8 +135,10 @@ export const storeCustomerSchema: Schema = new Schema(
       required: true
     },
     email: {
-      type: String,
-      required: true
+      type: String
+    },
+    billingAddress: {
+      type: String
     },
     storeId: {
       type: String,

@@ -54,19 +54,19 @@ export class JobCardService {
   }
 
   async createStoreLineItems(
-    customerId: string,
+    jobCardId: string,
     storeCustomerLineItemsPayload: ILineItem
   ) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
     );
-    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(customerId)})?.lean();
+    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId)})?.lean();
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
     const storeCustomerLineItems: ILineItem = storeCustomerLineItemsPayload;
     const res = await JobCard.findOneAndUpdate(
-      { _id: customerId },
+      { _id: jobCardId },
       { $push: { lineItems: storeCustomerLineItems } },
       { returnDocument: 'after' }
     );
@@ -94,4 +94,115 @@ export class JobCardService {
     return jobCard;
   }
 
+  async updateJobCard(jobCardPayload: IJobCard, jobCardId: string): Promise<IJobCard> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Update: updating job card>'
+    );
+
+    // check if store id exist
+    const { storeId } = jobCardPayload;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
+    if (!store) {
+      Logger.error('<Service>:<JobCardService>:< Store id not found>');
+      throw new Error('Store not found');
+    }
+    let jobCard: IJobCard;
+    if (jobCardId) {
+      jobCard = await JobCard.findOne({
+        _id: new Types.ObjectId(jobCardId)
+      });
+    }
+    if (!jobCard) {
+      Logger.error(
+        '<Service>:<JobCardService>:<Job Card not found with that job Card Id>'
+      );
+      throw new Error('Job Card not found');
+    }
+
+    let updatedJobCard: IJobCard = jobCardPayload;
+    updatedJobCard = await JobCard.findOneAndUpdate(
+      { _id: new Types.ObjectId(jobCardId) },
+      updatedJobCard,
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<JobCardService>:<Job Card updated successfully>');
+    return updatedJobCard;
+  }
+
+  async updateLineItems(lineItemsPayload: ILineItem, jobCardId: string, lineItemsId: string): Promise<IJobCard> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Update: updating job card>'
+    );
+
+    // check if job card id exist
+    let jobCard: IJobCard;
+    if (jobCardId) {
+      jobCard = await JobCard.findOne({
+        _id: new Types.ObjectId(jobCardId)
+      });
+    }
+    if (!jobCard) {
+      Logger.error(
+        '<Service>:<JobCardService>:<Job Card not found with that job Card Id>'
+      );
+      throw new Error('Job Card not found');
+    }
+
+    let lineItemIndex = -1;
+    if (jobCard) {
+      // Find the index of the vehicle with the provided storeCustomerVehicleId
+      lineItemIndex = jobCard.lineItems.findIndex(
+        (item) => String(item._id) === lineItemsId
+      );
+    }
+
+
+    if (lineItemIndex >= 0) {
+      const res = await JobCard.findOneAndUpdate(
+        {
+          _id: jobCardId, // Ensure the job card ID also matches
+        },
+        { $set: { [`lineItems.${lineItemIndex}`]: lineItemsPayload } }, // Use the update object constructed dynamically
+        { returnDocument: 'after' }
+      );
+      
+
+      Logger.info(
+        '<Service>:<JobCardService>:<Line Items updated successfully>'
+      );
+
+      return res;
+      }
+  }
+
+  async getJobCardLineItemsById(jobCardId: string, lineItemsId: string): Promise<ILineItem> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Fetch: Get job card line items by job card id>'
+    );
+    let jobCard: IJobCard;
+    
+    try {
+        jobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId) });
+
+        if (!jobCard) {
+            Logger.error('<Service>:<JobCardService>:<Job Card not found with that job Card Id>');
+            throw new Error('Job Card not found');
+        }
+
+        const lineItem = jobCard.lineItems.find(item => String(item._id) === lineItemsId);
+
+        if (!lineItem) {
+            Logger.error('<Service>:<JobCardService>:<Line Item not found with that Line Item Id>');
+            throw new Error('Line Item not found');
+        }
+
+        return lineItem;
+    } catch (error) {
+        Logger.error('<Service>:<JobCardService>:<Error fetching job card line items>', error);
+        throw error;
+    }
+  }
 }

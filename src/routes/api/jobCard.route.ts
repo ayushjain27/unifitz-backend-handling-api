@@ -17,7 +17,6 @@ const jobCardController = container.get<JobCardController>(
 
 router.post(
   '/',
-  uploadFile.array('files', 10),
   roleAuth(ACL.STORE_CREATE),
   jobCardController.validate('createJobCard'),
   jobCardController.createJobCard
@@ -39,6 +38,24 @@ router.get(
   '/jobCardById',
   roleAuth(ACL.STORE_CREATE),
   jobCardController.getJobCardById
+);
+
+router.put(
+  '/:jobCardId',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.updateJobCard
+);
+
+router.put(
+  '/updateLineItems/:lineItemsId',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.updateLineItems
+);
+
+router.get(
+  '/jobCardLineItemsById',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getJobCardLineItemsById
 );
 
 export default router;
