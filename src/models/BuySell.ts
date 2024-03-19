@@ -17,6 +17,7 @@ export enum Status {
 
 export interface IBuySell extends Document {
   vehicleInfo: IVehiclesInfo;
+  storeId: string;
   userId: string;
   userType: string;
   status: string;
@@ -34,6 +35,7 @@ export const buySellSchema: Schema = new Schema(
   {
     vehicleInfo: { type: vehicleInfoSchema },
     userId: { type: Types.ObjectId, required: true },
+    storeId: { type: String },
     userType: { type: String, enum: UserType },
     status: { type: String, enum: Status },
     transactionDetails: { type: Schema.Types.Mixed },
