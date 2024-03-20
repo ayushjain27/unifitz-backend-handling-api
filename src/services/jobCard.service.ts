@@ -66,7 +66,7 @@ export class JobCardService {
 
   async createStoreLineItems(
     jobCardId: string,
-    storeCustomerLineItemsPayload: ILineItem
+    lineItemsPayload: ILineItem[]
   ) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
@@ -75,10 +75,10 @@ export class JobCardService {
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
-    const storeCustomerLineItems: ILineItem = storeCustomerLineItemsPayload;
+    const storeCustomerLineItems: ILineItem[] = lineItemsPayload;
     const res = await JobCard.findOneAndUpdate(
       { _id: jobCardId },
-      { $push: { lineItems: storeCustomerLineItems } },
+      { $set: { lineItems: storeCustomerLineItems } },
       { returnDocument: 'after' }
     );
     Logger.info('<Service>:<JobCardService>:<Line Items created successfully>');
