@@ -38,7 +38,7 @@ router.post(
   buySellController.updateSellVehicle
 );
 
-router.post(
+router.get(
   '/getAllBuyVehicle',
   roleAuth(ACL.ADD_VEHICLE),
   buySellController.getAllBuyVehicle

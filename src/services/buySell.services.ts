@@ -153,13 +153,11 @@ export class BuySellService {
     return buyVehicleList;
   }
 
-  async getAllBuyVehicles(query: any) {
+  async getAllBuyVehicles() {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const result = await buySellVehicleInfo
-      .find({ storeId: { $ne: query?.storeId } })
-      .lean();
+    const result = await buySellVehicleInfo.find({}).lean();
     return result;
   }
   async getAll() {

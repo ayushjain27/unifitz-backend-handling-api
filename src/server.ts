@@ -50,7 +50,7 @@ connectDB();
 connectFirebaseAdmin();
 
 app.use(cors());
-app.set('port', process.env.PORT || 3005);
+app.set('port', process.env.PORT || 3001);
 // Middlewares configuration
 app.use(helmet());
 
