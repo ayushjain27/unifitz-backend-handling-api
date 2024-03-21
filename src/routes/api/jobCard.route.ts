@@ -46,16 +46,4 @@ router.put(
   jobCardController.updateJobCard
 );
 
-router.put(
-  '/updateLineItems/:lineItemsId',
-  roleAuth(ACL.STORE_CREATE),
-  jobCardController.updateLineItems
-);
-
-router.get(
-  '/jobCardLineItemsById',
-  roleAuth(ACL.STORE_CREATE),
-  jobCardController.getJobCardLineItemsById
-);
-
 export default router;

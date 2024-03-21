@@ -29,6 +29,7 @@ export interface IJobCard {
   createdBy: string;
   fuelPoints: FuelPoints;
   jobCardNumber: string;
+  comment: string;
   lineItems: ILineItem[];
   // refImageList: [{ key: string; docURL: string }];
   jobStatus: JobStatus;
@@ -48,6 +49,9 @@ const jobCardSchema: Schema = new Schema(
     jobCardNumber: {
       type: String
     },
+    comment: {
+      type: String
+    }, 
     lineItems: {
       type: [
         {
