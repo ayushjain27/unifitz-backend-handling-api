@@ -46,7 +46,7 @@ export class BuySellController {
     );
     try {
       // const { storeId: string } = req.body;
-      const result = await this.buySellService.getAllBuyVehicles(req.body);
+      const result = await this.buySellService.getAllBuyVehicles();
       res.send({
         result
       });
