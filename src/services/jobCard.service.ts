@@ -31,23 +31,34 @@ export class JobCardService {
       );
       throw new Error('Store not found');
     }
+
+    const lastCreatedJobId = await JobCard.find({ storeId })
+      .sort({ createdAt: 'desc' })
+      .limit(1)
+      .exec();
+
+    const jobCardNumber = !lastCreatedJobId[0]
+      ? 1
+      : Number(+lastCreatedJobId[0].jobCardNumber) + 1
+      
     let newJobCard: IJobCard = jobCardPayload;
+    newJobCard.jobCardNumber = String(jobCardNumber);
     newJobCard.jobStatus = JobStatus.CREATED;
 
-    if (files) {
-      const promises: any[] = [];
-      let uploadedKeys: [{ key: string; docURL: string }];
-      _.forEach(files, (file: any) => {
-        promises.push(
-          this.s3Client
-            .uploadFile(`${storeId}/jobCard`, file.originalname, file.buffer)
-            .then(({ key, url }) => uploadedKeys.push({ key, docURL: url }))
-        );
-      });
-      await Promise.all(promises);
+    // if (files) {
+    //   const promises: any[] = [];
+    //   let uploadedKeys: [{ key: string; docURL: string }];
+    //   _.forEach(files, (file: any) => {
+    //     promises.push(
+    //       this.s3Client
+    //         .uploadFile(`${storeId}/jobCard`, file.originalname, file.buffer)
+    //         .then(({ key, url }) => uploadedKeys.push({ key, docURL: url }))
+    //     );
+    //   });
+    //   await Promise.all(promises);
 
-      // newJobCard.refImageList = uploadedKeys;
-    }
+    //   // newJobCard.refImageList = uploadedKeys;
+    // }
     newJobCard = await JobCard.create(newJobCard);
     Logger.info('<Service>:<JobCardService>:<Job Card created successfully>');
     return newJobCard;
@@ -55,7 +66,7 @@ export class JobCardService {
 
   async createStoreLineItems(
     jobCardId: string,
-    storeCustomerLineItemsPayload: ILineItem
+    lineItemsPayload: ILineItem[]
   ) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
@@ -64,10 +75,10 @@ export class JobCardService {
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
-    const storeCustomerLineItems: ILineItem = storeCustomerLineItemsPayload;
+    const storeCustomerLineItems: ILineItem[] = lineItemsPayload;
     const res = await JobCard.findOneAndUpdate(
       { _id: jobCardId },
-      { $push: { lineItems: storeCustomerLineItems } },
+      { $set: { lineItems: storeCustomerLineItems } },
       { returnDocument: 'after' }
     );
     Logger.info('<Service>:<JobCardService>:<Line Items created successfully>');

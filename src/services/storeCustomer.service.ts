@@ -99,7 +99,7 @@ export class StoreCustomerService {
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
-    const { vehicleNumber } = storeCustomerVehiclePayload
+    const { vehicleNumber } = storeCustomerVehiclePayload;
     let vehicleIndex = -1;
     if (storeCustomer) {
       // Find the index of the vehicle with the provided storeCustomerVehicleId
@@ -112,12 +112,16 @@ export class StoreCustomerService {
     if (vehicleIndex >= 0) {
       const res = await StoreCustomer.findOneAndUpdate(
         {
-          _id: customerId, // Ensure the vehicle ID also matches
+          _id: customerId // Ensure the vehicle ID also matches
         },
-        { $set: { [`storeCustomerVehicleInfo.${vehicleIndex}`]: storeCustomerVehiclePayload } }, // Use the update object constructed dynamically
+        {
+          $set: {
+            [`storeCustomerVehicleInfo.${vehicleIndex}`]:
+              storeCustomerVehiclePayload
+          }
+        }, // Use the update object constructed dynamically
         { returnDocument: 'after' }
       );
-      
 
       Logger.info(
         '<Service>:<StoreCustomerService>:<Customer updated successfully>'
@@ -138,10 +142,10 @@ export class StoreCustomerService {
     }
   }
 
-  async uploadStoreCustomerVehicleImages(
-    req: Request | any
-  ): Promise<any> {
-    Logger.info('<Service>:<StoreCustomerService>:<Upload Store Customer Vehicle Images initiated>');
+  async uploadStoreCustomerVehicleImages(req: Request | any): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreCustomerService>:<Upload Store Customer Vehicle Images initiated>'
+    );
 
     const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({
       _id: new Types.ObjectId(req.body.customerId)
@@ -160,10 +164,11 @@ export class StoreCustomerService {
 
     const files: Array<any> = req.files;
 
-    let vehicleInfo: IStoreCustomerVehicleInfo = storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
+    let vehicleInfo: IStoreCustomerVehicleInfo =
+      storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
 
     const vehicleImageList: Partial<IVehicleImageList> | any =
-    vehicleInfo.vehicleImageList || {
+      vehicleInfo.vehicleImageList || {
         frontView: {},
         leftView: {},
         seatView: {},
@@ -189,26 +194,25 @@ export class StoreCustomerService {
         file.buffer
       );
       vehicleImageList[fileName] = { key, docURL: url };
-
-      Logger.info(
-        `<Service>:<VehicleService>:<Upload all images - successful>`
-      );
-
-      Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
-
-      const updatedVehicle = await StoreCustomer.findOneAndUpdate(
-        {
-          vehicleNumber: req.body.vehicleNumber
-        },
-        {
-          $set: {
-            [`storeCustomerVehicleInfo.${vehicleIndex}.vehicleImageList`] : vehicleImageList
-          }
-        },
-        { returnDocument: 'after' }
-      );
-
-      return updatedVehicle;
     }
+
+    Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
+
+    Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+
+    const updatedVehicle = await StoreCustomer.findOneAndUpdate(
+      {
+        vehicleNumber: req.body.vehicleNumber
+      },
+      {
+        $set: {
+          [`storeCustomerVehicleInfo.${vehicleIndex}.vehicleImageList`]:
+            vehicleImageList
+        }
+      },
+      { returnDocument: 'after' }
+    );
+
+    return updatedVehicle;
   }
 }
