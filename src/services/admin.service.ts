@@ -21,6 +21,7 @@ import { Types } from 'mongoose';
 import DistributorPartnersReview from '../models/DistributorPartnersReview';
 import Store, { IStore } from '../models/Store';
 import { StaticIds } from './../models/StaticId';
+import ContactUsModel, { IContactUs } from '../models/ContactUs';
 
 @injectable()
 export class AdminService {
@@ -42,10 +43,7 @@ export class AdminService {
     const lastCreatedAdmin = await StaticIds.find({}).limit(1).exec();
     const userId = String(parseInt(lastCreatedAdmin[0].userId) + 1);
 
-    await StaticIds.findOneAndUpdate(
-      {}, 
-      { userId: userId }
-    );
+    await StaticIds.findOneAndUpdate({}, { userId: userId });
 
     upAdminFields.userId = String(userId);
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
@@ -477,5 +475,12 @@ export class AdminService {
       }
     ]);
     return distributorPartnersResponse;
+  }
+
+  async createContactUs(contactDetail: IContactUs): Promise<any> {
+    Logger.info('<Service>:<AdminService>: <creating new contact>');
+    const newContactDetail = await ContactUsModel.create(contactDetail);
+    Logger.info('<Service>:<AdminService>:<contact created successfully>');
+    return newContactDetail;
   }
 }
