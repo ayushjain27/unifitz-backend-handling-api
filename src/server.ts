@@ -35,7 +35,7 @@ import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
-import { rateLimit } from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit';
 
 const app = express();
 // Connect to MongoDB
@@ -60,13 +60,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morganMiddleware);
 
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 900, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-})
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 900, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers.
+});
 
-app.use(limiter)
+app.use(limiter);
 // @route   GET /
 // @desc    Liveliness base API
 // @access  Public
@@ -104,7 +104,7 @@ app.use(`/event`, event);
 app.use('/business', business);
 app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
-app.use('/storeCustomer', storeCustomer)
+app.use('/storeCustomer', storeCustomer);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({

@@ -111,7 +111,6 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
   }
 );
 
-
 export interface IStoreCustomer {
   _id?: string;
   name: string;
@@ -152,6 +151,9 @@ export const storeCustomerSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const StoreCustomer = model<IStoreCustomer>('storeCustomers', storeCustomerSchema);
+const StoreCustomer = model<IStoreCustomer>(
+  'storeCustomers',
+  storeCustomerSchema
+);
 
 export default StoreCustomer;

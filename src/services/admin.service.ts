@@ -42,10 +42,7 @@ export class AdminService {
     const lastCreatedAdmin = await StaticIds.find({}).limit(1).exec();
     const userId = String(parseInt(lastCreatedAdmin[0].userId) + 1);
 
-    await StaticIds.findOneAndUpdate(
-      {}, 
-      { userId: userId }
-    );
+    await StaticIds.findOneAndUpdate({}, { userId: userId });
 
     upAdminFields.userId = String(userId);
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;

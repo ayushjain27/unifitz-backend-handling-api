@@ -20,6 +20,7 @@ import EventModel from './../models/Event';
 import OfferModel from './../models/Offers';
 import SchoolOfAutoModel from '../models/SchoolOfAuto';
 import BusinessModel from '../models/Business';
+import EventAnalyticModel, { IEventAnalytic } from '../models/EventAnalytic';
 
 @injectable()
 export class AnalyticService {
@@ -217,5 +218,64 @@ export class AnalyticService {
     };
 
     return templateData;
+  }
+
+  async createEventAnalytic(requestData: any): Promise<any> {
+    let userResult: any = {};
+    const userData: any = {};
+    const eventResult = requestData;
+    if (
+      requestData.event === 'LOGIN_PHONE' ||
+      requestData.event === 'LOGIN_WEB' ||
+      requestData.event === 'LOGIN_OTP_VERIFY'
+    ) {
+      const getByPhoneNumber = {
+        phoneNumber: requestData.phoneNumber,
+        role: 'USER'
+      };
+      userResult = await User.findOne(getByPhoneNumber);
+    }
+    // if (!_.isEmpty(requestData?.coordinates)) {
+    const userLocation: any = {};
+    // await fetch(
+    //   `https://nominatim.openstreetmap.org/reverse?lat=${requestData?.coordinates[1]}&lon=${requestData?.coordinates[0]}&format=json`
+    // );
+
+    // }
+    userData.userId = userResult?._id || requestData.userId;
+    userData.fullName = userResult?.fullName || requestData.fullName;
+    userData.phoneNumber = userResult?.phoneNumber || requestData.phoneNumber;
+    userData.geoLocation = {
+      type: 'Point',
+      coordinates: requestData?.coordinates
+    };
+    userData.address = userLocation?.address?.suburb || '';
+    userData.state = userLocation?.address?.state || '';
+    userData.city = userLocation?.address?.state_district || '';
+    userData.pincode = userLocation?.address?.postcode || '';
+    Logger.debug(`${JSON.stringify(userData?.geoLocation)}sssss`);
+
+    eventResult.userInformation = userData;
+
+    Logger.info(
+      '<Service>:<CategoryService>:<Create analytic service initiated>'
+    );
+    const newAnalytic = await EventAnalyticModel.create(eventResult);
+    Logger.info('<Service>:<CategoryService>:<analytic created successfully>');
+    return newAnalytic;
+  }
+
+  async getEventAnalytic(userName: string, role: string) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+    const queryFilter: any = await EventAnalyticModel.find(query, {
+      'verificationDetails.verifyObj': 0
+    }).lean();
+    return queryFilter;
   }
 }
