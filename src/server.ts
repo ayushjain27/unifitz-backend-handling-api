@@ -43,7 +43,7 @@ const app = express();
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
   secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
+  region: 'ap-southeast-2'
 });
 
 connectDB();
@@ -250,8 +250,8 @@ const ses = new AWS.SES();
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'EventsOffersUsersScheme',
-      SubjectPart: 'Congratulations {{name}}!', // Use a placeholder for dynamic subject
+      TemplateName: 'Templss',
+      SubjectPart: 'Congratulations!', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -291,8 +291,13 @@ app.get('/createTemplate', async (req, res) => {
         <body>
           <div class="container">
             <p>Dear {{name}}</p>
-            <p>Thank you for reaching out to us with your enquiry about {{eventOfferName}}. We apppreciate your interest in {{organiserName}}</p>
-            <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+            <p>We hope this email finds you well. This is to confirm your vehicle service job card at {{partnerName}}. We're delighted to assist you with maintaining your vehicle's.</p>
+            <p>Below, you'll find the details of your Vehicle Job card Details in the form of pdf</p>
+            <a href={{pdfLink}}>Job Card Details</a>
+            <p>Feel free to contact us at {{partnerName}} @ {{phoneNumber}}</p>
+            <p>Thank you for choosing ServicePlug Platform for your vehicle service needs. We look forward to serving you and providing an exceptional experience.</p>
+            <p>Warm regards, </p> <!-- Escape $ character for the subject -->
+            <p>{{partnerDetails}}</p> <!-- Escape $ character for the subject -->
           </div>
         </body>
         </html>`,
@@ -303,6 +308,7 @@ app.get('/createTemplate', async (req, res) => {
 
   ses.createTemplate(params, (err, data) => {
     if (err) {
+      console.log(err,"wdk")
       // console.log('Error creating email template: ', err);
       res.status(500).send({ error: 'Failed to create email template' });
     } else {
@@ -311,69 +317,72 @@ app.get('/createTemplate', async (req, res) => {
     }
   });
 });
-// app.post('/sendToSQS', async (req, res) => {
-//   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
 
-//   const params = {
-//     MessageBody: JSON.stringify({
-//       to: req.body.to,
-//       name: req.body.name,
-//       templateName: req.body.templateName
-//     }),
-//     QueueUrl:
-//       'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
-//   };
+app.post('/sendToSQS', async (req, res) => {
+  // Check if 'to', 'subject', and 'templateName' properties exist in req.body
 
-//   console.log(params, 'wkf');
-//   await sendEmail(
-//     req.body.to,
-//     req.body.name,
-//     req.body.phoneNumber,
-//     req.body.email,
-//     req.body.organiserName,
-//     req.body.templateName
-//   );
+  const params = {
+    MessageBody: JSON.stringify({
+      to: req.body.to,
+      name: req.body.name,
+      templateName: req.body.templateName
+    }),
+    QueueUrl:
+      'https://sqs.ap-southeast-2.amazonaws.com/771470636147/ServicePlug' // Replace with your SQS queue URL
+  };
 
-//   sqs.sendMessage(params, (err, data) => {
-//     if (err) {
-//       console.error(err);
-//       res.status(500).send({ error: 'Failed to send message to SQS' });
-//     } else {
-//       res.send(data);
-//     }
-//   });
-// });
+  console.log(params, 'wkf');
+  await sendEmail(
+    req.body.to,
+    req.body.name,
+    req.body.phoneNumber,
+    req.body.partnerName,
+    req.body.partnerDetails,
+    req.body.templateName,
+    req.body.pdfLink
+  );
 
-// async function sendEmail(to: any, name: any,phoneNumber: any, email: any, organiserName:any, templateName: any) {
-//   // Construct the email payload with template
+  sqs.sendMessage(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send({ error: 'Failed to send message to SQS' });
+    } else {
+      res.send(data);
+    }
+  });
+});
 
-//   const templateData = {
-//     // Include properties that match the placeholders in your SES template
-//     // For example:
-//     User: 'Ayush',
-//     name: name,
-//     phoneNumber: phoneNumber,
-//     organiserName: organiserName,
-//     email: email,
-//     // lastName: "Doe",
-//     // ...
-//   };
+async function sendEmail(to: any, name: any,phoneNumber: any, partnerName: any, partnerDetails:any, templateName: any, pdfLink:any) {
+  // Construct the email payload with template
 
-//   const emailParams = {
-//     Destination: {
-//       ToAddresses: [to]
-//     },
-//     Template: templateName, // Replace with your SES template name
-//     Source: 'ayush@serviceplug.in',
-//     TemplateData: JSON.stringify(templateData) // Replace with your verified SES email address
-//   };
-//   console.log(emailParams);
+  const templateData = {
+    // Include properties that match the placeholders in your SES template
+    // For example:
+    User: 'Ayush',
+    name: name,
+    phoneNumber: phoneNumber,
+    partnerName: partnerName,
+    partnerDetails: partnerDetails,
+    pdfLink: pdfLink
+    // lastName: "Doe",
+    // ...
+  };
 
-//   // Send email using AWS SES
-//   const res = await ses.sendTemplatedEmail(emailParams).promise();
+  const emailParams = {
+    Destination: {
+      ToAddresses: [to]
+    },
+    Template: templateName, // Replace with your SES template name
+    Source: 'ayush@serviceplug.in',
+    TemplateData: JSON.stringify(templateData) // Replace with your verified SES email address
+  };
+  console.log(emailParams);
 
-//   console.log('Email sent:', res.MessageId);
-// }
+  // Send email using AWS SES
+  const res = await ses.sendTemplatedEmail(emailParams).promise();
+
+  console.log('Email sent:', res.MessageId);
+}
 
 export default server;
 
