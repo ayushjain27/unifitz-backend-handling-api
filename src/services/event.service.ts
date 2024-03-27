@@ -15,14 +15,6 @@ import InterestedEventAndOffer, {
 } from './../models/InterestedEventsAndOffers';
 import Admin, { AdminRole, IAdmin } from '../models/Admin';
 import { sendEmail } from '../utils/common';
-// import AWS from 'aws-sdk';
-// import { s3Config } from '../config/constants';
-
-// AWS.config.update({
-//   accessKeyId: s3Config.AWS_KEY_ID,
-//   secretAccessKey: s3Config.ACCESS_KEY,
-//   region: 'ap-southeast-2'
-// });
 
 @injectable()
 export class EventService {

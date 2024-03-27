@@ -133,6 +133,31 @@ export class JobCardController {
     }
   };
 
+  jobCardEmail = async (req: Request, res: Response) => {
+    const jobCardId = req.query.jobCardId;
+
+    if (!jobCardId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Job Card with same id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<JobCardController>:<Get job card by id controller initiated>'
+    );
+    console.log(jobCardId,"ad;ls")
+    try {
+      const result = await this.jobCardService.jobCardEmail(jobCardId as string);
+      res.send({
+        message: 'Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':

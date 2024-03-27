@@ -35,7 +35,7 @@ import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
-import { rateLimit } from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit';
 
 const app = express();
 // Connect to MongoDB
@@ -43,7 +43,7 @@ const app = express();
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
   secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-southeast-2'
+  region: 'ap-south-1'
 });
 
 connectDB();
@@ -60,13 +60,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morganMiddleware);
 
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 900, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-})
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 900, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers.
+});
 
-app.use(limiter)
+app.use(limiter);
 // @route   GET /
 // @desc    Liveliness base API
 // @access  Public
@@ -104,7 +104,7 @@ app.use(`/event`, event);
 app.use('/business', business);
 app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
-app.use('/storeCustomer', storeCustomer)
+app.use('/storeCustomer', storeCustomer);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -246,77 +246,78 @@ const server = app.listen(port, () =>
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
+const fs = require('fs');
+const path = require('path');
 
-app.get('/createTemplate', async (req, res) => {
-  const params = {
-    Template: {
-      TemplateName: 'Templss',
-      SubjectPart: 'Congratulations!', // Use a placeholder for dynamic subject
-      HtmlPart: `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <title>Welcome to our community</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              background-color: #f4f4f4;
-              margin: 0;
-              padding: 0;
-            }
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              background-color: #fff;
-              border-radius: 8px;
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-            h1 {
-              color: #333;
-            }
-            p {
-              color: #666;
-            }
-            .cta-button {
-              display: inline-block;
-              padding: 10px 20px;
-              background-color: #ff6600;
-              color: #fff;
-              text-decoration: none;
-              border-radius: 4px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <p>Dear {{name}}</p>
-            <p>We hope this email finds you well. This is to confirm your vehicle service job card at {{partnerName}}. We're delighted to assist you with maintaining your vehicle's.</p>
-            <p>Below, you'll find the details of your Vehicle Job card Details in the form of pdf</p>
-            <a href={{pdfLink}}>Job Card Details</a>
-            <p>Feel free to contact us at {{partnerName}} @ {{phoneNumber}}</p>
-            <p>Thank you for choosing ServicePlug Platform for your vehicle service needs. We look forward to serving you and providing an exceptional experience.</p>
-            <p>Warm regards, </p> <!-- Escape $ character for the subject -->
-            <p>{{partnerDetails}}</p> <!-- Escape $ character for the subject -->
-          </div>
-        </body>
-        </html>`,
-      TextPart: 'Plain text content goes here'
-    }
-  };
-  // console.log(params);
+// app.get('/createTemplate', async (req, res) => {
+//   const params = {
+//     Template: {
+//       TemplateName: 'JobCard',
+//       SubjectPart: 'Congratulations!', // Use a placeholder for dynamic subject
+//       HtmlPart: `<!DOCTYPE html>
+//         <html lang="en">
+//         <head>
+//           <meta charset="UTF-8">
+//           <title>Welcome to our community</title>
+//           <style>
+//             body {
+//               font-family: Arial, sans-serif;
+//               background-color: #f4f4f4;
+//               margin: 0;
+//               padding: 0;
+//             }
+//             .container {
+//               max-width: 600px;
+//               margin: 0 auto;
+//               padding: 20px;
+//               background-color: #fff;
+//               border-radius: 8px;
+//               box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+//             }
+//             h1 {
+//               color: #333;
+//             }
+//             p {
+//               color: #666;
+//             }
+//             .cta-button {
+//               display: inline-block;
+//               padding: 10px 20px;
+//               background-color: #ff6600;
+//               color: #fff;
+//               text-decoration: none;
+//               border-radius: 4px;
+//             }
+//           </style>
+//         </head>
+//         <body>
+//           <div class="container">
+//             <p>Dear {{name}}</p>
+//             <p>We hope this email finds you well. This is to confirm your vehicle service job card at {{partnerName}}. We're delighted to assist you with maintaining your vehicle's.</p>
+//             <p>Below, you'll find the details of your Vehicle Job card Details in the form of pdf</p>
+//             <p>Feel free to contact us at {{partnerName}} @ {{phoneNumber}}</p>
+//             <p>Thank you for choosing ServicePlug Platform for your vehicle service needs. We look forward to serving you and providing an exceptional experience.</p>
+//             <p>Warm regards, </p> <!-- Escape $ character for the subject -->
+//             <p>{{partnerDetails}}</p> <!-- Escape $ character for the subject -->
+//           </div>
+//         </body>
+//         </html>`,
+//       TextPart: 'Plain text content goes here'
+//     }
+//   };
+//   // console.log(params);
 
-  ses.createTemplate(params, (err, data) => {
-    if (err) {
-      console.log(err,"wdk")
-      // console.log('Error creating email template: ', err);
-      res.status(500).send({ error: 'Failed to create email template' });
-    } else {
-      // console.log('Email template created ', data);
-      res.send(data);
-    }
-  });
-});
+//   ses.createTemplate(params, (err, data) => {
+//     if (err) {
+//       console.log(err, 'wdk');
+//       // console.log('Error creating email template: ', err);
+//       res.status(500).send({ error: 'Failed to create email template' });
+//     } else {
+//       // console.log('Email template created ', data);
+//       res.send(data);
+//     }
+//   });
+// });
 
 app.post('/sendToSQS', async (req, res) => {
   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
@@ -352,7 +353,19 @@ app.post('/sendToSQS', async (req, res) => {
   });
 });
 
-async function sendEmail(to: any, name: any,phoneNumber: any, partnerName: any, partnerDetails:any, templateName: any, pdfLink:any) {
+async function sendEmail(
+  to: any,
+  name: any,
+  phoneNumber: any,
+  partnerName: any,
+  partnerDetails: any,
+  templateName: any,
+  pdfLink: any
+) {
+  const fileContent = fs.readFileSync(path.join(__dirname, 'tests.pdf'));
+
+  // Encode the file content to Base64
+  const fileData = fileContent.toString('base64');
   // Construct the email payload with template
 
   const templateData = {
@@ -363,7 +376,8 @@ async function sendEmail(to: any, name: any,phoneNumber: any, partnerName: any, 
     phoneNumber: phoneNumber,
     partnerName: partnerName,
     partnerDetails: partnerDetails,
-    pdfLink: pdfLink
+    pdfLink: pdfLink,
+    attachmentUrl: `data:application/pdf;base64,${fileData}`
     // lastName: "Doe",
     // ...
   };
