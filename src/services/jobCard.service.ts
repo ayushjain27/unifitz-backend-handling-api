@@ -13,7 +13,7 @@ import { s3Config } from '../config/constants';
 import path from 'path';
 
 const nodemailer = require('nodemailer');
-require("dotenv").config();;
+require('dotenv').config();
 
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
@@ -52,8 +52,8 @@ export class JobCardService {
 
     const jobCardNumber = !lastCreatedJobId[0]
       ? 1
-      : Number(+lastCreatedJobId[0].jobCardNumber) + 1
-      
+      : Number(+lastCreatedJobId[0].jobCardNumber) + 1;
+
     let newJobCard: IJobCard = jobCardPayload;
     newJobCard.jobCardNumber = String(jobCardNumber);
     newJobCard.jobStatus = JobStatus.CREATED;
@@ -77,14 +77,13 @@ export class JobCardService {
     return newJobCard;
   }
 
-  async createStoreLineItems(
-    jobCardId: string,
-    lineItemsPayload: ILineItem[]
-  ) {
+  async createStoreLineItems(jobCardId: string, lineItemsPayload: ILineItem[]) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
     );
-    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId)})?.lean();
+    const storeCustomer: IJobCard = await JobCard.findOne({
+      _id: new Types.ObjectId(jobCardId)
+    })?.lean();
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
@@ -104,7 +103,9 @@ export class JobCardService {
     );
 
     const storeJobCard: IJobCard[] = await JobCard.find({ storeId }).lean();
-    Logger.info('<Service>:<JobCardService>:<Store Job Cards fetched successfully>');
+    Logger.info(
+      '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
+    );
     return storeJobCard;
   }
 
@@ -118,7 +119,10 @@ export class JobCardService {
     return jobCard;
   }
 
-  async updateJobCard(jobCardPayload: IJobCard, jobCardId: string): Promise<IJobCard> {
+  async updateJobCard(
+    jobCardPayload: IJobCard,
+    jobCardId: string
+  ): Promise<IJobCard> {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Update: updating job card>'
     );
@@ -157,7 +161,6 @@ export class JobCardService {
   }
 
   async jobCardEmail(jobCardId?: string) {
-    console.log(jobCardId,"afdms")
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
     );
@@ -166,43 +169,35 @@ export class JobCardService {
       _id: new Types.ObjectId(jobCardId)
     }).lean();
     if (!jobCard) {
-      Logger.error(
-        '<Service>:<JobCardService>:<Jjob Card id not found>'
-      );
+      Logger.error('<Service>:<JobCardService>:<Jjob Card id not found>');
       throw new Error('Job Card not found');
     }
 
-
     let store: IStore;
     if (jobCard?.storeId) {
-      store = await Store.findOne({ storeId: jobCard?.storeId }, { verificationDetails: 0 });
+      store = await Store.findOne(
+        { storeId: jobCard?.storeId },
+        { verificationDetails: 0 }
+      );
     }
     if (!store) {
-      Logger.error(
-        '<Service>:<JobCardService>:<Store id not found>'
-      );
+      Logger.error('<Service>:<JobCardService>:<Store id not found>');
       throw new Error('Store not found');
     }
 
-    console.log(jobCard,"sdg;l,mf")
-    console.log(store,"lfdmwsdg;l,mf")
-
     const transporter = nodemailer.createTransport({
       SES: { ses, aws: AWS }
-    })
-
-    console.log(path.join(__dirname, 'tests.pdf'),"sfdw")
-    
-      try {
-        const mailOptions = {
-          from: {
-            name: 'Ayush',
-            address: 'ayush@serviceplug.in'
-          },
-          to: ['ayush@serviceplug.in'],
-          subject: "Congratulations!",
-          text: 'Plain text content goes here',
-          html:  `<!DOCTYPE html>
+    });
+    try {
+      const mailOptions = {
+        from: {
+          name: 'Ayush',
+          address: 'ayush@serviceplug.in'
+        },
+        to: ['ayush@serviceplug.in'],
+        subject: 'Congratulations!',
+        text: 'Plain text content goes here',
+        html: `<!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
@@ -253,21 +248,20 @@ export class JobCardService {
             </div>
           </body>
           </html>`,
-          attachments: [
-            {
-              fileName: 'tests.pdf',
-              path: path.join(__dirname, 'tests.pdf'),
-              contentType:  'application/pdf'
-            },
-          ]
-        }
-        const info = await transporter.sendMail(mailOptions)
-        console.log('Email sent:', info.response);
-      }catch(err){
-        console.log(err,"dwl;k")
-      }
+        attachments: [
+          {
+            fileName: 'invoices.pdf',
+            path: path.join(__dirname, '..', '..', 'invoices.pdf'),
+            contentType: 'application/pdf'
+          }
+        ]
+      };
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent:', info.response);
+    } catch (err) {
+      console.log(err, 'dwl;k');
+    }
 
-
-    return "Email sent";
+    return 'Email sent';
   }
 }
