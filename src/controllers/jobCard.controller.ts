@@ -81,7 +81,7 @@ export class JobCardController {
 
   getJobCardById = async (req: Request, res: Response) => {
     const jobCardId = req.query.id;
-
+   
     if (!jobCardId) {
       res
         .status(HttpStatusCodes.BAD_REQUEST)
@@ -135,6 +135,8 @@ export class JobCardController {
 
   jobCardEmail = async (req: Request, res: Response) => {
     const jobCardId = req.query.jobCardId;
+    const messageGroupId = req.query.messageGroupId;
+    const messageDeduplicationId = req.query.messageDeduplicationId;
 
     if (!jobCardId) {
       res
@@ -147,7 +149,7 @@ export class JobCardController {
     );
     console.log(jobCardId,"ad;ls")
     try {
-      const result = await this.jobCardService.jobCardEmail(jobCardId as string);
+      const result = await this.jobCardService.jobCardEmail(jobCardId as string, messageGroupId as string, messageDeduplicationId as string);
       res.send({
         message: 'Job Card Fetch Successful',
         result
