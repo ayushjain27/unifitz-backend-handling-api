@@ -90,7 +90,8 @@ export async function receiveFromSqs() {
       console.log('dwnjkf,w');
       const data = await sqs.receiveMessage(params).promise();
       if(!data.Messages){
-        return "There are no messages left"
+        // return "There are no messages left"
+        break;
       }
       console.log(data, 'fwl;km');
 
