@@ -46,4 +46,10 @@ router.put(
   jobCardController.updateJobCard
 );
 
+router.get(
+  '/jobCardEmail',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.jobCardEmail
+);
+
 export default router;

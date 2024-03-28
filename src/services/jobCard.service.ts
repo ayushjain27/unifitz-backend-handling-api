@@ -8,7 +8,23 @@ import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
+import AWS from 'aws-sdk';
+import { s3Config } from '../config/constants';
+import path from 'path';
+import { receiveFromSqs, sendToSqs } from '../utils/common';
+import { v4 as uuidv4 } from 'uuid';
 
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+AWS.config.update({
+  accessKeyId: s3Config.AWS_KEY_ID,
+  secretAccessKey: s3Config.ACCESS_KEY,
+  region: 'ap-southeast-2'
+});
+
+const sqs = new AWS.SQS();
+const ses = new AWS.SES();
 @injectable()
 export class JobCardService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
@@ -39,8 +55,8 @@ export class JobCardService {
 
     const jobCardNumber = !lastCreatedJobId[0]
       ? 1
-      : Number(+lastCreatedJobId[0].jobCardNumber) + 1
-      
+      : Number(+lastCreatedJobId[0].jobCardNumber) + 1;
+
     let newJobCard: IJobCard = jobCardPayload;
     newJobCard.jobCardNumber = String(jobCardNumber);
     newJobCard.jobStatus = JobStatus.CREATED;
@@ -64,14 +80,13 @@ export class JobCardService {
     return newJobCard;
   }
 
-  async createStoreLineItems(
-    jobCardId: string,
-    lineItemsPayload: ILineItem[]
-  ) {
+  async createStoreLineItems(jobCardId: string, lineItemsPayload: ILineItem[]) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
     );
-    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId)})?.lean();
+    const storeCustomer: IJobCard = await JobCard.findOne({
+      _id: new Types.ObjectId(jobCardId)
+    })?.lean();
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
@@ -91,7 +106,9 @@ export class JobCardService {
     );
 
     const storeJobCard: IJobCard[] = await JobCard.find({ storeId }).lean();
-    Logger.info('<Service>:<JobCardService>:<Store Job Cards fetched successfully>');
+    Logger.info(
+      '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
+    );
     return storeJobCard;
   }
 
@@ -105,7 +122,10 @@ export class JobCardService {
     return jobCard;
   }
 
-  async updateJobCard(jobCardPayload: IJobCard, jobCardId: string): Promise<IJobCard> {
+  async updateJobCard(
+    jobCardPayload: IJobCard,
+    jobCardId: string
+  ): Promise<IJobCard> {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Update: updating job card>'
     );
@@ -141,5 +161,26 @@ export class JobCardService {
     );
     Logger.info('<Service>:<JobCardService>:<Job Card updated successfully>');
     return updatedJobCard;
+  }
+
+  async jobCardEmail(jobCardId?: string) {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
+    );
+
+    const uniqueMessageId = uuidv4();
+
+    const jobCard: IJobCard = await JobCard.findOne({
+      _id: new Types.ObjectId(jobCardId)
+    }).lean();
+    if (!jobCard) {
+      Logger.error('<Service>:<JobCardService>:<Job Card id not found>');
+      throw new Error('Job Card not found');
+    }
+
+    sendToSqs(jobCard, uniqueMessageId);
+    receiveFromSqs();
+
+    return 'Email sent';
   }
 }

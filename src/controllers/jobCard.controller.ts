@@ -81,7 +81,7 @@ export class JobCardController {
 
   getJobCardById = async (req: Request, res: Response) => {
     const jobCardId = req.query.id;
-
+   
     if (!jobCardId) {
       res
         .status(HttpStatusCodes.BAD_REQUEST)
@@ -125,6 +125,30 @@ export class JobCardController {
       const result = await this.jobCardService.updateJobCard(jobCardRequest, jobCardId);
       res.send({
         message: 'Job Card Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  jobCardEmail = async (req: Request, res: Response) => {
+    const jobCardId = req.query.jobCardId;
+
+    if (!jobCardId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Job Card with same id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<JobCardController>:<Get job card by id controller initiated>'
+    );
+    try {
+      const result = await this.jobCardService.jobCardEmail(jobCardId as string);
+      res.send({
+        message: 'Job Card Fetch Successful',
         result
       });
     } catch (err) {
