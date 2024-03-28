@@ -15,7 +15,7 @@ import { s3Config } from '../config/constants';
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
   secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-southeast-2'
+  region: 'ap-south-1'
 });
 
 // emailService.js
@@ -443,10 +443,9 @@ export async function receiveFromSqs() {
         try {
           const mailOptions = {
             from: {
-              name: 'Ayush',
-              address: 'ayush@serviceplug.in'
+              address: 'support@serviceplug.in'
             },
-            to: ['ayush@serviceplug.in'],
+            to: [jobCard?.customerDetails[0]?.email],
             subject: 'Congratulations!',
             text: 'Plain text content goes here',
             html: `<!DOCTYPE html>

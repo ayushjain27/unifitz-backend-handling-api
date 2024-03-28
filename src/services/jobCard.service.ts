@@ -20,7 +20,7 @@ require('dotenv').config();
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
   secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-southeast-2'
+  region: 'ap-south-1'
 });
 
 const sqs = new AWS.SQS();
