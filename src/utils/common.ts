@@ -54,13 +54,16 @@ export async function sendEmail(
   }
 }
 
-export async function sendToSqs(jobCard: any, messageGroupId: any, messageDeduplicationId: any ) {
+export async function sendToSqs(
+  jobCard: any,
+  uniqueMessageId: any,
+) {
   const params = {
     MessageBody: JSON.stringify(jobCard),
     QueueUrl:
       'https://sqs.ap-south-1.amazonaws.com/771470636147/SPAsyncQueue.fifo', // Replace with your SQS queue URL
-    MessageGroupId: messageGroupId,
-    MessageDeduplicationId: messageDeduplicationId
+    MessageGroupId: uniqueMessageId,
+    MessageDeduplicationId: uniqueMessageId
   };
 
   try {
@@ -84,20 +87,15 @@ export async function receiveFromSqs() {
 
   try {
     while (true) {
-      console.log("dwnjkf,w")
+      console.log('dwnjkf,w');
       const data = await sqs.receiveMessage(params).promise();
-      console.log(data,"fwl;km")
-
-      // if (!data.Messages || data.Messages.length === 0) {
-      //   console.log("No messages received. Exiting loop.");
-      //   break; // Exit the while loop
-      // }
+      console.log(data, 'fwl;km');
 
       if (data.Messages && data.Messages.length > 0) {
-        console.log("Afl")
+        console.log('Afl');
         const message = data.Messages[0];
         const jobCard = JSON.parse(message.Body);
-        console.log(message,"wfe;lm")
+        console.log(message, 'wfe;lm');
         await deleteMessageFromQueue(message.ReceiptHandle);
         console.log(jobCard?.jobCardNumber, 'fmlwf');
         let store: IStore;
@@ -115,76 +113,77 @@ export async function receiveFromSqs() {
         const writeStream = fs.createWriteStream('invoices.pdf');
         doc.pipe(writeStream);
 
-        // Set up some initial variables
-        const customerName = 'Customer Name';
-        const items = [
-          { name: 'Item 1', quantity: 2, price: 10000 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 },
-          { name: 'Item 1', quantity: 2, price: 10 }
-        ];
+        const createdAtString = jobCard?.createdAt;
+        const registrationYearString =
+          jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
+            ?.registrationYear;
+        const createdAtDate = new Date(createdAtString);
+        const registrationYearDate = new Date(registrationYearString);
 
-        const dateString = jobCard?.createdAt;
-const date = new Date(dateString);
+        const createdAtDateYear = createdAtDate.getFullYear();
+        const createdAtDateMonth = createdAtDate.getMonth()+1; // Months are zero-indexed, so January is 0
+        const createdAtDateDay = createdAtDate.getDate();
+        const registrationYearDateYear = registrationYearDate.getFullYear();
+        const registrationYearDateMonth = registrationYearDate.getMonth()+1; // Months are zero-indexed, so January is 0
+        const registrationYearDateDay = registrationYearDate.getDate();
 
-const year = date.getFullYear();
-const month = date.getMonth() + 1; // Months are zero-indexed, so January is 0
-const day = date.getDate();
+        const invoiceDate = `${createdAtDateYear}-${
+          createdAtDateMonth < 10
+            ? '0' + createdAtDateMonth
+            : createdAtDateMonth
+        }-${createdAtDateDay < 10 ? '0' + createdAtDateDay : createdAtDateDay}`;
+        const regNo = `${registrationYearDateYear}-${
+          registrationYearDateMonth < 10
+            ? '0' + registrationYearDateMonth
+            : registrationYearDateMonth
+        }-${
+          registrationYearDateDay < 10
+            ? '0' + registrationYearDateDay
+            : registrationYearDateDay
+        }`;
 
-const formattedDate = `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-console.log(formattedDate);
+        const nextServiceDateString = new Date(jobCard?.createdAt);
+        nextServiceDateString.setMonth(nextServiceDateString.getMonth() + 6);
 
-        const invoiceNumber = '#1234';
-        const invoiceDate = formattedDate;
-        const regNo = formattedDate;
-        const brand = jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.brand;
-        const model = jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.modelName;
-        const kmsDrive = jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.totalKmsRun;
-        const fuelType = jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.fuelType;
-        const nextServiceDate = formattedDate;
+        // Extract year, month, and day from the modified invoiceDate
+        const year = nextServiceDateString.getFullYear();
+        const month = nextServiceDateString.getMonth() + 1; // Months are zero-based, so add 1
+        const day = nextServiceDateString.getDate();
+
+        // Format the date string
+        const nextServiceDate = `${year}-${
+          month < 10 ? '0' + month : month
+        }-${day < 10 ? '0' + day : day}`;
+
+        const brand =
+          jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.brand;
+        const model =
+          jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.modelName;
+        const kmsDrive =
+          jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.totalKmsRun;
+        const fuelType =
+          jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.fuelType;
+        // const nextServiceDate = formattedDate;
 
         // Set up some styling
         function addHeader() {
           doc.moveDown();
           doc.fontSize(16);
-          doc.text(`ServicePlug information Private limited and CO.& Address`, 40, doc.y - 25, {
-            width: 300,
-            align: 'left'
+          doc.moveUp(2);
+          doc.fontSize(24).text('JOBCARD', 390, doc.y - 3, {
+            width: 200
           });
-          doc.moveUp(3);
           doc
-            .fontSize(24)
-            .text('CASH RECEIPT', 378, doc.y - 3, {
-              width: 200,
-              align: 'right'
+            .fontSize(12)
+            .text(`JobCard No: ${jobCard?.jobCardNumber}`, 390, doc.y, {
+              width: 150
             });
-          doc.fontSize(12).text(`Receipt No: ${invoiceNumber}`, 352, doc.y, {
-            width: 150,
-            align: 'right'
-          });
-          doc.fontSize(12).text(`Receipt Date: ${invoiceDate}`, 395, doc.y, {
-            width: 150,
-            align: 'right'
+          doc.fontSize(12).text(`JobCard Date: ${invoiceDate}`, 390, doc.y, {
+            width: 150
           });
 
           // Draw the underline
-          doc.underline(40, 100, 545, 2);
+          doc.underline(40, 110, 545, 2);
         }
 
         function addFooter() {
@@ -221,37 +220,54 @@ console.log(formattedDate);
         addFooter();
 
         doc
-          .fontSize(12)
-          .text('Bill To', 40, 130, { width: 180, align: 'left' });
-        doc.text(jobCard?.customerDetails[0]?.name, 40, 150, { width: 180, align: 'left' });
-        doc.text('Address........', 40, 168, { width: 180, align: 'left' });
-        doc.text(jobCard?.customerDetails[0]?.billingAddress, 40, 183, {
+          .font('Helvetica-Bold')
+          .fontSize(16)
+          .text(store?.basicInfo?.businessName, 40, doc.y - 30, { width: 500, align: 'left' });
+        doc.font('Helvetica').fontSize(12).text(store?.contactInfo?.address, 40, doc.y + 5, {
+          width: 500,
+          align: 'left'
+        });
+        doc.text(store?.contactInfo?.phoneNumber?.primary, 40, doc.y+5, { width: 180, align: 'left' });
+        doc.text(store?.storeId,  40, doc.y+5 , {
           width: 300,
           align: 'left'
         });
-        doc.text(jobCard?.customerDetails[0]?.email, 40, 203, { width: 180, align: 'left' });
-        doc.text(jobCard?.customerDetails[0]?.phoneNumber, 40, 223, { width: 180, align: 'left' });
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(12)
+          .text('Bill To', 40, doc.y + 20, { width: 180, align: 'left' });
+        doc.font('Helvetica').text(jobCard?.customerDetails[0]?.name, 40, doc.y + 5, {
+          width: 180,
+          align: 'left'
+        });
+        doc.text('Address........', 40, doc.y+5, { width: 180, align: 'left' });
+        doc.text(jobCard?.customerDetails[0]?.billingAddress, 40, doc.y+5 , {
+          width: 300,
+          align: 'left'
+        });
+        doc.text(jobCard?.customerDetails[0]?.email, 40, doc.y+8, {
+          width: 180,
+          align: 'left'
+        });
+        doc.text(jobCard?.customerDetails[0]?.phoneNumber, 40, doc.y+5, {
+          width: 180,
+          align: 'left'
+        });
         // doc.text(`From: ${companyName}`);
         doc.moveUp(6.2);
         doc
+        .font('Helvetica-Bold')
           .fontSize(12)
-          .text('Vehicle Details', 400, doc.y-20, { width: 200 });
-        doc.text(`Reg No: ${regNo}`, 400, doc.y, { width: 200 });
-        doc.text(`Brand Name: ${brand}`, 400, doc.y, { width: 200 });
-        doc.text(`Model: ${model}`, 400, doc.y, { width: 200 });
-        doc.text(`Kms Drive: ${kmsDrive}`, 400, doc.y, { width: 200 });
-        doc.text(`Fuel Type: ${fuelType}`, 400, doc.y, { width: 200 });
-        doc.text(`Next Service Date: ${formattedDate}`, 400, doc.y, {
+          .text('Vehicle Details', 400, doc.y - 20, { width: 200 });
+        doc.font('Helvetica').text(`Reg No: ${regNo}`, 400, doc.y+5, { width: 200 });
+        doc.text(`Brand Name: ${brand}`, 400, doc.y+5, { width: 200 });
+        doc.text(`Model: ${model}`, 400, doc.y+5, { width: 200 });
+        doc.text(`Kms Drive: ${kmsDrive}`, 400, doc.y+5, { width: 200 });
+        doc.text(`Fuel Type: ${fuelType}`, 400, doc.y+5, { width: 200 });
+        doc.text(`Next Service Date: ${nextServiceDate}`, 400, doc.y+5, {
           width: 200
         });
-
-        // doc.moveUp(7);
-        // doc.text(regNo, 463, doc.y+15, { width: 120, align: 'right' });
-        // doc.text(brand, 405, doc.y, { width: 120, align: 'right' });
-        // doc.text(model, 448, doc.y, { width: 120, align: 'right' });
-        // doc.text(kmsDrive, 430, doc.y, { width: 120, align: 'right' });
-        // doc.text(fuelType, 410, doc.y, { width: 120, align: 'right' });
-        // doc.text(nextServiceDate, 445, doc.y, { width: 120, align: 'right' });
 
         // Print table header
         doc.moveDown();
@@ -263,7 +279,7 @@ console.log(formattedDate);
         doc.text('PRICE', 350, doc.y, { width: 100, align: 'right' });
         doc.moveUp(1);
         doc.text('TOTAL', 450, doc.y, { width: 100, align: 'right' });
-        doc.underline(35, doc.y+10, 545, 2);
+        doc.underline(35, doc.y + 10, 545, 2);
 
         let totalAmount = 0;
         let y = doc.y + 20; // Initial y position for the first row
@@ -296,7 +312,7 @@ console.log(formattedDate);
           const total = quantity * rate;
           totalAmount += total;
           doc.text('Rs ' + total, 520, y, { width: 100, align: 'left' });
-          if (index < items.length - 1) {
+          if (index < jobCard.lineItems.length - 1) {
             doc.underline(35, y + 20, 545, 2);
             // doc.moveDown(1.3);
           }
@@ -305,23 +321,23 @@ console.log(formattedDate);
         });
 
         // Print total amount
-        let tax = 10;
+        let tax = 0;
         let totalBill = totalAmount + tax;
         doc.underline(35, doc.y + 5, 545, 2);
         doc.moveDown();
         if (doc.y > doc.page.height - 150) {
           doc.addPage();
           doc.text(
-            `Sub-total:                       Rs ${totalAmount}`,
-            372,
+            `Sub-total:                   Rs ${totalAmount}`,
+            385,
             doc.y + 8,
             { width: 200, align: 'right' }
           );
           doc.underline(370, doc.y + 5, 210, 2);
         } else {
           doc.text(
-            `Sub-total:                       Rs ${totalAmount}`,
-            372,
+            `Sub-total:                   Rs ${totalAmount}`,
+            385,
             doc.y + 8,
             { width: 200, align: 'right' }
           );
@@ -337,14 +353,14 @@ console.log(formattedDate);
         if (doc.y > doc.page.height - 150) {
           doc.addPage();
           doc.font('Helvetica-Bold');
-          doc.text(`Total:                     Rs ${totalBill}`, 370, doc.y, {
+          doc.text(`Total:                     Rs ${totalBill}`, 380, doc.y, {
             width: 200,
             align: 'right'
           });
           doc.underline(370, doc.y + 5, 210, 2);
         } else {
           doc.font('Helvetica-Bold');
-          doc.text(`Total:                     Rs ${totalBill}`, 370, doc.y, {
+          doc.text(`Total:                     Rs ${totalBill}`, 380, doc.y, {
             width: 200,
             align: 'right'
           });
@@ -355,54 +371,34 @@ console.log(formattedDate);
           doc.addPage();
           doc.moveDown(2);
           doc.font('Helvetica-Bold');
-          doc
-            .fontSize(24)
-            .text('Thank You!', 350, doc.y + 40, {
-              width: 200,
-              align: 'right'
-            });
+          doc.fontSize(24).text('Thank You!', 350, doc.y + 40, {
+            width: 200,
+            align: 'right'
+          });
 
           doc.font('Helvetica');
-          doc
-            .fontSize(28)
-            .text('Administrator', 25, doc.y - 40, {
-              width: 200,
-              align: 'right'
-            });
-          doc.underline(40, doc.y + 2, 210, 2);
-          doc
-            .fontSize(16)
-            .text('Partner Name', 0, doc.y + 15, {
-              width: 200,
-              align: 'right'
-            });
+          doc.underline(30, doc.y-15, 210, 2);
+          doc.fontSize(16).text(store?.basicInfo?.ownerName, 0, doc.y, {
+            width: 150,
+            align: 'right'
+          });
         } else {
           doc.moveDown(2);
           doc.font('Helvetica-Bold');
-          doc
-            .fontSize(24)
-            .text('Thank You!', 350, doc.y + 40, {
-              width: 200,
-              align: 'right'
-            });
+          doc.fontSize(24).text('Thank You!', 350, doc.y + 40, {
+            width: 200,
+            align: 'right'
+          });
 
           doc.font('Helvetica');
-          doc
-            .fontSize(28)
-            .text('Administrator', 25, doc.y - 40, {
-              width: 200,
-              align: 'right'
-            });
-          doc.underline(40, doc.y + 2, 210, 2);
-          doc
-            .fontSize(16)
-            .text('Partner Name', 0, doc.y + 15, {
-              width: 200,
-              align: 'right'
-            });
+          doc.underline(30, doc.y - 15, 210, 2);
+          doc.fontSize(16).text(store?.basicInfo?.ownerName, 0, doc.y, {
+            width: 150,
+            align: 'right'
+          });
         }
 
-        if (doc.y > doc.page.height - 150) {
+        if (doc.y > doc.page.height - 200) {
           doc.addPage();
           doc.moveDown(2);
           doc.font('Helvetica');
@@ -439,7 +435,7 @@ console.log(formattedDate);
         doc.end();
         // Close the write stream once the PDF is finished writing
 
-        console.log("adsnk")
+        console.log('adsnk');
 
         const transporter = nodemailer.createTransport({
           SES: { ses, aws: AWS }
