@@ -6,7 +6,7 @@ import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import { Employee, IEmployee } from '../models/Employee';
 import { Types } from 'mongoose';
-import _ from 'lodash';
+import _, { update } from 'lodash';
 import StoreCustomer, {
   IStoreCustomer,
   IStoreCustomerVehicleInfo,
@@ -162,6 +162,10 @@ export class StoreCustomerService {
       );
     }
 
+    console.log(storeCustomer.storeCustomerVehicleInfo,"DFWekl")
+
+    console.log(vehicleIndex,"df;lm")
+
     const files: Array<any> = req.files;
 
     let vehicleInfo: IStoreCustomerVehicleInfo =
@@ -199,10 +203,12 @@ export class StoreCustomerService {
     Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
 
     Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+    console.log(req.body.vehicleNumber,"Sdwl")
 
     const updatedVehicle = await StoreCustomer.findOneAndUpdate(
       {
-        vehicleNumber: req.body.vehicleNumber
+        _id: new Types.ObjectId(req.body.customerId),
+        'storeCustomerVehicleInfo.vehicleNumber': vehicleNumber
       },
       {
         $set: {
@@ -212,6 +218,8 @@ export class StoreCustomerService {
       },
       { returnDocument: 'after' }
     );
+
+    console.log(updatedVehicle,"d,l;sf")
 
     return updatedVehicle;
   }
