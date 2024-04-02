@@ -61,20 +61,6 @@ export class JobCardService {
     newJobCard.jobCardNumber = String(jobCardNumber);
     newJobCard.jobStatus = JobStatus.CREATED;
 
-    // if (files) {
-    //   const promises: any[] = [];
-    //   let uploadedKeys: [{ key: string; docURL: string }];
-    //   _.forEach(files, (file: any) => {
-    //     promises.push(
-    //       this.s3Client
-    //         .uploadFile(`${storeId}/jobCard`, file.originalname, file.buffer)
-    //         .then(({ key, url }) => uploadedKeys.push({ key, docURL: url }))
-    //     );
-    //   });
-    //   await Promise.all(promises);
-
-    //   // newJobCard.refImageList = uploadedKeys;
-    // }
     newJobCard = await JobCard.create(newJobCard);
     Logger.info('<Service>:<JobCardService>:<Job Card created successfully>');
     return newJobCard;

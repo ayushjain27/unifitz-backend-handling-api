@@ -31,12 +31,11 @@ export interface IJobCard {
   jobCardNumber: string;
   comment: string;
   lineItems: ILineItem[];
-  // refImageList: [{ key: string; docURL: string }];
   jobStatus: JobStatus;
   customerDetails?: IStoreCustomer[];
 }
 
-const jobCardSchema: Schema = new Schema(
+export const jobCardSchema: Schema = new Schema(
   {
     storeId: {
       type: String,
