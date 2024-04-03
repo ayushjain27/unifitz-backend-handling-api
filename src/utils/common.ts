@@ -11,6 +11,7 @@ export function appendCodeToPhone(phoneNumber: string) {
 
 import AWS from 'aws-sdk';
 import { s3Config } from '../config/constants';
+import JobCard, { IJobCard } from '../models/JobCard';
 
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
@@ -54,9 +55,9 @@ export async function sendEmail(
   }
 }
 
-export async function sendToSqs(jobCard: any, uniqueMessageId: any) {
+export async function sendToSqs(card: any, uniqueMessageId: any) {
   const params = {
-    MessageBody: JSON.stringify(jobCard),
+    MessageBody: JSON.stringify(card),
     QueueUrl:
       'https://sqs.ap-south-1.amazonaws.com/771470636147/SPAsyncQueue.fifo', // Replace with your SQS queue URL
     MessageGroupId: uniqueMessageId,
@@ -84,7 +85,6 @@ export async function receiveFromSqs() {
 
   try {
     while (true) {
-      console.log('dwnjkf,w');
       const data = await sqs.receiveMessage(params).promise();
       if (!data.Messages) {
         // return "There are no messages left"
@@ -106,48 +106,59 @@ export async function receiveFromSqs() {
             { verificationDetails: 0 }
           );
         }
-        pdfDesign(store, jobCard);
+        pdfDesign(store, jobCard, 'JobCard');
       }
     }
   } catch (error) {
     console.error('Error receiving or processing messages:', error);
   }
-  // if (data.Messages && data.Messages.length > 0) {
-  // const message = data.Messages[0];
-  //   const jobCard = JSON.parse(message.Body);
+}
 
-  // let store: IStore;
-  // if (jobCard?.storeId) {
-  //   store = await Store.findOne(
-  //     { storeId: jobCard?.storeId },
-  //     { verificationDetails: 0 }
-  //   );
-  // }
+export async function receiveInvoiceFromSqs() {
+  const params = {
+    QueueUrl:
+      'https://sqs.ap-south-1.amazonaws.com/771470636147/SPAsyncQueue.fifo', // Replace with your SQS queue URL
+    MaxNumberOfMessages: 1,
+    WaitTimeSeconds: 5 // Long-polling for better efficiency
+    // VisibilityTimeout: 30 // Adjust as needed
+  };
 
-  // Generate PDF using userData...
+  try {
+    while (true) {
+      console.log('dwnjkf,w');
+      const data = await sqs.receiveMessage(params).promise();
+      if (!data.Messages) {
+        // return "There are no messages left"
+        break;
+      }
+      console.log(data, 'fwl;km');
 
-  // Delete the message from the queue
-  // const deleteParams = {
-  //   QueueUrl: params.QueueUrl,
-  //   ReceiptHandle: message.ReceiptHandle
-  // };
-
-  // await new Promise((resolve, reject) => {
-  //   sqs.deleteMessage(deleteParams, (err) => {
-  //     if (err) {
-  //       reject(err);
-  //     } else {
-  //       resolve();
-  //     }
-  //   });
-  // });
-
-  // console.log('Message Deleted');
-  //   }
-  // } catch (err) {
-  //   console.error(err);
-  //   // Handle error accordingly
-  // }
+      if (data.Messages && data.Messages.length > 0) {
+        console.log('Afl');
+        const message = data.Messages[0];
+        const card = JSON.parse(message.Body);
+        console.log(message, 'wfe;lm');
+        await deleteMessageFromQueue(message.ReceiptHandle);
+        console.log(card, 'fmlwf');
+        let jobCard: IJobCard;
+        if (card?.jobCardId) {
+          jobCard = await JobCard.findOne({
+            _id: card?.jobCardId
+          })?.lean();
+        }
+        let store: IStore;
+        if (card?.storeId) {
+          store = await Store.findOne(
+            { storeId: card?.storeId },
+            { verificationDetails: 0 }
+          );
+        }
+        pdfDesign(store, jobCard, 'Invoice', card);
+      }
+    }
+  } catch (error) {
+    console.error('Error receiving or processing messages:', error);
+  }
 }
 
 async function deleteMessageFromQueue(receiptHandle: string) {
@@ -161,14 +172,20 @@ async function deleteMessageFromQueue(receiptHandle: string) {
   console.log('Message deleted from the queue');
 }
 
-export async function pdfDesign(store: any, jobCard: any) {
+export async function pdfDesign(
+  store: any,
+  jobCard: any,
+  title: any,
+  invoiceCard?: any
+) {
   const doc = new PDFDocument({ size: 'A4' });
 
   // Pipe the PDF document to a write stream
   const writeStream = fs.createWriteStream('invoices.pdf');
   doc.pipe(writeStream);
 
-  const createdAtString = jobCard?.createdAt;
+  const createdAtString =
+    title === 'invoice' ? invoiceCard?.createdAt : jobCard?.createdAt;
   const registrationYearString =
     jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]?.registrationYear;
   const createdAtDate = new Date(createdAtString);
@@ -221,13 +238,15 @@ export async function pdfDesign(store: any, jobCard: any) {
     doc.moveDown();
     doc.fontSize(16);
     doc.moveUp(2);
-    doc.fontSize(24).text('JOBCARD', 390, doc.y - 3, {
+    doc.fontSize(24).text(title.toUpperCase(), 390, doc.y - 3, {
       width: 200
     });
-    doc.fontSize(12).text(`JobCard No: ${jobCard?.jobCardNumber}`, 390, doc.y, {
-      width: 150
-    });
-    doc.fontSize(12).text(`JobCard Date: ${invoiceDate}`, 390, doc.y, {
+    doc
+      .fontSize(12)
+      .text(`${title} No: ${jobCard?.jobCardNumber}`, 390, doc.y, {
+        width: 150
+      });
+    doc.fontSize(12).text(`${title} Date: ${invoiceDate}`, 390, doc.y, {
       width: 150
     });
 
@@ -350,7 +369,7 @@ export async function pdfDesign(store: any, jobCard: any) {
       // Recreate the table header
       doc.font('Helvetica-Bold').fontSize(12);
       doc.text('ITEM', 70, y, { width: 200 });
-      doc.text('QUANTIY', 290, y, { width: 50, align: 'right' });
+      doc.text('QTY', 290, y, { width: 50, align: 'right' });
       doc.text('RATE', 410, y, { width: 100, align: 'left' });
       doc.text('TOTAL', 520, y, { width: 100, align: 'left' });
       doc.underline(35, doc.y + 5, 545, 2);
@@ -377,8 +396,7 @@ export async function pdfDesign(store: any, jobCard: any) {
   });
 
   // Print total amount
-  let tax = 0;
-  let totalBill = totalAmount + tax;
+  let totalBill = totalAmount;
   doc.underline(35, doc.y + 5, 545, 2);
   doc.moveDown();
   if (doc.y > doc.page.height - 150) {
@@ -396,6 +414,64 @@ export async function pdfDesign(store: any, jobCard: any) {
     doc.underline(370, doc.y + 5, 210, 2);
   }
   doc.moveDown();
+  {
+    invoiceCard &&
+      invoiceCard.additionalItems.forEach((values: any, index: any) => {
+        const { title, operation, format, value } = values;
+
+        // Check if the current row will overflow to the next page
+        if (doc.y > doc.page.height - 150) {
+          doc.addPage(); // Start a new page
+          // y = doc.y; // Reset y position
+          // Move y position to the first row after the header
+        }
+
+        // Draw the current row
+        doc.font('Helvetica-Bold');
+        if (operation === 'deductable') {
+        if (format === 'percentage') {
+          doc.text(`${title}:                     - Rs ${value}%`, 350, doc.y + 5, {
+            width: 200,
+            align: 'right'
+          });
+        } else {
+          doc.text(`${title}:                     - Rs ${value}`, 350, doc.y + 5, {
+            width: 200,
+            align: 'right'
+          });
+        }
+      }else{
+        if (format === 'percentage') {
+          doc.text(`${title}:                     +  ${value}%`, 350, doc.y + 5, {
+            width: 200,
+            align: 'right'
+          });
+        } else {
+          doc.text(`${title}:                     +${value}`, 350, doc.y + 5, {
+            width: 200,
+            align: 'right'
+          });
+        }
+      }
+        if (operation === 'deductable') {
+          if (format === 'percentage') {
+            totalBill -= (totalBill * value) / 100;
+          } else {
+            totalBill -= value;
+          }
+        } else {
+          if (format === 'percentage') {
+            totalBill += (totalBill * value) / 100;
+          } else {
+            totalBill += value;
+          }
+        }
+        doc.underline(370, doc.y + 5, 210, 2);
+        // Move y position to the next row
+        doc.y += 10;
+      });
+  }
+
   if (doc.y > doc.page.height - 150) {
     doc.addPage();
     doc.font('Helvetica-Bold');
@@ -483,10 +559,10 @@ export async function pdfDesign(store: any, jobCard: any) {
 
   console.log('adsnk');
 
-  jobCardEmail(store, jobCard);
+  jobCardEmail(store, jobCard, title);
 }
 
-export async function jobCardEmail(store: any, jobCard: any) {
+export async function jobCardEmail(store: any, jobCard: any, title: any) {
   const transporter = nodemailer.createTransport({
     SES: { ses, aws: AWS }
   });
@@ -496,7 +572,9 @@ export async function jobCardEmail(store: any, jobCard: any) {
         address: 'support@serviceplug.in'
       },
       to: [jobCard?.customerDetails[0]?.email],
-      subject: 'Congratulations!',
+      subject: `SERVICEPLUG : ${title.toUpperCase()} : ${jobCard?.storeId} : ${
+        jobCard?.jobCardNumber
+      }`,
       text: 'Plain text content goes here',
       html: `<!DOCTYPE html>
                 <html lang="en">
@@ -541,7 +619,7 @@ export async function jobCardEmail(store: any, jobCard: any) {
                 <body>
                   <div class="container">
                     <p>Dear ${jobCard?.customerDetails[0]?.name}</p>
-                    <p>We hope this email finds you well. Here is the vehicle job card generated by ${store?.basicInfo?.businessName}</p>
+                    <p>We hope this email finds you well. Here is the ${title} generated by ${store?.basicInfo?.businessName}</p>
                     <p>Feel free to contact us at ${store?.basicInfo?.ownerName} @ ${store?.contactInfo?.phoneNumber?.primary}</p>
                     <p>Thank you for choosing ServicePlug Platform for your vehicle service needs. We look forward to serving you and providing an exceptional experience.</p>
                     <p>Warm regards, </p> <!-- Escape $ character for the subject -->

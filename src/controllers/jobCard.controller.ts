@@ -143,7 +143,7 @@ export class JobCardController {
       return;
     }
     Logger.info(
-      '<Controller>:<JobCardController>:<Get job card by id controller initiated>'
+      '<Controller>:<JobCardController>:<Get job card email controller initiated>'
     );
     try {
       const result = await this.jobCardService.jobCardEmail(jobCardId as string);
