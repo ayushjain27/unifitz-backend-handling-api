@@ -16,7 +16,7 @@ const createInvoiceController = container.get<CreateInvoiceController>(
 );
 
 router.post(
-  '/createAdditionalItems',
+  '/createInvoice',
   roleAuth(ACL.STORE_CREATE),
   createInvoiceController.createAdditionalItems
 );
