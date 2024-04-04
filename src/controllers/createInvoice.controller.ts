@@ -85,7 +85,6 @@ export class CreateInvoiceController {
 
       invoiceEmail = async (req: Request, res: Response) => {
       const invoiceId = req.query.invoiceId;
-      console.log(invoiceId,"wdfl;m")
 
       if (!invoiceId) {
         res
