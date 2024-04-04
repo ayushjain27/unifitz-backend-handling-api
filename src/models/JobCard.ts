@@ -32,6 +32,7 @@ export interface IJobCard {
   comment: string;
   lineItems: ILineItem[];
   jobStatus: JobStatus;
+  isInvoice: boolean;
   customerDetails?: IStoreCustomer[];
 }
 
@@ -61,14 +62,10 @@ export const jobCardSchema: Schema = new Schema(
         }
       ]
     },
-    // refImageList: {
-    //   type: [
-    //     {
-    //       key: String,
-    //       docURL: String
-    //     }
-    //   ]
-    // },
+    isInvoice: {
+      type: Boolean,
+      default: false,
+    },
     jobStatus: {
       type: String,
       enum: JobStatus,
