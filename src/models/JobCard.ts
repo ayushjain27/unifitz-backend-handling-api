@@ -33,6 +33,7 @@ export interface IJobCard {
   lineItems: ILineItem[];
   jobStatus: JobStatus;
   isInvoice: boolean;
+  invoiceId: string;
   customerDetails?: IStoreCustomer[];
 }
 
@@ -65,6 +66,9 @@ export const jobCardSchema: Schema = new Schema(
     isInvoice: {
       type: Boolean,
       default: false,
+    },
+    invoiceId: {
+      type: String
     },
     jobStatus: {
       type: String,
