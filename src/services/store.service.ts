@@ -908,4 +908,56 @@ export class StoreService {
     );
     return updatedReview;
   }
+
+  async createStoreFastestOnboarding(
+    storeRequest: StoreRequest,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
+    const { storePayload, phoneNumber } = storeRequest;
+    Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
+    let ownerDetails: IUser = await User.findOne({
+      phoneNumber,
+      role
+    });
+
+    if (_.isEmpty(ownerDetails)) {
+      ownerDetails = await User.findOne({
+        phoneNumber
+      });
+    }
+    if (_.isEmpty(ownerDetails)) {
+      throw new Error('User not found');
+    }
+
+    storePayload.userId = ownerDetails._id;
+
+    const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
+    
+    const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
+
+    await StaticIds.findOneAndUpdate(
+      {}, 
+      { storeId: newStoreId }
+    );
+
+    //   ? new Date().getFullYear() * 100
+    //   : +lastCreatedStoreId[0].storeId + 1;
+    Logger.info(
+      '<Route>:<StoreService>: <Store onboarding: creating new store>'
+    );
+
+    storePayload.storeId = newStoreId;
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    if (role === AdminRole.OEM) {
+      storePayload.oemUserName = userName;
+    }
+    // const newStore = new Store(storePayload);
+    const newStore = await Store.create(storePayload);
+    Logger.info(
+      '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
+    );
+    return newStore;
+  }
+
 }

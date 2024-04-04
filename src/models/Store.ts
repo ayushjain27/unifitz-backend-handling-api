@@ -50,7 +50,6 @@ const storeBasicInfoSchema: Schema = new Schema(
     },
     registrationDate: {
       type: Date,
-      required: true
     },
     brand: {
       type: [storeCatalogMapSchema],
@@ -264,7 +263,7 @@ const storeSchema: Schema = new Schema<IStore>(
   { timestamps: true, strict: false }
 );
 
-storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });
+storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' }, {sparse: true});
 
 const Store = model<IStore>('stores', storeSchema);
 
