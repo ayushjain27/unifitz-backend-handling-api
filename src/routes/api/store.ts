@@ -110,4 +110,7 @@ router.get(
   storeController.getAllReviews
 );
 
+router.post('/fastestOnboarding', roleAuth(ACL.STORE_CREATE), storeController.createStoreFastestOnboarding);
+
+
 export default router;
