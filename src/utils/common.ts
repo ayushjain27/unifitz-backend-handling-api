@@ -401,13 +401,13 @@ export async function pdfDesign(
   doc.moveDown();
   if (doc.y > doc.page.height - 150) {
     doc.addPage();
-    doc.text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
+    doc.font('Helvetica-Bold').text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
       width: 200,
       align: 'right'
     });
     doc.underline(370, doc.y + 5, 210, 2);
   } else {
-    doc.text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
+    doc.font('Helvetica-Bold').text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
       width: 200,
       align: 'right'
     });
@@ -442,12 +442,12 @@ export async function pdfDesign(
         }
       }else{
         if (format === 'percentage') {
-          doc.text(`${title}:                     +  ${value}%`, 350, doc.y + 5, {
+          doc.text(`${title}:                     +  ${value}%`, 370, doc.y + 5, {
             width: 200,
             align: 'right'
           });
         } else {
-          doc.text(`${title}:                     +${value}`, 350, doc.y + 5, {
+          doc.text(`${title}:                     +${value}`, 370, doc.y + 5, {
             width: 200,
             align: 'right'
           });
@@ -520,9 +520,9 @@ export async function pdfDesign(
     });
   }
 
-  if (doc.y > doc.page.height - 200) {
+  if (doc.y > doc.page.height - 160) {
     doc.addPage();
-    doc.moveDown(2);
+    // doc.moveDown(2);
     doc.font('Helvetica');
     doc.text(
       'Declaration : All Products and Services,Price,Warranty Please contact respective Partners',
@@ -534,7 +534,7 @@ export async function pdfDesign(
       }
     );
   } else {
-    doc.moveDown(2);
+    // doc.moveDown(2);
     doc.font('Helvetica-Bold');
     doc.fontSize(12).text('Declaration :', 40, doc.y + 20, {
       width: 500,
