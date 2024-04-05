@@ -949,6 +949,11 @@ export class StoreService {
 
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    if(_.isEmpty(storePayload?.contactInfo)){
+      storePayload.missingItem = 'Contact Info'
+    }else if(_.isEmpty(storePayload?.storeTiming)){
+      storePayload.missingItem = 'Store Timing'
+    }
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
