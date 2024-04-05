@@ -428,7 +428,7 @@ export async function pdfDesign(
 
         // Draw the current row
         doc.font('Helvetica-Bold');
-        if (operation === 'deductable') {
+        if (operation === 'discount') {
         if (format === 'percentage') {
           doc.text(`${title}:                     - Rs ${value}%`, 350, doc.y + 5, {
             width: 200,
@@ -453,7 +453,7 @@ export async function pdfDesign(
           });
         }
       }
-        if (operation === 'deductable') {
+        if (operation === 'discount') {
           if (format === 'percentage') {
             totalBill -= (totalBill * value) / 100;
           } else {
