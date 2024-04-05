@@ -930,6 +930,10 @@ export class StoreService {
       throw new Error('User not found');
     }
 
+    let storeDetails: IStore = await Store.findOne({
+      _id: new Types.ObjectId(storePayload?._id)
+    });
+
     storePayload.userId = ownerDetails._id;
 
     const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
@@ -957,7 +961,20 @@ export class StoreService {
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
+    
+
     // const newStore = new Store(storePayload);
+    if(storeDetails){
+      const res = await Store.findOneAndUpdate(
+      { _id: storePayload?._id },
+      { $set: storePayload  },
+      { returnDocument: 'after' }
+    );
+     Logger.info(
+      '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
+    );
+    return res;
+    }
     const newStore = await Store.create(storePayload);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
