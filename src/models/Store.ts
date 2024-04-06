@@ -50,7 +50,6 @@ const storeBasicInfoSchema: Schema = new Schema(
     },
     registrationDate: {
       type: Date,
-      required: true
     },
     brand: {
       type: [storeCatalogMapSchema],
@@ -221,6 +220,7 @@ export interface IStore {
   updatedAt?: Date;
   overAllRating?: any;
   isVerified?: boolean;
+  missingItem?: String;
   verificationDetails?: IVerificationDetails;
 }
 
@@ -259,12 +259,15 @@ const storeSchema: Schema = new Schema<IStore>(
     },
     documents: {
       type: storeDocumentsSchema
+    },
+    missingItem: {
+      type: String
     }
   },
   { timestamps: true, strict: false }
 );
 
-storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' });
+storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' }, {sparse: true});
 
 const Store = model<IStore>('stores', storeSchema);
 

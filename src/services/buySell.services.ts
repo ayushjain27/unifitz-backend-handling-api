@@ -4,7 +4,7 @@ import buySellVehicleInfo from './../models/BuySell';
 import { IBuySell } from './../models/BuySell';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
-import { Types } from 'mongoose';
+import { Types, ObjectId } from 'mongoose';
 import _ from 'lodash';
 
 @injectable()
@@ -153,6 +153,13 @@ export class BuySellService {
     return buyVehicleList;
   }
 
+  async getAllBuyVehicles() {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
+    );
+    const result = await buySellVehicleInfo.find({}).lean();
+    return result;
+  }
   async getAll() {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
@@ -178,12 +185,20 @@ export class BuySellService {
     Logger.debug(
       `total length ${result.length}, ${totalAmount} ${activeVehicles}`
     );
-    const allQuery: any = {
-      allVehicles: result.length,
-      totalAmount: totalAmount,
-      active: activeVehicles[activeVehicles.length - 1],
-      inactive: result.length - activeVehicles[activeVehicles.length - 1]
-    };
+    const allQuery: any = [
+      { title: 'All Vehicles', total: result.length },
+      { title: 'Total Value', amount: totalAmount },
+      {
+        title: 'Active Vehicles',
+        total: activeVehicles[activeVehicles.length - 1]
+      },
+      {
+        title: 'Inactive Vehicles',
+        total: result.length - activeVehicles[activeVehicles.length - 1]
+      },
+      { title: 'Sold', total: 0 },
+      { title: 'Enquiry', total: 0 }
+    ];
     return allQuery;
   }
 }

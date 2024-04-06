@@ -379,6 +379,23 @@ export class AdminController {
     }
   };
 
+  createContactUs = async (req: Request, res: Response) => {
+    const contactDetail: any = req.body;
+    Logger.info('<Controller>:<AdminController>:<Createcontact us>');
+    try {
+      const result = await this.adminService.createContactUs(contactDetail);
+      res.send({
+        message: 'Successfully message Sended !',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

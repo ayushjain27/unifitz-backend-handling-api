@@ -95,4 +95,6 @@ router.get(
   adminController.getDistributorPartnersByuserName
 );
 
+router.post('/createContactUs', adminController.createContactUs);
+
 export default router;

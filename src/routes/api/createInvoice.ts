@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 
-import { JobCardController } from '../../controllers';
+import { CreateInvoiceController, JobCardController } from '../../controllers';
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../../routes/middleware/rbac';
@@ -11,45 +11,32 @@ const storage = multer.memoryStorage();
 const uploadFile = multer({ storage: storage });
 
 const router: Router = Router();
-const jobCardController = container.get<JobCardController>(
-  TYPES.JobCardController
+const createInvoiceController = container.get<CreateInvoiceController>(
+  TYPES.CreateInvoiceController
 );
 
 router.post(
-  '/',
+  '/createInvoice',
   roleAuth(ACL.STORE_CREATE),
-  jobCardController.validate('createJobCard'),
-  jobCardController.createJobCard
-);
-
-router.post(
-  '/createLineItems',
-  roleAuth(ACL.STORE_CREATE),
-  jobCardController.createLineItems
+  createInvoiceController.createAdditionalItems
 );
 
 router.get(
-  '/jobCardDetails/:storeId',
+  '/invoiceDetail/:id',
   roleAuth(ACL.STORE_CREATE),
-  jobCardController.getJobCardsByStoreId
+  createInvoiceController.getInvoiceById
 );
 
 router.get(
-  '/jobCardById',
+  '/invoiceDetails/:storeId',
   roleAuth(ACL.STORE_CREATE),
-  jobCardController.getJobCardById
-);
-
-router.put(
-  '/:jobCardId',
-  roleAuth(ACL.STORE_CREATE),
-  jobCardController.updateJobCard
+  createInvoiceController.getInvoiceByStoreId
 );
 
 router.get(
-  '/jobCardEmail',
+  '/invoiceEmail',
   roleAuth(ACL.STORE_CREATE),
-  jobCardController.jobCardEmail
+  createInvoiceController.invoiceEmail
 );
 
 export default router;

@@ -908,4 +908,78 @@ export class StoreService {
     );
     return updatedReview;
   }
+
+  async createStoreFastestOnboarding(
+    storeRequest: StoreRequest,
+    userName?: string,
+    role?: string
+  ): Promise<IStore> {
+    const { storePayload, phoneNumber } = storeRequest;
+    Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
+    let ownerDetails: IUser = await User.findOne({
+      phoneNumber,
+      role
+    });
+
+    if (_.isEmpty(ownerDetails)) {
+      ownerDetails = await User.findOne({
+        phoneNumber
+      });
+    }
+    if (_.isEmpty(ownerDetails)) {
+      throw new Error('User not found');
+    }
+
+    let storeDetails: IStore = await Store.findOne({
+      _id: new Types.ObjectId(storePayload?._id)
+    });
+
+    storePayload.userId = ownerDetails._id;
+
+    const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
+    
+    const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
+
+    await StaticIds.findOneAndUpdate(
+      {}, 
+      { storeId: newStoreId }
+    );
+
+    //   ? new Date().getFullYear() * 100
+    //   : +lastCreatedStoreId[0].storeId + 1;
+    Logger.info(
+      '<Route>:<StoreService>: <Store onboarding: creating new store>'
+    );
+
+    storePayload.storeId = newStoreId;
+    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    if(_.isEmpty(storePayload?.contactInfo)){
+      storePayload.missingItem = 'Contact Info'
+    }else if(_.isEmpty(storePayload?.storeTiming)){
+      storePayload.missingItem = 'Store Timing'
+    }
+    if (role === AdminRole.OEM) {
+      storePayload.oemUserName = userName;
+    }
+    
+
+    // const newStore = new Store(storePayload);
+    if(storeDetails){
+      const res = await Store.findOneAndUpdate(
+      { _id: storePayload?._id },
+      { $set: storePayload  },
+      { returnDocument: 'after' }
+    );
+     Logger.info(
+      '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
+    );
+    return res;
+    }
+    const newStore = await Store.create(storePayload);
+    Logger.info(
+      '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
+    );
+    return newStore;
+  }
+
 }

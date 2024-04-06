@@ -19,7 +19,7 @@ export class BuySellController {
   }
 
   addSellVehicle = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
     if (!errors.isEmpty()) {
       res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
       return;
@@ -32,6 +32,22 @@ export class BuySellController {
       const result = await this.buySellService.addSellVehicle(req.body);
       res.send({
         message: 'Buy/Sell Vehicle Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllBuyVehicle = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
+    );
+    try {
+      // const { storeId: string } = req.body;
+      const result = await this.buySellService.getAllBuyVehicles();
+      res.send({
         result
       });
     } catch (err) {
@@ -65,12 +81,12 @@ export class BuySellController {
   };
 
   getBuyVehicleById = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
-    }
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res
+    //     .status(HttpStatusCodes.BAD_REQUEST)
+    //     .json({ errors: errors.array() });
+    // }
     const getVehicleRequest: { vehicleId: string } = req.body;
     Logger.info(
       '<Controller>:<BuySellController>:<Get Buy vehicle by Id request initiated>'
