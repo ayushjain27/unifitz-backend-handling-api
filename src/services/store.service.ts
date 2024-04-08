@@ -951,12 +951,16 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
 
+    console.log(storeDetails,"wdl")
+
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
-    if(_.isEmpty(storePayload?.contactInfo)){
+    if(_.isEmpty(storePayload?.contactInfo) && _.isEmpty(storeDetails?.contactInfo)){
       storePayload.missingItem = 'Contact Info'
-    }else if(_.isEmpty(storePayload?.storeTiming)){
+    }else if(_.isEmpty(storePayload?.storeTiming) && _.isEmpty(storeDetails?.storeTiming)){
       storePayload.missingItem = 'Store Timing'
+    }else{ 
+      storePayload.missingItem = ''
     }
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
