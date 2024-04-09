@@ -930,9 +930,11 @@ export class StoreService {
       throw new Error('User not found');
     }
 
-    let storeDetails: IStore = await Store.findOne({
-      _id: new Types.ObjectId(storePayload?._id)
-    });
+    const { storeId } = storePayload;
+    let store: IStore;
+    if (storeId) {
+      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    }
 
     storePayload.userId = ownerDetails._id;
 
@@ -951,13 +953,13 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
 
-    console.log(storeDetails,"wdl")
-
+    if(!store){
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
-    if(_.isEmpty(storePayload?.contactInfo) && _.isEmpty(storeDetails?.contactInfo)){
+    }
+    if(_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)){
       storePayload.missingItem = 'Contact Info'
-    }else if(_.isEmpty(storePayload?.storeTiming) && _.isEmpty(storeDetails?.storeTiming)){
+    }else if(_.isEmpty(storePayload?.storeTiming) && _.isEmpty(store?.storeTiming)){
       storePayload.missingItem = 'Store Timing'
     }else{ 
       storePayload.missingItem = ''
@@ -968,9 +970,9 @@ export class StoreService {
     
 
     // const newStore = new Store(storePayload);
-    if(storeDetails){
+    if(store){
       const res = await Store.findOneAndUpdate(
-      { _id: storePayload?._id },
+      { storeId: storeId },
       { $set: storePayload  },
       { returnDocument: 'after' }
     );
