@@ -174,8 +174,7 @@ export class AnalyticController {
         requestData
       );
       res.send({
-        message: 'Analytic Creation Successful',
-        result
+        message: 'OK !!!!'
       });
     } catch (err) {
       Logger.error(err.message);
@@ -186,13 +185,41 @@ export class AnalyticController {
   getEventAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
+    const { firstDate, lastDate } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
       );
       const result = await this.analyticService.getEventAnalytic(
         role,
-        userName
+        userName,
+        firstDate,
+        lastDate
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getActiveUser = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getActiveUser(
+        role,
+        userName,
+        firstDate,
+        lastDate
       );
       res.send({
         result

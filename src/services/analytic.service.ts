@@ -20,7 +20,9 @@ import EventModel from './../models/Event';
 import OfferModel from './../models/Offers';
 import SchoolOfAutoModel from '../models/SchoolOfAuto';
 import BusinessModel from '../models/Business';
-import EventAnalyticModel, { IEventAnalytic } from '../models/EventAnalytic';
+import EventAnalyticModel, {
+  IEventAnalytic
+} from '../models/CustomerEventAnalytic';
 
 @injectable()
 export class AnalyticService {
@@ -234,38 +236,52 @@ export class AnalyticService {
         role: 'USER'
       };
       userResult = await User.findOne(getByPhoneNumber);
-    }
-    // if (!_.isEmpty(requestData?.coordinates)) {
-    const userLocation: any = {};
-    // await fetch(
-    //   `https://nominatim.openstreetmap.org/reverse?lat=${requestData?.coordinates[1]}&lon=${requestData?.coordinates[0]}&format=json`
-    // );
+    } else {
+      userResult = await User.findOne({
+        _id: new Types.ObjectId(requestData.userId)
+      })?.lean();
 
-    // }
+      if (_.isEmpty(userResult)) {
+        throw new Error('User does not exist');
+      }
+    }
+
+    const customerResponse = await Customer.findOne({
+      phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
+    }).lean();
+
     userData.userId = userResult?._id || requestData.userId;
-    userData.fullName = userResult?.fullName || requestData.fullName;
+    userData.fullName = customerResponse?.fullName || '';
+    userData.email = customerResponse?.email || '';
     userData.phoneNumber = userResult?.phoneNumber || requestData.phoneNumber;
     userData.geoLocation = {
       type: 'Point',
       coordinates: requestData?.coordinates
     };
-    userData.address = userLocation?.address?.suburb || '';
-    userData.state = userLocation?.address?.state || '';
-    userData.city = userLocation?.address?.state_district || '';
-    userData.pincode = userLocation?.address?.postcode || '';
-    Logger.debug(`${JSON.stringify(userData?.geoLocation)}sssss`);
+    userData.address = requestData?.address || '';
+    userData.state = requestData?.state || '';
+    userData.city = requestData?.city || '';
+    userData.pincode = requestData?.pincode || '';
 
     eventResult.userInformation = userData;
 
     Logger.info(
       '<Service>:<CategoryService>:<Create analytic service initiated>'
     );
-    const newAnalytic = await EventAnalyticModel.create(eventResult);
+    let newAnalytic: any = [];
+    if (!_.isEmpty(eventResult)) {
+      newAnalytic = await EventAnalyticModel.create(eventResult);
+    }
     Logger.info('<Service>:<CategoryService>:<analytic created successfully>');
     return newAnalytic;
   }
 
-  async getEventAnalytic(userName: string, role: string) {
+  async getEventAnalytic(
+    userName: string,
+    role: string,
+    firstDate: string,
+    lastDate: string
+  ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
@@ -273,9 +289,163 @@ export class AnalyticService {
     if (role === AdminRole.OEM) {
       query.userName = userName;
     }
-    const queryFilter: any = await EventAnalyticModel.find(query, {
-      'verificationDetails.verifyObj': 0
-    }).lean();
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+
+    const queryFilter: any = await EventAnalyticModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: firstDay,
+            $lte: lastDay
+          },
+          event: 'STORE_DETAIL_CLICK'
+        }
+      },
+      {
+        $project: {
+          createdAt: 1,
+          groupId: {
+            $dateFromParts: {
+              year: {
+                $year: '$createdAt'
+              },
+              month: {
+                $month: '$createdAt'
+              },
+              day: {
+                $dayOfMonth: '$createdAt'
+              },
+              hour: {
+                $cond: [
+                  {
+                    $gte: [
+                      {
+                        $dateDiff: {
+                          startDate: firstDay,
+                          endDate: lastDay,
+                          unit: 'day'
+                        }
+                      },
+                      1
+                    ]
+                  },
+                  0,
+                  {
+                    $hour: '$createdAt'
+                  }
+                ]
+              }
+            }
+          },
+          moduleInformation: 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            groupId: '$groupId',
+            store: '$moduleInformation'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.groupId',
+          views: {
+            $sum: 1
+          },
+          stores: {
+            $push: {
+              store: '$_id.store'
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          stores: {
+            $map: {
+              input: {
+                $setUnion: '$stores'
+              },
+              as: 'j',
+              in: {
+                storeName: '$$j.store',
+                storeVisited: {
+                  $size: {
+                    $filter: {
+                      input: '$stores',
+                      cond: {
+                        $eq: ['$$this.store', '$$j.store']
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          topViewStore: {
+            $arrayElemAt: [
+              '$stores',
+              {
+                $indexOfArray: [
+                  '$stores.storeVisited',
+                  { $max: '$stores.storeVisited' }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $toString: '$_id'
+          },
+          views: 1,
+          stores: 1,
+          topViewStore: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+    return queryFilter;
+  }
+
+  async getActiveUser(
+    userName: string,
+    role: string,
+    firstDate: string,
+    lastDate: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+
+    const queryFilter: any = await EventAnalyticModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: firstDay,
+            $lte: lastDay
+          },
+          event: 'LOGIN_OTP_VERIFY'
+        }
+      }
+    ]);
     return queryFilter;
   }
 }

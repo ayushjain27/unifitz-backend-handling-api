@@ -464,7 +464,7 @@ export class StoreService {
     coordinates: number[];
   }): Promise<StoreResponse[]> {
     Logger.info(
-      '<Service>:<StoreService>:<Search and Filter stores service initiated>'
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
     );
     const query = {
       // 'contactInfo.geoLocation': {
@@ -516,11 +516,16 @@ export class StoreService {
         $project: { 'verificationDetails.verifyObj': 0 }
       }
     ]);
-
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service 2222222222>'
+    );
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
           const updatedStore = { ...store };
+          Logger.info(
+            '<Service>:<StoreService>:<Search and Filter stores service 3333333333333>'
+          );
           updatedStore.overAllRating = await this.getOverallRatings(
             updatedStore.storeId
           );
@@ -528,6 +533,9 @@ export class StoreService {
         })
       );
     }
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service 4444444444444>'
+    );
     return stores;
   }
 

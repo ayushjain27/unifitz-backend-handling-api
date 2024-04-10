@@ -192,7 +192,10 @@ router.post(
   productController.addProductReview
 );
 
-router.get('/:partnerProductId/ratings', productController.getOverallPartnerProductRatings);
+router.get(
+  '/:partnerProductId/ratings',
+  productController.getOverallPartnerProductRatings
+);
 
 router.get(
   '/partner/reviews',
