@@ -24,7 +24,8 @@ import {
   OfferController,
   BusinessController,
   SchoolOfAutoController,
-  StoreCustomerController
+  StoreCustomerController,
+  CreateInvoiceController
 } from '../controllers';
 import {
   StoreService,
@@ -50,7 +51,8 @@ import {
   OfferService,
   BusinessService,
   SchoolOfAutoService,
-  StoreCustomerService
+  StoreCustomerService,
+  CreateInvoiceService
 } from '../services';
 
 const container = new Container();
@@ -187,5 +189,12 @@ container
 container
   .bind<SchoolOfAutoService>(TYPES.SchoolOfAutoService)
   .to(SchoolOfAutoService);
+
+  container
+  .bind<CreateInvoiceController>(TYPES.CreateInvoiceController)
+  .to(CreateInvoiceController);
+
+container.bind<CreateInvoiceService>(TYPES.CreateInvoiceService).to(CreateInvoiceService);
+
 
 export default container;

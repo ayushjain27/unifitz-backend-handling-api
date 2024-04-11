@@ -29,13 +29,15 @@ export interface IJobCard {
   createdBy: string;
   fuelPoints: FuelPoints;
   jobCardNumber: string;
+  comment: string;
   lineItems: ILineItem[];
-  // refImageList: [{ key: string; docURL: string }];
   jobStatus: JobStatus;
+  isInvoice: boolean;
+  invoiceId: string;
   customerDetails?: IStoreCustomer[];
 }
 
-const jobCardSchema: Schema = new Schema(
+export const jobCardSchema: Schema = new Schema(
   {
     storeId: {
       type: String,
@@ -48,6 +50,9 @@ const jobCardSchema: Schema = new Schema(
     jobCardNumber: {
       type: String
     },
+    comment: {
+      type: String
+    }, 
     lineItems: {
       type: [
         {
@@ -58,14 +63,13 @@ const jobCardSchema: Schema = new Schema(
         }
       ]
     },
-    // refImageList: {
-    //   type: [
-    //     {
-    //       key: String,
-    //       docURL: String
-    //     }
-    //   ]
-    // },
+    isInvoice: {
+      type: Boolean,
+      default: false,
+    },
+    invoiceId: {
+      type: String
+    },
     jobStatus: {
       type: String,
       enum: JobStatus,

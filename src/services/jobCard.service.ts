@@ -8,7 +8,23 @@ import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
+import AWS from 'aws-sdk';
+import { s3Config } from '../config/constants';
+import path from 'path';
+import { receiveFromSqs, sendToSqs } from '../utils/common';
+import { v4 as uuidv4 } from 'uuid';
 
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+AWS.config.update({
+  accessKeyId: s3Config.AWS_KEY_ID,
+  secretAccessKey: s3Config.ACCESS_KEY,
+  region: 'ap-south-1'
+});
+
+const sqs = new AWS.SQS();
+const ses = new AWS.SES();
 @injectable()
 export class JobCardService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
@@ -39,39 +55,24 @@ export class JobCardService {
 
     const jobCardNumber = !lastCreatedJobId[0]
       ? 1
-      : Number(+lastCreatedJobId[0].jobCardNumber) + 1
-      
+      : Number(+lastCreatedJobId[0].jobCardNumber) + 1;
+
     let newJobCard: IJobCard = jobCardPayload;
     newJobCard.jobCardNumber = String(jobCardNumber);
     newJobCard.jobStatus = JobStatus.CREATED;
 
-    // if (files) {
-    //   const promises: any[] = [];
-    //   let uploadedKeys: [{ key: string; docURL: string }];
-    //   _.forEach(files, (file: any) => {
-    //     promises.push(
-    //       this.s3Client
-    //         .uploadFile(`${storeId}/jobCard`, file.originalname, file.buffer)
-    //         .then(({ key, url }) => uploadedKeys.push({ key, docURL: url }))
-    //     );
-    //   });
-    //   await Promise.all(promises);
-
-    //   // newJobCard.refImageList = uploadedKeys;
-    // }
     newJobCard = await JobCard.create(newJobCard);
     Logger.info('<Service>:<JobCardService>:<Job Card created successfully>');
     return newJobCard;
   }
 
-  async createStoreLineItems(
-    jobCardId: string,
-    lineItemsPayload: ILineItem[]
-  ) {
+  async createStoreLineItems(jobCardId: string, lineItemsPayload: ILineItem[]) {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Creation: creating ccustomer job card line items>'
     );
-    const storeCustomer: IJobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId)})?.lean();
+    const storeCustomer: IJobCard = await JobCard.findOne({
+      _id: new Types.ObjectId(jobCardId)
+    })?.lean();
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
@@ -91,7 +92,9 @@ export class JobCardService {
     );
 
     const storeJobCard: IJobCard[] = await JobCard.find({ storeId }).lean();
-    Logger.info('<Service>:<JobCardService>:<Store Job Cards fetched successfully>');
+    Logger.info(
+      '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
+    );
     return storeJobCard;
   }
 
@@ -105,7 +108,10 @@ export class JobCardService {
     return jobCard;
   }
 
-  async updateJobCard(jobCardPayload: IJobCard, jobCardId: string): Promise<IJobCard> {
+  async updateJobCard(
+    jobCardPayload: IJobCard,
+    jobCardId: string
+  ): Promise<IJobCard> {
     Logger.info(
       '<Service>:<JobCardService>: <Job Card Update: updating job card>'
     );
@@ -143,77 +149,24 @@ export class JobCardService {
     return updatedJobCard;
   }
 
-  async updateLineItems(lineItemsPayload: ILineItem, jobCardId: string, lineItemsId: string): Promise<IJobCard> {
+  async jobCardEmail(jobCardId?: string) {
     Logger.info(
-      '<Service>:<JobCardService>: <Job Card Update: updating job card>'
+      '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
     );
 
-    // check if job card id exist
-    let jobCard: IJobCard;
-    if (jobCardId) {
-      jobCard = await JobCard.findOne({
-        _id: new Types.ObjectId(jobCardId)
-      });
-    }
+    const uniqueMessageId = uuidv4();
+
+    const jobCard: IJobCard = await JobCard.findOne({
+      _id: new Types.ObjectId(jobCardId)
+    }).lean();
     if (!jobCard) {
-      Logger.error(
-        '<Service>:<JobCardService>:<Job Card not found with that job Card Id>'
-      );
+      Logger.error('<Service>:<JobCardService>:<Job Card id not found>');
       throw new Error('Job Card not found');
     }
 
-    let lineItemIndex = -1;
-    if (jobCard) {
-      // Find the index of the vehicle with the provided storeCustomerVehicleId
-      lineItemIndex = jobCard.lineItems.findIndex(
-        (item) => String(item._id) === lineItemsId
-      );
-    }
+    sendToSqs(jobCard, uniqueMessageId);
+    receiveFromSqs();
 
-
-    if (lineItemIndex >= 0) {
-      const res = await JobCard.findOneAndUpdate(
-        {
-          _id: jobCardId, // Ensure the job card ID also matches
-        },
-        { $set: { [`lineItems.${lineItemIndex}`]: lineItemsPayload } }, // Use the update object constructed dynamically
-        { returnDocument: 'after' }
-      );
-      
-
-      Logger.info(
-        '<Service>:<JobCardService>:<Line Items updated successfully>'
-      );
-
-      return res;
-      }
-  }
-
-  async getJobCardLineItemsById(jobCardId: string, lineItemsId: string): Promise<ILineItem> {
-    Logger.info(
-      '<Service>:<JobCardService>: <Job Card Fetch: Get job card line items by job card id>'
-    );
-    let jobCard: IJobCard;
-    
-    try {
-        jobCard = await JobCard.findOne({ _id: new Types.ObjectId(jobCardId) });
-
-        if (!jobCard) {
-            Logger.error('<Service>:<JobCardService>:<Job Card not found with that job Card Id>');
-            throw new Error('Job Card not found');
-        }
-
-        const lineItem = jobCard.lineItems.find(item => String(item._id) === lineItemsId);
-
-        if (!lineItem) {
-            Logger.error('<Service>:<JobCardService>:<Line Item not found with that Line Item Id>');
-            throw new Error('Line Item not found');
-        }
-
-        return lineItem;
-    } catch (error) {
-        Logger.error('<Service>:<JobCardService>:<Error fetching job card line items>', error);
-        throw error;
-    }
+    return 'Email sent';
   }
 }

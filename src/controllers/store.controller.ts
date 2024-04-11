@@ -505,6 +505,39 @@ export class StoreController {
     }
   };
 
+  createStoreFastestOnboarding = async (req: Request, res: Response) => {
+    const storeRequest: StoreRequest = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Onboarding request controller initiated>'
+    );
+    try {
+      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM) {
+        const { phoneNumber } = storeRequest;
+        await User.findOneAndUpdate(
+          { phoneNumber, role: 'STORE_OWNER' },
+          { phoneNumber, role: 'STORE_OWNER' },
+          { upsert: true, new: true }
+        );
+      }
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.storeService.createStoreFastestOnboarding(
+        storeRequest,
+        userName,
+        role
+      );
+      res.send({
+        message: 'Store Onboarding Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateBusinessVerification':
