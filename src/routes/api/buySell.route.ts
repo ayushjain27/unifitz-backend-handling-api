@@ -47,5 +47,9 @@ router.get(
 router.post('/getBuyVehicle', buySellController.getBuyVehicle);
 
 router.get('/getBuySellAggregation', buySellController.getBuySellAggregation);
+router.post(
+  '/addBuySellVehicleImageList',
+  buySellController.addBuySellVehicleImageList
+);
 
 export default router;
