@@ -46,7 +46,7 @@ export interface IStoreCustomerVehicleInfo {
   employeeName: string;
   registrationYear: Date;
   insurance: string;
-  isVehicleRegistered: boolean;
+  registeredVehicle: string;
   insuranceExpiryDate: Date;
   vehicleImageList: IVehicleImageList;
 }
@@ -94,8 +94,8 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
     insurance: {
       type: String
     },
-    isVehicleRegistered: {
-      type: Boolean
+    registeredVehicle: {
+      type: String
     },
     insuranceExpiryDate: {
       type: Date
