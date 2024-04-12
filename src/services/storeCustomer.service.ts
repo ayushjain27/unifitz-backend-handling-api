@@ -71,14 +71,15 @@ export class StoreCustomerService {
   }
 
   async getStoreCustomerByPhoneNumber(
-    phoneNumber: string
+    phoneNumber: string,
+    storeId: string
   ): Promise<IStoreCustomer> {
     Logger.info(
       '<Service>:<StoreCustomerService>: <Store Customer Fetch: getting all the store customers by store id>'
     );
 
     const storeCustomers: IStoreCustomer = await StoreCustomer.find({
-      phoneNumber
+      phoneNumber, storeId: storeId
     }).lean();
     Logger.info(
       '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
