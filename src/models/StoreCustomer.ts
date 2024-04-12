@@ -95,7 +95,7 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
       type: String
     },
     isVehicleRegistered: {
-      tye: Boolean
+      type: Boolean
     },
     insuranceExpiryDate: {
       type: Date
