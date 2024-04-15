@@ -387,7 +387,11 @@ export class AnalyticService {
                 }
               }
             }
-          },
+          }
+        }
+      },
+      {
+        $set: {
           topViewStore: {
             $arrayElemAt: [
               '$stores',
@@ -412,12 +416,77 @@ export class AnalyticService {
           _id: 0
         }
       },
+      {
+        $unset: ['_id']
+      },
       { $sort: { date: 1 } }
     ]);
     return queryFilter;
   }
 
   async getActiveUser(
+    userName: string,
+    role: string,
+    firstDate: string,
+    lastDate: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const tday = new Date();
+
+    const queryFilter: any = await EventAnalyticModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: firstDay,
+            $lte: lastDay
+          },
+          event: 'LOGIN_OTP_VERIFY'
+        }
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            platform: '$platform',
+            phoneNumber: '$userInformation.phoneNumber'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.platform',
+          activeUsers: {
+            $push: {
+              createdAt: '$_id.createdAt',
+              phoneNumber: '$_id.phoneNumber'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1,
+          activeUsers: 1
+        }
+      }
+    ]);
+    return queryFilter;
+  }
+
+  async getUsersByState(
     userName: string,
     role: string,
     firstDate: string,
@@ -442,9 +511,126 @@ export class AnalyticService {
             $gte: firstDay,
             $lte: lastDay
           },
+          'userInformation.state': 'Karnataka',
           event: 'LOGIN_OTP_VERIFY'
         }
       }
+      // {
+      //   $project: {
+      //     createdAt: 1,
+      //     groupId: {
+      //       $dateFromParts: {
+      //         year: {
+      //           $year: '$createdAt'
+      //         },
+      //         month: {
+      //           $month: '$createdAt'
+      //         },
+      //         day: {
+      //           $dayOfMonth: '$createdAt'
+      //         },
+      //         hour: {
+      //           $cond: [
+      //             {
+      //               $gte: [
+      //                 {
+      //                   $dateDiff: {
+      //                     startDate: firstDay,
+      //                     endDate: lastDay,
+      //                     unit: 'day'
+      //                   }
+      //                 },
+      //                 1
+      //               ]
+      //             },
+      //             0,
+      //             {
+      //               $hour: '$createdAt'
+      //             }
+      //           ]
+      //         }
+      //       }
+      //     },
+      //     moduleInformation: 1
+      //   }
+      // },
+      // {
+      //   $group: {
+      //     _id: {
+      //       createdAt: '$createdAt',
+      //       groupId: '$groupId',
+      //       store: '$moduleInformation'
+      //     }
+      //   }
+      // },
+      // {
+      //   $group: {
+      //     _id: '$_id.groupId',
+      //     views: {
+      //       $sum: 1
+      //     },
+      //     stores: {
+      //       $push: {
+      //         store: '$_id.store'
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   $addFields: {
+      //     stores: {
+      //       $map: {
+      //         input: {
+      //           $setUnion: '$stores'
+      //         },
+      //         as: 'j',
+      //         in: {
+      //           storeName: '$$j.store',
+      //           storeVisited: {
+      //             $size: {
+      //               $filter: {
+      //                 input: '$stores',
+      //                 cond: {
+      //                   $eq: ['$$this.store', '$$j.store']
+      //                 }
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   $set: {
+      //     topViewStore: {
+      //       $arrayElemAt: [
+      //         '$stores',
+      //         {
+      //           $indexOfArray: [
+      //             '$stores.storeVisited',
+      //             { $max: '$stores.storeVisited' }
+      //           ]
+      //         }
+      //       ]
+      //     }
+      //   }
+      // },
+      // {
+      //   $project: {
+      //     date: {
+      //       $toString: '$_id'
+      //     },
+      //     views: 1,
+      //     stores: 1,
+      //     topViewStore: 1,
+      //     _id: 0
+      //   }
+      // },
+      // {
+      //   $unset: ['_id']
+      // },
+      // { $sort: { date: 1 } }
     ]);
     return queryFilter;
   }

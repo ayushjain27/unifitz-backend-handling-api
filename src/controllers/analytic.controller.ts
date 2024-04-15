@@ -231,4 +231,29 @@ export class AnalyticController {
         .json({ message: err.message });
     }
   };
+
+  getUsersByState = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getUsersByState(
+        role,
+        userName,
+        firstDate,
+        lastDate
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

@@ -44,10 +44,17 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   analyticController.getEventAnalytic
 );
+
 router.post(
   '/getActiveUser',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getActiveUser
+);
+
+router.post(
+  '/getUsersByState',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getUsersByState
 );
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
 
