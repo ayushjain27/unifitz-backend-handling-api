@@ -216,17 +216,19 @@ export class BuySellService {
     );
     const buySellVehicleDetails = await buySellVehicleInfo
       .findOne({
-        'vehicleinfo.vehicleNumber': req?.body?.vehicleNumber
+        'vehicleInfo.vehicleNumber': req?.body?.vehicleNumber
       })
       ?.lean();
     if (_.isEmpty(buySellVehicleDetails)) {
       throw new Error('Vehicle does not exist');
     }
+
     // const { vehicleNumber } = req.body;
     const files: Array<any> = req.files;
     // const vehicleInfo: IStoreCustomerVehicleInfo =
     //   storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
-    const vehicleImageList = {
+    const vehicleImageList: Partial<IBuySell> | any =
+    buySellVehicleDetails.vehicleInfo.vehicleImageList || {
       frontView: {},
       leftView: {},
       seatView: {},
@@ -234,6 +236,7 @@ export class BuySellService {
       rightView: {},
       backView: {}
     };
+
     if (!files) {
       throw new Error('Files not found');
     }
