@@ -157,11 +157,15 @@ export class BuySellService {
     return buyVehicleList;
   }
 
-  async getAllBuyVehicles() {
+  async getAllBuyVehicles(query: any) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const result = await buySellVehicleInfo.find({}).lean();
+    const filterParams = query;
+    let result;
+    if (_.isEmpty(filterParams)) {
+      result = await buySellVehicleInfo.find({}).lean();
+    } else result = await buySellVehicleInfo.find({ ...filterParams }).lean();
     return result;
   }
   async getAll() {
@@ -219,7 +223,7 @@ export class BuySellService {
       throw new Error('Vehicle does not exist');
     }
     // const { vehicleNumber } = req.body;
-    const files: Array<any> = req.body.files;
+    const files: Array<any> = req.files;
     // const vehicleInfo: IStoreCustomerVehicleInfo =
     //   storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
     const vehicleImageList = {
