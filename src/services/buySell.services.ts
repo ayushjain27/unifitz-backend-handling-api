@@ -261,7 +261,7 @@ export class BuySellService {
       },
       {
         $set: {
-          'vehicleinfo.vehicleImageList': vehicleImageList
+          'vehicleInfo.vehicleImageList': vehicleImageList
           // [`storeCustomerVehicleInfo.${vehicleIndex}.vehicleImageList`]:
         }
       },
