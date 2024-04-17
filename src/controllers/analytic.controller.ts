@@ -1,4 +1,3 @@
-import { body } from 'express-validator';
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
@@ -6,6 +5,7 @@ import { AnalyticService } from '../services';
 import Logger from '../config/winston';
 import _ from 'lodash';
 import Request from '../types/request';
+import { body, validationResult, query } from 'express-validator';
 // import { TYPES } from '../config/inversify.types';
 import { TYPES } from '../config/inversify.types';
 
@@ -148,6 +148,106 @@ export class AnalyticController {
         role,
         userName
       });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  createEventAnalytic = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createEventAnalytic(
+        requestData
+      );
+      res.send({
+        message: 'OK !!!!'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getEventAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getEventAnalytic(
+        role,
+        userName,
+        firstDate,
+        lastDate
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getActiveUser = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getActiveUser(
+        role,
+        userName,
+        firstDate,
+        lastDate
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getUsersByState = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getUsersByState(
+        role,
+        userName,
+        state,
+        city,
+        firstDate,
+        lastDate
+      );
       res.send({
         result
       });
