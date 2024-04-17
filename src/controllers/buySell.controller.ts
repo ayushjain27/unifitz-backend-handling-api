@@ -46,7 +46,31 @@ export class BuySellController {
     );
     try {
       // const { storeId: string } = req.body;
-      const result = await this.buySellService.getAllBuyVehicles();
+      const result = await this.buySellService.getAllBuyVehicles(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  addBuySellVehicleImageList = async (req: Request, res: Response) => {
+    // Validate the request body
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res
+    //     .status(HttpStatusCodes.BAD_REQUEST)
+    //     .json({ errors: errors.array() });
+    // }
+    Logger.info(
+      '<Controller>:<BuySellController>:<Upload Store Customer Vehicle request initiated>'
+    );
+    try {
+      const result = await this.buySellService.uploadStoreCustomerVehicleImages(
+        req
+      );
       res.send({
         result
       });

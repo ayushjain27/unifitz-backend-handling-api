@@ -71,6 +71,7 @@ export class StoreCustomerController {
 
   getStoreCustomerByPhoneNumber = async (req: Request, res: Response) => {
     const phoneNumber = req.query.phoneNumber;
+    const storeId = req.query.storeId;
 
     if (!phoneNumber) {
       res
@@ -86,7 +87,8 @@ export class StoreCustomerController {
     try {
       const result =
         await this.storeCustomerService.getStoreCustomerByPhoneNumber(
-          phoneNumber as string
+          phoneNumber as string,
+          storeId as string
         );
       res.send({
         message: 'Store Customer Fetch Successful',

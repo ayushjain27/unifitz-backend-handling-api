@@ -12,6 +12,7 @@ import StoreCustomer, {
   IStoreCustomerVehicleInfo,
   IVehicleImageList
 } from '../models/StoreCustomer';
+import { v4 as uuidv4 } from 'uuid';
 
 @injectable()
 export class StoreCustomerService {
@@ -71,14 +72,15 @@ export class StoreCustomerService {
   }
 
   async getStoreCustomerByPhoneNumber(
-    phoneNumber: string
+    phoneNumber: string,
+    storeId: string
   ): Promise<IStoreCustomer> {
     Logger.info(
       '<Service>:<StoreCustomerService>: <Store Customer Fetch: getting all the store customers by store id>'
     );
 
     const storeCustomers: IStoreCustomer = await StoreCustomer.find({
-      phoneNumber
+      phoneNumber, storeId: storeId
     }).lean();
     Logger.info(
       '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
@@ -99,7 +101,13 @@ export class StoreCustomerService {
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
+
+    if(_.isEmpty(storeCustomerVehiclePayload?.vehicleNumber)){
+      storeCustomerVehiclePayload.vehicleNumber = uuidv4();
+    }
+    
     const { vehicleNumber } = storeCustomerVehiclePayload;
+
     let vehicleIndex = -1;
     if (storeCustomer) {
       // Find the index of the vehicle with the provided storeCustomerVehicleId

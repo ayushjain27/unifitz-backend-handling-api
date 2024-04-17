@@ -6,9 +6,13 @@ import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
 import _ from 'lodash';
+import { S3Service } from './s3.service';
+import { TYPES } from '../config/inversify.types';
+import container from '../config/inversify.container';
 
 @injectable()
 export class BuySellService {
+  private s3Client = container.get<S3Service>(TYPES.S3Service);
   async addSellVehicle(buySellVehicle?: IBuySell) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
@@ -153,11 +157,15 @@ export class BuySellService {
     return buyVehicleList;
   }
 
-  async getAllBuyVehicles() {
+  async getAllBuyVehicles(query: any) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const result = await buySellVehicleInfo.find({}).lean();
+    const filterParams = query;
+    let result;
+    if (_.isEmpty(filterParams)) {
+      result = await buySellVehicleInfo.find({}).lean();
+    } else result = await buySellVehicleInfo.find({ ...filterParams }).lean();
     return result;
   }
   async getAll() {
@@ -200,5 +208,69 @@ export class BuySellService {
       { title: 'Enquiry', total: 0 }
     ];
     return allQuery;
+  }
+
+  async uploadStoreCustomerVehicleImages(req: Request | any): Promise<any> {
+    Logger.info(
+      '<Service>:<BuySellService>:<Upload Buy Sell Vehicle Images initiated>'
+    );
+    const buySellVehicleDetails = await buySellVehicleInfo
+      .findOne({
+        'vehicleInfo.vehicleNumber': req?.body?.vehicleNumber
+      })
+      ?.lean();
+    if (_.isEmpty(buySellVehicleDetails)) {
+      throw new Error('Vehicle does not exist');
+    }
+
+    // const { vehicleNumber } = req.body;
+    const files: Array<any> = req.files;
+    // const vehicleInfo: IStoreCustomerVehicleInfo =
+    //   storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
+    const vehicleImageList: Partial<IBuySell> | any =
+    buySellVehicleDetails.vehicleInfo.vehicleImageList || {
+      frontView: {},
+      leftView: {},
+      seatView: {},
+      odometer: {},
+      rightView: {},
+      backView: {}
+    };
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName:
+        | 'frontView'
+        | 'leftView'
+        | 'seatView'
+        | 'odometer'
+        | 'rightView'
+        | 'backView' = file.originalname?.split('.')[0] || 'frontView';
+      const { key, url } = await this.s3Client.uploadFile(
+        req.body.vehicleNumber,
+        fileName,
+        file.buffer
+      );
+      vehicleImageList[fileName] = { key, docURL: url };
+    }
+    Logger.info('<Service>:<VehicleService>:<Upload all images - successful>');
+    Logger.info('<Service>:<VehicleService>:<Updating the vehicle info>');
+    // console.log(req.body.vehicleNumber, 'Sdwl');
+    const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
+      {
+        'vehicleInfo.vehicleNumber': req?.body?.vehicleNumber
+      },
+      {
+        $set: {
+          'vehicleInfo.vehicleImageList': vehicleImageList
+          // [`storeCustomerVehicleInfo.${vehicleIndex}.vehicleImageList`]:
+        }
+      },
+      { returnDocument: 'after' }
+    );
+    // console.log(updatedVehicle, 'd,l;sf');
+    return updatedVehicle;
   }
 }

@@ -36,7 +36,7 @@ router.get(
 );
 
 router.get(
-  '/storeCustomerDetailByPhoneNumber',
+  '/storeCustomerDetailByPhoneNumberAndStoreId',
   roleAuth(ACL.STORE_CREATE),
   storeCustomerController.getStoreCustomerByPhoneNumber
 );

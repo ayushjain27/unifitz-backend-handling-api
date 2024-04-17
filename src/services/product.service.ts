@@ -16,7 +16,10 @@ import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import { CustomerService } from './customer.service';
 import { ICustomer } from '../models/Customer';
-import { OverallStoreRatingResponse, PartnersProductStoreRatingResponse } from '../interfaces';
+import {
+  OverallStoreRatingResponse,
+  PartnersProductStoreRatingResponse
+} from '../interfaces';
 import { AdminRole } from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
@@ -906,7 +909,9 @@ export class ProductService {
     partnerProductId: string
   ): Promise<PartnersProductStoreRatingResponse> {
     Logger.info('<Service>:<ProductService>:<Get Overall Ratings initiate>');
-    const productReviews = await ProductReview.find({ productId: partnerProductId });
+    const productReviews = await ProductReview.find({
+      productId: partnerProductId
+    });
     if (productReviews.length === 0) {
       return {
         allRatings: {
