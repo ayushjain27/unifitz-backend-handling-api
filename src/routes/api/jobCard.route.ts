@@ -54,7 +54,6 @@ router.get(
 
 router.get(
   '/jobCardDetailsByPhoneNumber',
-  roleAuth(ACL.STORE_CREATE),
   jobCardController.getJobCardsByPhoneNumber
 );
 
