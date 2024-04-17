@@ -36,7 +36,6 @@ router.get(
 
 router.get(
   '/jobCardById',
-  roleAuth(ACL.STORE_CREATE),
   jobCardController.getJobCardById
 );
 
