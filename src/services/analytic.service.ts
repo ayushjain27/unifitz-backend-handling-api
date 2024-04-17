@@ -289,7 +289,7 @@ export class AnalyticService {
     if (role === AdminRole.OEM) {
       query.userName = userName;
     }
-    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    Logger.debug(`${firstDate} ${lastDate} ${role} ${userName} datateee`);
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
@@ -489,13 +489,15 @@ export class AnalyticService {
   async getUsersByState(
     userName: string,
     role: string,
+    state: string,
+    city: string,
     firstDate: string,
     lastDate: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
-    const query: any = {};
+    let query: any = {};
     if (role === AdminRole.OEM) {
       query.userName = userName;
     }
@@ -504,133 +506,50 @@ export class AnalyticService {
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
 
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: lastDay
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      event: 'LOGIN_OTP_VERIFY'
+    };
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
-        $match: {
-          createdAt: {
-            $gte: firstDay,
-            $lte: lastDay
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$userInformation.city',
+          users: {
+            $sum: 1
           },
-          'userInformation.state': 'Karnataka',
-          event: 'LOGIN_OTP_VERIFY'
+          state: {
+            $first: '$userInformation.state'
+          }
         }
+      },
+      {
+        $project: {
+          city: {
+            $toString: '$_id'
+          },
+          users: 1,
+          state: 1,
+          _id: 0
+        }
+      },
+      { $sort: { users: -1 } },
+      {
+        $limit: 10
       }
-      // {
-      //   $project: {
-      //     createdAt: 1,
-      //     groupId: {
-      //       $dateFromParts: {
-      //         year: {
-      //           $year: '$createdAt'
-      //         },
-      //         month: {
-      //           $month: '$createdAt'
-      //         },
-      //         day: {
-      //           $dayOfMonth: '$createdAt'
-      //         },
-      //         hour: {
-      //           $cond: [
-      //             {
-      //               $gte: [
-      //                 {
-      //                   $dateDiff: {
-      //                     startDate: firstDay,
-      //                     endDate: lastDay,
-      //                     unit: 'day'
-      //                   }
-      //                 },
-      //                 1
-      //               ]
-      //             },
-      //             0,
-      //             {
-      //               $hour: '$createdAt'
-      //             }
-      //           ]
-      //         }
-      //       }
-      //     },
-      //     moduleInformation: 1
-      //   }
-      // },
-      // {
-      //   $group: {
-      //     _id: {
-      //       createdAt: '$createdAt',
-      //       groupId: '$groupId',
-      //       store: '$moduleInformation'
-      //     }
-      //   }
-      // },
-      // {
-      //   $group: {
-      //     _id: '$_id.groupId',
-      //     views: {
-      //       $sum: 1
-      //     },
-      //     stores: {
-      //       $push: {
-      //         store: '$_id.store'
-      //       }
-      //     }
-      //   }
-      // },
-      // {
-      //   $addFields: {
-      //     stores: {
-      //       $map: {
-      //         input: {
-      //           $setUnion: '$stores'
-      //         },
-      //         as: 'j',
-      //         in: {
-      //           storeName: '$$j.store',
-      //           storeVisited: {
-      //             $size: {
-      //               $filter: {
-      //                 input: '$stores',
-      //                 cond: {
-      //                   $eq: ['$$this.store', '$$j.store']
-      //                 }
-      //               }
-      //             }
-      //           }
-      //         }
-      //       }
-      //     }
-      //   }
-      // },
-      // {
-      //   $set: {
-      //     topViewStore: {
-      //       $arrayElemAt: [
-      //         '$stores',
-      //         {
-      //           $indexOfArray: [
-      //             '$stores.storeVisited',
-      //             { $max: '$stores.storeVisited' }
-      //           ]
-      //         }
-      //       ]
-      //     }
-      //   }
-      // },
-      // {
-      //   $project: {
-      //     date: {
-      //       $toString: '$_id'
-      //     },
-      //     views: 1,
-      //     stores: 1,
-      //     topViewStore: 1,
-      //     _id: 0
-      //   }
-      // },
-      // {
-      //   $unset: ['_id']
-      // },
-      // { $sort: { date: 1 } }
     ]);
     return queryFilter;
   }

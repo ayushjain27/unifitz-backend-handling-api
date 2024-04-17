@@ -235,7 +235,7 @@ export class AnalyticController {
   getUsersByState = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate } = req.body;
+    const { firstDate, lastDate, state, city } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -243,6 +243,8 @@ export class AnalyticController {
       const result = await this.analyticService.getUsersByState(
         role,
         userName,
+        state,
+        city,
         firstDate,
         lastDate
       );
