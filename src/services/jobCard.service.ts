@@ -169,4 +169,16 @@ export class JobCardService {
 
     return 'Email sent';
   }
+
+  async getStoreJobCardsByPhoneNumber(phoneNumber: string): Promise<IJobCard[]> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
+    );
+
+    const storeJobCard: IJobCard[] = await JobCard.find({ "customerDetails.phoneNumber": phoneNumber }).lean();
+    Logger.info(
+      '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
+    );
+    return storeJobCard;
+  }
 }

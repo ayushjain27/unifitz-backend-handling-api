@@ -52,4 +52,10 @@ router.get(
   jobCardController.jobCardEmail
 );
 
+router.get(
+  '/jobCardDetailsByPhoneNumber',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getJobCardsByPhoneNumber
+);
+
 export default router;
