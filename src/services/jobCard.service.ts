@@ -175,7 +175,7 @@ export class JobCardService {
       '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
     );
 
-    const storeJobCard: IJobCard[] = await JobCard.find({ "customerDetails.phoneNumber": phoneNumber }).lean();
+    const storeJobCard: IJobCard[] = await JobCard.find({ "customerDetails.phoneNumber": phoneNumber, isInvoice: true }).lean();
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
