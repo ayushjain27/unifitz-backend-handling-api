@@ -14,21 +14,27 @@ import container from '../config/inversify.container';
 export class BuySellService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   async addSellVehicle(buySellVehicle?: IBuySell) {
-    Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
-    const { userId } = buySellVehicle;
+    try {
+      Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
+      const vehicleId = buySellVehicle?.vehicleInfo?.vehicleNumber;
 
-    // Check if user exists
-    const user: IUser = await User.findOne({
-      _id: new Types.ObjectId(`${userId}`)
-    }).lean();
-    Logger.debug(`user result ${JSON.stringify(user)}`);
-    if (_.isEmpty(user)) {
-      throw new Error('User not found');
+      // Check if user exists
+      const isVehiclePresent = await buySellVehicleInfo
+        .findOne({
+          'vehicleInfo.vehicleNumber': vehicleId
+        })
+        .lean();
+      Logger.debug(`user result ${JSON.stringify(isVehiclePresent)}`);
+      if (!_.isEmpty(isVehiclePresent)) {
+        throw new Error('vehicle already present');
+      }
+
+      const query: IBuySell = buySellVehicle;
+      const result = await buySellVehicleInfo.create(query);
+      return result;
+    } catch (err) {
+      throw new Error(err);
     }
-
-    const query: IBuySell = buySellVehicle;
-    const result = await buySellVehicleInfo.create(query);
-    return result;
   }
 
   async getAllSellVehicleByUser(getVehicleRequest: { userId: string }) {
@@ -227,8 +233,8 @@ export class BuySellService {
     const files: Array<any> = req.files;
     // const vehicleInfo: IStoreCustomerVehicleInfo =
     //   storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
-    const vehicleImageList: Partial<IBuySell> | any =
-    buySellVehicleDetails.vehicleInfo.vehicleImageList || {
+    const vehicleImageList: Partial<IBuySell> | any = buySellVehicleDetails
+      .vehicleInfo.vehicleImageList || {
       frontView: {},
       leftView: {},
       seatView: {},
