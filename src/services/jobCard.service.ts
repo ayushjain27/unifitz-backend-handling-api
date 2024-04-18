@@ -170,7 +170,7 @@ export class JobCardService {
     return 'Email sent';
   }
 
-  async getStoreJobCardsByPhoneNumber(
+  async filterJobCards(
     phoneNumber: string,
     vehicleNumber: string,
     year: string

@@ -118,7 +118,7 @@ export class CreateInvoiceService {
 
   async invoiceEmail(invoiceId?: string) {
     Logger.info(
-      '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
+      '<Service>:<CreateInvoiceService>: <Invoice Fetch: Get invoice by invoice id>'
     );
 
     const uniqueMessageId = uuidv4();
@@ -127,7 +127,7 @@ export class CreateInvoiceService {
       _id: new Types.ObjectId(invoiceId)
     }).lean();
     if (!invoiceCard) {
-      Logger.error('<Service>:<JobCardService>:<Job Card id not found>');
+      Logger.error('<Service>:<CreateInvoiceService>:<Invoice id not found>');
       throw new Error('Job Card not found');
     }
 
