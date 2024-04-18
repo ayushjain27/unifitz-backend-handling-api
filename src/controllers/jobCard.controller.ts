@@ -159,7 +159,7 @@ export class JobCardController {
 
   filterJobCards = async (req: Request, res: Response) => {
     const phoneNumber = req.query.phoneNumber;
-    const modelName = req.query.vehicleNumber;
+    const modelName = req.query.modelName;
     const year = req.query.year;
 
     if (!phoneNumber) {
