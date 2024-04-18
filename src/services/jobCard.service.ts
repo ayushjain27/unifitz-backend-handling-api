@@ -228,16 +228,11 @@ export class JobCardService {
           as: 'totalAmount'
         }
       },
-      // {
-      //   $unwind: {
-      //     path: '$jobcard'
-      //   }
-      // },
-      // {
-      //   $addFields: {
-      //     totalAmount: '$jobcard.totalAmount'
-      //   }
-      // },
+      {
+        $unwind: {
+          path: '$totalAmount'
+        }
+      }
     ]);
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
