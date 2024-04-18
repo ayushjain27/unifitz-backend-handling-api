@@ -52,8 +52,8 @@ router.get(
 );
 
 router.get(
-  '/jobCardDetailsByPhoneNumber',
-  jobCardController.getJobCardsByPhoneNumber
+  '/filterJobCardDetails',
+  jobCardController.filterJobCards
 );
 
 export default router;
