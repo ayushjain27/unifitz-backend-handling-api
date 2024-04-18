@@ -1,10 +1,14 @@
 import { Router } from 'express';
-import { ACL } from '../../enum/rbac.enum';
+import multer from 'multer';
 
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../middleware/rbac';
+import { ACL } from '../../enum/rbac.enum';
 import { BuySellController } from './../../controllers/buySell.controller';
+
+const storage = multer.memoryStorage();
+const uploadFile = multer({ storage: storage });
 
 const router: Router = Router();
 const buySellController = container.get<BuySellController>(
@@ -49,6 +53,7 @@ router.post('/getBuyVehicle', buySellController.getBuyVehicle);
 router.get('/getBuySellAggregation', buySellController.getBuySellAggregation);
 router.post(
   '/addBuySellVehicleImageList',
+  uploadFile.array('files'),
   buySellController.addBuySellVehicleImageList
 );
 

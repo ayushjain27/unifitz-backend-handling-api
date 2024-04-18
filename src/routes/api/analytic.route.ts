@@ -36,6 +36,26 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   analyticController.getPlusFeatureData
 );
+
+router.post('/createEventAnalytic', analyticController.createEventAnalytic);
+
+router.post(
+  '/getEventAnalytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getEventAnalytic
+);
+
+router.post(
+  '/getActiveUser',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getActiveUser
+);
+
+router.post(
+  '/getUsersByState',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getUsersByState
+);
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
 
 export default router;

@@ -23,7 +23,6 @@ router.post(
 
 router.get(
   '/invoiceDetail/:id',
-  roleAuth(ACL.STORE_CREATE),
   createInvoiceController.getInvoiceById
 );
 

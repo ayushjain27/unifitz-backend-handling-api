@@ -169,4 +169,45 @@ export class JobCardService {
 
     return 'Email sent';
   }
+
+  async filterJobCards(
+    phoneNumber: string,
+    vehicleNumber: string,
+    year: string
+  ): Promise<IJobCard[]> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
+    );
+    let query: any = {};
+    query = {
+      'customerDetails.phoneNumber': phoneNumber,
+      isInvoice: true,
+      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': vehicleNumber
+    };
+
+    if (!_.isEmpty(year)) {
+      const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);
+      const yearEnd = new Date(`${year}-12-31T23:59:59.999Z`);
+
+      // Adding the createdAt condition to the query
+      query.createdAt = {
+        $gte: yearStart,
+        $lte: yearEnd
+      };
+    }
+
+    if (!phoneNumber) {
+      delete query['customerDetails.phoneNumber'];
+    }
+    if (!vehicleNumber) {
+      delete query['customerDetails.storeCustomerVehicleInfo.vehicleNumber'];
+    }
+    Logger.debug(query);
+
+    const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
+    Logger.info(
+      '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
+    );
+    return storeJobCard;
+  }
 }

@@ -36,7 +36,6 @@ router.get(
 
 router.get(
   '/jobCardById',
-  roleAuth(ACL.STORE_CREATE),
   jobCardController.getJobCardById
 );
 
@@ -50,6 +49,11 @@ router.get(
   '/jobCardEmail',
   roleAuth(ACL.STORE_CREATE),
   jobCardController.jobCardEmail
+);
+
+router.get(
+  '/filterJobCardDetails',
+  jobCardController.filterJobCards
 );
 
 export default router;
