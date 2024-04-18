@@ -11,7 +11,11 @@ import _ from 'lodash';
 import AWS from 'aws-sdk';
 import { s3Config } from '../config/constants';
 import path from 'path';
-import { receiveFromSqs, receiveInvoiceFromSqs, sendToSqs } from '../utils/common';
+import {
+  receiveFromSqs,
+  receiveInvoiceFromSqs,
+  sendToSqs
+} from '../utils/common';
 import { v4 as uuidv4 } from 'uuid';
 import CreateInvoice, {
   IAdditionalItems,
@@ -39,14 +43,36 @@ export class CreateInvoiceService {
     );
     let { jobCardId } = additionalItemsPayload;
     const jobCard: IJobCard = await JobCard.findOne({
-        _id: jobCardId
+      _id: jobCardId
     })?.lean();
+    let amount = 0;
 
-    console.log(jobCard,"cdwkl")
+    // Calculate amount based on line items
+    jobCard.lineItems.map((item) => {
+      amount += item.quantity * item.rate;
+    });
+
+    // Adjust amount based on additional items payload
+    additionalItemsPayload.additionalItems.map((item: any) => {
+      if (item.operation === 'discount') {
+        if (item.format === 'percentage') {
+          amount -= (amount * item.value) / 100;
+        } else {
+          amount -= item.value;
+        }
+      } else {
+        if (item.format === 'percentage') {
+          amount += (amount * item.value) / 100;
+        } else {
+          amount += item.value;
+        }
+      }
+    });
 
     try {
       let newInvoice: ICreateInvoice = additionalItemsPayload;
       newInvoice.invoiceNumber = jobCard?.jobCardNumber;
+      newInvoice.totalAmount = amount;
 
       Logger.info(
         '<Service>:<CreateInvoiceService>:<Invoice created successfully>'
@@ -81,31 +107,33 @@ export class CreateInvoiceService {
       '<Service>:<CreateInvoiceService>: <Store Invoices Fetch: getting all the store invoices by store id>'
     );
 
-    const storeJobCard: ICreateInvoice[] = await CreateInvoice.find({ storeId }).lean();
+    const storeJobCard: ICreateInvoice[] = await CreateInvoice.find({
+      storeId
+    }).lean();
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Store Job Cards fetched successfully>'
     );
     return storeJobCard;
   }
 
-    async invoiceEmail(invoiceId?: string) {
-      Logger.info(
-        '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
-      );
+  async invoiceEmail(invoiceId?: string) {
+    Logger.info(
+      '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
+    );
 
-      const uniqueMessageId = uuidv4();
+    const uniqueMessageId = uuidv4();
 
-      const invoiceCard: ICreateInvoice = await CreateInvoice.findOne({
-        _id: new Types.ObjectId(invoiceId)
-      }).lean();
-      if (!invoiceCard) {
-        Logger.error('<Service>:<JobCardService>:<Job Card id not found>');
-        throw new Error('Job Card not found');
-      }
-
-      sendToSqs(invoiceCard, uniqueMessageId);
-      receiveInvoiceFromSqs();
-
-      return 'Email sent';
+    const invoiceCard: ICreateInvoice = await CreateInvoice.findOne({
+      _id: new Types.ObjectId(invoiceId)
+    }).lean();
+    if (!invoiceCard) {
+      Logger.error('<Service>:<JobCardService>:<Job Card id not found>');
+      throw new Error('Job Card not found');
     }
+
+    sendToSqs(invoiceCard, uniqueMessageId);
+    receiveInvoiceFromSqs();
+
+    return 'Email sent';
+  }
 }
