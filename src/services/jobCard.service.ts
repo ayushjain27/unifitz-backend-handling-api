@@ -13,6 +13,7 @@ import { s3Config } from '../config/constants';
 import path from 'path';
 import { receiveFromSqs, sendToSqs } from '../utils/common';
 import { v4 as uuidv4 } from 'uuid';
+import CreateInvoice from '../models/CreateInvoice';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -172,7 +173,7 @@ export class JobCardService {
 
   async filterJobCards(
     phoneNumber: string,
-    vehicleNumber: string,
+    modelName: string,
     year: string
   ): Promise<IJobCard[]> {
     Logger.info(
@@ -182,7 +183,7 @@ export class JobCardService {
     query = {
       'customerDetails.phoneNumber': phoneNumber,
       isInvoice: true,
-      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': vehicleNumber
+      'customerDetails.storeCustomerVehicleInfo.modelName': modelName
     };
 
     if (!_.isEmpty(year)) {
@@ -199,12 +200,40 @@ export class JobCardService {
     if (!phoneNumber) {
       delete query['customerDetails.phoneNumber'];
     }
-    if (!vehicleNumber) {
-      delete query['customerDetails.storeCustomerVehicleInfo.vehicleNumber'];
+    if (!modelName) {
+      delete query['customerDetails.storeCustomerVehicleInfo.modelName'];
     }
     Logger.debug(query);
 
-    const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
+    // Aggregate pipeline to calculate total amount
+
+    // const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
+    const storeJobCard: IJobCard[] = await JobCard.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'createinvoices',
+          let: { jobId: { $toString: '$_id' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$jobCardId', '$$jobId']
+                }
+              }
+            }
+          ],
+          as: 'totalAmount'
+        }
+      },
+      {
+        $unwind: {
+          path: '$totalAmount'
+        }
+      }
+    ]);
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
