@@ -159,7 +159,7 @@ export class JobCardController {
 
   filterJobCards = async (req: Request, res: Response) => {
     const phoneNumber = req.query.phoneNumber;
-    const vehicleNumber = req.query.vehicleNumber;
+    const modelName = req.query.modelName;
     const year = req.query.year;
 
     if (!phoneNumber) {
@@ -172,7 +172,7 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Get store job Card by phone number controller initiated>'
     );
     try {
-      const result = await this.jobCardService.filterJobCards(phoneNumber as string, vehicleNumber as string, year as string);
+      const result = await this.jobCardService.filterJobCards(phoneNumber as string, modelName as string, year as string);
       res.send({
         message: 'Store Job Card Fetch Successful',
         result
