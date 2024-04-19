@@ -14,6 +14,7 @@ export interface ICreateInvoice {
     invoiceNumber: string;
     jobCardId: string;
     additionalItems: IAdditionalItems[];
+    totalAmount: number;
 }
 
 export const createInvoiceSchema: Schema = new Schema(
@@ -39,6 +40,9 @@ export const createInvoiceSchema: Schema = new Schema(
         }
       ]
     },
+    totalAmount: {
+      type: Number
+    }
   },
   { timestamps: true }
 );

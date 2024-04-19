@@ -157,6 +157,32 @@ export class JobCardController {
     }
   };
 
+  filterJobCards = async (req: Request, res: Response) => {
+    const phoneNumber = req.query.phoneNumber;
+    const modelName = req.query.modelName;
+    const year = req.query.year;
+
+    if (!phoneNumber) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Phone Number is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<JobCardController>:<Get store job Card by phone number controller initiated>'
+    );
+    try {
+      const result = await this.jobCardService.filterJobCards(phoneNumber as string, modelName as string, year as string);
+      res.send({
+        message: 'Store Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':

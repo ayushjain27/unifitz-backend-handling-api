@@ -16,7 +16,7 @@ export interface IEmployee {
   joiningDate?: Date;
   leavingDate?: Date;
   isAadharVerified?: boolean;
-  aadharDetails?: object; 
+  aadharDetails?: object;
   createdAt?: Date;
   updatedAt?: Date;
 }

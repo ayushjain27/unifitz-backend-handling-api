@@ -13,6 +13,7 @@ import { s3Config } from '../config/constants';
 import path from 'path';
 import { receiveFromSqs, sendToSqs } from '../utils/common';
 import { v4 as uuidv4 } from 'uuid';
+import CreateInvoice from '../models/CreateInvoice';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -168,5 +169,74 @@ export class JobCardService {
     receiveFromSqs();
 
     return 'Email sent';
+  }
+
+  async filterJobCards(
+    phoneNumber: string,
+    modelName: string,
+    year: string
+  ): Promise<IJobCard[]> {
+    Logger.info(
+      '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
+    );
+    let query: any = {};
+    query = {
+      'customerDetails.phoneNumber': phoneNumber,
+      isInvoice: true,
+      'customerDetails.storeCustomerVehicleInfo.modelName': modelName
+    };
+
+    if (!_.isEmpty(year)) {
+      const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);
+      const yearEnd = new Date(`${year}-12-31T23:59:59.999Z`);
+
+      // Adding the createdAt condition to the query
+      query.createdAt = {
+        $gte: yearStart,
+        $lte: yearEnd
+      };
+    }
+
+    if (!phoneNumber) {
+      delete query['customerDetails.phoneNumber'];
+    }
+    if (!modelName) {
+      delete query['customerDetails.storeCustomerVehicleInfo.modelName'];
+    }
+    Logger.debug(query);
+
+    // Aggregate pipeline to calculate total amount
+
+    // const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
+    const storeJobCard: IJobCard[] = await JobCard.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'createinvoices',
+          let: { jobId: { $toString: '$_id' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$jobCardId', '$$jobId']
+                }
+              }
+            }
+          ],
+          as: 'totalAmount'
+        }
+      },
+      {
+        $unwind: {
+          path: '$totalAmount'
+        }
+      }
+    ]);
+    Logger.info(
+      '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
+    );
+    return storeJobCard;
   }
 }

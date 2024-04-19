@@ -62,13 +62,10 @@ export class StoreService {
     storePayload.userId = ownerDetails._id;
 
     const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
-    
+
     const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
 
-    await StaticIds.findOneAndUpdate(
-      {}, 
-      { storeId: newStoreId }
-    );
+    await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
 
     //   ? new Date().getFullYear() * 100
     //   : +lastCreatedStoreId[0].storeId + 1;
@@ -467,7 +464,7 @@ export class StoreService {
     coordinates: number[];
   }): Promise<StoreResponse[]> {
     Logger.info(
-      '<Service>:<StoreService>:<Search and Filter stores service initiated>'
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
     );
     const query = {
       // 'contactInfo.geoLocation': {
@@ -519,11 +516,16 @@ export class StoreService {
         $project: { 'verificationDetails.verifyObj': 0 }
       }
     ]);
-
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service 2222222222>'
+    );
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
           const updatedStore = { ...store };
+          Logger.info(
+            '<Service>:<StoreService>:<Search and Filter stores service 3333333333333>'
+          );
           updatedStore.overAllRating = await this.getOverallRatings(
             updatedStore.storeId
           );
@@ -531,6 +533,9 @@ export class StoreService {
         })
       );
     }
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service 4444444444444>'
+    );
     return stores;
   }
 

@@ -45,7 +45,7 @@ export const buySellSchema: Schema = new Schema(
     isAuthorised: { type: Boolean, required: true },
     hpLoan: { type: Boolean, required: true },
     insuranceExperience: { type: String, required: true },
-    description: { type: String, required: true }
+    description: { type: String }
   },
   { timestamps: true, strict: false }
 );
