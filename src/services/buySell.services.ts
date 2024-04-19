@@ -14,27 +14,21 @@ import container from '../config/inversify.container';
 export class BuySellService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   async addSellVehicle(buySellVehicle?: IBuySell) {
-    try {
-      Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
-      const vehicleId = buySellVehicle?.vehicleInfo?.vehicleNumber;
+    Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
+    const { userId } = buySellVehicle;
 
-      // Check if user exists
-      const isVehiclePresent = await buySellVehicleInfo
-        .findOne({
-          'vehicleInfo.vehicleNumber': vehicleId
-        })
-        .lean();
-      Logger.debug(`user result ${JSON.stringify(isVehiclePresent)}`);
-      if (!_.isEmpty(isVehiclePresent)) {
-        throw new Error('vehicle already present');
-      }
-
-      const query: IBuySell = buySellVehicle;
-      const result = await buySellVehicleInfo.create(query);
-      return result;
-    } catch (err) {
-      throw new Error(err);
+    // Check if user exists
+    const user: IUser = await User.findOne({
+      _id: new Types.ObjectId(`${userId}`)
+    }).lean();
+    Logger.debug(`user result ${JSON.stringify(user)}`);
+    if (_.isEmpty(user)) {
+      throw new Error('User not found');
     }
+
+    const query: IBuySell = buySellVehicle;
+    const result = await buySellVehicleInfo.create(query);
+    return result;
   }
 
   async getAllSellVehicleByUser(getVehicleRequest: { userId: string }) {
@@ -174,17 +168,24 @@ export class BuySellService {
     } else result = await buySellVehicleInfo.find({ ...filterParams }).lean();
     return result;
   }
-  async getAll() {
+  async getAll(req: any) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
+    console.log('storeId', req?.storeId);
     const query: any = {};
-    const result = await buySellVehicleInfo.find(query).lean();
+    const result = await buySellVehicleInfo
+      .find({
+        'storeDetails.storeId': req?.storeId
+      })
+      .lean();
     const totalAmount = result.reduce(
       (a, b) => a + b.vehicleInfo.expectedPrice,
       0
     );
     let count = 0;
+    let activeVeh: any = [];
+    let nonActiveVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
       const date1 = new Date(list.createdAt);
       const date2 = new Date();
@@ -192,23 +193,29 @@ export class BuySellService {
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
       if (Difference_In_Days <= 45) {
         count += 1;
+        const arr = [...activeVeh, { ...list }];
+        activeVeh = arr;
         return count;
       }
+      const arr = [...activeVeh, { ...list }];
+      nonActiveVeh = arr;
       return count;
     });
     Logger.debug(
       `total length ${result.length}, ${totalAmount} ${activeVehicles}`
     );
     const allQuery: any = [
-      { title: 'All Vehicles', total: result.length },
+      { title: 'All Vehicles', total: result.length, list: result },
       { title: 'Total Value', amount: totalAmount },
       {
         title: 'Active Vehicles',
-        total: activeVehicles[activeVehicles.length - 1]
+        total: activeVehicles[activeVehicles.length - 1],
+        list: activeVeh || []
       },
       {
         title: 'Inactive Vehicles',
-        total: result.length - activeVehicles[activeVehicles.length - 1]
+        total: result.length - activeVehicles[activeVehicles.length - 1],
+        list: nonActiveVeh || []
       },
       { title: 'Sold', total: 0 },
       { title: 'Enquiry', total: 0 }
