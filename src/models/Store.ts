@@ -28,6 +28,7 @@ export interface IBasicInfo {
   ownerName: string; //<String> {required},
   businessName: string; //<String> {required},
   registrationDate: Date; //<localeDate>{required},(NO TIME)
+  userPhoneNumber: string;
   brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
   category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
@@ -50,6 +51,9 @@ const storeBasicInfoSchema: Schema = new Schema(
     },
     registrationDate: {
       type: Date,
+    },
+    userPhoneNumber: {
+      type: String
     },
     brand: {
       type: [storeCatalogMapSchema],
