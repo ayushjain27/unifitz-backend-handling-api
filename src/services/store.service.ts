@@ -962,7 +962,7 @@ export class StoreService {
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
     }
-    if(_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)){
+    if(_.isEmpty(storePayload?.contactInfo?.geoLocation?.coordinates) && _.isEmpty(store?.contactInfo?.geoLocation?.coordinates)){
       storePayload.missingItem = 'Contact Info'
     }else if(_.isEmpty(storePayload?.storeTiming) && _.isEmpty(store?.storeTiming)){
       storePayload.missingItem = 'Store Timing'
