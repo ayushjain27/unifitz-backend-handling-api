@@ -183,7 +183,7 @@ export class JobCardService {
     query = {
       'customerDetails.phoneNumber': phoneNumber,
       isInvoice: true,
-      'customerDetails.storeCustomerVehicleInfo.modelName': modelName
+      'customerDetails.storeCustomerVehicleInfo.modelName':  new RegExp(modelName, 'i')
     };
 
     if (!_.isEmpty(year)) {
