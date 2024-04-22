@@ -95,8 +95,8 @@ export class JobCardService {
     let query: any = {};
     query = {
       storeId: storeId,
-      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': vehicleNumber,
-      'customerDetails.phoneNumber': phoneNumber
+      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(vehicleNumber, 'i'),
+      'customerDetails.phoneNumber': new RegExp(phoneNumber, 'i')
     };
 
     if (!storeId) {
