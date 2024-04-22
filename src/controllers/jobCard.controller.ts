@@ -57,6 +57,8 @@ export class JobCardController {
 
   getJobCardsByStoreId = async (req: Request, res: Response) => {
     const storeId = req.params.storeId;
+    const vehicleNumber = req.query.vehicleNumber;
+    const phoneNumber = req.query.phoneNumber;
 
     if (!storeId) {
       res
@@ -68,7 +70,7 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Get store job Card by store id controller initiated>'
     );
     try {
-      const result = await this.jobCardService.getStoreJobCardsByStoreId(storeId);
+      const result = await this.jobCardService.getStoreJobCardsByStoreId(storeId, vehicleNumber as string, phoneNumber as string);
       res.send({
         message: 'Store Job Card Fetch Successful',
         result
