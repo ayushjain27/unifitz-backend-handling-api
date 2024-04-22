@@ -87,12 +87,29 @@ export class JobCardService {
     return res;
   }
 
-  async getStoreJobCardsByStoreId(storeId: string): Promise<IJobCard[]> {
+  async getStoreJobCardsByStoreId(storeId: string, vehicleNumber: string, phoneNumber: string): Promise<IJobCard[]> {
     Logger.info(
       '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
     );
 
-    const storeJobCard: IJobCard[] = await JobCard.find({ storeId }).lean();
+    let query: any = {};
+    query = {
+      storeId: storeId,
+      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': vehicleNumber,
+      'customerDetails.phoneNumber': phoneNumber
+    };
+
+    if (!storeId) {
+      delete query.storeId;
+    }
+    if (!vehicleNumber) {
+      delete query['customerDetails.storeCustomerVehicleInfo.vehicleNumber'];
+    }
+    if (!phoneNumber) {
+      delete query['customerDetails.phoneNumber'];
+    }
+
+    const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
