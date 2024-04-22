@@ -87,25 +87,28 @@ export class JobCardService {
     return res;
   }
 
-  async getStoreJobCardsByStoreId(storeId: string, vehicleNumber: string, phoneNumber: string): Promise<IJobCard[]> {
+  async getStoreJobCardsByStoreId(storeId: string, seachValue: string): Promise<IJobCard[]> {
     Logger.info(
       '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
     );
 
     let query: any = {};
-    query = {
-      storeId: storeId,
-      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(vehicleNumber, 'i'),
-      'customerDetails.phoneNumber': new RegExp(phoneNumber, 'i')
-    };
+  query = {
+    storeId: storeId,
+    $or: [
+      {'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(seachValue, 'i')},
+      {'customerDetails.phoneNumber': new RegExp(seachValue, 'i')}
+    ]
+  };
+
 
     if (!storeId) {
       delete query.storeId;
     }
-    if (!vehicleNumber) {
+    if (!seachValue) {
       delete query['customerDetails.storeCustomerVehicleInfo.vehicleNumber'];
     }
-    if (!phoneNumber) {
+    if (!seachValue) {
       delete query['customerDetails.phoneNumber'];
     }
 
