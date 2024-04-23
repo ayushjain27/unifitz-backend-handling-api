@@ -56,6 +56,12 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   analyticController.getUsersByState
 );
+
+router.post(
+  '/getTrafficAnalaytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getTrafficAnalaytic
+);
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
 
 export default router;
