@@ -246,6 +246,15 @@ export class AnalyticService {
       }
     }
 
+    const getEventAnalytic = await EventAnalyticModel.findOne({
+      'userInformation.userId': userResult?._id || requestData.userId,
+      moduleInformation: requestData?.moduleInformation
+    });
+    Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
+    if (!_.isEmpty(getEventAnalytic)) {
+      return 'the impression is already created this store';
+      // throw new Error('User does not exist');
+    }
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
     }).lean();
@@ -280,29 +289,49 @@ export class AnalyticService {
     userName: string,
     role: string,
     firstDate: string,
-    lastDate: string
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
-    const query: any = {};
+    let query: any = {};
     if (role === AdminRole.OEM) {
       query.userName = userName;
     }
-    Logger.debug(`${firstDate} ${lastDate} ${role} ${userName} datateee`);
-    // const c_Date = new Date();
+
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: lastDay
+      },
+      event: 'IMPRESSION_COUNT',
+      moduleInformation: storeId
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
+    // const c_Date = new Date();
+
+    const storeResult = await Store.find({ oemUserName: role });
 
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
-        $match: {
-          createdAt: {
-            $gte: firstDay,
-            $lte: lastDay
-          },
-          event: 'STORE_DETAIL_CLICK'
-        }
+        $match: query
       },
       {
         $project: {
@@ -421,6 +450,14 @@ export class AnalyticService {
       },
       { $sort: { date: 1 } }
     ]);
+
+    // if (queryFilter && Array.isArray(queryFilter)) {
+    //   queryFilter = await Promise.all(
+    //     queryFilter.map(async (queryFilter) => {
+    //     const storeData = storeResult.find((val : any) => )
+    //     })
+    //   );
+    // }
     return queryFilter;
   }
 
@@ -428,12 +465,15 @@ export class AnalyticService {
     userName: string,
     role: string,
     firstDate: string,
-    lastDate: string
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
-    const query: any = {};
+    let query: any = {};
     if (role === AdminRole.OEM) {
       query.userName = userName;
     }
@@ -443,15 +483,30 @@ export class AnalyticService {
     const lastDay = new Date(lastDate);
     const tday = new Date();
 
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: lastDay
+      },
+      event: 'LOGIN_OTP_VERIFY',
+      moduleInformation: storeId
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
-        $match: {
-          createdAt: {
-            $gte: firstDay,
-            $lte: lastDay
-          },
-          event: 'LOGIN_OTP_VERIFY'
-        }
+        $match: query
       },
       {
         $group: {
@@ -492,7 +547,8 @@ export class AnalyticService {
     state: string,
     city: string,
     firstDate: string,
-    lastDate: string
+    lastDate: string,
+    storeId: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -513,13 +569,17 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      event: 'LOGIN_OTP_VERIFY'
+      event: 'LOGIN_OTP_VERIFY',
+      moduleInformation: storeId
     };
     if (!state) {
       delete query['userInformation.state'];
     }
     if (!city) {
       delete query['userInformation.city'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
     }
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
@@ -549,6 +609,105 @@ export class AnalyticService {
       { $sort: { users: -1 } },
       {
         $limit: 10
+      }
+    ]);
+    return queryFilter;
+  }
+
+  async getTrafficAnalaytic(
+    userName: string,
+    role: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const tday = new Date();
+
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: lastDay
+      },
+      // event: 'LOGIN_OTP_VERIFY',
+      moduleInformation: storeId
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+
+    const queryFilter: any = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      // {
+      //   $project: {
+      //     createdAt: 1,
+      //     moduleInformation: 1,
+      //     mapView: {
+      //       $cond: [{ $eq: ['$event', 'MAP_VIEW'] }, 1, 0]
+      //     },
+      //     phoneNumberClick: {
+      //       $cond: [{ $eq: ['$event', 'PHONE_NUMBER_CLICK'] }, 1, 0]
+      //     }
+      //   }
+      // },
+      // {
+      //   $group: {
+      //     _id: '$moduleInformation',
+      //     mapResult: { $sum: '$mapView' },
+      //     phoneResult: { $sum: '$phoneNumberClick' }
+      //   }
+      // }
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          // totalEvent: {
+          //   $push: {
+          //     createdAt: '$_id.createdAt',
+          //     moduleInformation: '$_id.moduleInformation'
+          //   }
+          // },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+          // totalEvent: 1
+        }
       }
     ]);
     return queryFilter;
