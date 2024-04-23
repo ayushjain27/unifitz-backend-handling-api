@@ -993,4 +993,42 @@ export class StoreService {
     return newStore;
   }
 
+  async getStoresByCity(
+    state: string,
+    city: string,
+    userName?: string,
+    role?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Route>:<StoreService>: <StoreService : store get initiated>'
+    );
+    let query: any = {};
+
+    query = {
+      'contactInfo.state': state,
+      'contactInfo.city': city,
+      profileStatus: 'ONBOARDED'
+      // oemUserName: userName
+    };
+    if (!state) {
+      delete query['contactInfo.state'];
+    }
+    if (!city) {
+      delete query['contactInfo.city'];
+    }
+    if (!userName) {
+      delete query['oemUserName'];
+    }
+    Logger.debug(`${JSON.stringify(query)} queryyyyyyy`);
+    const newStore = await Store.aggregate([
+      {
+        $match: query
+      }
+    ]);
+    Logger.info(
+      '<Service>:<StoreService>: <Store onboarding: get store successfully>'
+    );
+    return newStore;
+  }
+
 }
