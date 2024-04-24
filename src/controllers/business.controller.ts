@@ -74,6 +74,22 @@ export class BusinessController {
     }
   };
 
+  getBusinessByBusinessType = async (req: Request, res: Response) => {
+    const businessType = req.query.businessType
+    Logger.info('<Controller>:<BusinessController>:<Getting businesses by business type >');
+    try {
+      const result = await this.businessService.getBusinessByBusinessType(businessType as string);
+      Logger.info('<Controller>:<BusinessController>:<get successfully>');
+      res.send({
+        message: 'business obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getBusinessById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<BusinessController>:<Getting banner ID>');
     try {
