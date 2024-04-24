@@ -25,7 +25,7 @@ router.post(
 
 router.get('/getAllBusiness', businessController.getAllBusiness);
 
-router.get('/getBusinessByBusinessType', businessController.getBusinessByBusinessType);
+router.get('/getBusinessByBusinessTypeAndCategory', businessController.getBusinessByBusinessTypeAndCategory);
 
 router.get('/getBusinessById', businessController.getBusinessById);
 

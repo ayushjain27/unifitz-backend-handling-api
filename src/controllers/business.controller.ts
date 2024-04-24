@@ -74,11 +74,12 @@ export class BusinessController {
     }
   };
 
-  getBusinessByBusinessType = async (req: Request, res: Response) => {
+  getBusinessByBusinessTypeAndCategory = async (req: Request, res: Response) => {
     const businessType = req.query.businessType
+    const category = req.query.category
     Logger.info('<Controller>:<BusinessController>:<Getting businesses by business type >');
     try {
-      const result = await this.businessService.getBusinessByBusinessType(businessType as string);
+      const result = await this.businessService.getBusinessByBusinessTypeAndCategory(businessType as string, category as string);
       Logger.info('<Controller>:<BusinessController>:<get successfully>');
       res.send({
         message: 'business obtained successfully',
