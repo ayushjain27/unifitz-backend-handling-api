@@ -69,10 +69,26 @@ export class BusinessService {
     return businessResult;
   }
 
-  async getBusinessByBusinessType(businessType: string): Promise<any> {
+  async getFilterBusiness(businessType: string, category: string, subCategory: string, brandName: string): Promise<any> {
     Logger.info('<Service>:<BusinessService>:<get business initiated>');
+    const query = {
+      businessType,
+      'category.name': category,
+      'subCategory.name': subCategory,
+      brandName
+    };
 
-    const businessResult = await BusinessModel.find({ businessType })?.lean();
+    if (!category) {
+      delete query['category.name'];
+    }
+    if (!subCategory) {
+      delete query['subCategory.name'];
+    }
+    if (!brandName) {
+      delete query.brandName;
+    }
+
+    const businessResult = await BusinessModel.find(query)?.lean();
 
     return businessResult;
   }
