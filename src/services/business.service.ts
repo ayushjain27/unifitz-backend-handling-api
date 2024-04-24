@@ -69,6 +69,14 @@ export class BusinessService {
     return businessResult;
   }
 
+  async getBusinessByBusinessType(businessType: string): Promise<any> {
+    Logger.info('<Service>:<BusinessService>:<get business initiated>');
+
+    const businessResult = await BusinessModel.find({ businessType })?.lean();
+
+    return businessResult;
+  }
+
   async getBusinessById(businessId: string): Promise<any> {
     Logger.info('<Service>:<BusinessService>:<get business initiated>');
 
