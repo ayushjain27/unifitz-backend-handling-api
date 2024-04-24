@@ -75,7 +75,8 @@ export class BusinessService {
       businessType,
       'category.name': category,
       'subCategory.name': subCategory,
-      brandName
+      brandName,
+      status: 'ACTIVE'
     };
 
     if (!category) {
