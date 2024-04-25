@@ -13,7 +13,8 @@ export enum ModuleType {
   PRODUCT = 'PRODUCT',
   VEHICLE = 'VEHICLE',
   SEARCH_PRODUCT = 'SEARCH_PRODUCT',
-  AUTH = 'AUTH'
+  AUTH = 'AUTH',
+  JOB_CARD = 'JOB_CARD'
 }
 
 export enum Event {
