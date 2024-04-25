@@ -14,7 +14,8 @@ export enum ModuleType {
   VEHICLE = 'VEHICLE',
   SEARCH_PRODUCT = 'SEARCH_PRODUCT',
   AUTH = 'AUTH',
-  JOB_CARD = 'JOB_CARD'
+  JOB_CARD = 'JOB_CARD',
+  INVOICE = 'INVOICE'
 }
 
 export enum Event {
