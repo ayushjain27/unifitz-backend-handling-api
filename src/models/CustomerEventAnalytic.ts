@@ -93,6 +93,7 @@ export interface IEventAnalytic {
   event: string;
   userInformation: IUserInfo;
   moduleInformation: string;
+  oemUserName: string;
   message: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -116,6 +117,9 @@ const eventAnalyticSchema: Schema = new Schema(
       type: userInfoSchema
     },
     moduleInformation: {
+      type: String
+    },
+    oemUserName: {
       type: String
     },
     message: {

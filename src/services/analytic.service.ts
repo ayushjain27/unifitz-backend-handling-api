@@ -246,14 +246,16 @@ export class AnalyticService {
       }
     }
 
-    const getEventAnalytic = await EventAnalyticModel.findOne({
-      'userInformation.userId': userResult?._id || requestData.userId,
-      moduleInformation: requestData?.moduleInformation
-    });
-    Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
-    if (!_.isEmpty(getEventAnalytic)) {
-      return 'the impression is already created this store';
-      // throw new Error('User does not exist');
+    if (requestData.event === 'IMPRESSION_COUNT') {
+      const getEventAnalytic = await EventAnalyticModel.findOne({
+        'userInformation.userId': userResult?._id || requestData.userId,
+        moduleInformation: requestData?.moduleInformation
+      });
+      Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
+      if (!_.isEmpty(getEventAnalytic)) {
+        return 'the impression is already created this store';
+        // throw new Error('User does not exist');
+      }
     }
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
@@ -292,7 +294,8 @@ export class AnalyticService {
     lastDate: string,
     state: string,
     city: string,
-    storeId: string
+    storeId: string,
+    oemUserName: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -312,7 +315,8 @@ export class AnalyticService {
         $lte: lastDay
       },
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId
+      moduleInformation: storeId,
+      oemUserName: role
     };
 
     if (!state) {
@@ -324,10 +328,11 @@ export class AnalyticService {
     if (!storeId) {
       delete query['moduleInformation'];
     }
+    if (userName !== AdminRole.OEM) {
+      delete query['oemUserName'];
+    }
     Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
     // const c_Date = new Date();
-
-    const storeResult = await Store.find({ oemUserName: role });
 
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
@@ -451,13 +456,6 @@ export class AnalyticService {
       { $sort: { date: 1 } }
     ]);
 
-    // if (queryFilter && Array.isArray(queryFilter)) {
-    //   queryFilter = await Promise.all(
-    //     queryFilter.map(async (queryFilter) => {
-    //     const storeData = storeResult.find((val : any) => )
-    //     })
-    //   );
-    // }
     return queryFilter;
   }
 
@@ -474,10 +472,9 @@ export class AnalyticService {
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
     let query: any = {};
-    if (role === AdminRole.OEM) {
-      query.userName = userName;
-    }
-    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    Logger.debug(
+      `${firstDate} ${lastDate} ${role} ${userName} firstDate / lastDate`
+    );
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
@@ -490,8 +487,9 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: lastDay
       },
-      event: 'LOGIN_OTP_VERIFY',
-      moduleInformation: storeId
+      event: 'LOGIN_OTP_VERIFY'
+      // moduleInformation: storeId
+      // oemUserName: role
     };
 
     if (!state) {
@@ -500,10 +498,12 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    if (!storeId) {
-      delete query['moduleInformation'];
-    }
-
+    // if (!storeId) {
+    //   delete query['moduleInformation'];
+    // }
+    // if (userName !== AdminRole.OEM) {
+    //   delete query['oemUserName'];
+    // }
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
         $match: query
@@ -554,9 +554,6 @@ export class AnalyticService {
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
     let query: any = {};
-    if (role === AdminRole.OEM) {
-      query.userName = userName;
-    }
     Logger.debug(`${firstDate} ${lastDate} datateee`);
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
@@ -569,8 +566,9 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      event: 'LOGIN_OTP_VERIFY',
-      moduleInformation: storeId
+      event: 'LOGIN_OTP_VERIFY'
+      // moduleInformation: storeId
+      // oemUserName: role
     };
     if (!state) {
       delete query['userInformation.state'];
@@ -578,9 +576,12 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    if (!storeId) {
-      delete query['moduleInformation'];
-    }
+    // if (!storeId) {
+    //   delete query['moduleInformation'];
+    // }
+    // if (userName !== AdminRole.OEM) {
+    //   delete query['oemUserName'];
+    // }
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
         $match: query
@@ -627,10 +628,7 @@ export class AnalyticService {
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
     let query: any = {};
-    if (role === AdminRole.OEM) {
-      query.userName = userName;
-    }
-    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
@@ -644,7 +642,8 @@ export class AnalyticService {
         $lte: lastDay
       },
       // event: 'LOGIN_OTP_VERIFY',
-      moduleInformation: storeId
+      moduleInformation: storeId,
+      oemUserName: role
     };
 
     if (!state) {
@@ -655,6 +654,9 @@ export class AnalyticService {
     }
     if (!storeId) {
       delete query['moduleInformation'];
+    }
+    if (userName !== AdminRole.OEM) {
+      delete query['oemUserName'];
     }
 
     const queryFilter: any = await EventAnalyticModel.aggregate([
@@ -706,7 +708,6 @@ export class AnalyticService {
           name: '$_id',
           _id: 0,
           count: 1
-          // totalEvent: 1
         }
       }
     ]);

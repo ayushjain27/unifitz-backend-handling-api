@@ -1007,8 +1007,8 @@ export class StoreService {
     query = {
       'contactInfo.state': state,
       'contactInfo.city': city,
-      profileStatus: 'ONBOARDED'
-      // oemUserName: userName
+      profileStatus: 'ONBOARDED',
+      oemUserName: userName
     };
     if (!state) {
       delete query['contactInfo.state'];
@@ -1016,7 +1016,7 @@ export class StoreService {
     if (!city) {
       delete query['contactInfo.city'];
     }
-    if (!userName) {
+    if (role !== AdminRole.OEM) {
       delete query['oemUserName'];
     }
     Logger.debug(`${JSON.stringify(query)} queryyyyyyy`);

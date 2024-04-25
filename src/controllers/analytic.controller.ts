@@ -185,7 +185,7 @@ export class AnalyticController {
   getEventAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId } = req.body;
+    const { firstDate, lastDate, state, city, storeId, oemUserName } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -197,7 +197,8 @@ export class AnalyticController {
         lastDate,
         state,
         city,
-        storeId
+        storeId,
+        oemUserName
       );
       res.send({
         result

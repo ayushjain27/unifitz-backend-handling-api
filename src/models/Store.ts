@@ -50,7 +50,7 @@ const storeBasicInfoSchema: Schema = new Schema(
       required: true
     },
     registrationDate: {
-      type: Date,
+      type: Date
     },
     userPhoneNumber: {
       type: String
@@ -224,7 +224,7 @@ export interface IStore {
   updatedAt?: Date;
   overAllRating?: any;
   isVerified?: boolean;
-  missingItem?: String;
+  missingItem?: string;
   verificationDetails?: IVerificationDetails;
 }
 
@@ -271,7 +271,7 @@ const storeSchema: Schema = new Schema<IStore>(
   { timestamps: true, strict: false }
 );
 
-storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' }, {sparse: true});
+storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' }, { sparse: true });
 
 const Store = model<IStore>('stores', storeSchema);
 
