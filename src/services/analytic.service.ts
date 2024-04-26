@@ -249,7 +249,8 @@ export class AnalyticService {
     if (requestData.event === 'IMPRESSION_COUNT') {
       const getEventAnalytic = await EventAnalyticModel.findOne({
         'userInformation.userId': userResult?._id || requestData.userId,
-        moduleInformation: requestData?.moduleInformation
+        moduleInformation: requestData?.moduleInformation,
+        platform: requestData?.platform
       });
       Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
       if (!_.isEmpty(getEventAnalytic)) {
