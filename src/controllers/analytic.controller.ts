@@ -174,7 +174,8 @@ export class AnalyticController {
         requestData
       );
       res.send({
-        message: 'OK !!!!'
+        message: 'OK !!!!',
+        result
       });
     } catch (err) {
       Logger.error(err.message);
@@ -185,7 +186,7 @@ export class AnalyticController {
   getEventAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, oemUserName } = req.body;
+    const { firstDate, lastDate, state, city, storeId } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -197,8 +198,7 @@ export class AnalyticController {
         lastDate,
         state,
         city,
-        storeId,
-        oemUserName
+        storeId
       );
       res.send({
         result
@@ -283,6 +283,55 @@ export class AnalyticController {
         state,
         city,
         storeId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  createPlusFeatures = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createPlusFeatures(requestData);
+      res.send({
+        message: 'OK !!!!'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getPlusFeatureAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, moduleInformation } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<AnalyticController>:<get analytic request initiated>'
+      );
+      const result = await this.analyticService.getPlusFeatureAnalytic(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        moduleInformation
       );
       res.send({
         result
