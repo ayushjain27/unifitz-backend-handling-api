@@ -608,10 +608,10 @@ export class AnalyticService {
           _id: 0
         }
       },
-      { $sort: { users: -1 } }
-      // {
-      //   $limit: 10
-      // }
+      { $sort: { users: -1 } },
+      {
+        $limit: 15
+      }
     ]);
     return queryFilter;
   }
