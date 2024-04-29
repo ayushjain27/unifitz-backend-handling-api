@@ -296,7 +296,8 @@ export class AnalyticService {
     lastDate: string,
     state: string,
     city: string,
-    storeId: string
+    storeId: string,
+    platform: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -311,6 +312,7 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: lastDay
       },
+      platform: platform,
       event: 'IMPRESSION_COUNT',
       moduleInformation: storeId,
       oemUserName: role
@@ -321,6 +323,9 @@ export class AnalyticService {
     }
     if (!city) {
       delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
     }
     if (!storeId) {
       delete query['moduleInformation'];
@@ -545,7 +550,8 @@ export class AnalyticService {
     city: string,
     firstDate: string,
     lastDate: string,
-    storeId: string
+    storeId: string,
+    platform: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -563,7 +569,8 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      event: 'LOGIN_OTP_VERIFY'
+      event: 'LOGIN_OTP_VERIFY',
+      platform: platform
       // moduleInformation: storeId
       // oemUserName: role
     };
@@ -572,6 +579,9 @@ export class AnalyticService {
     }
     if (!city) {
       delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
     }
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
@@ -598,10 +608,10 @@ export class AnalyticService {
           _id: 0
         }
       },
-      { $sort: { users: -1 } },
-      {
-        $limit: 10
-      }
+      { $sort: { users: -1 } }
+      // {
+      //   $limit: 10
+      // }
     ]);
     return queryFilter;
   }
@@ -613,7 +623,8 @@ export class AnalyticService {
     lastDate: string,
     state: string,
     city: string,
-    storeId: string
+    storeId: string,
+    platform: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -634,6 +645,7 @@ export class AnalyticService {
       },
       // event: 'LOGIN_OTP_VERIFY',
       moduleInformation: storeId,
+      platform: platform,
       oemUserName: role
     };
 
@@ -642,6 +654,9 @@ export class AnalyticService {
     }
     if (!city) {
       delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
     }
     if (!storeId) {
       delete query['moduleInformation'];

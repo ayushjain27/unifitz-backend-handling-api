@@ -186,7 +186,7 @@ export class AnalyticController {
   getEventAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId } = req.body;
+    const { firstDate, lastDate, state, city, storeId, platform } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -198,7 +198,8 @@ export class AnalyticController {
         lastDate,
         state,
         city,
-        storeId
+        storeId,
+        platform
       );
       res.send({
         result
@@ -242,7 +243,7 @@ export class AnalyticController {
   getUsersByState = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId } = req.body;
+    const { firstDate, lastDate, state, city, storeId, platform } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -254,7 +255,8 @@ export class AnalyticController {
         city,
         firstDate,
         lastDate,
-        storeId
+        storeId,
+        platform
       );
       res.send({
         result
@@ -270,7 +272,7 @@ export class AnalyticController {
   getTrafficAnalaytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId } = req.body;
+    const { firstDate, lastDate, state, city, storeId, platform } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -282,7 +284,8 @@ export class AnalyticController {
         lastDate,
         state,
         city,
-        storeId
+        storeId,
+        platform
       );
       res.send({
         result
