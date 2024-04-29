@@ -7,6 +7,12 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import BusinessModel, { IBusiness, BusinessStatus } from '../models/Business';
+import Store from '../models/Store';
+import Customer from '../models/Customer';
+import InterestedBusiness, {
+  IInterestedBusiness
+} from '../models/InterestedBusiness';
+import { sendEmail } from '../utils/common';
 
 @injectable()
 export class BusinessService {
@@ -69,7 +75,14 @@ export class BusinessService {
     return businessResult;
   }
 
-  async getFilterBusiness(businessType: string, category: string, subCategory: string, brandName: string): Promise<any> {
+  async getFilterBusiness(
+    businessType: string,
+    category: string,
+    subCategory: string,
+    brandName: string,
+    storeId: string,
+    customerId: string
+  ): Promise<any> {
     Logger.info('<Service>:<BusinessService>:<get business initiated>');
     const query = {
       businessType,
@@ -78,6 +91,7 @@ export class BusinessService {
       brandName,
       status: 'ACTIVE'
     };
+    let businessResponse: any;
 
     if (!category) {
       delete query['category.name'];
@@ -88,10 +102,39 @@ export class BusinessService {
     if (!brandName) {
       delete query.brandName;
     }
+    businessResponse = await BusinessModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'interestedbusinesses',
+          let: { business_id: { $toString: '$_id' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$businessId', '$$business_id'] },
+                    {
+                      $or: [
+                        { $eq: ['$storeId', storeId] },
+                        { $eq: ['$customerId', customerId] }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'interested'
+        }
+      }
+    ]);
 
-    const businessResult = await BusinessModel.find(query)?.lean();
+    // const businessResult = await BusinessModel.find(query)?.lean();
 
-    return businessResult;
+    return businessResponse;
   }
 
   async getBusinessById(businessId: string): Promise<any> {
@@ -153,5 +196,60 @@ export class BusinessService {
     );
 
     return businessResult;
+  }
+
+  async addToInterest(reqBody: {
+    storeId: string;
+    customerId: string;
+    businessId: string;
+    isInterested: boolean;
+  }): Promise<any> {
+    Logger.info('<Service>:<EventService>:<Update event and offers interest >');
+
+    const [store, customer, business] = await Promise.all([
+      Store.findOne(
+        { storeId: reqBody.storeId },
+        { verificationDetails: 0 }
+      ).lean(),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      BusinessModel.findOne({
+        _id: new Types.ObjectId(reqBody.businessId)
+      }).lean()
+    ]);
+    let newInterest: IInterestedBusiness = reqBody;
+    newInterest.userName = store?.basicInfo?.ownerName || customer?.fullName;
+    newInterest.phoneNumber =
+      store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber;
+    newInterest.organizerName = business?.organizerName || '';
+    newInterest.email = business?.email;
+    newInterest = await InterestedBusiness.create(newInterest);
+    const templateData = {
+      name: store?.basicInfo?.ownerName || customer?.fullName,
+      phoneNumber:
+        store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
+      email: store?.contactInfo?.email || customer?.email,
+      organiserName: business?.organizerName
+    };
+    const templateDataUsers = {
+      name: store?.basicInfo?.ownerName || customer?.fullName,
+      phoneNumber:
+        store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
+      email: store?.contactInfo?.email || customer?.email,
+      eventOfferName: 'job',
+      organiserName: business?.organizerName
+    };
+    sendEmail(
+      templateData,
+      business?.email,
+      'support@serviceplug.in',
+      'EventsOfferscheme'
+    );
+    sendEmail(
+      templateDataUsers,
+      store?.contactInfo?.email || customer?.email,
+      'support@serviceplug.in',
+      'EventsOffersUsersScheme'
+    );
+    return newInterest;
   }
 }

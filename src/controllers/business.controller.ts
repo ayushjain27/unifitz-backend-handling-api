@@ -75,19 +75,32 @@ export class BusinessController {
   };
 
   getFilterBusiness = async (req: Request, res: Response) => {
-    const businessType = req.query.businessType;
-    const category = req.query.category;
-    const subCategory = req.query.subCategory;
-    const brandName = req.query.brandName;
+    const {
+      businessType,
+      category,
+      subCategory,
+      brandName,
+      storeId,
+      customerId
+    }: {
+      businessType: string;
+      category: string;
+      subCategory: string;
+      brandName: string;
+      storeId: string;
+      customerId: string;
+    } = req.body;
     Logger.info(
       '<Controller>:<BusinessController>:<Getting businesses by business type >'
     );
     try {
       const result = await this.businessService.getFilterBusiness(
-        businessType as string,
-        category as string,
-        subCategory as string,
-        brandName as string
+        businessType,
+        category,
+        subCategory,
+        brandName,
+        storeId,
+        customerId
       );
       Logger.info('<Controller>:<BusinessController>:<get successfully>');
       res.send({
@@ -174,6 +187,28 @@ export class BusinessController {
     }
     try {
       const result = await this.businessService.updateBusinessStatus(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  addToInterest = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    Logger.info(
+      '<Controller>:<BusinessController>:<Add to interest request initiated>'
+    );
+    try {
+      const result = await this.businessService.addToInterest(interestRequest);
       res.send({
         result
       });
