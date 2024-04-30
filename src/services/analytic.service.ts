@@ -304,9 +304,9 @@ export class AnalyticService {
     let query: any = {};
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
-    const currentDate = new Date(lastDay);
-    const nextDate = new Date(currentDate);
-    nextDate.setDate(currentDate.getDate() + 1);
+    // const currentDate = new Date(lastDay);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
