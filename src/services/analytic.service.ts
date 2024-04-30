@@ -482,6 +482,8 @@ export class AnalyticService {
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
     const tday = new Date();
 
     query = {
@@ -489,7 +491,7 @@ export class AnalyticService {
       'userInformation.city': city,
       createdAt: {
         $gte: firstDay,
-        $lte: lastDay
+        $lte: nextDate
       },
       event: 'LOGIN_OTP_VERIFY'
       // moduleInformation: storeId
@@ -563,11 +565,13 @@ export class AnalyticService {
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
 
     query = {
       createdAt: {
         $gte: firstDay,
-        $lte: lastDay
+        $lte: nextDate
       },
       'userInformation.state': state,
       'userInformation.city': city,
@@ -636,6 +640,8 @@ export class AnalyticService {
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
     const tday = new Date();
 
     query = {
@@ -643,7 +649,7 @@ export class AnalyticService {
       'userInformation.city': city,
       createdAt: {
         $gte: firstDay,
-        $lte: lastDay
+        $lte: nextDate
       },
       // event: 'LOGIN_OTP_VERIFY',
       moduleInformation: storeId,
@@ -769,12 +775,14 @@ export class AnalyticService {
     let query: any = {};
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
       createdAt: {
         $gte: firstDay,
-        $lte: lastDay
+        $lte: nextDate
       },
       event: 'IMPRESSION_COUNT',
       moduleInformation: moduleInformation,
