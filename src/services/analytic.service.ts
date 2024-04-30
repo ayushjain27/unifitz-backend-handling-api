@@ -247,18 +247,17 @@ export class AnalyticService {
       }
     }
 
-    if (requestData.event === 'IMPRESSION_COUNT') {
-      const getEventAnalytic = await EventAnalyticModel.findOne({
-        'userInformation.userId': userResult?._id || requestData.userId,
-        moduleInformation: requestData?.moduleInformation,
-        platform: requestData?.platform
-      });
-      Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
-      if (!_.isEmpty(getEventAnalytic)) {
-        return 'the impression is already created this store';
-        // throw new Error('User does not exist');
-      }
-    }
+    // if (requestData.event === 'IMPRESSION_COUNT') {
+    //   const getEventAnalytic = await EventAnalyticModel.findOne({
+    //     'userInformation.userId': userResult?._id || requestData.userId,
+    //     moduleInformation: requestData?.moduleInformation,
+    //     platform: requestData?.platform
+    //   });
+    //   Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
+    //   if (!_.isEmpty(getEventAnalytic)) {
+    //     return 'the impression is already created this store';
+    //   }
+    // }
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
     }).lean();
@@ -305,12 +304,15 @@ export class AnalyticService {
     let query: any = {};
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
+    const currentDate = new Date(lastDay);
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(currentDate.getDate() + 1);
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
       createdAt: {
         $gte: firstDay,
-        $lte: lastDay
+        $lte: nextDate
       },
       platform: platform,
       event: 'IMPRESSION_COUNT',
