@@ -43,7 +43,7 @@ export class NotificationService {
         title: 'Notification Title',
         body: 'Notification Body'
       },
-      to: "cLIql8NDTAK89jFH7EXCbY:APA91bH7sS08IU4YmwUjomh3Ld8BinH35UZ0p61hIxFWzKTlszs53tChJL43KECg7Zo4kRF2Z-YNh6f2NycfMLRbmVPXYdv_WT38y-ydwsVwUKzps3OP1XUK219qNg5R7Gs-ldW3h6Gs"
+      to: "f1n6CAd6ScSXA9uVCeJ-Z-:APA91bHTX9lTvwanm3N7V7Z8c7Q61ePvbXq33a1ZR6ZOxhapUZJBMnInW-46DAQfMdBfg0NIwx6zfvXa603H3527UcrhFcxWwWC2MHz0j0A61oeNVRamgQB0Z5yAXh3Fk1Ly4UFkp00R"
     }
     
     // const registrationToken = params.fcmToken;

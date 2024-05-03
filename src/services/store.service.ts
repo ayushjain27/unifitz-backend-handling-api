@@ -27,6 +27,7 @@ import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from './../models/Customer';
 import { StaticIds } from './../models/StaticId';
+import { sendNotification } from '../utils/common';
 
 @injectable()
 export class StoreService {
@@ -80,6 +81,7 @@ export class StoreService {
     }
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);
+    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, "STORE_OWNER");
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -105,6 +107,7 @@ export class StoreService {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
+    await sendNotification('Store Updated', 'Your store has updated. It is under review', storePayload?.contactInfo?.phoneNumber?.primary, "STORE_OWNER");
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
   }
@@ -155,8 +158,16 @@ export class StoreService {
     role?: string
   ): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store status>');
+    console.log(userName, role,"dfwl;k")
     const query: any = {};
     query.storeId = statusRequest.storeId;
+    let store: IStore;
+      store = await Store.findOne(
+        { storeId: statusRequest?.storeId },
+        { verificationDetails: 0 }
+      );
+    let phoneNumber = store?.basicInfo?.userPhoneNumber || store?.contactInfo?.phoneNumber?.primary
+    console.log(phoneNumber,"dfwl;k")
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
@@ -175,6 +186,7 @@ export class StoreService {
       },
       { 'verificationDetails.verifyObj': 0 }
     );
+    await sendNotification(`${statusRequest.profileStatus === 'ONBOARDED' ? 'Store Onboarded' : 'Store Rejected'}`, `${statusRequest.profileStatus === 'ONBOARDED' ? 'Congratulations 😊' : 'Sorry 😞'} Your store has been ${statusRequest.profileStatus === 'ONBOARDED' ? 'onboarded' : `rejected due to this reason: ${statusRequest.rejectionReason}`}`, phoneNumber, "STORE_OWNER")
     return updatedStore;
   }
 
@@ -561,12 +573,20 @@ export class StoreService {
         _id: new Types.ObjectId(storeReview?.userId)
       })?.lean();
     }
+    console.log(customer,"dfw;lmk");
+    let store: IStore;
+      store = await Store.findOne(
+        { storeId: storeReview?.storeId },
+        { verificationDetails: 0 }
+      );
+    let phoneNumber = store?.basicInfo?.userPhoneNumber || store?.contactInfo?.phoneNumber?.primary
     if (!storeReview?.userId) {
       throw new Error('Customer not found');
     }
     const newStoreReview = new StoreReview(storeReview);
     newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
     await newStoreReview.save();
+    // await sendNotification('Store Review', `${storeReview?.user?.name} has giving a ${storeReview?.rating} ⭐ rating to your store and the review is "${storeReview?.review}"`, phoneNumber, "STORE_OWNER");
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
   }
@@ -940,9 +960,10 @@ export class StoreService {
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
-
+    
     storePayload.userId = ownerDetails._id;
-
+    
+    if(!store){
     const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
     
     const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
@@ -958,7 +979,6 @@ export class StoreService {
       '<Route>:<StoreService>: <Store onboarding: creating new store>'
     );
 
-    if(!store){
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
     }
@@ -980,13 +1000,15 @@ export class StoreService {
       { storeId: storeId },
       { $set: storePayload  },
       { returnDocument: 'after' }
-    );
+      );
+      await sendNotification('Store Updated', 'Your store has updated. It is under review', phoneNumber, role);
      Logger.info(
       '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
     );
     return res;
     }
     const newStore = await Store.create(storePayload);
+    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, role);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
