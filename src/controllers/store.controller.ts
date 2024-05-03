@@ -359,7 +359,6 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>: <Store: Sending notification of updated status>'
       );
-      await this.storeService.sendNotificationToStore(result);
       res.send({
         message: 'Store Updation Successful',
         result
