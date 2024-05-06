@@ -81,7 +81,7 @@ export class StoreService {
     }
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);
-    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, "STORE_OWNER");
+    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, "STORE_OWNER", '');
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -107,7 +107,7 @@ export class StoreService {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
-    await sendNotification('Store Updated', 'Your store has updated. It is under review', storePayload?.contactInfo?.phoneNumber?.primary, "STORE_OWNER");
+    await sendNotification('Store Updated', 'Your store has updated. It is under review', storePayload?.contactInfo?.phoneNumber?.primary, "STORE_OWNER", '');
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
   }
@@ -186,7 +186,7 @@ export class StoreService {
       },
       { 'verificationDetails.verifyObj': 0 }
     );
-    await sendNotification(`${statusRequest.profileStatus === 'ONBOARDED' ? 'Store Onboarded' : 'Store Rejected'}`, `${statusRequest.profileStatus === 'ONBOARDED' ? 'Congratulations 😊' : 'Sorry 😞'} Your store has been ${statusRequest.profileStatus === 'ONBOARDED' ? 'onboarded' : `rejected due to this reason: ${statusRequest.rejectionReason}`}`, phoneNumber, "STORE_OWNER")
+    await sendNotification(`${statusRequest.profileStatus === 'ONBOARDED' ? 'Store Onboarded' : 'Store Rejected'}`, `${statusRequest.profileStatus === 'ONBOARDED' ? 'Congratulations 😊' : 'Sorry 😞'} Your store has been ${statusRequest.profileStatus === 'ONBOARDED' ? 'onboarded' : `rejected due to this reason: ${statusRequest.rejectionReason}`}`, phoneNumber, "STORE_OWNER", '')
     return updatedStore;
   }
 
@@ -586,7 +586,7 @@ export class StoreService {
     const newStoreReview = new StoreReview(storeReview);
     newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
     await newStoreReview.save();
-    // await sendNotification('Store Review', `${storeReview?.user?.name} has giving a ${storeReview?.rating} ⭐ rating to your store and the review is "${storeReview?.review}"`, phoneNumber, "STORE_OWNER");
+    await sendNotification('Store Review', 'Hey 👋 you got a feedback', phoneNumber, "STORE_OWNER", 'RATING_REVIEW');
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
   }
@@ -1001,14 +1001,14 @@ export class StoreService {
       { $set: storePayload  },
       { returnDocument: 'after' }
       );
-      await sendNotification('Store Updated', 'Your store has updated. It is under review', phoneNumber, role);
+      await sendNotification('Store Updated', 'Your store has updated. It is under review', phoneNumber, role, '');
      Logger.info(
       '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
     );
     return res;
     }
     const newStore = await Store.create(storePayload);
-    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, role);
+    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, role, '');
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );

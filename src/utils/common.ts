@@ -650,7 +650,8 @@ export async function sendNotification(
   title: any,
   body: any,
   phoneNumber: any,
-  role: any
+  role: any,
+  type: any
 ) {
   let ownerDetails: IUser = await User.findOne({
     phoneNumber,
@@ -670,6 +671,9 @@ export async function sendNotification(
     notification: {
       title,
       body
+    },
+    data: {
+      type
     },
     to: fcmToken.fcmToken
   }
