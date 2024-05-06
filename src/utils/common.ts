@@ -686,6 +686,6 @@ export async function sendNotification(
     // return res.MessageId; // Return the MessageId if needed
   } catch (error) {
     console.error('Error sending email:', error);
-    throw error; // Rethrow the error to handle it at the caller's level
+    // throw error; // Rethrow the error to handle it at the caller's level
   }
 }
