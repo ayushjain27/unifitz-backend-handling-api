@@ -35,3 +35,5 @@ export const testUsers = [
   { phoneNo: '7777777777', role: 'STORE_OWNER', otp: '7777' },
   { phoneNo: '9999999999', role: 'USER', otp: '9999' }
 ];
+
+export const serverkey = "AAAAw_xRwT0:APA91bHRGVoe2i4Mnu-2D6ixCDXm9E68WNmYu9SFhx_tsmhgZkOSLr7GWKTOnLnw4pbRAgWLkyaoRLs2dD6LBVI2PvVCHTEkKWl3PQnOFrXkh1DE0ihwcalXx2K9-bm64oINV5xVA2Fz"

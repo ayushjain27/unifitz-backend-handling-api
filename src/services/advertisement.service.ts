@@ -10,6 +10,8 @@ import Banner, {
 } from './../models/advertisement/Banner';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
+import { sendNotification } from '../utils/common';
+import Store from '../models/Store';
 
 @injectable()
 export class AdvertisementService {
@@ -51,10 +53,49 @@ export class AdvertisementService {
 
   async uploadBanner(addBanner: IBanner) {
     Logger.info('<Service>:<AdvertisementService>:<Upload Banner initiated>');
-
     const createdBanner = await Banner.create(addBanner);
     Logger.info('<Service>:<AdvertisementService>:<Upload file - successful>');
+    if(addBanner.userType === 'PARTNER_APP'){
+      const bannerCoordinates = addBanner.geoLocation.coordinates;
+      const query = {
+        'basicInfo.category.name': {
+          $in: addBanner.category.map((category) => category.name)
+        },
+        'basicInfo.subCategory.name': {
+          $in: addBanner.subCategory.map((subCategory) => subCategory.name)
+        },
+      };
+      if (!addBanner.category.map((category) => category.name)) {
+        delete query['basicInfo.category.name'];
+      }
+      if (!addBanner.subCategory.map((subCategory) => subCategory.name)) {
+        delete query['basicInfo.subCategory.name'];
+      }
 
+      let storeResponse = await Store.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: 'Point',
+              coordinates: [Number(bannerCoordinates[0]), Number(bannerCoordinates[1])] as [
+                number,
+                number
+              ]
+            },
+            // key: 'contactInfo.geoLocation',
+            spherical: true,
+            query: query,
+            distanceField: 'contactInfo.geoLocation.coordinates',
+            distanceMultiplier: 0.001,
+            maxDistance: 1 * 1000
+          }
+        }
+      ])
+
+      await storeResponse.map((item,index)=>{
+        sendNotification(addBanner.title, addBanner.description, item?.contactInfo?.phoneNumber?.primary, "STORE_OWNER", '');
+      })
+    }
     return createdBanner;
   }
 
@@ -66,6 +107,8 @@ export class AdvertisementService {
     if (_.isEmpty(banner)) {
       throw new Error('Banner does not exist');
     }
+
+
     Logger.info('<Service>:<AdvertisementService>:<Upload banner successful>');
 
     return banner;

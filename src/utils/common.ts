@@ -11,7 +11,7 @@ export function appendCodeToPhone(phoneNumber: string) {
 }
 
 import AWS from 'aws-sdk';
-import { s3Config } from '../config/constants';
+import { s3Config, serverkey } from '../config/constants';
 import JobCard, { IJobCard } from '../models/JobCard';
 import User, { IUser } from '../models/User';
 import Admin, { IDeviceFcm } from '../models/DeviceFcm';
@@ -662,7 +662,7 @@ export async function sendNotification(
     deviceId: ownerDetails?.deviceId
   });
 
-  var serverKey = "AAAAw_xRwT0:APA91bHRGVoe2i4Mnu-2D6ixCDXm9E68WNmYu9SFhx_tsmhgZkOSLr7GWKTOnLnw4pbRAgWLkyaoRLs2dD6LBVI2PvVCHTEkKWl3PQnOFrXkh1DE0ihwcalXx2K9-bm64oINV5xVA2Fz"
+  var serverKey = serverkey;
   var fcm = new FCM(serverKey)
 
   let message = {}
