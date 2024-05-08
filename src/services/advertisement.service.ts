@@ -87,7 +87,7 @@ export class AdvertisementService {
             query: query,
             distanceField: 'contactInfo.geoLocation.coordinates',
             distanceMultiplier: 0.001,
-            maxDistance: 1 * 1000
+            maxDistance: addBanner?.radius * 1000
           }
         }
       ])
