@@ -87,12 +87,41 @@ export class JobCardService {
     return res;
   }
 
-  async getStoreJobCardsByStoreId(storeId: string): Promise<IJobCard[]> {
+  async getStoreJobCardsByStoreId(
+    storeId: string,
+    searchValue: string
+  ): Promise<IJobCard[]> {
     Logger.info(
       '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
     );
 
-    const storeJobCard: IJobCard[] = await JobCard.find({ storeId }).lean();
+    let query: any = {};
+    query = {
+      storeId: storeId,
+      $or: [
+        {
+          'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(
+            searchValue,
+            'i'
+          )
+        },
+        { 'customerDetails.phoneNumber': new RegExp(searchValue, 'i') }
+      ]
+    };
+
+    console.log(query,"asdw;l")
+    if (!storeId) {
+      delete query.storeId;
+    }
+    if (!searchValue) {
+      delete query['customerDetails.storeCustomerVehicleInfo.vehicleNumber'];
+    }
+    if (!searchValue) {
+      delete query['customerDetails.phoneNumber'];
+    }
+    console.log(query,"asdw;wklml")
+
+    const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
@@ -183,7 +212,10 @@ export class JobCardService {
     query = {
       'customerDetails.phoneNumber': phoneNumber,
       isInvoice: true,
-      'customerDetails.storeCustomerVehicleInfo.modelName':  new RegExp(modelName, 'i')
+      'customerDetails.storeCustomerVehicleInfo.modelName': new RegExp(
+        modelName,
+        'i'
+      )
     };
 
     if (!_.isEmpty(year)) {

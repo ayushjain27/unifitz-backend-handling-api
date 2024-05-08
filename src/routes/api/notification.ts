@@ -14,7 +14,7 @@ const notificationController = container.get<NotificationController>(
 // @access  Private
 router.post(
   '/send',
-  roleAuth(ACL.NOTIFICATION_SEND),
+  // roleAuth(ACL.NOTIFICATION_SEND),
   notificationController.sendNotification
 );
 

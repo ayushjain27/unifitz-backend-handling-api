@@ -13,21 +13,26 @@ export enum ModuleType {
   PRODUCT = 'PRODUCT',
   VEHICLE = 'VEHICLE',
   SEARCH_PRODUCT = 'SEARCH_PRODUCT',
-  AUTH = 'AUTH'
+  AUTH = 'AUTH',
+  JOB_CARD = 'JOB_CARD',
+  INVOICE = 'INVOICE'
 }
 
 export enum Event {
   SEARCH = 'SEARCH',
   STORE_DETAIL_CLICK = 'STORE_DETAIL_CLICK',
   PRODUCT_DETAIL_CLICK = 'PRODUCT_DETAIL_CLICK',
+  INVOICE_DETAIL_CLICK = 'INVOICE_DETAIL_CLICK',
   VEHICLE_ADD = 'VEHICLE_ADD',
   VEHICLE_EDIT = 'VEHICLE_EDIT',
   LOGIN_PHONE = 'LOGIN_PHONE',
   LOGIN_WEB = 'LOGIN_WEB',
   LOGIN_OTP_VERIFY = 'LOGIN_OTP_VERIFY',
   MAP_VIEW = 'MAP_VIEW',
+  PHONE_NUMBER_CLICK = 'PHONE_NUMBER_CLICK',
   REPORT_US = 'REPORT_US',
   SHARE_STORE_DETAIL = 'SHARE_STORE_DETAIL',
+  IMPRESSION_COUNT = 'IMPRESSION_COUNT',
   LOGOUT = 'LOGOUT'
 }
 
@@ -91,6 +96,7 @@ export interface IEventAnalytic {
   event: string;
   userInformation: IUserInfo;
   moduleInformation: string;
+  oemUserName: string;
   message: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -114,6 +120,9 @@ const eventAnalyticSchema: Schema = new Schema(
       type: userInfoSchema
     },
     moduleInformation: {
+      type: String
+    },
+    oemUserName: {
       type: String
     },
     message: {

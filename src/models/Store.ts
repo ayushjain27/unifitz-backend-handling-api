@@ -28,6 +28,7 @@ export interface IBasicInfo {
   ownerName: string; //<String> {required},
   businessName: string; //<String> {required},
   registrationDate: Date; //<localeDate>{required},(NO TIME)
+  userPhoneNumber: string;
   brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
   category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
@@ -49,7 +50,10 @@ const storeBasicInfoSchema: Schema = new Schema(
       required: true
     },
     registrationDate: {
-      type: Date,
+      type: Date
+    },
+    userPhoneNumber: {
+      type: String
     },
     brand: {
       type: [storeCatalogMapSchema],
@@ -220,7 +224,7 @@ export interface IStore {
   updatedAt?: Date;
   overAllRating?: any;
   isVerified?: boolean;
-  missingItem?: String;
+  missingItem?: string;
   verificationDetails?: IVerificationDetails;
 }
 
@@ -267,7 +271,7 @@ const storeSchema: Schema = new Schema<IStore>(
   { timestamps: true, strict: false }
 );
 
-storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' }, {sparse: true});
+storeSchema.index({ 'contactInfo.geoLocation': '2dsphere' }, { sparse: true });
 
 const Store = model<IStore>('stores', storeSchema);
 

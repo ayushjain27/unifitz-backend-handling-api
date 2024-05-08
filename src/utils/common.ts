@@ -1,6 +1,7 @@
 import Store, { IStore } from '../models/Store';
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
+const FCM =  require('fcm-node');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 import path from 'path';
@@ -10,8 +11,11 @@ export function appendCodeToPhone(phoneNumber: string) {
 }
 
 import AWS from 'aws-sdk';
-import { s3Config } from '../config/constants';
+import { s3Config, serverkey } from '../config/constants';
 import JobCard, { IJobCard } from '../models/JobCard';
+import User, { IUser } from '../models/User';
+import Admin, { IDeviceFcm } from '../models/DeviceFcm';
+import _ from 'lodash';
 
 AWS.config.update({
   accessKeyId: s3Config.AWS_KEY_ID,
@@ -640,4 +644,53 @@ export async function jobCardEmail(store: any, jobCard: any, title: any) {
   } catch (err) {
     console.log(err, 'dwl;k');
   }
+}
+
+export async function sendNotification(
+  title: any,
+  body: any,
+  phoneNumber: any,
+  role: any,
+  type: any
+) {
+  let ownerDetails: IUser = await User.findOne({
+    phoneNumber,
+    role
+  });
+
+  let fcmToken: IDeviceFcm = await Admin.findOne({
+    deviceId: ownerDetails?.deviceId
+  });
+
+  var serverKey = serverkey;
+  var fcm = new FCM(serverKey)
+
+  let message = {}
+  if(!_.isEmpty(fcmToken)){
+  message = {
+    notification: {
+      title,
+      body
+    },
+    data: {
+      type
+    },
+    to: fcmToken.fcmToken
+  }
+  try {
+    fcm.send(message, function(err: any, response: any){
+      if(err){
+        console.log("Error", err)
+      }else{
+        console.log("Response", response);
+      }
+    })
+    // return res.MessageId; // Return the MessageId if needed
+  } catch (error) {
+    console.error('Error sending email:', error);
+    // throw error; // Rethrow the error to handle it at the caller's level
+  }
+}else{
+  console.log("Fcm Token is required");
+}
 }

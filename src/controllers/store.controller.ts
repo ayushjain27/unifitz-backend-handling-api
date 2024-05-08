@@ -359,7 +359,6 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>: <Store: Sending notification of updated status>'
       );
-      await this.storeService.sendNotificationToStore(result);
       res.send({
         message: 'Store Updation Successful',
         result
@@ -528,6 +527,32 @@ export class StoreController {
       );
       res.send({
         message: 'Store Onboarding Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getStoresByCity = async (req: Request, res: Response) => {
+    const { state, city } = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Store request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.storeService.getStoresByCity(
+        state,
+        city,
+        userName,
+        role
+      );
+      res.send({
+        message: 'Store get Successful',
         result
       });
     } catch (err) {

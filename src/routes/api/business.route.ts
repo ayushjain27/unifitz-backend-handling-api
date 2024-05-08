@@ -25,6 +25,8 @@ router.post(
 
 router.get('/getAllBusiness', businessController.getAllBusiness);
 
+router.post('/filterBusiness', businessController.getFilterBusiness);
+
 router.get('/getBusinessById', businessController.getBusinessById);
 
 router.put('/updateBusiness/:businessId', businessController.updateBusiness);
@@ -32,5 +34,7 @@ router.put('/updateBusiness/:businessId', businessController.updateBusiness);
 router.delete('/deleteBusiness', businessController.deleteBusiness);
 
 router.post('/updateBusinessStatus', businessController.updateBusinessStatus);
+
+router.post('/addToInterest', businessController.addToInterest);
 
 export default router;
