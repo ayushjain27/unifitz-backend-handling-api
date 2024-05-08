@@ -49,7 +49,10 @@ router.post(
 );
 
 router.post('/getBuyVehicle', buySellController.getBuyVehicle);
-
+router.post(
+  '/vehicleExistanceCheckApi',
+  buySellController.checkVehicleExistance
+);
 router.get('/getBuySellAggregation', buySellController.getBuySellAggregation);
 router.post(
   '/addBuySellVehicleImageList',
