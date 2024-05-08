@@ -40,6 +40,11 @@ export interface ICustomer extends Document {
   profileImageUrl: string;
   dob: Date;
   contactInfo: IContactInfo;
+  geoLocation: {
+    // kind: string;
+    type: string;
+    coordinates: number[];
+  };
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
@@ -71,6 +76,11 @@ const customerSchema: Schema = new Schema(
     },
     contactInfo: {
       type: customerContactSchema
+    },
+    geoLocation: {
+      // kind: String,
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
     },
   },
   { timestamps: true }
