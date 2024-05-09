@@ -659,8 +659,11 @@ export async function sendNotification(
   });
 
   let fcmToken: IDeviceFcm = await Admin.findOne({
-    deviceId: ownerDetails?.deviceId
+    deviceId: ownerDetails?.deviceId,
+    role
   });
+
+  console.log(fcmToken,"dfkmel");
 
   var serverKey = serverkey;
   var fcm = new FCM(serverKey)
