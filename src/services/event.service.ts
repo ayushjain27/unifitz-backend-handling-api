@@ -25,22 +25,22 @@ export class EventService {
       '<Service>:<EventService>: <Event onboarding: creating new event>'
     );
     const newEvent = await EventModel.create(eventRequest);
-    if(eventRequest.eventType === 'PARTNER'){
-      let query = {
-        profileStatus: 'ONBOARDED'
-      }
-      const storesResponse = await Store.find(query, {
-        'verificationDetails.verifyObj': 0
-      });
-      await storesResponse.map((item,index)=>{
-        sendNotification('Event Updated', 'Your store has updated. It is under review', item?.contactInfo?.phoneNumber?.primary, "STORE_OWNER", 'EVENTS');
-      })
-    }else{
-      const customerResponse: ICustomer[] = await Customer.find({});
-      await customerResponse.map((item,index)=>{
-        sendNotification('Event Updated', 'Your store has updated. It is under review', item?.phoneNumber, "USER", 'EVENTS');
-      })
-    }
+    // if(eventRequest.eventType === 'PARTNER'){
+    //   let query = {
+    //     profileStatus: 'ONBOARDED'
+    //   }
+    //   const storesResponse = await Store.find(query, {
+    //     'verificationDetails.verifyObj': 0
+    //   });
+    //   await storesResponse.map((item,index)=>{
+    //     sendNotification('Event Updated', 'Your store has updated. It is under review', item?.contactInfo?.phoneNumber?.primary, "STORE_OWNER", 'EVENTS');
+    //   })
+    // }else{
+    //   const customerResponse: ICustomer[] = await Customer.find({});
+    //   await customerResponse.map((item,index)=>{
+    //     sendNotification('Event Updated', 'Your store has updated. It is under review', item?.phoneNumber, "USER", 'EVENTS');
+    //   })
+    // }
     Logger.info('<Service>:<EventService>:<Event created successfully>');
     return newEvent;
   }
