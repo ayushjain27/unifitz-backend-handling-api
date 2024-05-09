@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
 import Logger from '../config/winston';
 import buySellVehicleInfo from './../models/BuySell';
+
 import { IBuySell } from './../models/BuySell';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
@@ -9,9 +10,13 @@ import _ from 'lodash';
 import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
 import container from '../config/inversify.container';
+import { SurepassService } from './surepass.service';
 
 @injectable()
 export class BuySellService {
+  private surepassService = container.get<SurepassService>(
+    TYPES.SurepassService
+  );
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   async addSellVehicle(buySellVehicle?: IBuySell) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
@@ -285,5 +290,26 @@ export class BuySellService {
     );
     // console.log(updatedVehicle, 'd,l;sf');
     return updatedVehicle;
+  }
+
+  async checkVehicleExistance(vehicleNumber: string) {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
+    );
+    const vehiclePresent: {
+      storeDetails: { basicInfo: { businessName: '' } };
+    } = await buySellVehicleInfo.findOne({
+      'vehicleInfo.vehicleNumber': vehicleNumber
+    });
+    // if (!_.isEmpty(vehiclePresent)) {
+    //   return {
+    //     message: `This vehicle is already registerred in ${vehiclePresent.storeDetails.basicInfo?.businessName} or if you like list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
+    //     isPresent: true
+    //   };
+    // }
+    const vehicleDetails = await this.surepassService.getRcDetails(
+      vehicleNumber
+    );
+    return vehicleDetails;
   }
 }
