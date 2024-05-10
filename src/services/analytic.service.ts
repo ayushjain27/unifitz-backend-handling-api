@@ -493,7 +493,7 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: nextDate
       },
-      event: 'LOGIN_OTP_VERIFY'
+      event: 'STORE_DETAIL_CLICK'
       // moduleInformation: storeId
       // oemUserName: role
     };
@@ -575,7 +575,7 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      event: 'LOGIN_OTP_VERIFY',
+      event: 'STORE_DETAIL_CLICK',
       platform: platform
       // moduleInformation: storeId
       // oemUserName: role
@@ -715,19 +715,18 @@ export class AnalyticService {
       throw new Error('User does not exist');
     }
 
-    if (requestData.event === 'IMPRESSION_COUNT') {
-      const getPlusFeatureAnalytic = await PlusFeatureAnalyticModel.findOne({
-        'userInformation.userId': userResult?._id || requestData.userId,
-        moduleInformation: requestData?.moduleInformation
-      });
-      Logger.debug(
-        `${JSON.stringify(getPlusFeatureAnalytic)}, getPlusFeatureAnalytic`
-      );
-      if (!_.isEmpty(getPlusFeatureAnalytic)) {
-        return 'the impression is already created';
-        // throw new Error('User does not exist');
-      }
-    }
+    // if (requestData.event === 'IMPRESSION_COUNT') {
+    //   const getPlusFeatureAnalytic = await PlusFeatureAnalyticModel.findOne({
+    //     'userInformation.userId': userResult?._id || requestData.userId,
+    //     moduleInformation: requestData?.moduleInformation
+    //   });
+    //   Logger.debug(
+    //     `${JSON.stringify(getPlusFeatureAnalytic)}, getPlusFeatureAnalytic`
+    //   );
+    //   if (!_.isEmpty(getPlusFeatureAnalytic)) {
+    //     return 'the impression is already created';
+    //   }
+    // }
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
     }).lean();
@@ -761,6 +760,87 @@ export class AnalyticService {
   }
 
   async getPlusFeatureAnalytic(
+    userName: string,
+    role: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    moduleId: string,
+    platform: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    const tday = new Date();
+
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      // event: 'LOGIN_OTP_VERIFY',
+      moduleInformation: moduleId,
+      platform: platform,
+      oemUserName: role
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!moduleId) {
+      delete query['moduleInformation'];
+    }
+    if (userName !== AdminRole.OEM) {
+      delete query['oemUserName'];
+    }
+
+    const queryFilter: any = await PlusFeatureAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+    return queryFilter;
+  }
+
+  async getAdvertisementAnalytic(
     userName: string,
     role: string,
     firstDate: string,
@@ -933,6 +1013,80 @@ export class AnalyticService {
       { $sort: { date: 1 } }
     ]);
 
+    return queryFilter;
+  }
+
+  async getPlusFeatureAnalyticByCity(
+    userName: string,
+    role: string,
+    state: string,
+    city: string,
+    firstDate: string,
+    lastDate: string,
+    storeId: string,
+    platform: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      platform: platform
+      // moduleInformation: storeId
+      // oemUserName: role
+    };
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    const queryFilter: any = await PlusFeatureAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$userInformation.city',
+          users: {
+            $sum: 1
+          },
+          state: {
+            $first: '$userInformation.state'
+          }
+        }
+      },
+      {
+        $project: {
+          city: {
+            $toString: '$_id'
+          },
+          users: 1,
+          state: 1,
+          _id: 0
+        }
+      },
+      { $sort: { users: -1 } },
+      {
+        $limit: 15
+      }
+    ]);
     return queryFilter;
   }
 }
