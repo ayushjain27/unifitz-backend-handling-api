@@ -72,4 +72,16 @@ router.post(
   analyticController.getPlusFeatureAnalytic
 );
 
+router.post(
+  '/getAdvertisementAnalytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getAdvertisementAnalytic
+);
+
+router.post(
+  '/getPlusFeatureAnalyticByCity',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getPlusFeatureAnalyticByCity
+);
+
 export default router;
