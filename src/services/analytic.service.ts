@@ -493,7 +493,7 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: nextDate
       },
-      event: 'STORE_DETAIL_CLICK'
+      event: 'LOCATION_CHANGE'
       // moduleInformation: storeId
       // oemUserName: role
     };
@@ -575,7 +575,7 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      event: 'STORE_DETAIL_CLICK',
+      event: 'LOCATION_CHANGE',
       platform: platform
       // moduleInformation: storeId
       // oemUserName: role

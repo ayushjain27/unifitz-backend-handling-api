@@ -28,12 +28,12 @@ export class OfferService {
     let newOffer: IOffer = offerRequest;
     let store: IStore;
     let user: IAdmin;
+    const defaultLocation = {
+      type: 'Point',
+      coordinates: [0, 0]
+    };
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
-    }
-    if (oemOfferType === OemOfferType.PARTNER_OFFER) {
-      const userName = oemUserName;
-      user = await Admin.findOne({ userName })?.lean();
     }
     if (role === AdminRole.OEM) {
       newOffer.oemOfferStatus = OemOfferProfileStatus.DRAFT;
@@ -43,10 +43,13 @@ export class OfferService {
     }
 
     newOffer.storeName = store?.basicInfo?.businessName;
-    newOffer.geoLocation.coordinates =
+    newOffer.geoLocation =
       oemOfferType === OemOfferType.PARTNER_OFFER
-        ? user?.contactInfo?.geoLocation?.coordinates
-        : store?.contactInfo?.geoLocation?.coordinates;
+        ? defaultLocation
+        : store
+        ? store?.contactInfo?.geoLocation
+        : defaultLocation;
+
     newOffer = await OfferModel.create(offerRequest);
 
     Logger.info('<Service>:<OfferService>:<Offer created successfully>');
