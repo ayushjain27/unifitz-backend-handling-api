@@ -321,10 +321,10 @@ export class AnalyticController {
   getPlusFeatureAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, moduleInformation } = req.body;
+    const { firstDate, lastDate, state, city, moduleId, platform } = req.body;
     try {
       Logger.info(
-        '<Controller>:<AnalyticController>:<get analytic request initiated>'
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
       );
       const result = await this.analyticService.getPlusFeatureAnalytic(
         role,
@@ -333,7 +333,65 @@ export class AnalyticController {
         lastDate,
         state,
         city,
+        moduleId,
+        platform
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAdvertisementAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, moduleInformation } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<AnalyticController>:<get analytic request initiated>'
+      );
+      const result = await this.analyticService.getAdvertisementAnalytic(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
         moduleInformation
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getPlusFeatureAnalyticByCity = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getPlusFeatureAnalyticByCity(
+        role,
+        userName,
+        state,
+        city,
+        firstDate,
+        lastDate,
+        storeId,
+        platform
       );
       res.send({
         result

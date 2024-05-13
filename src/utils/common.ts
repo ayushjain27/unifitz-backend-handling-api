@@ -1,7 +1,7 @@
 import Store, { IStore } from '../models/Store';
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-const FCM =  require('fcm-node');
+const FCM = require('fcm-node');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 import path from 'path';
@@ -405,16 +405,20 @@ export async function pdfDesign(
   doc.moveDown();
   if (doc.y > doc.page.height - 150) {
     doc.addPage();
-    doc.font('Helvetica-Bold').text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
-      width: 200,
-      align: 'right'
-    });
+    doc
+      .font('Helvetica-Bold')
+      .text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
+        width: 200,
+        align: 'right'
+      });
     doc.underline(370, doc.y + 5, 210, 2);
   } else {
-    doc.font('Helvetica-Bold').text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
-      width: 200,
-      align: 'right'
-    });
+    doc
+      .font('Helvetica-Bold')
+      .text(`Sub-total:                   Rs ${totalAmount}`, 385, doc.y + 8, {
+        width: 200,
+        align: 'right'
+      });
     doc.underline(370, doc.y + 5, 210, 2);
   }
   doc.moveDown();
@@ -433,30 +437,50 @@ export async function pdfDesign(
         // Draw the current row
         doc.font('Helvetica-Bold');
         if (operation === 'discount') {
-        if (format === 'percentage') {
-          doc.text(`${title}:                     - Rs ${value}%`, 350, doc.y + 5, {
-            width: 200,
-            align: 'right'
-          });
+          if (format === 'percentage') {
+            doc.text(
+              `${title}:                     - Rs ${value}%`,
+              350,
+              doc.y + 5,
+              {
+                width: 200,
+                align: 'right'
+              }
+            );
+          } else {
+            doc.text(
+              `${title}:                     - Rs ${value}`,
+              350,
+              doc.y + 5,
+              {
+                width: 200,
+                align: 'right'
+              }
+            );
+          }
         } else {
-          doc.text(`${title}:                     - Rs ${value}`, 350, doc.y + 5, {
-            width: 200,
-            align: 'right'
-          });
+          if (format === 'percentage') {
+            doc.text(
+              `${title}:                     +  ${value}%`,
+              370,
+              doc.y + 5,
+              {
+                width: 200,
+                align: 'right'
+              }
+            );
+          } else {
+            doc.text(
+              `${title}:                     +${value}`,
+              370,
+              doc.y + 5,
+              {
+                width: 200,
+                align: 'right'
+              }
+            );
+          }
         }
-      }else{
-        if (format === 'percentage') {
-          doc.text(`${title}:                     +  ${value}%`, 370, doc.y + 5, {
-            width: 200,
-            align: 'right'
-          });
-        } else {
-          doc.text(`${title}:                     +${value}`, 370, doc.y + 5, {
-            width: 200,
-            align: 'right'
-          });
-        }
-      }
         if (operation === 'discount') {
           if (format === 'percentage') {
             totalBill -= (totalBill * value) / 100;
@@ -659,38 +683,41 @@ export async function sendNotification(
   });
 
   let fcmToken: IDeviceFcm = await Admin.findOne({
-    deviceId: ownerDetails?.deviceId
+    deviceId: ownerDetails?.deviceId,
+    role
   });
 
-  var serverKey = serverkey;
-  var fcm = new FCM(serverKey)
+  console.log(fcmToken, 'dfkmel');
 
-  let message = {}
-  if(!_.isEmpty(fcmToken)){
-  message = {
-    notification: {
-      title,
-      body
-    },
-    data: {
-      type
-    },
-    to: fcmToken.fcmToken
+  var serverKey = serverkey;
+  var fcm = new FCM(serverKey);
+
+  let message = {};
+  if (!_.isEmpty(fcmToken)) {
+    message = {
+      notification: {
+        title,
+        body
+      },
+      data: {
+        type
+      },
+      to: fcmToken.fcmToken
+    };
+    try {
+      fcm.send(message, function (err: any, response: any) {
+        if (err) {
+          console.log('Error', err);
+        } else {
+          console.log('Response', response);
+        }
+      });
+      // return res.MessageId; // Return the MessageId if needed
+    } catch (error) {
+      console.error('Error sending email:', error);
+      // throw error; // Rethrow the error to handle it at the caller's level
+    }
+  } else {
+    console.log('Fcm Token is required');
   }
-  try {
-    fcm.send(message, function(err: any, response: any){
-      if(err){
-        console.log("Error", err)
-      }else{
-        console.log("Response", response);
-      }
-    })
-    // return res.MessageId; // Return the MessageId if needed
-  } catch (error) {
-    console.error('Error sending email:', error);
-    // throw error; // Rethrow the error to handle it at the caller's level
-  }
-}else{
-  console.log("Fcm Token is required");
-}
 }

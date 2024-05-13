@@ -14,6 +14,7 @@ import path from 'path';
 import {
   receiveFromSqs,
   receiveInvoiceFromSqs,
+  sendNotification,
   sendToSqs
 } from '../utils/common';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,11 +56,14 @@ export class CreateInvoiceService {
     let amount = 0;
 
     // Calculate amount based on line items
+    if(jobCard?.lineItems){
     jobCard.lineItems.map((item) => {
       amount += item.quantity * item.rate;
     });
+  }
 
     // Adjust amount based on additional items payload
+    if(additionalItemsPayload.additionalItems){
     additionalItemsPayload.additionalItems.map((item: any) => {
       if (item.operation === 'discount') {
         if (item.format === 'percentage') {
@@ -75,6 +79,7 @@ export class CreateInvoiceService {
         }
       }
     });
+  }
 
     try {
       let newInvoice: ICreateInvoice = additionalItemsPayload;
@@ -86,7 +91,8 @@ export class CreateInvoiceService {
       );
       newInvoice = await CreateInvoice.create(newInvoice);
       let { phoneNumber } = jobCard?.customerDetails[0];
-
+      let customPhoneNumber = `+91${phoneNumber}`;
+      await sendNotification('Invoice Generated', 'Your invoice has been generated', customPhoneNumber, "USER", 'INVOICE');
       this.createOrUpdateUser(phoneNumber, jobCard);
       //  "category": "", "fuel": "", "fuelType": "PETROL", "gearType": "MANUAL", "kmsDriven": "2000", "lastInsuanceDate": "2020-10-22T18:30:00.000Z", "lastServiceDate": "2023-11-14T07:03:33.476Z", "manufactureYear": "8/2019", "modelName": "ACCESS 125", "ownerShip": "1", "purpose": "OWNED", "userId": "63aadcd071f7e310475492f1", "vehicleImageList": [], "vehicleNumber": "DL8SCS6791"}
       return newInvoice;

@@ -60,6 +60,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morganMiddleware);
 
+app.set('trust proxy', 1);
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 900, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
