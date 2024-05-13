@@ -57,13 +57,6 @@ export class BuySellController {
   };
 
   addBuySellVehicleImageList = async (req: Request, res: Response) => {
-    // Validate the request body
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res
-    //     .status(HttpStatusCodes.BAD_REQUEST)
-    //     .json({ errors: errors.array() });
-    // }
     Logger.info(
       '<Controller>:<BuySellController>:<Upload Store Customer Vehicle request initiated>'
     );
@@ -105,12 +98,6 @@ export class BuySellController {
   };
 
   getBuyVehicleById = async (req: Request, res: Response) => {
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res
-    //     .status(HttpStatusCodes.BAD_REQUEST)
-    //     .json({ errors: errors.array() });
-    // }
     const getVehicleRequest: { vehicleId: string } = req.body;
     Logger.info(
       '<Controller>:<BuySellController>:<Get Buy vehicle by Id request initiated>'
@@ -189,7 +176,25 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
     );
     try {
-      const result = await this.buySellService.getAll();
+      const result = await this.buySellService.getAll(req.query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  checkVehicleExistance = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Check Sell vehicle existance initiated>'
+    );
+    try {
+      const { vehicleNumber } = req.body;
+      const result = await this.buySellService.checkVehicleExistance(
+        vehicleNumber
+      );
       res.send({
         result
       });
