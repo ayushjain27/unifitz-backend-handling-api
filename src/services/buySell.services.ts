@@ -177,7 +177,6 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
-    console.log('storeId', req?.storeId);
     const query: any = {};
     const result = await buySellVehicleInfo
       .find({
@@ -214,12 +213,12 @@ export class BuySellService {
       { title: 'Total Value', amount: totalAmount },
       {
         title: 'Active Vehicles',
-        total: activeVehicles[activeVehicles.length - 1],
+        total: activeVehicles[activeVehicles.length - 1] || 0,
         list: activeVeh || []
       },
       {
         title: 'Inactive Vehicles',
-        total: result.length - activeVehicles[activeVehicles.length - 1],
+        total: result.length - activeVehicles[activeVehicles.length - 1] || 0,
         list: nonActiveVeh || []
       },
       { title: 'Sold', total: 0 },
@@ -301,12 +300,12 @@ export class BuySellService {
     } = await buySellVehicleInfo.findOne({
       'vehicleInfo.vehicleNumber': vehicleNumber
     });
-    // if (!_.isEmpty(vehiclePresent)) {
-    //   return {
-    //     message: `This vehicle is already registerred in ${vehiclePresent.storeDetails.basicInfo?.businessName} or if you like list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
-    //     isPresent: true
-    //   };
-    // }
+    if (!_.isEmpty(vehiclePresent)) {
+      return {
+        message: `This vehicle is already registerred if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
+        isPresent: true
+      };
+    }
     const vehicleDetails = await this.surepassService.getRcDetails(
       vehicleNumber
     );
