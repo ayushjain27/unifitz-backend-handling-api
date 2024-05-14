@@ -847,7 +847,8 @@ export class AnalyticService {
     lastDate: string,
     state: string,
     city: string,
-    moduleInformation: string
+    moduleId: string,
+    platform: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -865,7 +866,8 @@ export class AnalyticService {
         $lte: nextDate
       },
       event: 'IMPRESSION_COUNT',
-      moduleInformation: moduleInformation,
+      moduleInformation: moduleId,
+      platform: platform,
       oemUserName: role
     };
 
@@ -875,8 +877,11 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    if (!moduleInformation) {
+    if (!moduleId) {
       delete query['moduleInformation'];
+    }
+    if (!platform) {
+      delete query['platform'];
     }
     if (userName !== AdminRole.OEM) {
       delete query['oemUserName'];
@@ -1023,7 +1028,7 @@ export class AnalyticService {
     city: string,
     firstDate: string,
     lastDate: string,
-    storeId: string,
+    moduleId: string,
     platform: string
   ) {
     Logger.info(
@@ -1044,8 +1049,8 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      platform: platform
-      // moduleInformation: storeId
+      platform: platform,
+      moduleInformation: moduleId
       // oemUserName: role
     };
     if (!state) {
@@ -1056,6 +1061,9 @@ export class AnalyticService {
     }
     if (!platform) {
       delete query['platform'];
+    }
+    if (!moduleId) {
+      delete query['moduleInformation'];
     }
     const queryFilter: any = await PlusFeatureAnalyticModel.aggregate([
       {

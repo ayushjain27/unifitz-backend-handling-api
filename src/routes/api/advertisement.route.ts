@@ -69,4 +69,10 @@ router.delete(
   adController.deleteBanner
 );
 
+router.post(
+  '/bannerAnalytic',
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
+  adController.bannerAnalytic
+);
+
 export default router;
