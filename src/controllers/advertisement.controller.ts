@@ -219,6 +219,27 @@ export class AdvertisementController {
     }
   };
 
+  bannerAnalytic = async (req: Request, res: Response) => {
+    const { bannerType, bannerPlace } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<AnalyticController>:<get analytic request initiated>'
+      );
+      const result = await this.adService.bannerAnalytic(
+        bannerType,
+        bannerPlace
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'uploadBanner':

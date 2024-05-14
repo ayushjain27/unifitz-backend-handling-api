@@ -170,7 +170,8 @@ export class StoreController {
       storeName,
       pageNo,
       pageSize,
-      coordinates
+      coordinates,
+      oemUserName
     }: {
       category: string;
       brand: string;
@@ -178,6 +179,7 @@ export class StoreController {
       pageNo: number;
       pageSize: number;
       coordinates: number[];
+      oemUserName: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -200,7 +202,8 @@ export class StoreController {
           brand,
           pageNo,
           pageSize,
-          coordinates
+          coordinates,
+          oemUserName
         });
       res.send({
         result

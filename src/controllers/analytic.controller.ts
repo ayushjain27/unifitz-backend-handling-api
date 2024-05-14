@@ -350,7 +350,7 @@ export class AnalyticController {
   getAdvertisementAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, moduleInformation } = req.body;
+    const { firstDate, lastDate, state, city, moduleId, platform } = req.body;
     try {
       Logger.info(
         '<Controller>:<AnalyticController>:<get analytic request initiated>'
@@ -362,7 +362,8 @@ export class AnalyticController {
         lastDate,
         state,
         city,
-        moduleInformation
+        moduleId,
+        platform
       );
       res.send({
         result
@@ -378,7 +379,7 @@ export class AnalyticController {
   getPlusFeatureAnalyticByCity = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform } = req.body;
+    const { firstDate, lastDate, state, city, moduleId, platform } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -390,7 +391,7 @@ export class AnalyticController {
         city,
         firstDate,
         lastDate,
-        storeId,
+        moduleId,
         platform
       );
       res.send({
