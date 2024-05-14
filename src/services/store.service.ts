@@ -506,6 +506,7 @@ export class StoreService {
     pageNo: number;
     pageSize: number;
     coordinates: number[];
+    oemUserName: string;
   }): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -520,6 +521,7 @@ export class StoreService {
       'basicInfo.brand.name': searchReqBody.brand,
       'basicInfo.category.name': searchReqBody.category,
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      oemUserName: searchReqBody.oemUserName,
       profileStatus: 'ONBOARDED'
     };
     if (!searchReqBody.brand) {
@@ -533,6 +535,9 @@ export class StoreService {
     }
     if (!searchReqBody.storeName) {
       delete query['basicInfo.businessName'];
+    }
+    if (!searchReqBody.oemUserName) {
+      delete query.oemUserName;
     }
     Logger.debug(query);
 
