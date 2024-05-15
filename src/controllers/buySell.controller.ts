@@ -204,6 +204,28 @@ export class BuySellController {
     }
   };
 
+  updateBuySellVehicleStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<BuySellController>:<Update Buy Sell Vehicle Status>');
+
+    try {
+      const result = await this.buySellService.updateBuySellVehicleStatus(
+        req.body
+      );
+      Logger.info(
+        '<Controller>:<BuySellController>: <Store: Sending notification of updated buySell vehilce>'
+      );
+      res.send({
+        message: 'BuySell vehicle Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':
