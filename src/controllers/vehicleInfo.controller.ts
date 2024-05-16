@@ -231,8 +231,8 @@ export class VehicleInfoController {
 
       case 'getVehicle':
         return [
-          body('userId', 'User Id does not exist').exists().isString(),
-          body('purpose', 'type does not exist').exists().isString()
+          body('userId', 'User Id does not exist').exists().isString()
+          // body('purpose', 'type does not exist').exists().isString()
         ];
 
       case 'uploadImages':
