@@ -60,4 +60,9 @@ router.post(
   buySellController.addBuySellVehicleImageList
 );
 
+router.post(
+  '/updateStatus',
+  buySellController.updateBuySellVehicleStatus
+);
+
 export default router;

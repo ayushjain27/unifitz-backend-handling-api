@@ -311,4 +311,30 @@ export class BuySellService {
     );
     return vehicleDetails;
   }
+
+  async updateBuySellVehicleStatus(statusRequest: any) {
+    console.log(statusRequest?.buySellVehicleId,"dwfl")
+    let buySellVehicle: IBuySell;
+    buySellVehicle = await buySellVehicleInfo.findOne({
+      _id: new Types.ObjectId(statusRequest.buySellVehicleId)
+    });
+
+    if (_.isEmpty(buySellVehicle)) {
+      throw new Error('BuySell Vehicle does not exist');
+    }
+
+    const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
+      { _id: statusRequest.buySellVehicleId },
+      {
+        $set: {
+          status: statusRequest.status
+        }
+      },
+      { returnDocument: 'after' }
+    );
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle: Vehicle status updated successfully>'
+    );
+    return updatedVehicle;
+  }
 }

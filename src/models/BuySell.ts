@@ -12,7 +12,8 @@ export enum Status {
   SOLD = 'SOLD',
   UNSOLD = 'UNSOLD',
   EXPIRED = 'EXPIRED',
-  PROCESSING = 'PROCESSING'
+  PROCESSING = 'PROCESSING',
+  INACTIVE = 'INACTIVE'
 }
 
 export interface IVehicleImage {
@@ -158,7 +159,7 @@ export const buySellSchema: Schema = new Schema(
     userId: { type: Types.ObjectId, required: true },
     storeId: { type: String },
     userType: { type: String, enum: UserType },
-    status: { type: String, enum: Status },
+    status: { type: String, enum: Status, default: Status.INACTIVE },
     transactionDetails: { type: Schema.Types.Mixed },
     contactInfo: { type: storeContactSchema },
     isOwner: { type: Boolean, required: true },
