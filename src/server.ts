@@ -37,6 +37,7 @@ import storeCustomer from './routes/api/storeCustomer';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
+import Store from './models/Store';
 
 const app = express();
 // Connect to MongoDB
@@ -250,6 +251,49 @@ const server = app.listen(port, () =>
     `Server started on port ${port} & v ${window?.env?.VERSION_NAME}(${window?.env?.VERSION_CODE})`
   )
 );
+
+async function updateSlugs() {
+  try {
+    // Use aggregation pipeline in updateMany
+    await Store.updateMany(
+      { storeId: { $exists: true } }, // Only update documents that have storeId
+      [
+        {
+          $set: {
+            slug: {
+              $concat: [
+                {
+                  $reduce: {
+                    input: { $split: [{ $toLower: { $trim: { input: "$basicInfo.businessName" } } }, " "] }, // Trim and then split by space
+                    initialValue: "",
+                    in: {
+                      $concat: [
+                        "$$value",
+                        { $cond: [{ $eq: ["$$value", ""] }, "", "-"] }, // Add hyphen if not the first word
+                        { $toLower: "$$this" } // Convert word to lowercase
+                      ]
+                    }
+                  }
+                },
+                "-",
+                { $toString: "$storeId" }
+              ]
+            }
+          }
+        }
+      ]
+    );
+
+    console.log('All documents have been updated with slugs.');
+  } catch(err){
+    console.log(err,"sa;lkfndj")
+  }
+}
+
+app.get('/slug', async (req, res) => {
+  updateSlugs();
+});
+
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
