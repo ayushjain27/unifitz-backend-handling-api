@@ -205,7 +205,9 @@ export class BuySellController {
   };
 
   updateBuySellVehicleStatus = async (req: Request, res: Response) => {
-    Logger.info('<Controller>:<BuySellController>:<Update Buy Sell Vehicle Status>');
+    Logger.info(
+      '<Controller>:<BuySellController>:<Update Buy Sell Vehicle Status>'
+    );
 
     try {
       const result = await this.buySellService.updateBuySellVehicleStatus(

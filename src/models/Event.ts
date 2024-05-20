@@ -128,6 +128,6 @@ const eventSchema: Schema = new Schema(
 
 eventSchema.index({ geoLocation: '2dsphere' });
 
-const EventModel = model<IEvent & Document>('event', eventSchema);
+const EventModel = model<IEvent & Document>('events', eventSchema);
 
 export default EventModel;
