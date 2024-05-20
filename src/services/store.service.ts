@@ -28,6 +28,7 @@ import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from './../models/Customer';
 import { StaticIds } from './../models/StaticId';
 import { sendNotification } from '../utils/common';
+import slugify from 'slugify';
 
 @injectable()
 export class StoreService {
@@ -76,6 +77,13 @@ export class StoreService {
 
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    const businessName = storeRequest.storePayload.basicInfo.businessName;
+    let baseSlug = slugify(businessName, { lower: true, strict: true });
+    console.log(baseSlug,"dsklk");
+
+    let slug = `${baseSlug}-${newStoreId}`;
+    storePayload.slug = slug;
+    
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
