@@ -17,9 +17,7 @@ export enum ModuleType {
   LOCATION = 'LOCATION',
   JOB_CARD = 'JOB_CARD',
   INVOICE = 'INVOICE',
-  CATEGORY = 'CATEGORY',
-  SUB_CATEGORY = 'SUB_CATEGORY',
-  BRAND = 'BRAND'
+  CATEGORIES = 'CATEGORIES'
 }
 
 export enum Event {

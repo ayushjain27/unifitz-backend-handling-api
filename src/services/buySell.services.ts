@@ -3,6 +3,7 @@ import Logger from '../config/winston';
 import buySellVehicleInfo from './../models/BuySell';
 
 import { IBuySell } from './../models/BuySell';
+import VehicleInfo from './../models/Vehicle';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
@@ -18,7 +19,7 @@ export class BuySellService {
     TYPES.SurepassService
   );
   private s3Client = container.get<S3Service>(TYPES.S3Service);
-  async addSellVehicle(buySellVehicle?: IBuySell) {
+  async addSellVehicle(buySellVehicle?: any) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
 
@@ -31,7 +32,13 @@ export class BuySellService {
       throw new Error('User not found');
     }
 
-    const query: IBuySell = buySellVehicle;
+    const vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Vehicle not found');
+    }
+    delete buySellVehicle['vehicleInfo'];
+    const query = buySellVehicle;
+    query.vehicleId = vehicleResult?._id;
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -183,10 +190,11 @@ export class BuySellService {
         'storeDetails.storeId': req?.storeId
       })
       .lean();
-    const totalAmount = result.reduce(
-      (a, b) => a + b.vehicleInfo.expectedPrice,
-      0
-    );
+    const totalAmount = 0;
+    // result.reduce(
+    //   (a, b) => a + b.vehicleInfo.expectedPrice,
+    //   0
+    // );
     let count = 0;
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
@@ -244,15 +252,17 @@ export class BuySellService {
     const files: Array<any> = req.files;
     // const vehicleInfo: IStoreCustomerVehicleInfo =
     //   storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
-    const vehicleImageList: Partial<IBuySell> | any = buySellVehicleDetails
-      .vehicleInfo.vehicleImageList || {
-      frontView: {},
-      leftView: {},
-      seatView: {},
-      odometer: {},
-      rightView: {},
-      backView: {}
-    };
+    const vehicleImageList: Partial<IBuySell> | any =
+      // buySellVehicleDetails
+      //   .vehicleInfo.vehicleImageList ||
+      {
+        frontView: {},
+        leftView: {},
+        seatView: {},
+        odometer: {},
+        rightView: {},
+        backView: {}
+      };
 
     if (!files) {
       throw new Error('Files not found');
@@ -313,7 +323,7 @@ export class BuySellService {
   }
 
   async updateBuySellVehicleStatus(statusRequest: any) {
-    console.log(statusRequest?.buySellVehicleId,"dwfl")
+    console.log(statusRequest?.buySellVehicleId, 'dwfl');
     let buySellVehicle: IBuySell;
     buySellVehicle = await buySellVehicleInfo.findOne({
       _id: new Types.ObjectId(statusRequest.buySellVehicleId)
