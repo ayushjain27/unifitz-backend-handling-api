@@ -404,4 +404,62 @@ export class AnalyticController {
         .json({ message: err.message });
     }
   };
+
+  getCategoriesAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, moduleId, platform } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getCategoriesAnalytic(
+        role,
+        userName,
+        state,
+        city,
+        firstDate,
+        lastDate,
+        moduleId,
+        platform
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getPlusFeatureAnalyticTypes = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, platform, module } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getPlusFeatureAnalyticTypes(
+        role,
+        userName,
+        state,
+        city,
+        firstDate,
+        lastDate,
+        module,
+        platform
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

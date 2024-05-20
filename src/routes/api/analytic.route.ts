@@ -84,4 +84,15 @@ router.post(
   analyticController.getPlusFeatureAnalyticByCity
 );
 
+router.post(
+  '/getCategoriesAnalytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getCategoriesAnalytic
+);
+
+router.post(
+  '/getPlusFeatureAnalyticTypes',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getPlusFeatureAnalyticTypes
+);
 export default router;

@@ -162,6 +162,6 @@ const offerSchema: Schema = new Schema(
 
 offerSchema.index({ geoLocation: '2dsphere' });
 
-const OfferModel = model<IOffer & Document>('offer', offerSchema);
+const OfferModel = model<IOffer & Document>('offers', offerSchema);
 
 export default OfferModel;
