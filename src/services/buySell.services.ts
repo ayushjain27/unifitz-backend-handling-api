@@ -326,7 +326,7 @@ export class BuySellService {
     console.log(statusRequest?.buySellVehicleId, 'dwfl');
     let buySellVehicle: IBuySell;
     buySellVehicle = await buySellVehicleInfo.findOne({
-      _id: new Types.ObjectId(statusRequest.buySellVehicleId)
+      vehicleId: statusRequest.buySellVehicleId
     });
 
     if (_.isEmpty(buySellVehicle)) {
@@ -334,7 +334,7 @@ export class BuySellService {
     }
 
     const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
-      { _id: statusRequest.buySellVehicleId },
+      { vehicleId: statusRequest.buySellVehicleId },
       {
         $set: {
           status: statusRequest.status
