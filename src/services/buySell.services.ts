@@ -343,8 +343,14 @@ export class BuySellService {
       { returnDocument: 'after' }
     );
     Logger.info(
-      '<Service>:<VehicleService>: <Vehicle: Vehicle status updated successfully>'
+      '<Service>:<BuySellService>: <Vehicle: Vehicle status updated successfully>'
     );
     return updatedVehicle;
+  }
+
+  async getAllBuySellVehilce(): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({});
+    return vehicleResponse;
   }
 }

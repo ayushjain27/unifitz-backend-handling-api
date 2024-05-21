@@ -62,4 +62,6 @@ router.post(
 
 router.post('/updateStatus', buySellController.updateBuySellVehicleStatus);
 
+router.get('/all', roleAuth(ACL.ADD_VEHICLE), buySellController.getAll);
+
 export default router;
