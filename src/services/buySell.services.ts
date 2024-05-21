@@ -353,4 +353,11 @@ export class BuySellService {
     const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({});
     return vehicleResponse;
   }
+
+  async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({ vehicleId });
+    return vehicleResponse;
+  }
 }
