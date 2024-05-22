@@ -109,7 +109,7 @@ export class JobCardService {
       ]
     };
 
-    console.log(query,"asdw;l")
+    console.log(query, 'asdw;l');
     if (!storeId) {
       delete query.storeId;
     }
@@ -119,7 +119,7 @@ export class JobCardService {
     if (!searchValue) {
       delete query['customerDetails.phoneNumber'];
     }
-    console.log(query,"asdw;wklml")
+    console.log(query, 'asdw;wklml');
 
     const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
     Logger.info(

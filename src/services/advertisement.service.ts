@@ -57,14 +57,14 @@ export class AdvertisementService {
     const createdBanner = await Banner.create(addBanner);
     Logger.info('<Service>:<AdvertisementService>:<Upload file - successful>');
     const bannerCoordinates = addBanner.geoLocation.coordinates;
-    if(addBanner.userType === 'PARTNER_APP'){
+    if (addBanner.userType === 'PARTNER_APP') {
       const query = {
         'basicInfo.category.name': {
           $in: addBanner.category.map((category) => category.name)
         },
         'basicInfo.subCategory.name': {
           $in: addBanner.subCategory.map((subCategory) => subCategory.name)
-        },
+        }
       };
       if (!addBanner.category.map((category) => category.name)) {
         delete query['basicInfo.category.name'];
@@ -73,15 +73,15 @@ export class AdvertisementService {
         delete query['basicInfo.subCategory.name'];
       }
 
-      let storeResponse = await Store.aggregate([
+      const storeResponse = await Store.aggregate([
         {
           $geoNear: {
             near: {
               type: 'Point',
-              coordinates: [Number(bannerCoordinates[0]), Number(bannerCoordinates[1])] as [
-                number,
-                number
-              ]
+              coordinates: [
+                Number(bannerCoordinates[0]),
+                Number(bannerCoordinates[1])
+              ] as [number, number]
             },
             // key: 'contactInfo.geoLocation',
             spherical: true,
@@ -91,14 +91,20 @@ export class AdvertisementService {
             maxDistance: addBanner?.radius * 1000
           }
         }
-      ])
+      ]);
 
-      await storeResponse.map((item,index)=>{
-        sendNotification(addBanner.title, addBanner.description, item?.contactInfo?.phoneNumber?.primary, "STORE_OWNER", '');
-      })
-    }else{
-      console.log("Dwrlkjj")
-      let customerResponse = await Customer.aggregate([
+      await storeResponse.map((item, index) => {
+        sendNotification(
+          addBanner.title,
+          addBanner.description,
+          item?.contactInfo?.phoneNumber?.primary,
+          'STORE_OWNER',
+          ''
+        );
+      });
+    } else {
+      // console.log('Dwrlkjj');
+      const customerResponse = await Customer.aggregate([
         {
           $project: {
             _id: 1,
@@ -107,8 +113,28 @@ export class AdvertisementService {
             distance: {
               $sqrt: {
                 $add: [
-                  { $pow: [{ $subtract: [Number(bannerCoordinates[0]), { $arrayElemAt: ['$geoLocation.coordinates', 0] }] }, 2] },
-                  { $pow: [{ $subtract: [Number(bannerCoordinates[1]), { $arrayElemAt: ['$geoLocation.coordinates', 1] }] }, 2] }
+                  {
+                    $pow: [
+                      {
+                        $subtract: [
+                          Number(bannerCoordinates[0]),
+                          { $arrayElemAt: ['$geoLocation.coordinates', 0] }
+                        ]
+                      },
+                      2
+                    ]
+                  },
+                  {
+                    $pow: [
+                      {
+                        $subtract: [
+                          Number(bannerCoordinates[1]),
+                          { $arrayElemAt: ['$geoLocation.coordinates', 1] }
+                        ]
+                      },
+                      2
+                    ]
+                  }
                 ]
               }
             }
@@ -120,11 +146,17 @@ export class AdvertisementService {
           }
         }
       ]);
-      
-      console.log(customerResponse,"sad;lkwm")
 
-      await customerResponse.forEach(customer => {
-        sendNotification(addBanner.title, addBanner.description, customer.phoneNumber, "USER", '');
+      // console.log(customerResponse, 'sad;lkwm');
+
+      await customerResponse.forEach((customer) => {
+        sendNotification(
+          addBanner.title,
+          addBanner.description,
+          customer.phoneNumber,
+          'USER',
+          ''
+        );
       });
     }
     return createdBanner;
@@ -138,7 +170,6 @@ export class AdvertisementService {
     if (_.isEmpty(banner)) {
       throw new Error('Banner does not exist');
     }
-
 
     Logger.info('<Service>:<AdvertisementService>:<Upload banner successful>');
 
@@ -382,5 +413,56 @@ export class AdvertisementService {
       _id: new Types.ObjectId(reqBody.bannerId)
     });
     return res;
+  }
+
+  async bannerAnalytic(bannerType: string, bannerPlace: string) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    query = {
+      userType: bannerType,
+      bannerPlace: bannerPlace,
+      status: 'ACTIVE'
+    };
+    if (!bannerType) {
+      delete query['userType'];
+    }
+    if (!bannerPlace) {
+      delete query['bannerPlace'];
+    }
+    const queryFilter: any = await Banner.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'plusfeatures',
+          localField: 'url',
+          foreignField: 'moduleInformation',
+          as: 'analytic'
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          bannerPlace: 1,
+          bannerPosition: 1,
+          userType: 1,
+          location: 1,
+          url: 1,
+          externalUrl: 1,
+          usersViewCount: {
+            $cond: {
+              if: { $isArray: '$analytic' },
+              then: { $size: '$analytic' },
+              else: 0
+            }
+          }
+        }
+      },
+      { $sort: { usersViewCount: -1 } }
+    ]);
+    return queryFilter;
   }
 }

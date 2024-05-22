@@ -28,6 +28,7 @@ import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from './../models/Customer';
 import { StaticIds } from './../models/StaticId';
 import { sendNotification } from '../utils/common';
+import slugify from 'slugify';
 
 @injectable()
 export class StoreService {
@@ -76,12 +77,25 @@ export class StoreService {
 
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    const businessName = storeRequest.storePayload.basicInfo.businessName;
+    let baseSlug = slugify(businessName, { lower: true, strict: true });
+    console.log(baseSlug,"dsklk");
+
+    let slug = `${baseSlug}-${newStoreId}`;
+    storePayload.slug = slug;
+    
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);
-    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, "STORE_OWNER", '');
+    await sendNotification(
+      'Store Created',
+      'Your store has created. It is under review',
+      phoneNumber,
+      'STORE_OWNER',
+      ''
+    );
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -107,7 +121,13 @@ export class StoreService {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
-    await sendNotification('Store Updated', 'Your store has updated. It is under review', storePayload?.contactInfo?.phoneNumber?.primary, "STORE_OWNER", '');
+    await sendNotification(
+      'Store Updated',
+      'Your store has updated. It is under review',
+      storePayload?.contactInfo?.phoneNumber?.primary,
+      'STORE_OWNER',
+      ''
+    );
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
   }
@@ -158,16 +178,18 @@ export class StoreService {
     role?: string
   ): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store status>');
-    console.log(userName, role,"dfwl;k")
+    console.log(userName, role, 'dfwl;k');
     const query: any = {};
     query.storeId = statusRequest.storeId;
     let store: IStore;
-      store = await Store.findOne(
-        { storeId: statusRequest?.storeId },
-        { verificationDetails: 0 }
-      );
-    let phoneNumber = store?.basicInfo?.userPhoneNumber || store?.contactInfo?.phoneNumber?.primary
-    console.log(phoneNumber,"dfwl;k")
+    store = await Store.findOne(
+      { storeId: statusRequest?.storeId },
+      { verificationDetails: 0 }
+    );
+    const phoneNumber =
+      store?.basicInfo?.userPhoneNumber ||
+      store?.contactInfo?.phoneNumber?.primary;
+    console.log(phoneNumber, 'dfwl;k');
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
@@ -186,7 +208,25 @@ export class StoreService {
       },
       { 'verificationDetails.verifyObj': 0 }
     );
-    await sendNotification(`${statusRequest.profileStatus === 'ONBOARDED' ? 'Store Onboarded' : 'Store Rejected'}`, `${statusRequest.profileStatus === 'ONBOARDED' ? 'Congratulations 😊' : 'Sorry 😞'} Your store has been ${statusRequest.profileStatus === 'ONBOARDED' ? 'onboarded' : `rejected due to this reason: ${statusRequest.rejectionReason}`}`, phoneNumber, "STORE_OWNER", '')
+    await sendNotification(
+      `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Store Onboarded'
+          : 'Store Rejected'
+      }`,
+      `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Congratulations 😊'
+          : 'Sorry 😞'
+      } Your store has been ${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'onboarded'
+          : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      }`,
+      phoneNumber,
+      'STORE_OWNER',
+      ''
+    );
     return updatedStore;
   }
 
@@ -474,6 +514,7 @@ export class StoreService {
     pageNo: number;
     pageSize: number;
     coordinates: number[];
+    oemUserName: string;
   }): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -488,6 +529,7 @@ export class StoreService {
       'basicInfo.brand.name': searchReqBody.brand,
       'basicInfo.category.name': searchReqBody.category,
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      oemUserName: searchReqBody.oemUserName,
       profileStatus: 'ONBOARDED'
     };
     if (!searchReqBody.brand) {
@@ -501,6 +543,9 @@ export class StoreService {
     }
     if (!searchReqBody.storeName) {
       delete query['basicInfo.businessName'];
+    }
+    if (!searchReqBody.oemUserName) {
+      delete query.oemUserName;
     }
     Logger.debug(query);
 
@@ -573,20 +618,28 @@ export class StoreService {
         _id: new Types.ObjectId(storeReview?.userId)
       })?.lean();
     }
-    console.log(customer,"dfw;lmk");
+    console.log(customer, 'dfw;lmk');
     let store: IStore;
-      store = await Store.findOne(
-        { storeId: storeReview?.storeId },
-        { verificationDetails: 0 }
-      );
-    let phoneNumber = store?.basicInfo?.userPhoneNumber || store?.contactInfo?.phoneNumber?.primary
+    store = await Store.findOne(
+      { storeId: storeReview?.storeId },
+      { verificationDetails: 0 }
+    );
+    const phoneNumber =
+      store?.basicInfo?.userPhoneNumber ||
+      store?.contactInfo?.phoneNumber?.primary;
     if (!storeReview?.userId) {
       throw new Error('Customer not found');
     }
     const newStoreReview = new StoreReview(storeReview);
     newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
     await newStoreReview.save();
-    await sendNotification('Store Review', 'Hey 👋 you got a feedback', phoneNumber, "STORE_OWNER", 'RATING_REVIEW');
+    await sendNotification(
+      'Store Review',
+      'Hey 👋 you got a feedback',
+      phoneNumber,
+      'STORE_OWNER',
+      'RATING_REVIEW'
+    );
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
   }

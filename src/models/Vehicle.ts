@@ -143,7 +143,7 @@ export const vehicleInfoSchema: Schema = new Schema(
     noOfSeats: { type: Number }
   },
   {
-    strict: false
+    timestamps: true, strict: false
   }
 );
 

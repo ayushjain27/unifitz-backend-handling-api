@@ -222,6 +222,7 @@ export interface IStore {
   documents: IDocuments;
   createdAt?: Date;
   updatedAt?: Date;
+  slug?: string;
   overAllRating?: any;
   isVerified?: boolean;
   missingItem?: string;
@@ -265,6 +266,9 @@ const storeSchema: Schema = new Schema<IStore>(
       type: storeDocumentsSchema
     },
     missingItem: {
+      type: String
+    },
+    slug: {
       type: String
     }
   },

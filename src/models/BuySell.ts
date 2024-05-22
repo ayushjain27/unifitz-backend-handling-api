@@ -1,5 +1,4 @@
-import { Document, model, Schema, Types } from 'mongoose';
-import { IVehiclesInfo, vehicleInfoSchema } from './Vehicle';
+import mongoose, { Document, model, Schema, Types } from 'mongoose';
 import { IContactInfo, storeContactSchema } from './Store';
 
 export enum UserType {
@@ -12,11 +11,12 @@ export enum Status {
   SOLD = 'SOLD',
   UNSOLD = 'UNSOLD',
   EXPIRED = 'EXPIRED',
-  PROCESSING = 'PROCESSING'
+  PROCESSING = 'PROCESSING',
+  INACTIVE = 'INACTIVE'
 }
 
 export interface IBuySell extends Document {
-  vehicleInfo: IVehiclesInfo;
+  vehicleId: string;
   storeId: string;
   userId: string;
   userType: string;
@@ -33,11 +33,13 @@ export interface IBuySell extends Document {
 
 export const buySellSchema: Schema = new Schema(
   {
-    vehicleInfo: { type: vehicleInfoSchema },
+    vehicleId: {type: String},
+    vehicleInfo: {type: String,
+      ref: "vehicles"},
     userId: { type: Types.ObjectId, required: true },
     storeId: { type: String },
     userType: { type: String, enum: UserType },
-    status: { type: String, enum: Status },
+    status: { type: String, enum: Status, default: Status.INACTIVE },
     transactionDetails: { type: Schema.Types.Mixed },
     contactInfo: { type: storeContactSchema },
     isOwner: { type: Boolean, required: true },
@@ -51,5 +53,6 @@ export const buySellSchema: Schema = new Schema(
 );
 
 const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
+
 
 export default buySellVehicleInfo;

@@ -847,7 +847,8 @@ export class AnalyticService {
     lastDate: string,
     state: string,
     city: string,
-    moduleInformation: string
+    moduleId: string,
+    platform: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -865,7 +866,8 @@ export class AnalyticService {
         $lte: nextDate
       },
       event: 'IMPRESSION_COUNT',
-      moduleInformation: moduleInformation,
+      moduleInformation: moduleId,
+      platform: platform,
       oemUserName: role
     };
 
@@ -875,8 +877,11 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    if (!moduleInformation) {
+    if (!moduleId) {
       delete query['moduleInformation'];
+    }
+    if (!platform) {
+      delete query['platform'];
     }
     if (userName !== AdminRole.OEM) {
       delete query['oemUserName'];
@@ -1023,7 +1028,7 @@ export class AnalyticService {
     city: string,
     firstDate: string,
     lastDate: string,
-    storeId: string,
+    moduleId: string,
     platform: string
   ) {
     Logger.info(
@@ -1044,8 +1049,8 @@ export class AnalyticService {
       },
       'userInformation.state': state,
       'userInformation.city': city,
-      platform: platform
-      // moduleInformation: storeId
+      platform: platform,
+      moduleInformation: moduleId
       // oemUserName: role
     };
     if (!state) {
@@ -1056,6 +1061,9 @@ export class AnalyticService {
     }
     if (!platform) {
       delete query['platform'];
+    }
+    if (!moduleId) {
+      delete query['moduleInformation'];
     }
     const queryFilter: any = await PlusFeatureAnalyticModel.aggregate([
       {
@@ -1086,6 +1094,188 @@ export class AnalyticService {
       {
         $limit: 15
       }
+    ]);
+    return queryFilter;
+  }
+
+  async getCategoriesAnalytic(
+    userName: string,
+    role: string,
+    state: string,
+    city: string,
+    firstDate: string,
+    lastDate: string,
+    moduleId: string,
+    platform: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      platform: platform,
+      module: 'CATEGORIES',
+      moduleInformation: moduleId
+      // oemUserName: role
+    };
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!moduleId) {
+      delete query['moduleInformation'];
+    }
+    const queryFilter: any = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.moduleInformation',
+          count: { $sum: 1 },
+          event: {
+            $first: '$_id.event'
+          }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          event: 1,
+          _id: 0,
+          count: 1
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+    return queryFilter;
+  }
+
+  async getPlusFeatureAnalyticTypes(
+    userName: string,
+    role: string,
+    state: string,
+    city: string,
+    firstDate: string,
+    lastDate: string,
+    module: string,
+    platform: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      platform: platform,
+      module: module
+      // oemUserName: role
+    };
+
+    const moduleType =
+      module === 'EVENT'
+        ? 'events'
+        : module === 'OFFERS'
+        ? 'offers'
+        : module === 'BUSINESS_OPPORTUNITIES'
+        ? 'businesses'
+        : '';
+
+    const moduleId =
+      module === 'EVENT'
+        ? 'eventId'
+        : module === 'OFFERS'
+        ? 'offerId'
+        : module === 'BUSINESS_OPPORTUNITIES'
+        ? 'businessId'
+        : '';
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!module) {
+      delete query['module'];
+    }
+    const queryFilter: any = await PlusFeatureAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: moduleType,
+          localField: 'moduleInformation',
+          foreignField: moduleId,
+          as: 'result'
+        }
+      },
+      { $unwind: { path: '$result' } },
+      {
+        $group: {
+          _id: '$moduleInformation',
+          count: {
+            $sum: 1
+          },
+          moduleInfo: {
+            $first: '$result'
+          }
+        }
+      },
+      {
+        $project: {
+          moduleId: {
+            $toString: '$_id'
+          },
+          count: 1,
+          moduleInfo: 1,
+          _id: 0
+        }
+      },
+      { $sort: { count: -1 } }
     ]);
     return queryFilter;
   }

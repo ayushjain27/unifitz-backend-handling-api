@@ -204,6 +204,62 @@ export class BuySellController {
     }
   };
 
+  updateBuySellVehicleStatus = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Update Buy Sell Vehicle Status>'
+    );
+
+    try {
+      const result = await this.buySellService.updateBuySellVehicleStatus(
+        req.body
+      );
+      Logger.info(
+        '<Controller>:<BuySellController>: <Store: Sending notification of updated buySell vehilce>'
+      );
+      res.send({
+        message: 'BuySell vehicle Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
+    );
+    try {
+      const result = await this.buySellService.getAllBuySellVehilce();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getBuySellDetailsByVehicleId = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
+    );
+    try {
+      const vehicleId = req.query.vehicleId;
+      const result = await this.buySellService.getBuySellDetailsByVehicleId(vehicleId as string);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':

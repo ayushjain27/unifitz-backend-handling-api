@@ -49,37 +49,37 @@ export class CreateInvoiceService {
     Logger.info(
       '<Service>:<CreateInvoiceService>: <Invoice Creation: creating invoice>'
     );
-    let { jobCardId } = additionalItemsPayload;
+    const { jobCardId } = additionalItemsPayload;
     const jobCard: IJobCard = await JobCard.findOne({
       _id: jobCardId
     })?.lean();
     let amount = 0;
 
     // Calculate amount based on line items
-    if(jobCard?.lineItems){
-    jobCard.lineItems.map((item) => {
-      amount += item.quantity * item.rate;
-    });
-  }
+    if (jobCard?.lineItems) {
+      jobCard.lineItems.map((item) => {
+        amount += item.quantity * item.rate;
+      });
+    }
 
     // Adjust amount based on additional items payload
-    if(additionalItemsPayload.additionalItems){
-    additionalItemsPayload.additionalItems.map((item: any) => {
-      if (item.operation === 'discount') {
-        if (item.format === 'percentage') {
-          amount -= (amount * item.value) / 100;
+    if (additionalItemsPayload.additionalItems) {
+      additionalItemsPayload.additionalItems.map((item: any) => {
+        if (item.operation === 'discount') {
+          if (item.format === 'percentage') {
+            amount -= (amount * item.value) / 100;
+          } else {
+            amount -= item.value;
+          }
         } else {
-          amount -= item.value;
+          if (item.format === 'percentage') {
+            amount += (amount * item.value) / 100;
+          } else {
+            amount += item.value;
+          }
         }
-      } else {
-        if (item.format === 'percentage') {
-          amount += (amount * item.value) / 100;
-        } else {
-          amount += item.value;
-        }
-      }
-    });
-  }
+      });
+    }
 
     try {
       let newInvoice: ICreateInvoice = additionalItemsPayload;
@@ -90,9 +90,15 @@ export class CreateInvoiceService {
         '<Service>:<CreateInvoiceService>:<Invoice created successfully>'
       );
       newInvoice = await CreateInvoice.create(newInvoice);
-      let { phoneNumber } = jobCard?.customerDetails[0];
-      let customPhoneNumber = `+91${phoneNumber}`;
-      await sendNotification('Invoice Generated', 'Your invoice has been generated', customPhoneNumber, "USER", 'INVOICE');
+      const { phoneNumber } = jobCard?.customerDetails[0];
+      const customPhoneNumber = `+91${phoneNumber}`;
+      await sendNotification(
+        'Invoice Generated',
+        'Your invoice has been generated',
+        customPhoneNumber,
+        'USER',
+        'INVOICE'
+      );
       this.createOrUpdateUser(phoneNumber, jobCard);
       //  "category": "", "fuel": "", "fuelType": "PETROL", "gearType": "MANUAL", "kmsDriven": "2000", "lastInsuanceDate": "2020-10-22T18:30:00.000Z", "lastServiceDate": "2023-11-14T07:03:33.476Z", "manufactureYear": "8/2019", "modelName": "ACCESS 125", "ownerShip": "1", "purpose": "OWNED", "userId": "63aadcd071f7e310475492f1", "vehicleImageList": [], "vehicleNumber": "DL8SCS6791"}
       return newInvoice;
@@ -106,7 +112,7 @@ export class CreateInvoiceService {
   }
 
   async createOrUpdateUser(phoneNumber: string, jobCard: any) {
-    let updatedPhoneNumber = `+91${phoneNumber}`;
+    const updatedPhoneNumber = `+91${phoneNumber}`;
     const userFields = {
       updatedPhoneNumber,
       role: 'USER'
@@ -120,59 +126,59 @@ export class CreateInvoiceService {
   }
 
   async createCustomer(updatedPhoneNumber: string, jobCard: any) {
-    let customer = await Customer.findOne({
+    const customer = await Customer.findOne({
       phoneNumber: updatedPhoneNumber
     });
-    console.log(customer,"wlekr")
+    console.log(customer, 'wlekr');
     let newCustomer;
     if (!customer) {
-      let customerDetails = {
+      const customerDetails = {
         fullName: jobCard?.customerDetails[0]?.name,
         email: jobCard?.customerDetails[0]?.email,
         phoneNumber: updatedPhoneNumber
       };
       newCustomer = await Customer.create(customerDetails);
     }
-    
-    console.log(newCustomer,"wfr;ekl")
+
+    console.log(newCustomer, 'wfr;ekl');
     await this.createVehicle(jobCard, customer, newCustomer);
   }
 
   async createVehicle(jobCard: any, customer: any, newCustomer: any) {
-    let vehicleDetailsFetch =
-    jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0];
+    const vehicleDetailsFetch =
+      jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0];
     if (vehicleDetailsFetch?.registeredVehicle === 'registered') {
-      let checkExistingVehicle: IVehiclesInfo = await VehicleInfo.findOne({
+      const checkExistingVehicle: IVehiclesInfo = await VehicleInfo.findOne({
         vehicleNumber: vehicleDetailsFetch?.vehicleNumber,
         userId: newCustomer?._id || customer?._id
       });
-        if (!checkExistingVehicle) {
-          const vehicleNumber = vehicleDetailsFetch?.vehicleNumber;
-          const vehicleDetails = await this.surepassService.getRcDetails(
-            vehicleNumber
-          );
-          let addVehicleDetails = {
-            userId: newCustomer?._id || customer?._id,
-            brand: vehicleDetails?.maker_description,
-            fuelType: vehicleDetails?.fuel_type,
-            vehicleType:
-              jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
-                ?.vehicleType,
-            vehicleNumber: vehicleDetails?.rc_number,
-            purpose: 'OWNED',
-            modelName: vehicleDetails?.maker_model,
-            manufactureYear: vehicleDetails?.manufacturing_date,
-            ownership: vehicleDetails?.owner_number,
-            vehicleImageList:
-              jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
-                ?.vehicleImageList,
-            lastInsuanceDate: new Date(vehicleDetails?.insurance_upto)
-          };
-          const newVehicle: IVehiclesInfo = await VehicleInfo.create(
-            addVehicleDetails
-          );
-        }
+      if (!checkExistingVehicle) {
+        const vehicleNumber = vehicleDetailsFetch?.vehicleNumber;
+        const vehicleDetails = await this.surepassService.getRcDetails(
+          vehicleNumber
+        );
+        const addVehicleDetails = {
+          userId: newCustomer?._id || customer?._id,
+          brand: vehicleDetails?.maker_description,
+          fuelType: vehicleDetails?.fuel_type,
+          vehicleType:
+            jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
+              ?.vehicleType,
+          vehicleNumber: vehicleDetails?.rc_number,
+          purpose: 'OWNED',
+          modelName: vehicleDetails?.maker_model,
+          manufactureYear: vehicleDetails?.manufacturing_date,
+          ownership: vehicleDetails?.owner_number,
+          vehicleImageList:
+            jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
+              ?.vehicleImageList,
+          lastInsuanceDate: new Date(vehicleDetails?.insurance_upto)
+        };
+        const newVehicle: IVehiclesInfo = await VehicleInfo.create(
+          addVehicleDetails
+        );
       }
+    }
   }
 
   async getInvoiceById(id: string): Promise<ICreateInvoice> {

@@ -108,6 +108,6 @@ const businessSchema: Schema = new Schema(
 
 // businessSchema.index({ geoLocation: '2dsphere' });
 
-const BusinessModel = model<IBusiness & Document>('business', businessSchema);
+const BusinessModel = model<IBusiness & Document>('businesses', businessSchema);
 
 export default BusinessModel;

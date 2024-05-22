@@ -65,7 +65,7 @@ const plusFeatureAnalyticSchema: Schema = new Schema(
 plusFeatureAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
 
 const PlusFeatureAnalyticModel = model<IPlusFeaturesAnalytic & Document>(
-  'plusFeature',
+  'plusfeatures',
   plusFeatureAnalyticSchema
 );
 

@@ -3,6 +3,7 @@ import Logger from '../config/winston';
 import buySellVehicleInfo from './../models/BuySell';
 
 import { IBuySell } from './../models/BuySell';
+import VehicleInfo from './../models/Vehicle';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
@@ -18,7 +19,7 @@ export class BuySellService {
     TYPES.SurepassService
   );
   private s3Client = container.get<S3Service>(TYPES.S3Service);
-  async addSellVehicle(buySellVehicle?: IBuySell) {
+  async addSellVehicle(buySellVehicle?: any) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
 
@@ -31,7 +32,14 @@ export class BuySellService {
       throw new Error('User not found');
     }
 
-    const query: IBuySell = buySellVehicle;
+    const vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Vehicle not found');
+    }
+    delete buySellVehicle['vehicleInfo'];
+    const query = buySellVehicle;
+    query.vehicleId = vehicleResult?._id.toString();
+    query.vehicleInfo = vehicleResult?._id.toString();
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -169,9 +177,10 @@ export class BuySellService {
     const filterParams = query;
     let result;
     if (_.isEmpty(filterParams)) {
-      result = await buySellVehicleInfo.find({}).lean();
-    } else result = await buySellVehicleInfo.find({ ...filterParams }).lean();
-    return result;
+      result = await buySellVehicleInfo.find({}).populate('vehicleInfo');
+    // } else {result = await buySellVehicleInfo.find().populate('vehicleInfo').find({ "vehicleInfo.gearType": 'AUTOMATIC' });
+    } else {result = await buySellVehicleInfo.find({ ...filterParams });
+   } return result;
   }
   async getAll(req: any) {
     Logger.info(
@@ -183,10 +192,11 @@ export class BuySellService {
         'storeDetails.storeId': req?.storeId
       })
       .lean();
-    const totalAmount = result.reduce(
-      (a, b) => a + b.vehicleInfo.expectedPrice,
-      0
-    );
+    const totalAmount = 0;
+    // result.reduce(
+    //   (a, b) => a + b.vehicleInfo.expectedPrice,
+    //   0
+    // );
     let count = 0;
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
@@ -244,15 +254,17 @@ export class BuySellService {
     const files: Array<any> = req.files;
     // const vehicleInfo: IStoreCustomerVehicleInfo =
     //   storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
-    const vehicleImageList: Partial<IBuySell> | any = buySellVehicleDetails
-      .vehicleInfo.vehicleImageList || {
-      frontView: {},
-      leftView: {},
-      seatView: {},
-      odometer: {},
-      rightView: {},
-      backView: {}
-    };
+    const vehicleImageList: Partial<IBuySell> | any =
+      // buySellVehicleDetails
+      //   .vehicleInfo.vehicleImageList ||
+      {
+        frontView: {},
+        leftView: {},
+        seatView: {},
+        odometer: {},
+        rightView: {},
+        backView: {}
+      };
 
     if (!files) {
       throw new Error('Files not found');
@@ -310,5 +322,44 @@ export class BuySellService {
       vehicleNumber
     );
     return vehicleDetails;
+  }
+
+  async updateBuySellVehicleStatus(statusRequest: any) {
+    console.log(statusRequest?.buySellVehicleId, 'dwfl');
+    let buySellVehicle: IBuySell;
+    buySellVehicle = await buySellVehicleInfo.findOne({
+      vehicleId: statusRequest.buySellVehicleId
+    });
+
+    if (_.isEmpty(buySellVehicle)) {
+      throw new Error('BuySell Vehicle does not exist');
+    }
+
+    const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
+      { vehicleId: statusRequest.buySellVehicleId },
+      {
+        $set: {
+          status: statusRequest.status
+        }
+      },
+      { returnDocument: 'after' }
+    );
+    Logger.info(
+      '<Service>:<BuySellService>: <Vehicle: Vehicle status updated successfully>'
+    );
+    return updatedVehicle;
+  }
+
+  async getAllBuySellVehilce(): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({}).populate('vehicleInfo');
+    return vehicleResponse;
+  }
+
+  async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({ vehicleId });
+    return vehicleResponse;
   }
 }
