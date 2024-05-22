@@ -38,7 +38,8 @@ export class BuySellService {
     }
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
-    query.vehicleId = vehicleResult?._id;
+    query.vehicleId = vehicleResult?._id.toString();
+    query.vehicleInfo = vehicleResult?._id.toString();
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -176,9 +177,10 @@ export class BuySellService {
     const filterParams = query;
     let result;
     if (_.isEmpty(filterParams)) {
-      result = await buySellVehicleInfo.find({}).lean();
-    } else result = await buySellVehicleInfo.find({ ...filterParams }).lean();
-    return result;
+      result = await buySellVehicleInfo.find({}).populate('vehicleInfo');
+    // } else {result = await buySellVehicleInfo.find().populate('vehicleInfo').find({ "vehicleInfo.gearType": 'AUTOMATIC' });
+    } else {result = await buySellVehicleInfo.find({ ...filterParams });
+   } return result;
   }
   async getAll(req: any) {
     Logger.info(
@@ -350,7 +352,7 @@ export class BuySellService {
 
   async getAllBuySellVehilce(): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
-    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({});
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({}).populate('vehicleInfo');
     return vehicleResponse;
   }
 
