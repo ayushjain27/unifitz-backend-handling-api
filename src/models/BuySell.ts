@@ -1,4 +1,4 @@
-import { Document, model, Schema, Types } from 'mongoose';
+import mongoose, { Document, model, Schema, Types } from 'mongoose';
 import { IContactInfo, storeContactSchema } from './Store';
 
 export enum UserType {
@@ -33,7 +33,9 @@ export interface IBuySell extends Document {
 
 export const buySellSchema: Schema = new Schema(
   {
-    vehicleId: { type: String },
+    vehicleId: {type: String},
+    vehicleInfo: {type: String,
+      ref: "vehicles"},
     userId: { type: Types.ObjectId, required: true },
     storeId: { type: String },
     userType: { type: String, enum: UserType },
@@ -51,5 +53,6 @@ export const buySellSchema: Schema = new Schema(
 );
 
 const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
+
 
 export default buySellVehicleInfo;

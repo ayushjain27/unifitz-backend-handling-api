@@ -3,7 +3,7 @@ import Logger from '../config/winston';
 import buySellVehicleInfo from './../models/BuySell';
 
 import { IBuySell } from './../models/BuySell';
-import VehicleInfo from './../models/Vehicle';
+import VehicleInfo, { IVehiclesInfo } from './../models/Vehicle';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
@@ -32,13 +32,26 @@ export class BuySellService {
       throw new Error('User not found');
     }
 
-    const vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
-    if (_.isEmpty(vehicleResult)) {
-      throw new Error('Vehicle not found');
+    const vehicle: IVehiclesInfo = await VehicleInfo.findOne({
+      vehicleNumber: buySellVehicle?.vehicleInfo?.vehicleNumber
+    });
+
+    let vehicleResult;
+    if (_.isEmpty(vehicle)) {
+      vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
+      // throw new Error('Vehicle does not exist');
+    }else{
+      vehicleResult = await VehicleInfo.findOneAndUpdate(
+        {
+          _id: vehicle._id
+        },
+        buySellVehicle.vehicleInfo,
+        { returnDocument: 'after' }
+      );
     }
-    delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
-    query.vehicleId = vehicleResult?._id;
+    query.vehicleId = vehicleResult?._id.toString();
+    query.vehicleInfo = vehicleResult?._id.toString();
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -176,9 +189,10 @@ export class BuySellService {
     const filterParams = query;
     let result;
     if (_.isEmpty(filterParams)) {
-      result = await buySellVehicleInfo.find({}).lean();
-    } else result = await buySellVehicleInfo.find({ ...filterParams }).lean();
-    return result;
+      result = await buySellVehicleInfo.find({}).populate('vehicleInfo');
+    // } else {result = await buySellVehicleInfo.find().populate('vehicleInfo').find({ "vehicleInfo.gearType": 'AUTOMATIC' });
+    } else {result = await buySellVehicleInfo.find({ ...filterParams });
+   } return result;
   }
   async getAll(req: any) {
     Logger.info(
@@ -326,7 +340,7 @@ export class BuySellService {
     console.log(statusRequest?.buySellVehicleId, 'dwfl');
     let buySellVehicle: IBuySell;
     buySellVehicle = await buySellVehicleInfo.findOne({
-      _id: new Types.ObjectId(statusRequest.buySellVehicleId)
+      vehicleId: statusRequest.buySellVehicleId
     });
 
     if (_.isEmpty(buySellVehicle)) {
@@ -334,7 +348,7 @@ export class BuySellService {
     }
 
     const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
-      { _id: statusRequest.buySellVehicleId },
+      { vehicleId: statusRequest.buySellVehicleId },
       {
         $set: {
           status: statusRequest.status
@@ -343,8 +357,21 @@ export class BuySellService {
       { returnDocument: 'after' }
     );
     Logger.info(
-      '<Service>:<VehicleService>: <Vehicle: Vehicle status updated successfully>'
+      '<Service>:<BuySellService>: <Vehicle: Vehicle status updated successfully>'
     );
     return updatedVehicle;
+  }
+
+  async getAllBuySellVehilce(): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({}).populate('vehicleInfo');
+    return vehicleResponse;
+  }
+
+  async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({ vehicleId });
+    return vehicleResponse;
   }
 }
