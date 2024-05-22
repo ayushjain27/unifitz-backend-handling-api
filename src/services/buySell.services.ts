@@ -3,7 +3,7 @@ import Logger from '../config/winston';
 import buySellVehicleInfo from './../models/BuySell';
 
 import { IBuySell } from './../models/BuySell';
-import VehicleInfo from './../models/Vehicle';
+import VehicleInfo, { IVehiclesInfo } from './../models/Vehicle';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
@@ -32,11 +32,23 @@ export class BuySellService {
       throw new Error('User not found');
     }
 
-    const vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
-    if (_.isEmpty(vehicleResult)) {
-      throw new Error('Vehicle not found');
+    const vehicle: IVehiclesInfo = await VehicleInfo.findOne({
+      vehicleNumber: buySellVehicle?.vehicleInfo?.vehicleNumber
+    });
+
+    let vehicleResult;
+    if (_.isEmpty(vehicle)) {
+      vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
+      // throw new Error('Vehicle does not exist');
+    }else{
+      vehicleResult = await VehicleInfo.findOneAndUpdate(
+        {
+          _id: vehicle._id
+        },
+        buySellVehicle.vehicleInfo,
+        { returnDocument: 'after' }
+      );
     }
-    delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
     query.vehicleInfo = vehicleResult?._id.toString();
