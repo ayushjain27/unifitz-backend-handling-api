@@ -40,7 +40,8 @@ export interface IVehicleImageList {
 
 export enum VehiclePurposeType {
   BUY_SELL = 'BUY_SELL',
-  OWNED = 'OWNED'
+  OWNED = 'OWNED',
+  OWNED_BUY_SELL = 'OWNED_BUY_SELL'
 }
 
 export enum VehicleGearType {
