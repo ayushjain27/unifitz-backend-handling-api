@@ -53,7 +53,7 @@ router.post(
   '/vehicleExistanceCheckApi',
   buySellController.checkVehicleExistance
 );
-router.get('/getBuySellAggregation', buySellController.getBuySellAggregation);
+router.get('/getBuySellAggregation', buySellController.getOwnStoreDetails);
 router.post(
   '/addBuySellVehicleImageList',
   uploadFile.array('files'),
@@ -64,6 +64,10 @@ router.post('/updateStatus', buySellController.updateBuySellVehicleStatus);
 
 router.get('/all', roleAuth(ACL.ADD_VEHICLE), buySellController.getAll);
 
-router.get('/getBuySellDetailsByVehicleId', roleAuth(ACL.ADD_VEHICLE), buySellController.getBuySellDetailsByVehicleId);
+router.get(
+  '/getBuySellDetailsByVehicleId',
+  roleAuth(ACL.ADD_VEHICLE),
+  buySellController.getBuySellDetailsByVehicleId
+);
 
 export default router;

@@ -31,11 +31,27 @@ export class BuySellService {
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
-
-    const vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
-    if (_.isEmpty(vehicleResult)) {
-      throw new Error('Vehicle not found');
+    // first check if the vehicle present in the vehicle db if yes update the db
+    const vehicleDetails = await VehicleInfo.findOne({
+      vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
+    });
+    let vehicleResult;
+    if (_.isEmpty(vehicleDetails)) {
+      vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
+    } else {
+      const vehicleDetails = {
+        ...buySellVehicle.vehicleInfo,
+        purpose: 'OWNED_BUY_SELL'
+      };
+      vehicleResult = await VehicleInfo.findOneAndUpdate(
+        {
+          vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
+        },
+        vehicleDetails,
+        { returnDocument: 'after' }
+      );
     }
+
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
@@ -178,11 +194,13 @@ export class BuySellService {
     let result;
     if (_.isEmpty(filterParams)) {
       result = await buySellVehicleInfo.find({}).populate('vehicleInfo');
-    // } else {result = await buySellVehicleInfo.find().populate('vehicleInfo').find({ "vehicleInfo.gearType": 'AUTOMATIC' });
-    } else {result = await buySellVehicleInfo.find({ ...filterParams });
-   } return result;
+      // } else {result = await buySellVehicleInfo.find().populate('vehicleInfo').find({ "vehicleInfo.gearType": 'AUTOMATIC' });
+    } else {
+      result = await buySellVehicleInfo.find({ ...filterParams });
+    }
+    return result;
   }
-  async getAll(req: any) {
+  async getOwnStoreDetails(req: any) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
@@ -192,17 +210,14 @@ export class BuySellService {
         'storeDetails.storeId': req?.storeId
       })
       .lean();
-    const totalAmount = 0;
-    // result.reduce(
-    //   (a, b) => a + b.vehicleInfo.expectedPrice,
-    //   0
-    // );
+    let totalAmount = 0;
     let count = 0;
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
       const date1 = new Date(list.createdAt);
       const date2 = new Date();
+      totalAmount += Number(list?.expectedPrice);
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
       if (Difference_In_Days <= 45) {
@@ -241,11 +256,9 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Upload Buy Sell Vehicle Images initiated>'
     );
-    const buySellVehicleDetails = await buySellVehicleInfo
-      .findOne({
-        'vehicleInfo.vehicleNumber': req?.body?.vehicleNumber
-      })
-      ?.lean();
+    const buySellVehicleDetails = await VehicleInfo.findOne({
+      _id: new Types.ObjectId(req?.body?.vehicleId)
+    })?.lean();
     if (_.isEmpty(buySellVehicleDetails)) {
       throw new Error('Vehicle does not exist');
     }
@@ -307,10 +320,13 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
+    const vehicleId = await VehicleInfo.findOne({
+      vehicleNumber
+    });
     const vehiclePresent: {
       storeDetails: { basicInfo: { businessName: '' } };
     } = await buySellVehicleInfo.findOne({
-      'vehicleInfo.vehicleNumber': vehicleNumber
+      vehicleId: String(vehicleId?._id)
     });
     if (!_.isEmpty(vehiclePresent)) {
       return {
@@ -352,14 +368,18 @@ export class BuySellService {
 
   async getAllBuySellVehilce(): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
-    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.find({}).populate('vehicleInfo');
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo
+      .find({})
+      .populate('vehicleInfo');
     return vehicleResponse;
   }
 
   async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
-    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({ vehicleId });
+    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({
+      vehicleId
+    });
     return vehicleResponse;
   }
 }
