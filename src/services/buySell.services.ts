@@ -3,7 +3,7 @@ import Logger from '../config/winston';
 import buySellVehicleInfo from './../models/BuySell';
 
 import { IBuySell } from './../models/BuySell';
-import VehicleInfo from './../models/Vehicle';
+import VehicleInfo, { IVehiclesInfo } from './../models/Vehicle';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';

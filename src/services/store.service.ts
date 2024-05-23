@@ -78,12 +78,12 @@ export class StoreService {
     storePayload.storeId = newStoreId;
     storePayload.profileStatus = StoreProfileStatus.DRAFT;
     const businessName = storeRequest.storePayload.basicInfo.businessName;
-    let baseSlug = slugify(businessName, { lower: true, strict: true });
-    console.log(baseSlug,"dsklk");
+    const baseSlug = slugify(businessName, { lower: true, strict: true });
+    console.log(baseSlug, 'dsklk');
 
-    let slug = `${baseSlug}-${newStoreId}`;
+    const slug = `${baseSlug}-${newStoreId}`;
     storePayload.slug = slug;
-    
+
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
@@ -389,9 +389,7 @@ export class StoreService {
       !_.isEmpty(status) ||
       !_.isEmpty(verifiedStore)
     ) {
-      stores = await Store.find(query, {
-        'verificationDetails.verifyObj': 0
-      }).lean();
+      stores = await Store.aggregate([{ $match: query }]);
     }
 
     //STARTS --- Update Script for all the stores

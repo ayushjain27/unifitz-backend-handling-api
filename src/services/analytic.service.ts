@@ -395,62 +395,62 @@ export class AnalyticService {
           _id: '$_id.groupId',
           views: {
             $sum: 1
-          },
-          stores: {
-            $push: {
-              store: '$_id.store'
-            }
           }
+          // stores: {
+          //   $push: {
+          //     store: '$_id.store'
+          //   }
+          // }
         }
       },
-      {
-        $addFields: {
-          stores: {
-            $map: {
-              input: {
-                $setUnion: '$stores'
-              },
-              as: 'j',
-              in: {
-                storeName: '$$j.store',
-                storeVisited: {
-                  $size: {
-                    $filter: {
-                      input: '$stores',
-                      cond: {
-                        $eq: ['$$this.store', '$$j.store']
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        $set: {
-          topViewStore: {
-            $arrayElemAt: [
-              '$stores',
-              {
-                $indexOfArray: [
-                  '$stores.storeVisited',
-                  { $max: '$stores.storeVisited' }
-                ]
-              }
-            ]
-          }
-        }
-      },
+      // {
+      //   $addFields: {
+      //     stores: {
+      //       $map: {
+      //         input: {
+      //           $setUnion: '$stores'
+      //         },
+      //         as: 'j',
+      //         in: {
+      //           storeName: '$$j.store',
+      //           storeVisited: {
+      //             $size: {
+      //               $filter: {
+      //                 input: '$stores',
+      //                 cond: {
+      //                   $eq: ['$$this.store', '$$j.store']
+      //                 }
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   $set: {
+      //     topViewStore: {
+      //       $arrayElemAt: [
+      //         '$stores',
+      //         {
+      //           $indexOfArray: [
+      //             '$stores.storeVisited',
+      //             { $max: '$stores.storeVisited' }
+      //           ]
+      //         }
+      //       ]
+      //     }
+      //   }
+      // },
       {
         $project: {
           date: {
             $toString: '$_id'
           },
           views: 1,
-          stores: 1,
-          topViewStore: 1,
+          // stores: 1,
+          // topViewStore: 1,
           _id: 0
         }
       },
@@ -949,66 +949,66 @@ export class AnalyticService {
           _id: '$_id.groupId',
           views: {
             $sum: 1
-          },
-          moduleResult: {
-            $push: {
-              eventId: '$_id.eventId',
-              moduleName: '$_id.moduleName',
-              eventName: '$_id.eventName'
-            }
           }
+          // moduleResult: {
+          //   $push: {
+          //     eventId: '$_id.eventId',
+          //     moduleName: '$_id.moduleName',
+          //     eventName: '$_id.eventName'
+          //   }
+          // }
         }
       },
-      {
-        $addFields: {
-          moduleResult: {
-            $map: {
-              input: {
-                $setUnion: '$moduleResult'
-              },
-              as: 'j',
-              in: {
-                eventId: '$$j.eventId',
-                moduleName: '$$j.moduleName',
-                eventName: '$$j.eventName',
-                eventVisited: {
-                  $size: {
-                    $filter: {
-                      input: '$moduleResult',
-                      cond: {
-                        $eq: ['$$this.eventId', '$$j.eventId']
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        $set: {
-          topView: {
-            $arrayElemAt: [
-              '$moduleResult',
-              {
-                $indexOfArray: [
-                  '$moduleResult.eventVisited',
-                  { $max: '$moduleResult.eventVisited' }
-                ]
-              }
-            ]
-          }
-        }
-      },
+      // {
+      //   $addFields: {
+      //     moduleResult: {
+      //       $map: {
+      //         input: {
+      //           $setUnion: '$moduleResult'
+      //         },
+      //         as: 'j',
+      //         in: {
+      //           eventId: '$$j.eventId',
+      //           moduleName: '$$j.moduleName',
+      //           eventName: '$$j.eventName',
+      //           eventVisited: {
+      //             $size: {
+      //               $filter: {
+      //                 input: '$moduleResult',
+      //                 cond: {
+      //                   $eq: ['$$this.eventId', '$$j.eventId']
+      //                 }
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   $set: {
+      //     topView: {
+      //       $arrayElemAt: [
+      //         '$moduleResult',
+      //         {
+      //           $indexOfArray: [
+      //             '$moduleResult.eventVisited',
+      //             { $max: '$moduleResult.eventVisited' }
+      //           ]
+      //         }
+      //       ]
+      //     }
+      //   }
+      // },
       {
         $project: {
           date: {
             $toString: '$_id'
           },
           views: 1,
-          moduleResult: 1,
-          topView: 1,
+          // moduleResult: 1,
+          // topView: 1,
           _id: 0
         }
       },
