@@ -3,7 +3,7 @@ import { IContactInfo, storeContactSchema } from './Store';
 
 export enum UserType {
   CUSTOMER = 'CUSTOMER',
-  DEALER = 'DEALER'
+  DEALER = 'PARTNER'
 }
 
 export enum Status {
