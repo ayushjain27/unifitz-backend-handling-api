@@ -171,12 +171,12 @@ export class BuySellController {
     }
   };
 
-  getBuySellAggregation = async (req: Request, res: Response) => {
+  getOwnStoreDetails = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
     );
     try {
-      const result = await this.buySellService.getAll(req.query);
+      const result = await this.buySellService.getOwnStoreDetails(req.query);
       res.send({
         result
       });

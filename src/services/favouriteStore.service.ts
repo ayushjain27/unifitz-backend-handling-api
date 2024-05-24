@@ -7,7 +7,7 @@ import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import FavouriteStore, { IFavouriteStore } from '../models/FavouriteStore';
 import Store, { IStore } from './../models/Store';
-import Customer, { ICustomer } from './../models/Customer';
+import User, { IUser } from './../models/User';
 import { AddToFavouriteRequest } from '../interfaces/addToFavouriteRequest.interface';
 import { StoreService } from './store.service';
 
@@ -32,7 +32,7 @@ export class FavouriteStoreService {
     }
 
     // Check if Customer exists
-    const customer: ICustomer = await Customer.findOne({
+    const customer: IUser = await User.findOne({
       _id: new Types.ObjectId(customerId)
     }).lean();
     if (_.isEmpty(customer)) {

@@ -3,7 +3,7 @@ import { IContactInfo, storeContactSchema } from './Store';
 
 export enum UserType {
   CUSTOMER = 'CUSTOMER',
-  DEALER = 'DEALER'
+  DEALER = 'PARTNER'
 }
 
 export enum Status {
@@ -12,7 +12,8 @@ export enum Status {
   UNSOLD = 'UNSOLD',
   EXPIRED = 'EXPIRED',
   PROCESSING = 'PROCESSING',
-  INACTIVE = 'INACTIVE'
+  INACTIVE = 'INACTIVE',
+  DRAFT = 'DRAFT'
 }
 
 export interface IBuySell extends Document {
@@ -39,7 +40,7 @@ export const buySellSchema: Schema = new Schema(
     userId: { type: Types.ObjectId, required: true },
     storeId: { type: String },
     userType: { type: String, enum: UserType },
-    status: { type: String, enum: Status, default: Status.INACTIVE },
+    status: { type: String, enum: Status, default: Status.DRAFT },
     transactionDetails: { type: Schema.Types.Mixed },
     contactInfo: { type: storeContactSchema },
     isOwner: { type: Boolean, required: true },
