@@ -209,7 +209,7 @@ export class BuySellService {
       .find({
         'storeDetails.storeId': req?.storeId
       })
-      .lean();
+      .populate('vehicleInfo');
     let totalAmount = 0;
     let count = 0;
     let activeVeh: any = [];
