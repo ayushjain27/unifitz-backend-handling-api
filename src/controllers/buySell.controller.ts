@@ -241,7 +241,7 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
     );
     try {
-      const result = await this.buySellService.getAllBuySellVehilce();
+      const result = await this.buySellService.getAllBuySellVehilce(req.body);
       res.send({
         result
       });

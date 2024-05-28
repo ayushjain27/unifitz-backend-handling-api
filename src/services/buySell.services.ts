@@ -366,11 +366,103 @@ export class BuySellService {
     return updatedVehicle;
   }
 
-  async getAllBuySellVehilce(): Promise<IBuySell[]> {
+  async getAllBuySellVehilce(req: any): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
-    const vehicleResponse: IBuySell[] = await buySellVehicleInfo
+
+    let start;
+    let end;
+
+    const query: any = {
+      'vehicleInfo.vehicleType': req.vehicleType
+    };
+    console.log(req.year, req.month, req.date, 'AFds;lwmk');
+
+    if (!_.isEmpty(req.year) && !_.isEmpty(req.month) && !_.isEmpty(req.date)) {
+      // Create start time in UTC at the beginning of the day (00:00:00)
+      start = new Date(Date.UTC(req.year, req.month - 1, req.date));
+      start.setUTCHours(0, 0, 0, 0);
+    
+      // Create end time in UTC at the end of the day (23:59:59)
+      end = new Date(Date.UTC(req.year, req.month - 1, req.date));
+      end.setUTCHours(23, 59, 59, 999);
+ 
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      !_.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, req.month - 1, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, req.month, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      _.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, 0, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, 12, 0));
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(start.toISOString(), end.toISOString(), 'fdwrasfefdwr');
+
+      query.createdAt = { $gte: start, $lte: end };
+    }
+
+    // 'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+    // 'contactInfo.state': { $in: searchReqBody.state },
+    // 'contactInfo.city': { $in: searchReqBody.city },
+    // createdAt: { $gte: startDate, $lt: endDate },
+    // profileStatus: 'ONBOARDED'
+    if (!req.vehicleType) {
+      delete query['vehicleInfo.vehicleType'];
+    }
+    // if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+    //   delete query['basicInfo.subCategory.name'];
+    // }
+    // if (!searchReqBody.state) {
+    //   delete query['contactInfo.state'];
+    // }
+    // if (!searchReqBody.city) {
+    //   delete query['contactInfo.city'];
+    // }
+    // if (!startDate && !endDate) {
+    //   delete query.createdAt;
+    // }
+    Logger.debug(query);
+    console.log(query, 'jbkhjj');
+    let vehicleResponse: IBuySell[] = await buySellVehicleInfo
       .find({})
       .populate('vehicleInfo');
+    vehicleResponse = vehicleResponse.filter((item: any) => {
+      // Check for vehicleType
+      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
+        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
+          return false;
+        }
+      }
+
+      // Check for createdAt date range
+      if (!_.isEmpty(query.createdAt)) {
+        const createdAt = new Date(item.createdAt);
+        if (
+          !(
+            createdAt >= query.createdAt['$gte'] &&
+            createdAt <= query.createdAt['$lte']
+          )
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
     return vehicleResponse;
   }
 
