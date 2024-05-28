@@ -375,9 +375,6 @@ export class BuySellService {
     const query: any = {
       'vehicleInfo.vehicleType': req.vehicleType
     };
-    console.log("fmkfdwkdsf", req, 'AFds;lwmk');
-    console.log("fmkfdwk", req.date, 'AFds;lwmk');
-
     if (req?.date) {
       // Create start time in UTC at the beginning of the day (00:00:00)
       start = new Date(req.date);
@@ -387,11 +384,7 @@ export class BuySellService {
       // Create end time in UTC at the end of the day (23:59:59)
       end = new Date(req.date);
       end.setDate(end.getDate() + 1);
-      end.setUTCHours(23, 59, 59, 999);
-
-      console.log("Start Date: ", start.toISOString());
-      console.log("End Date: ", end.toISOString());
-  
+      end.setUTCHours(23, 59, 59, 999);  
  
       query.createdAt = { $gte: start, $lte: end };
     } else if (
