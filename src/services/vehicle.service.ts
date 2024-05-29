@@ -306,9 +306,56 @@ export class VehicleInfoService {
     return updatedVehicle;
   }
 
-  async getAll(): Promise<IVehiclesInfo[]> {
+  async getAll(req: any): Promise<IVehiclesInfo[]> {
     Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
-    const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.find({});
+    let start;
+    let end;
+
+    const query: any = {
+      vehicleType: req.vehicleType
+    };
+    if (req?.date) {
+      // Create start time in UTC at the beginning of the day (00:00:00)
+      start = new Date(req.date);
+      start.setDate(start.getDate() + 1);
+      start.setUTCHours(0, 0, 0, 0);
+    
+      // Create end time in UTC at the end of the day (23:59:59)
+      end = new Date(req.date);
+      end.setDate(end.getDate() + 1);
+      end.setUTCHours(23, 59, 59, 999);  
+ 
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      !_.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, req.month - 1, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, req.month, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      _.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, 0, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, 12, 0));
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(start.toISOString(), end.toISOString(), 'fdwrasfefdwr');
+
+      query.createdAt = { $gte: start, $lte: end };
+    }
+    if (!req.vehicleType) {
+      delete query['vehicleType'];
+    }
+    const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.find(query);
     return vehicleResponse;
   }
 }

@@ -413,41 +413,21 @@ export class BuySellService {
 
       query.createdAt = { $gte: start, $lte: end };
     }
-
-    // 'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
-    // 'contactInfo.state': { $in: searchReqBody.state },
-    // 'contactInfo.city': { $in: searchReqBody.city },
-    // createdAt: { $gte: startDate, $lt: endDate },
-    // profileStatus: 'ONBOARDED'
     if (!req.vehicleType) {
       delete query['vehicleInfo.vehicleType'];
     }
-    // if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
-    //   delete query['basicInfo.subCategory.name'];
-    // }
-    // if (!searchReqBody.state) {
-    //   delete query['contactInfo.state'];
-    // }
-    // if (!searchReqBody.city) {
-    //   delete query['contactInfo.city'];
-    // }
-    // if (!startDate && !endDate) {
-    //   delete query.createdAt;
-    // }
     Logger.debug(query);
     console.log(query, 'jbkhjj');
     let vehicleResponse: IBuySell[] = await buySellVehicleInfo
       .find({})
       .populate('vehicleInfo');
     vehicleResponse = vehicleResponse.filter((item: any) => {
-      // Check for vehicleType
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
         if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
           return false;
         }
       }
 
-      // Check for createdAt date range
       if (!_.isEmpty(query.createdAt)) {
         const createdAt = new Date(item.createdAt);
         if (
