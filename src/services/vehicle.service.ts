@@ -34,16 +34,40 @@ export class VehicleInfoService {
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
-    const newVehicleStore = {
-      ...vehicleStore,
-      userId: new Types.ObjectId(vehicleStore.userId)
-    };
+    const vehicleDetails = await VehicleInfo.findOne({
+      vehicleNumber: vehicleStore?.vehicleNumber
+    });
+    let vehicleResult;
+    if (_.isEmpty(vehicleDetails)) {
+      const vehicleDetails = {
+        ...vehicleStore,
+        userId: new Types.ObjectId(vehicleStore.userId)
+      };
+      vehicleResult = await VehicleInfo.create(vehicleDetails);
+    }else if(vehicleDetails?.purpose === 'BUY_SELL'){
+      const vehicleDetails = {
+        ...vehicleStore,
+        purpose: 'OWNED_BUY_SELL'
+      };
+      vehicleResult = await VehicleInfo.findOneAndUpdate(
+        {
+          vehicleNumber: vehicleStore?.vehicleNumber
+        },
+        vehicleDetails,
+        { returnDocument: 'after' }
+      );
+    }else{
+      vehicleResult = await VehicleInfo.findOneAndUpdate(
+        {
+          vehicleNumber: vehicleStore?.vehicleNumber
+        },
+        vehicleStore,
+        { returnDocument: 'after' }
+      );
+    }
 
-    const newVehicleItem: IVehiclesInfo = await VehicleInfo.create(
-      newVehicleStore
-    );
     Logger.info('<Service>:<VehicleService>:<Vehicle created successfully>');
-    return newVehicleItem;
+    return vehicleResult;
   }
 
   async getAllVehicleByUser(getVehicleRequest: {
@@ -110,25 +134,23 @@ export class VehicleInfoService {
       vehicleImageList[fileName] = { key, docURL: url };
     }
 
-      Logger.info(
-        `<Service>:<VehicleService>:<Upload all images - successful>`
-      );
+    Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
 
-      Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+    Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
 
-      const updatedVehicle = await VehicleInfo.findOneAndUpdate(
-        {
-          _id: vehicleId
-        },
-        {
-          $set: {
-            vehicleImageList: vehicleImageList
-          }
-        },
-        { returnDocument: 'after' }
-      );
+    const updatedVehicle = await VehicleInfo.findOneAndUpdate(
+      {
+        _id: vehicleId
+      },
+      {
+        $set: {
+          vehicleImageList: vehicleImageList
+        }
+      },
+      { returnDocument: 'after' }
+    );
 
-      return updatedVehicle;
+    return updatedVehicle;
   }
 
   async deleteVehicleImage(
@@ -247,6 +269,14 @@ export class VehicleInfoService {
     );
     // validate the store from user phone number and user id
     const { vehicleNumber } = reqBody;
+    const vehiclePresent = await VehicleInfo.findOne({
+      vehicleNumber
+    });
+    if (!_.isEmpty(vehiclePresent)) {
+      return {
+        message: `This vehicle is already registered if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`
+      };
+    }
     try {
       // get the store data
       const vehicleDetails = await this.surepassService.getRcDetails(
@@ -319,12 +349,12 @@ export class VehicleInfoService {
       start = new Date(req.date);
       start.setDate(start.getDate() + 1);
       start.setUTCHours(0, 0, 0, 0);
-    
+
       // Create end time in UTC at the end of the day (23:59:59)
       end = new Date(req.date);
       end.setDate(end.getDate() + 1);
-      end.setUTCHours(23, 59, 59, 999);  
- 
+      end.setUTCHours(23, 59, 59, 999);
+
       query.createdAt = { $gte: start, $lte: end };
     } else if (
       !_.isEmpty(req.year) &&
