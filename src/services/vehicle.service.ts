@@ -274,7 +274,8 @@ export class VehicleInfoService {
     });
     if (!_.isEmpty(vehiclePresent)) {
       return {
-        message: `This vehicle is already registered if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`
+        message: `This vehicle is already registered if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
+        isPresent: true
       };
     }
     try {
