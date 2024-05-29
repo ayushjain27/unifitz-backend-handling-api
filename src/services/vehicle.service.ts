@@ -108,6 +108,7 @@ export class VehicleInfoService {
         file.buffer
       );
       vehicleImageList[fileName] = { key, docURL: url };
+    }
 
       Logger.info(
         `<Service>:<VehicleService>:<Upload all images - successful>`
@@ -128,7 +129,6 @@ export class VehicleInfoService {
       );
 
       return updatedVehicle;
-    }
   }
 
   async deleteVehicleImage(
