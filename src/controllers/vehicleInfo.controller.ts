@@ -205,7 +205,7 @@ export class VehicleInfoController {
       '<Controller>:<VehicleInfoController>:<Get all vehicles request controller initiated>'
     );
     try {
-      const result = await this.vehicleInfoService.getAll();
+      const result = await this.vehicleInfoService.getAll(req.body);
       res.send({
         result
       });
