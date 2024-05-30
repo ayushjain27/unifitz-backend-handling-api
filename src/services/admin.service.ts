@@ -22,6 +22,7 @@ import DistributorPartnersReview from '../models/DistributorPartnersReview';
 import Store, { IStore } from '../models/Store';
 import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class AdminService {
@@ -49,6 +50,9 @@ export class AdminService {
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
     upAdminFields.isFirstTimeLoggedIn = true;
+    console.log(permissions.OEM,"f;klmk")
+    upAdminFields.accessList = permissions.OEM;
+    console.log(upAdminFields,"fw;elk")
 
     const newAdmin: IAdmin = (
       await Admin.create(upAdminFields)

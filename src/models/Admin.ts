@@ -38,6 +38,7 @@ export const productSubCateoryMapSchema: Schema = new Schema({
     required: true
   }
 });
+
 export const gstDocumentSchema: Schema = new Schema<IGstInformation>({
   clientId: {
     type: String
@@ -123,6 +124,7 @@ export interface IAdmin {
   updateCount?: string;
   lastModifyResult?: Date;
   lastLogin: Date;
+  accessList: object;
 }
 
 export interface IDocumentImage {
@@ -333,6 +335,9 @@ const adminSchema: Schema = new Schema<IAdmin>(
     lastLogin: {
       type: Date,
       default: Date.now
+    },
+    accessList: {
+      type: Object
     }
   },
   { timestamps: true, strict: false }
