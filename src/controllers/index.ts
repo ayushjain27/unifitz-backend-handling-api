@@ -19,3 +19,4 @@ export * from './storeCustomer.controller';
 export * from './business.controller';
 export * from './schoolOfAuto.controller';
 export * from './createInvoice.controller';
+export * from './newVehicle.controller';

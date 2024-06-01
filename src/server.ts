@@ -27,6 +27,7 @@ import advertisement from './routes/api/advertisement.route';
 import favouriteStore from './routes/api/favouriteStore';
 // import { ObjectId } from 'mongoose';
 import vehicle from './routes/api/vehicle';
+import newVehicle from './routes/api/newVehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
 import { window } from './utils/constants/common';
@@ -105,6 +106,7 @@ app.use('/invoice', invoice);
 app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
+app.use('/newVehicle', newVehicle);
 app.use('/enquiry', enquiry);
 app.use('/categories', category);
 app.use('/report', report);
@@ -293,7 +295,6 @@ const server = app.listen(port, () =>
 // app.get('/slug', async (req, res) => {
 //   updateSlugs();
 // });
-
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
@@ -737,7 +738,6 @@ app.get('/createTemplate', async (req, res) => {
 //     res.json('Done');
 //   });
 // });
-
 
 export default server;
 

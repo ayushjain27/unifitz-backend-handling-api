@@ -65,4 +65,7 @@ export const TYPES = {
 
   CreateInvoiceController: Symbol('CreateInvoiceController'),
   CreateInvoiceService: Symbol('CreateInvoiceService'),
+
+  NewVehicleInfoContoller: Symbol('NewVehicleInfoContoller'),
+  NewVehicleInfoService: Symbol('NewVehicleInfoService')
 };
