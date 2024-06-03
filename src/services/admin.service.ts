@@ -22,6 +22,7 @@ import DistributorPartnersReview from '../models/DistributorPartnersReview';
 import Store, { IStore } from '../models/Store';
 import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class AdminService {
@@ -49,6 +50,9 @@ export class AdminService {
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
     upAdminFields.isFirstTimeLoggedIn = true;
+    console.log(permissions.OEM,"f;klmk")
+    upAdminFields.accessList = permissions.OEM;
+    console.log(upAdminFields,"fw;elk")
 
     const newAdmin: IAdmin = (
       await Admin.create(upAdminFields)
@@ -235,6 +239,44 @@ export class AdminService {
 
     return admin;
   }
+
+  async updateUserAccessStatus(reqBody: {
+    userName: string;
+    accessListKey: string;
+    accessListEntry: string;
+    accessListValue: boolean;
+  }): Promise<any> {
+    Logger.info('<Service>:<UserService>:<Update user status >');
+
+    const { userName, accessListKey, accessListEntry, accessListValue } =
+      reqBody;
+    let admin: IAdmin;
+    if (userName) {
+      admin = await Admin.findOne({ userName });
+    }
+
+    if (!userName) {
+      Logger.error('<Service>:<UserService>:< User Name not found>');
+      throw new Error('User not found');
+    }
+
+    const result: IAdmin = await Admin.findOneAndUpdate(
+      {
+        userName: reqBody?.userName
+      },
+      {
+        $set: {
+          [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
+        }
+      },
+      { returnDocument: 'after' }
+    );
+
+    return {
+      message: `Access User Status has updated`
+    };
+  }
+
 
   private async encryptPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
