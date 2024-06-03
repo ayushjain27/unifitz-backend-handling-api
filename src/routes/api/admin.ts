@@ -36,6 +36,7 @@ router.put(
   adminController.validate('updateUser'),
   adminController.updateUser
 );
+
 router.get('/getAll', roleAuth(ACL.ADMIN_USER_CREATE), adminController.getAll);
 
 router.post(
@@ -61,6 +62,12 @@ router.post(
   roleAuth(ACL.ADMIN_USER_CREATE),
   adminController.validate('updateUserStatus'),
   adminController.updateUserStatus
+);
+
+router.post(
+  '/updateUserAccessStatus',
+  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.updateUserAccessStatus
 );
 
 router.post(

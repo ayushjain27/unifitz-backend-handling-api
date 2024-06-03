@@ -231,6 +231,26 @@ export class AdminController {
     }
   };
 
+  updateUserAccessStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update User Access Status>');
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateUserAccessStatus(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   initiateB2BPartnersVerification = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<AdminController>:<Verify B2B Partners Initatiate>'
