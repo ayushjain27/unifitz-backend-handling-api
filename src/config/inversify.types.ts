@@ -67,5 +67,8 @@ export const TYPES = {
   CreateInvoiceService: Symbol('CreateInvoiceService'),
 
   NewVehicleInfoContoller: Symbol('NewVehicleInfoContoller'),
-  NewVehicleInfoService: Symbol('NewVehicleInfoService')
+  NewVehicleInfoService: Symbol('NewVehicleInfoService'),
+
+  SPEmployeeController: Symbol('SPEmployeeController'),
+  SPEmployeeService: Symbol('SPEmployeeService')
 };
