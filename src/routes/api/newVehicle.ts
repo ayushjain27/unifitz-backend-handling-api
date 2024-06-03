@@ -23,7 +23,11 @@ router.post(
   newVehicleController.uploadVehicleImages
 );
 
-router.post('/getAll', newVehicleController.getAllVehicle);
+router.post(
+  '/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.getAllVehicle
+);
 
 router.get('/getById', newVehicleController.getById);
 router.put('/update/:vehicleId', newVehicleController.update);
