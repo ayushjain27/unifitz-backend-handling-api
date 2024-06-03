@@ -240,6 +240,44 @@ export class AdminService {
     return admin;
   }
 
+  async updateUserAccessStatus(reqBody: {
+    userName: string;
+    accessListKey: string;
+    accessListEntry: string;
+    accessListValue: boolean;
+  }): Promise<any> {
+    Logger.info('<Service>:<UserService>:<Update user status >');
+
+    const { userName, accessListKey, accessListEntry, accessListValue } =
+      reqBody;
+    let admin: IAdmin;
+    if (userName) {
+      admin = await Admin.findOne({ userName });
+    }
+
+    if (!userName) {
+      Logger.error('<Service>:<UserService>:< User Name not found>');
+      throw new Error('User not found');
+    }
+
+    const result: IAdmin = await Admin.findOneAndUpdate(
+      {
+        userName: reqBody?.userName
+      },
+      {
+        $set: {
+          [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
+        }
+      },
+      { returnDocument: 'after' }
+    );
+
+    return {
+      message: `Access User Status has updated`
+    };
+  }
+
+
   private async encryptPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
