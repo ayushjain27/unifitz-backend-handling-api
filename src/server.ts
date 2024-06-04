@@ -35,6 +35,7 @@ import stateCityList from './utils/constants/statecityList.json';
 import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
+import spEmployee from './routes/api/spEmployee';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
@@ -117,6 +118,7 @@ app.use('/business', business);
 app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer);
+app.use('/spEmployee', spEmployee);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -256,22 +258,22 @@ const server = app.listen(port, () =>
   )
 );
 
-async function updateSlugs() {
-  try {
-    // Use aggregation pipeline in updateMany
-    await Admin.updateMany(// Only update documents that have storeId
-     { $set: { accessList: permissions.OEM } },
-    );
+// async function updateSlugs() {
+//   try {
+//     // Use aggregation pipeline in updateMany
+//     await Admin.updateMany(// Only update documents that have storeId
+//      { $set: { accessList: permissions.OEM } },
+//     );
 
-    console.log('All documents have been updated with slugs.');
-  } catch(err){
-    console.log(err,"sa;lkfndj")
-  }
-}
+//     console.log('All documents have been updated with slugs.');
+//   } catch(err){
+//     console.log(err,"sa;lkfndj")
+//   }
+// }
 
-app.get('/slug', async (req, res) => {
-  updateSlugs();
-});
+// app.get('/slug', async (req, res) => {
+//   updateSlugs();
+// });
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();

@@ -37,4 +37,24 @@ export class SPEmployeeController {
     }
   };
 
+  uploadEmployeeImage = async (req: Request, res: Response) => {
+    const { employeeId } = req.body;
+    console.log(req.body,"afdmslkflm")
+    Logger.info(
+      '<Controller>:<SPEmployeeController>:<Upload Employee request initiated>'
+    );
+    try {
+      const result = await this.spEmployeeService.updateEmployeeImage(
+        employeeId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
 }

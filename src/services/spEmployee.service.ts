@@ -27,19 +27,56 @@ export class SPEmployeeService {
     );
 
     // check if store id exist
-    // const { storeId } = employeePayload;
-    // let store: IStore;
-    // if (storeId) {
-    //   store = await Store.findOne({ storeId }, { verificationDetails: 0 });
-    // }
+    const { employeeId, userName } = employeePayload;
+    let employee: ISPEmployee;
+    if (employeeId) {
+      employee = await SPEmployee.findOne({ employeeId, userName });
+    }
+    if(employee){
+      return {
+        message: `The employee with that employee id has already registered.`,
+        isPresent: true
+      };
+    }
     // if (!store) {
     //   Logger.error('<Service>:<EmployeeService>:< Store id not found>');
     //   throw new Error('Store not found');
     // }
     let newEmp: ISPEmployee = employeePayload;
-    // newEmp.storeId = store?.storeId;
     newEmp = await SPEmployee.create(newEmp);
-    // Logger.info('<Service>:<EmployeeService>:<Employee created successfully>');
-    return "asd";
+    Logger.info('<Service>:<SPEmployeeService>:<Employee created successfully>');
+    return newEmp;
+  }
+
+  async updateEmployeeImage(employeeId: string, req: Request | any) {
+    Logger.info('<Service>:<SPEmployeeService>:<Employee image uploading>');
+    const employee: ISPEmployee = await SPEmployee.findOne({
+      _id: new Types.ObjectId(employeeId)
+    });
+    if (_.isEmpty(employee)) {
+      throw new Error('Employee does not exist');
+    }
+    const file: any = req.file;
+
+    let profileImageUrl: any = employee.profileImageUrl || '';
+
+    if (!file) {
+      throw new Error('Files not found');
+    }
+
+    const fileName = 'profile';
+    const { url } = await this.s3Client.uploadFile(
+      employeeId,
+      fileName,
+      file.buffer
+    );
+    profileImageUrl = url;
+
+    const res = await Customer.findOneAndUpdate(
+      { _id: employeeId },
+      { $set: { profileImageUrl } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 }

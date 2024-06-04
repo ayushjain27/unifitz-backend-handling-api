@@ -22,4 +22,10 @@ router.post(
   spEmployeeController.createEmployee
 );
 
+router.post(
+  '/uploadEmployeeImage',
+  uploadFile.single('file'),
+  spEmployeeController.uploadEmployeeImage
+);
+
 export default router;
