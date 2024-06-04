@@ -190,14 +190,10 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const filterParams = query;
-    let result;
-    if (_.isEmpty(filterParams)) {
-      result = await buySellVehicleInfo.find({}).populate('vehicleInfo');
-      // } else {result = await buySellVehicleInfo.find().populate('vehicleInfo').find({ "vehicleInfo.gearType": 'AUTOMATIC' });
-    } else {
-      result = await buySellVehicleInfo.find({ ...filterParams });
-    }
+    const filterParams = { ...query, status: 'ACTIVE' };
+    const result = await buySellVehicleInfo
+      .find({ ...filterParams })
+      .populate('vehicleInfo');
     return result;
   }
   async getOwnStoreDetails(req: any) {
@@ -209,7 +205,7 @@ export class BuySellService {
       .find({
         'storeDetails.storeId': req?.storeId
       })
-      .lean();
+      .populate('vehicleInfo');
     let totalAmount = 0;
     let count = 0;
     let activeVeh: any = [];
@@ -330,7 +326,7 @@ export class BuySellService {
     });
     if (!_.isEmpty(vehiclePresent)) {
       return {
-        message: `This vehicle is already registerred if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
+        message: `This vehicle is already registered if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
         isPresent: true
       };
     }
@@ -366,11 +362,83 @@ export class BuySellService {
     return updatedVehicle;
   }
 
-  async getAllBuySellVehilce(): Promise<IBuySell[]> {
+  async getAllBuySellVehilce(req: any): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
-    const vehicleResponse: IBuySell[] = await buySellVehicleInfo
+
+    let start;
+    let end;
+
+    const query: any = {
+      'vehicleInfo.vehicleType': req.vehicleType
+    };
+    if (req?.date) {
+      // Create start time in UTC at the beginning of the day (00:00:00)
+      start = new Date(req.date);
+      start.setDate(start.getDate() + 1);
+      start.setUTCHours(0, 0, 0, 0);
+
+      // Create end time in UTC at the end of the day (23:59:59)
+      end = new Date(req.date);
+      end.setDate(end.getDate() + 1);
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      !_.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, req.month - 1, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, req.month, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      _.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, 0, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, 12, 0));
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(start.toISOString(), end.toISOString(), 'fdwrasfefdwr');
+
+      query.createdAt = { $gte: start, $lte: end };
+    }
+    if (!req.vehicleType) {
+      delete query['vehicleInfo.vehicleType'];
+    }
+    Logger.debug(query);
+    console.log(query, 'jbkhjj');
+    let vehicleResponse: IBuySell[] = await buySellVehicleInfo
       .find({})
       .populate('vehicleInfo');
+    vehicleResponse = vehicleResponse.filter((item: any) => {
+      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
+        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.createdAt)) {
+        const createdAt = new Date(item.createdAt);
+        if (
+          !(
+            createdAt >= query.createdAt['$gte'] &&
+            createdAt <= query.createdAt['$lte']
+          )
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
     return vehicleResponse;
   }
 

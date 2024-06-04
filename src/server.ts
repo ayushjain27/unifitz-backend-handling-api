@@ -27,6 +27,7 @@ import advertisement from './routes/api/advertisement.route';
 import favouriteStore from './routes/api/favouriteStore';
 // import { ObjectId } from 'mongoose';
 import vehicle from './routes/api/vehicle';
+import newVehicle from './routes/api/newVehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
 import { window } from './utils/constants/common';
@@ -38,6 +39,8 @@ import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Store from './models/Store';
+import Admin from './models/Admin';
+import { permissions } from './config/permissions';
 
 const app = express();
 // Connect to MongoDB
@@ -105,6 +108,7 @@ app.use('/invoice', invoice);
 app.use('/media', advertisement);
 app.use('/favourite', favouriteStore);
 app.use('/vehicle', vehicle);
+app.use('/newVehicle', newVehicle);
 app.use('/enquiry', enquiry);
 app.use('/categories', category);
 app.use('/report', report);
@@ -252,48 +256,22 @@ const server = app.listen(port, () =>
   )
 );
 
-// async function updateSlugs() {
-//   try {
-//     // Use aggregation pipeline in updateMany
-//     await Store.updateMany(
-//       { storeId: { $exists: true } }, // Only update documents that have storeId
-//       [
-//         {
-//           $set: {
-//             slug: {
-//               $concat: [
-//                 {
-//                   $reduce: {
-//                     input: { $split: [{ $toLower: { $trim: { input: "$basicInfo.businessName" } } }, " "] }, // Trim and then split by space
-//                     initialValue: "",
-//                     in: {
-//                       $concat: [
-//                         "$$value",
-//                         { $cond: [{ $eq: ["$$value", ""] }, "", "-"] }, // Add hyphen if not the first word
-//                         { $toLower: "$$this" } // Convert word to lowercase
-//                       ]
-//                     }
-//                   }
-//                 },
-//                 "-",
-//                 { $toString: "$storeId" }
-//               ]
-//             }
-//           }
-//         }
-//       ]
-//     );
+async function updateSlugs() {
+  try {
+    // Use aggregation pipeline in updateMany
+    await Admin.updateMany(// Only update documents that have storeId
+     { $set: { accessList: permissions.OEM } },
+    );
 
-//     console.log('All documents have been updated with slugs.');
-//   } catch(err){
-//     console.log(err,"sa;lkfndj")
-//   }
-// }
+    console.log('All documents have been updated with slugs.');
+  } catch(err){
+    console.log(err,"sa;lkfndj")
+  }
+}
 
-// app.get('/slug', async (req, res) => {
-//   updateSlugs();
-// });
-
+app.get('/slug', async (req, res) => {
+  updateSlugs();
+});
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
@@ -737,7 +715,6 @@ app.get('/createTemplate', async (req, res) => {
 //     res.json('Done');
 //   });
 // });
-
 
 export default server;
 

@@ -4,12 +4,15 @@ import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/inversify.types';
+import { VehicleInfoService } from '../services/vehicle.service';
+
 import Logger from '../config/winston';
 import { BuySellService } from './../services/buySell.services';
 
 @injectable()
 export class BuySellController {
   private buySellService: BuySellService;
+  private vehicleService: VehicleInfoService;
 
   constructor(
     @inject(TYPES.BuySellService)
@@ -61,9 +64,14 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Upload Store Customer Vehicle request initiated>'
     );
     try {
-      const result = await this.buySellService.uploadStoreCustomerVehicleImages(
-        req
+      const vehicleId = req?.body?.vehicleId;
+      const files = req?.files;
+      console.log(vehicleId, files, 'data for vehicle image');
+      const result = await this.vehicleService.updateVehicleImages(
+        vehicleId,
+        files
       );
+
       res.send({
         result
       });
@@ -233,7 +241,7 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
     );
     try {
-      const result = await this.buySellService.getAllBuySellVehilce();
+      const result = await this.buySellService.getAllBuySellVehilce(req.body);
       res.send({
         result
       });
@@ -249,7 +257,9 @@ export class BuySellController {
     );
     try {
       const vehicleId = req.query.vehicleId;
-      const result = await this.buySellService.getBuySellDetailsByVehicleId(vehicleId as string);
+      const result = await this.buySellService.getBuySellDetailsByVehicleId(
+        vehicleId as string
+      );
       res.send({
         result
       });
@@ -258,7 +268,6 @@ export class BuySellController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-
 
   validate = (method: string) => {
     switch (method) {
