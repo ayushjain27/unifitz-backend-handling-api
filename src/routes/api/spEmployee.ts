@@ -11,6 +11,15 @@ const storage = multer.memoryStorage();
 const uploadFile = multer({ storage: storage });
 
 const router: Router = Router();
-const spEmployeeController = container.get<SPEmployeeController>(TYPES.SPEmployeeController);
+const spEmployeeController = container.get<SPEmployeeController>(
+  TYPES.SPEmployeeController
+);
+
+router.post(
+  '/',
+  roleAuth(ACL.STORE_CREATE),
+  // spEmployeeController.validate('createEmployee'),
+  spEmployeeController.createEmployee
+);
 
 export default router;

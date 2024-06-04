@@ -66,6 +66,6 @@ const spEmployeeSchema: Schema = new Schema(
 
 spEmployeeSchema.index({ geoLocation: '2dsphere' });
 
-const SPEmployeeModel = model<ISPEmployee>('spEmployee', spEmployeeSchema);
+const SPEmployee = model<ISPEmployee>('spEmployee', spEmployeeSchema);
 
-export default SPEmployeeModel;
+export default SPEmployee;
