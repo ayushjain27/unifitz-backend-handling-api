@@ -28,4 +28,23 @@ router.post(
   spEmployeeController.uploadEmployeeImage
 );
 
+router.get(
+  '/allEmployeesByUserName',
+  // roleAuth(ACL.STORE_GET_ALL),
+  spEmployeeController.getAllEmployeesByUserName
+);
+
+router.get(
+  '/',
+  // roleAuth(ACL.STORE_GET_SINGLE),
+  spEmployeeController.getEmployeeByEmployeeId
+);
+
+router.put('/', spEmployeeController.updateEmployee);
+
+router.delete(
+  '/',
+  spEmployeeController.deleteEmployee
+);
+
 export default router;

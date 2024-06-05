@@ -16,6 +16,7 @@ import InterestedEventAndOffer, {
 import Admin, { AdminRole, IAdmin } from '../models/Admin';
 import { sendEmail, sendNotification } from '../utils/common';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class SPEmployeeService {
@@ -34,15 +35,12 @@ export class SPEmployeeService {
     }
     if(employee){
       return {
-        message: `The employee with that employee id has already registered.`,
+        message: `Error`,
         isPresent: true
       };
     }
-    // if (!store) {
-    //   Logger.error('<Service>:<EmployeeService>:< Store id not found>');
-    //   throw new Error('Store not found');
-    // }
     let newEmp: ISPEmployee = employeePayload;
+    newEmp.accessList = permissions.employee;
     newEmp = await SPEmployee.create(newEmp);
     Logger.info('<Service>:<SPEmployeeService>:<Employee created successfully>');
     return newEmp;
@@ -72,11 +70,66 @@ export class SPEmployeeService {
     );
     profileImageUrl = url;
 
-    const res = await Customer.findOneAndUpdate(
+    const res = await SPEmployee.findOneAndUpdate(
       { _id: employeeId },
       { $set: { profileImageUrl } },
       { returnDocument: 'after' }
     );
+    return res;
+  }
+
+  getAllEmployeesByUserName = async (userName: string): Promise<ISPEmployee[]> => {
+    Logger.info(
+      '<Controller>:<SPEmployeeService>:<Get All employees request controller initiated>'
+    );
+    const employees: ISPEmployee[] = await SPEmployee.find({ userName });
+    Logger.info('<Service>:<SPEmployeeService>:<Employee fetched successfully>');
+    return employees;
+  };
+
+  getEmployeeByEmployeeId = async (employeeId: string, userName: string): Promise<ISPEmployee> => {
+    Logger.info(
+      '<Controller>:<SPEmployeeService>:<Get All employees request controller initiated>'
+    );
+    const employee: ISPEmployee = await SPEmployee.findOne({  employeeId, userName })?.lean();
+    Logger.info('<Service>:<SPEmployeeService>:<Employee fetched successfully>');
+    return employee;
+  };
+
+  async update(
+    employeePayload: any
+  ): Promise<ISPEmployee> {
+    Logger.info('<Service>:<SPEmployeeService>:<Update employee initiated>');
+    const { userName, employeeId } = employeePayload;
+
+    Logger.info('<Service>:<SPEmployeeService>: <Employee: updating new employee>');
+    const query: any = {};
+    query.userName = userName;
+    query.employeeId = employeeId;
+    const employee: ISPEmployee = await SPEmployee.findOne({
+      userName, employeeId
+    });
+    if (_.isEmpty(employee)) {
+      throw new Error('Employee does not exist');
+    }
+    const updatedEmployee = await SPEmployee.findOneAndUpdate(query, employeePayload, {
+      returnDocument: 'after'
+    });
+    Logger.info('<Service>:<SPEmployeeService>: <Employee: update employee successfully>');
+    return updatedEmployee;
+  }
+
+  async deleteEmployee(
+    employeeID: string,
+    userName?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<SPEmployeeService>:<Delete employee by Id service initiated>'
+    );
+    const query: any = {};
+    query.employeeID = employeeID;
+    query.userName = userName;
+    const res = await SPEmployee.findOneAndDelete(query);
     return res;
   }
 }
