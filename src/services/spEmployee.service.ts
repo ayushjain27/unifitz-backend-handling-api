@@ -120,15 +120,16 @@ export class SPEmployeeService {
   }
 
   async deleteEmployee(
-    employeeID: string,
+    employeeId: string,
     userName?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<SPEmployeeService>:<Delete employee by Id service initiated>'
     );
     const query: any = {};
-    query.employeeID = employeeID;
+    query.employeeId = employeeId;
     query.userName = userName;
+    console.log(query,"dlfme")
     const res = await SPEmployee.findOneAndDelete(query);
     return res;
   }
