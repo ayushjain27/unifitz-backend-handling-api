@@ -462,4 +462,24 @@ export class AnalyticController {
         .json({ message: err.message });
     }
   };
+
+  getStoreImpressoin = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Get All verified stores controller initiated>'
+    );
+    const userName = req?.userId;
+    const role = req?.role;
+    try {
+      const result = await this.analyticService.getStoreImpressoin(
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }
