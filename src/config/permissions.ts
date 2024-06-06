@@ -1,22 +1,22 @@
 export const permissions: any = {
     employee: {
         DASHBOARD: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         ANALYTICS_CUSTOMER: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         ADVERTISEMENT_AND_PLUS_FEATURE: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         STORES: {
             CREATE: true,
@@ -25,22 +25,22 @@ export const permissions: any = {
             DELETE: true
         },
         CUSTOMER: {
-            CREATE: false,
-            READ: true,
-            UPDATE: false,
-            DELETE: false
-        },
-        VEHICLES_OWNED: {
-            CREATE: false,
-            READ: true,
-            UPDATE: false,
-            DELETE: false
-        },
-        VEHICLES_BUY_SELL: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
             UPDATE: true,
-            DELETE: false
+            DELETE: true
+        },
+        VEHICLES_OWNED: {
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
+        },
+        VEHICLES_BUY_SELL: {
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
         },
         PRODUCT_AND_SERVICES: {
             CREATE: true,
@@ -103,7 +103,7 @@ export const permissions: any = {
             DELETE: true
         },
         REPORT: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
             UPDATE: true,
             DELETE: true
@@ -111,34 +111,34 @@ export const permissions: any = {
         REPORT_NOTES: {
             CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         RATING_AND_REVIEWS: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
             UPDATE: true,
-            DELETE: false
+            DELETE: true
         }
     },
     OEM: {
          DASHBOARD: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         ANALYTICS_CUSTOMER: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         ADVERTISEMENT_AND_PLUS_FEATURE: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         STORES: {
             CREATE: true,
@@ -147,22 +147,22 @@ export const permissions: any = {
             DELETE: true
         },
         CUSTOMER: {
-            CREATE: false,
-            READ: true,
-            UPDATE: false,
-            DELETE: false
-        },
-        VEHICLES_OWNED: {
-            CREATE: false,
-            READ: true,
-            UPDATE: false,
-            DELETE: false
-        },
-        VEHICLES_BUY_SELL: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
             UPDATE: true,
-            DELETE: false
+            DELETE: true
+        },
+        VEHICLES_OWNED: {
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
+        },
+        VEHICLES_BUY_SELL: {
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
         },
         PRODUCT_AND_SERVICES: {
             CREATE: true,
@@ -225,7 +225,7 @@ export const permissions: any = {
             DELETE: true
         },
         REPORT: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
             UPDATE: true,
             DELETE: true
@@ -233,14 +233,14 @@ export const permissions: any = {
         REPORT_NOTES: {
             CREATE: true,
             READ: true,
-            UPDATE: false,
-            DELETE: false
+            UPDATE: true,
+            DELETE: true
         },
         RATING_AND_REVIEWS: {
-            CREATE: false,
+            CREATE: true,
             READ: true,
             UPDATE: true,
-            DELETE: false
+            DELETE: true
         }
     },
 }

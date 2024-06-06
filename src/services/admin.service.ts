@@ -23,6 +23,7 @@ import Store, { IStore } from '../models/Store';
 import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
 import { permissions } from '../config/permissions';
+import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 
 @injectable()
 export class AdminService {
@@ -50,9 +51,9 @@ export class AdminService {
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
     upAdminFields.isFirstTimeLoggedIn = true;
-    console.log(permissions.OEM,"f;klmk")
+    console.log(permissions.OEM, 'f;klmk');
     upAdminFields.accessList = permissions.OEM;
-    console.log(upAdminFields,"fw;elk")
+    console.log(upAdminFields, 'fw;elk');
 
     const newAdmin: IAdmin = (
       await Admin.create(upAdminFields)
@@ -241,6 +242,7 @@ export class AdminService {
   }
 
   async updateUserAccessStatus(reqBody: {
+    employeeId: string;
     userName: string;
     accessListKey: string;
     accessListEntry: string;
@@ -248,35 +250,53 @@ export class AdminService {
   }): Promise<any> {
     Logger.info('<Service>:<UserService>:<Update user status >');
 
-    const { userName, accessListKey, accessListEntry, accessListValue } =
-      reqBody;
+    const {
+      employeeId,
+      userName,
+      accessListKey,
+      accessListEntry,
+      accessListValue
+    } = reqBody;
+    let employee: ISPEmployee;
+    if (employeeId) {
+      employee = await SPEmployee.findOne({ employeeId, userName });
+    }
     let admin: IAdmin;
-    if (userName) {
+    if (!employeeId) {
       admin = await Admin.findOne({ userName });
     }
 
-    if (!userName) {
-      Logger.error('<Service>:<UserService>:< User Name not found>');
-      throw new Error('User not found');
+    if (employeeId) {
+      let result: ISPEmployee = await SPEmployee.findOneAndUpdate(
+        {
+          employeeId: employeeId,
+          userName: reqBody?.userName
+        },
+        {
+          $set: {
+            [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
+          }
+        },
+        { returnDocument: 'after' }
+      );
+    } else {
+      let result: IAdmin = await Admin.findOneAndUpdate(
+        {
+          userName: reqBody?.userName
+        },
+        {
+          $set: {
+            [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
+          }
+        },
+        { returnDocument: 'after' }
+      );
     }
-
-    const result: IAdmin = await Admin.findOneAndUpdate(
-      {
-        userName: reqBody?.userName
-      },
-      {
-        $set: {
-          [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
-        }
-      },
-      { returnDocument: 'after' }
-    );
 
     return {
       message: `Access User Status has updated`
     };
   }
-
 
   private async encryptPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);

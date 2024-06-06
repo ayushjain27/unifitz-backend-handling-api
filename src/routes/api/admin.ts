@@ -66,7 +66,7 @@ router.post(
 
 router.post(
   '/updateUserAccessStatus',
-  roleAuth(ACL.ADMIN_USER_CREATE),
+  // roleAuth(ACL.ADMIN_USER_CREATE),
   adminController.updateUserAccessStatus
 );
 

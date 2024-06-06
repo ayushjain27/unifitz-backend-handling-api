@@ -447,7 +447,7 @@ export class BuySellService {
 
     const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({
       vehicleId
-    });
+    }).populate('vehicleInfo');;
     return vehicleResponse;
   }
 }
