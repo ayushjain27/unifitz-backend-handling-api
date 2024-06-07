@@ -113,6 +113,8 @@ export class BuySellService {
       vehicleDetails,
       { returnDocument: 'after' }
     );
+
+    delete buySellVehicle['vehicleInfo'];
     const newVehicleStore = {
       ...buySellVehicle,
       _id: new Types.ObjectId(buySellVehicle?._id)
