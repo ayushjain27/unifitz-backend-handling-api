@@ -105,12 +105,16 @@ export class BuySellService {
     const vehicleDetails = await VehicleInfo.findOne({
       _id: new Types.ObjectId(buySellVehicle?.vehicleId)
     });
+
+    if (_.isEmpty(vehicleDetails)) {
+      throw new Error('Vehicle Details with that vehicle number not found');
+    }
     const vehicleResult = await VehicleInfo.findOneAndUpdate(
       {
         vehicleNumber: buySellVehicle?.vehicleInfo?.vehicleNumber,
         _id: buySellVehicle?.vehicleId
       },
-      vehicleDetails,
+      buySellVehicle.vehicleInfo,
       { returnDocument: 'after' }
     );
 
