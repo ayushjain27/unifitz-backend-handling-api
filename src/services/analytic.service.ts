@@ -1279,4 +1279,22 @@ export class AnalyticService {
     ]);
     return queryFilter;
   }
+
+  async getStoreImpressoin(userName: string, role: string) {
+    Logger.info(
+      '<Service>:<AnalyticService>:<Get all analytic service initiated>'
+    );
+    const query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const storeEvent = await EventAnalyticModel.count({
+      ...query
+    });
+    const bannerEvent = await PlusFeatureAnalyticModel.count();
+    return {
+      totalStoreImpression: storeEvent,
+      totalBannerImpression: bannerEvent
+    };
+  }
 }
