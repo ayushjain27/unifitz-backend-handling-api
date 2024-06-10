@@ -580,6 +580,9 @@ export class AnalyticService {
       // moduleInformation: storeId
       // oemUserName: role
     };
+    if (!firstDate || !lastDate) {
+      delete query['createdAt'];
+    }
     if (!state) {
       delete query['userInformation.state'];
     }
@@ -601,6 +604,9 @@ export class AnalyticService {
           },
           state: {
             $first: '$userInformation.state'
+          },
+          geoLocation: {
+            $first: '$userInformation.geoLocation'
           }
         }
       },
@@ -611,13 +617,14 @@ export class AnalyticService {
           },
           users: 1,
           state: 1,
+          geoLocation: 1,
           _id: 0
         }
       },
-      { $sort: { users: -1 } },
-      {
-        $limit: 15
-      }
+      { $sort: { users: -1 } }
+      // {
+      //   $limit: 15
+      // }
     ]);
     return queryFilter;
   }
