@@ -1,5 +1,5 @@
 export const permissions: any = {
-    employee: {
+    EMPLOYEE: {
         DASHBOARD: {
             CREATE: true,
             READ: true,

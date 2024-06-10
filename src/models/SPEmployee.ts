@@ -22,7 +22,6 @@ export interface ISPEmployee {
   dateOfBirth: Date;
   userName: string;
   profileImageUrl: string;
-  accessList: object;
 }
 
 const spEmployeeSchema: Schema = new Schema(
@@ -68,9 +67,6 @@ const spEmployeeSchema: Schema = new Schema(
     },
     profileImageUrl: {
       type: String
-    },
-    accessList: {
-      type: Object
     }
   },
   { timestamps: true }

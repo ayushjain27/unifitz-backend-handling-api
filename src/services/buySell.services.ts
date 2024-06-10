@@ -90,21 +90,39 @@ export class BuySellService {
     return allVehicles;
   }
 
-  async updateSellVehicle(vehicleStore?: IBuySell) {
+  async updateSellVehicle(buySellVehicle?: any) {
     Logger.info('<Service>:<BuySellService>: <Updating Vehicle intiiated>');
-    Logger.debug(`vehicle result ${vehicleStore._id}`);
+    Logger.debug(`vehicle result ${buySellVehicle._id}`);
     // Check if vehicle exists
     const vehicle: IBuySell = await buySellVehicleInfo
       .findOne({
-        _id: new Types.ObjectId(vehicleStore?._id)
+        _id: new Types.ObjectId(buySellVehicle?._id)
       })
       .lean();
     if (_.isEmpty(vehicle)) {
       throw new Error('Sell Vehicle not found');
     }
+    const vehicleDetails = await VehicleInfo.findOne({
+      _id: new Types.ObjectId(buySellVehicle?.vehicleId)
+    });
+
+    if (_.isEmpty(vehicleDetails)) {
+      throw new Error('Vehicle Details with that vehicle number not found');
+    }
+    const vehicleResult = await VehicleInfo.findOneAndUpdate(
+      {
+        vehicleNumber: buySellVehicle?.vehicleInfo?.vehicleNumber,
+        _id: buySellVehicle?.vehicleId
+      },
+      buySellVehicle.vehicleInfo,
+      { returnDocument: 'after' }
+    );
+
+    delete buySellVehicle['vehicleInfo'];
     const newVehicleStore = {
-      ...vehicleStore,
-      _id: new Types.ObjectId(vehicleStore?._id)
+      ...buySellVehicle,
+      VehicleInfo: buySellVehicle?.vehicleId,
+      _id: new Types.ObjectId(buySellVehicle?._id)
     };
 
     const newVehicleItem: IBuySell = await buySellVehicleInfo.findOneAndUpdate(

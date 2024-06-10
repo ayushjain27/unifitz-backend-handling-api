@@ -5,6 +5,7 @@ export interface IStaticIds {
   storeId: string;
   productId: string;
   userId: string;
+  employeeId: string;
 }
 
 const staticIdsSchema: Schema = new Schema<IStaticIds>(
@@ -18,7 +19,12 @@ const staticIdsSchema: Schema = new Schema<IStaticIds>(
       type: String,
       required: true,
       unique: true
-    }
+    },
+    employeeId: {
+      type: String,
+      required: true,
+      unique: true
+    },
   },
 { timestamps: true }
 );
