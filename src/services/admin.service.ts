@@ -195,8 +195,19 @@ export class AdminService {
     return { user: admin, token };
   }
 
-  async getAll(): Promise<IAdmin[]> {
-    const admin: IAdmin[] = await Admin.find({}, { password: 0 }).lean();
+  async getAll(roleBase: string, oemId: string): Promise<IAdmin[]> {
+
+    const query = {
+      role : roleBase,
+      oemId: oemId
+    }
+    if (!roleBase) {
+      delete query['role'];
+    }
+    if (!oemId) {
+      delete query['oemId'];
+    }
+    const admin: IAdmin[] = await Admin.find(query);
 
     return admin;
   }
@@ -257,29 +268,8 @@ export class AdminService {
       accessListEntry,
       accessListValue
     } = reqBody;
-    let employee: ISPEmployee;
-    if (employeeId) {
-      employee = await SPEmployee.findOne({ employeeId, userName });
-    }
     let admin: IAdmin;
-    if (!employeeId) {
       admin = await Admin.findOne({ userName });
-    }
-
-    if (employeeId) {
-      let result: ISPEmployee = await SPEmployee.findOneAndUpdate(
-        {
-          employeeId: employeeId,
-          userName: reqBody?.userName
-        },
-        {
-          $set: {
-            [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
-          }
-        },
-        { returnDocument: 'after' }
-      );
-    } else {
       let result: IAdmin = await Admin.findOneAndUpdate(
         {
           userName: reqBody?.userName
@@ -291,7 +281,6 @@ export class AdminService {
         },
         { returnDocument: 'after' }
       );
-    }
 
     return {
       message: `Access User Status has updated`

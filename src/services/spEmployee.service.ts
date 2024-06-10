@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
 import _ from 'lodash';
+import bcrypt from 'bcryptjs';
+import secureRandomPassword from 'secure-random-password';
 import container from '../config/inversify.container';
 import { Types } from 'mongoose';
 import { TYPES } from '../config/inversify.types';
@@ -17,6 +19,7 @@ import Admin, { AdminRole, IAdmin } from '../models/Admin';
 import { sendEmail, sendNotification } from '../utils/common';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { permissions } from '../config/permissions';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class SPEmployeeService {
@@ -39,11 +42,64 @@ export class SPEmployeeService {
         isPresent: true
       };
     }
+    // const str = userName;
+    // const numbers = str.match(/\d+/g).join('');
+    // const lastCreatedJobId = await Admin.find({ storeId })
+    //   .sort({ createdAt: 'desc' })
+    //   .limit(1)
+    //   .exec();
+
+    // const jobCardNumber = !lastCreatedJobId[0]
+    //   ? 1
+    //   : Number(+lastCreatedJobId[0].jobCardNumber) + 1;
+
+    const oemUserDetails: IAdmin = await Admin.findOne({
+      userName: employeePayload.userName
+    });
+
+    if(!oemUserDetails){
+      throw new Error('Oem UserName does not exist');
+    }
+
+    const upAdminFields: any = {};
+    const lastCreatedAdmin = await StaticIds.find({}).limit(1).exec();
+    const employeeIdUser = String(parseInt(lastCreatedAdmin[0].employeeId) + 1);
+
+    await StaticIds.findOneAndUpdate({}, { employeeId: employeeIdUser });
+
+    const password = secureRandomPassword.randomPassword();
+
+    upAdminFields.password = await this.encryptPassword(password);
+
+    console.log(String(employeeIdUser).slice(-4),"adflkw")
+
+    // const employeePassword = await this.encryptPassword(employeePayload);
+
+    upAdminFields.userId = String(employeeIdUser);
+    upAdminFields.userName = `EMP${String(employeeIdUser).slice(-4)}`;
+    upAdminFields.role = 'EMPLOYEE';
+    upAdminFields.nameSalutation = employeePayload?.nameSalutation;
+    upAdminFields.ownerName = employeePayload?.name;
+    upAdminFields.businessName = oemUserDetails?.businessName;
+    upAdminFields.accessList = permissions;
+    upAdminFields.isFirstTimeLoggedIn = true;
+    upAdminFields.accessList = permissions.EMPLOYEE;
+    upAdminFields.generatedPassword = password;
+    upAdminFields.oemId = employeePayload.userName;
+    console.log(upAdminFields, 'fw;elk');
+
+
     let newEmp: ISPEmployee = employeePayload;
-    newEmp.accessList = permissions.employee;
     newEmp = await SPEmployee.create(newEmp);
+    const newAdmin: IAdmin = await Admin.create(upAdminFields);
     Logger.info('<Service>:<SPEmployeeService>:<Employee created successfully>');
     return newEmp;
+  }
+
+  private async encryptPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, salt);
+    return hashed;
   }
 
   async updateEmployeeImage(employeeId: string, req: Request | any) {
