@@ -145,9 +145,9 @@ export class AdminController {
     );
     try {
       const role = req?.role;
-      if (role !== AdminRole.ADMIN) {
-        throw new Error('User not allowed');
-      }
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
       const result = await this.adminService.getAll(roleBase as string, oemId as string);
       res.send({
         result
