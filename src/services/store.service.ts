@@ -365,14 +365,25 @@ export class StoreService {
     query = {
       isVerified: Boolean(verifiedStore),
       profileStatus: status,
-      oemUserName: { $exists: userRoleType }
     };
+    if(role === AdminRole.ADMIN){
+      query.oemUserName = { $exists: userRoleType }
+    }
     if (!userType) {
       delete query['oemUserName'];
     }
-    if (role === AdminRole.OEM) {
+    if (role === AdminRole.OEM || role === AdminRole.EMPLOYEE) {
       query.oemUserName = userName;
     }
+
+    // query = {
+    //   isVerified: Boolean(verifiedStore),
+    //   profileStatus: status,
+    //   oemUserName: userName
+    // };
+    // if (!userType) {
+    //   delete query['oemUserName'];
+    // }
     if (!verifiedStore) {
       delete query['isVerified'];
     }

@@ -112,9 +112,8 @@ export class StoreController {
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
     try {
-      const userName = req?.userId;
       const role = req?.role;
-      const { userType, status, verifiedStore } = req.body;
+      const { userType, status, verifiedStore, userName } = req.body;
       Logger.debug(
         `${JSON.stringify(req.headers)}, ${JSON.stringify(req.body)}requests`
       );

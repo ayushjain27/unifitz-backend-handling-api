@@ -36,7 +36,7 @@ router.delete(
 );
 router.post(
   '/allStores',
-  // roleAuth(ACL.STORE_GET_ALL),
+  roleAuth(ACL.STORE_GET_ALL),
   storeController.getAllStores
 );
 router.get(

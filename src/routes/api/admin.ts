@@ -37,7 +37,11 @@ router.put(
   adminController.updateUser
 );
 
-router.get('/getAll', roleAuth(ACL.ADMIN_USER_CREATE), adminController.getAll);
+router.get(
+  '/getAll',
+  //  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.getAll
+);
 
 router.post(
   '/uploadProfileImage',
