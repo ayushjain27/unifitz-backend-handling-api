@@ -555,7 +555,8 @@ export class AnalyticService {
     firstDate: string,
     lastDate: string,
     storeId: string,
-    platform: string
+    platform: string,
+    limit: number
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -621,10 +622,10 @@ export class AnalyticService {
           _id: 0
         }
       },
-      { $sort: { users: -1 } }
-      // {
-      //   $limit: 15
-      // }
+      { $sort: { users: -1 } },
+      {
+        $limit: limit
+      }
     ]);
     return queryFilter;
   }

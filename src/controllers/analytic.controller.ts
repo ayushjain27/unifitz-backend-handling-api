@@ -242,7 +242,8 @@ export class AnalyticController {
   getUsersByState = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform } = req.body;
+    const { firstDate, lastDate, state, city, storeId, platform, limit } =
+      req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -255,7 +256,8 @@ export class AnalyticController {
         firstDate,
         lastDate,
         storeId,
-        platform
+        platform,
+        limit
       );
       res.send({
         result
