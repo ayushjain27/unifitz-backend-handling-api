@@ -98,10 +98,13 @@ export class ReportService {
   }
 
   async getAll(userName?: string, role?: string): Promise<IReport[]> {
-    const query: any = {};
+    let query: any = {};
 
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+    query = {
+      oemUserName: userName
+    };
+    if(userName === 'SERVICEPLUG'  || !userName){
+      delete query['oemUserName'];
     }
     const report: IReport[] = await Report.find(query).lean();
 

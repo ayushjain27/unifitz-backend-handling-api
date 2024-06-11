@@ -282,13 +282,13 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'JobCard',
-      SubjectPart: 'Congratulations!', // Use a placeholder for dynamic subject
+      TemplateName: 'EmployeeOnboarded',
+      SubjectPart: 'Onboarded Email', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
-          <title>Welcome to our community</title>
+          <title>Congratulations {{name}}</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -322,13 +322,14 @@ app.get('/createTemplate', async (req, res) => {
         </head>
         <body>
           <div class="container">
-            <p>Dear {{name}}</p>
-            <p>We hope this email finds you well. This is to confirm your vehicle service job card at {{partnerName}}. We're delighted to assist you with maintaining your vehicle's.</p>
-            <p>Below, you'll find the details of your Vehicle Job card Details in the form of pdf</p>
-            <p>Feel free to contact us at {{partnerName}} @ {{phoneNumber}}</p>
-            <p>Thank you for choosing ServicePlug Platform for your vehicle service needs. We look forward to serving you and providing an exceptional experience.</p>
-            <p>Warm regards, </p> <!-- Escape $ character for the subject -->
-            <p>{{partnerDetails}}</p> <!-- Escape $ character for the subject -->
+          <h3>Congratulations {{name}}</h3>
+            <p>Now you have been added to the {{companyName}} organization</p>
+            <p>Pleasse feel free to drop a email on {{email}} if you have questions or need assistance. We're all here to help you succeed.</p>
+            <p>This is your access details</p>
+            <p>UserName: {{userName}}</p>
+            <p>This is one time password to login. After that you can update your password</p>
+            <p>Password: {{password}}</p>
+            <p>Best regards<p>
           </div>
         </body>
         </html>`,
