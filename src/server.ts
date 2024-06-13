@@ -258,22 +258,22 @@ const server = app.listen(port, () =>
   )
 );
 
-// async function updateSlugs() {
-//   try {
-//     // Use aggregation pipeline in updateMany
-//     await Admin.updateMany(// Only update documents that have storeId
-//      { $set: { accessList: permissions.OEM } },
-//     );
+async function updateSlugs() {
+  try {
+    // Use aggregation pipeline in updateMany
+    await Admin.updateMany(// Only update documents that have storeId
+     { $set: { accessList: permissions.OEM } },
+    );
 
-//     console.log('All documents have been updated with slugs.');
-//   } catch(err){
-//     console.log(err,"sa;lkfndj")
-//   }
-// }
+    console.log('All documents have been updated with slugs.');
+  } catch(err){
+    console.log(err,"sa;lkfndj")
+  }
+}
 
-// app.get('/slug', async (req, res) => {
-//   updateSlugs();
-// });
+app.get('/slug', async (req, res) => {
+  updateSlugs();
+});
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
@@ -282,8 +282,8 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'EmployeeOnboarded',
-      SubjectPart: 'Onboarded Email', // Use a placeholder for dynamic subject
+      TemplateName: 'EmployeeResetPassword',
+      SubjectPart: 'Reset Password Email', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -322,12 +322,9 @@ app.get('/createTemplate', async (req, res) => {
         </head>
         <body>
           <div class="container">
-          <h3>Congratulations {{name}}</h3>
-            <p>Now you have been added to the {{companyName}} organization</p>
-            <p>Pleasse feel free to drop a email on {{email}} if you have questions or need assistance. We're all here to help you succeed.</p>
-            <p>This is your access details</p>
+            <p>This is your reset password details</p>
             <p>UserName: {{userName}}</p>
-            <p>This is one time password to login. After that you can update your password</p>
+            <p>This is one time password. After that you can update your password</p>
             <p>Password: {{password}}</p>
             <p>Best regards<p>
           </div>

@@ -7,190 +7,190 @@ export const permissions: any = {
            DELETE: true
        },
        ANALYTICS_CUSTOMER: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        ANALYTICS_ADVERTISEMENT_AND_PLUS_FEATURE: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        ADVERTISEMENT_AND_PLUS_FEATURE: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        ADMIN_ANALYTICS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        OEM_ANALYTICS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        STORES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        CUSTOMER: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        VEHICLES_OWNED: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        VEHICLES_BUY_SELL: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        ADMIN_PRODUCT_AND_SERVICES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        PRELIST_PRODUCT_AND_SERVICES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        B2B_PARTNER_PRODUCT: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        CATEGORY: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
     //    ADVERTIISEMENT: {
-    //        CREATE: true,
-    //        READ: true,
-    //        UPDATE: true,
-    //        DELETE: true
+    //        CREATE: false,
+    //        READ: false,
+    //        UPDATE: false,
+    //        DELETE: false
     //    },
        PLUS_FEATURES_EVENT: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        PLUS_FEATURES_OFFERS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        PLUS_FEATURES_BUSINESS_OPPORTUNITIES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        PLUS_FEATURES_SCHOOL_OF_AUTO: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        OEM_OFFERS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        B2B_PARTNERS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        REPORT: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        REPORT_NOTES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        RATING_AND_REVIEWS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        PRIVILEDGE: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        SP_EMPLOYEE: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        USER_PROFILE: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        PLUS_FEATURES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        ADVERTISEMENTS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        OEM_PRODUCTS: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        VEHICLES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
        NEW_VEHICLES: {
-           CREATE: true,
-           READ: true,
-           UPDATE: true,
-           DELETE: true
+           CREATE: false,
+           READ: false,
+           UPDATE: false,
+           DELETE: false
        },
    },
     OEM: {
@@ -201,190 +201,190 @@ export const permissions: any = {
             DELETE: true
         },
         ANALYTICS_CUSTOMER: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         ANALYTICS_ADVERTISEMENT_AND_PLUS_FEATURE: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         ADVERTISEMENT_AND_PLUS_FEATURE: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         ADMIN_ANALYTICS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         OEM_ANALYTICS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         STORES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         CUSTOMER: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         VEHICLES_OWNED: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         VEHICLES_BUY_SELL: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         ADMIN_PRODUCT_AND_SERVICES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         PRELIST_PRODUCT_AND_SERVICES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         B2B_PARTNER_PRODUCT: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         CATEGORY: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         // ADVERTIISEMENT: {
-        //     CREATE: true,
-        //     READ: true,
-        //     UPDATE: true,
-        //     DELETE: true
+        //     CREATE: false,
+        //     READ: false,
+        //     UPDATE: false,
+        //     DELETE: false
         // },
         PLUS_FEATURES_EVENT: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         PLUS_FEATURES_OFFERS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         PLUS_FEATURES_BUSINESS_OPPORTUNITIES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         PLUS_FEATURES_SCHOOL_OF_AUTO: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         OEM_OFFERS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         B2B_PARTNERS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         REPORT: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         REPORT_NOTES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         RATING_AND_REVIEWS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         PRIVILEDGE: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         SP_EMPLOYEE: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         USER_PROFILE: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         PLUS_FEATURES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         ADVERTISEMENTS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         OEM_PRODUCTS: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         VEHICLES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
         NEW_VEHICLES: {
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
         },
     },
 }

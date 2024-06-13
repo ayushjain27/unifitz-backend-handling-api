@@ -47,4 +47,9 @@ router.delete(
   spEmployeeController.deleteEmployee
 );
 
+router.get(
+  '/resetPassword',
+  spEmployeeController.resetPassword
+);
+
 export default router;

@@ -127,5 +127,22 @@ export class SPEmployeeController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+ 
+  resetPassword = async (req: Request, res: Response) => {
+    const employeeId = req.query.employeeId;
+    const oemId = req.query.userName;
+    Logger.info(
+      '<Controller>:<SPEmployeeController>:<Reset employee password by  request controller initiated>'
+    );
+    try {
+      const result = await this.spEmployeeService.resetPassword(employeeId as string, oemId as string);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
 }

@@ -124,7 +124,8 @@ export interface IAdmin {
   updateCount?: string;
   lastModifyResult?: Date;
   lastLogin: Date;
-  oemId: string;
+  oemId?: string;
+  employeeId?: string;
   accessList: object;
 }
 

@@ -82,9 +82,10 @@ export class SPEmployeeService {
     upAdminFields.ownerName = employeePayload?.name;
     upAdminFields.businessName = oemUserDetails?.businessName;
     upAdminFields.isFirstTimeLoggedIn = true;
-    upAdminFields.accessList = oemUserDetails?.accessList;
+    upAdminFields.accessList = permissions.EMPLOYEE;
     upAdminFields.generatedPassword = password;
     upAdminFields.oemId = employeePayload.userName;
+    upAdminFields.employeeId = employeePayload.employeeId;
 
     let newEmp: ISPEmployee = employeePayload;
     newEmp = await SPEmployee.create(newEmp);
@@ -96,8 +97,6 @@ export class SPEmployeeService {
       userName: `EMP${String(employeeIdUser).slice(-4)}`,
       password: password
     };
-    console.log(employeePayload,"gf;kl")
-    console.log(templateData, 'fdwfe');
     sendEmail(
       templateData,
       employeePayload?.email,
@@ -154,7 +153,17 @@ export class SPEmployeeService {
     Logger.info(
       '<Controller>:<SPEmployeeService>:<Get All employees request controller initiated>'
     );
-    const employees: ISPEmployee[] = await SPEmployee.find({ userName });
+    const employees: ISPEmployee[] = await SPEmployee.aggregate([{
+      $match: { userName: userName}
+    },
+    {
+      $lookup: {
+        from: 'admin_users',
+        localField: 'employeeId',
+        foreignField: 'employeeId',
+        as: 'employeeAuthDetails'
+      }
+    }]);
     Logger.info(
       '<Service>:<SPEmployeeService>:<Employee fetched successfully>'
     );
@@ -192,6 +201,10 @@ export class SPEmployeeService {
       userName,
       employeeId
     });
+    const adminUser: IAdmin = await Admin.findOne({
+      oemId: userName,
+      employeeId
+    });
     if (_.isEmpty(employee)) {
       throw new Error('Employee does not exist');
     }
@@ -202,6 +215,20 @@ export class SPEmployeeService {
         returnDocument: 'after'
       }
     );
+
+    const updatedAdmin = await Admin.findOneAndUpdate(
+      { oemId: userName, employeeId: employeeId },
+      {
+        $set: {
+          nameSalutation: employeePayload?.nameSalutation,
+          ownerName: employeePayload?.name
+        }
+      },
+      {
+        returnDocument: 'after'
+      }
+    );
+
     Logger.info(
       '<Service>:<SPEmployeeService>: <Employee: update employee successfully>'
     );
@@ -217,6 +244,45 @@ export class SPEmployeeService {
     query.userName = userName;
     console.log(query, 'dlfme');
     const res = await SPEmployee.findOneAndDelete(query);
+    const adminDelete = await Admin.findOneAndDelete({ employeeId: employeeId, oemId: userName})
+    return res;
+  }
+
+  async resetPassword(employeeId: string, oemId?: string): Promise<any> {
+    Logger.info(
+      '<Service>:<SPEmployeeService>:<Delete employee by Id service initiated>'
+    );
+    const query: any = {};
+    query.employeeId = employeeId;
+    query.oemId = oemId;
+    console.log(query, 'dlfme');
+    const password = secureRandomPassword.randomPassword();
+
+    let employee: ISPEmployee;
+    if (employeeId) {
+      employee = await SPEmployee.findOne({ employeeId, userName: oemId });
+    }
+    const oemUserDetails: IAdmin = await Admin.findOne({
+      userName: oemId
+    });
+
+    const updatedPassword = await this.encryptPassword(password);
+    const res = await Admin.findOneAndUpdate(
+      { employeeId: employeeId, oemId: oemId },
+      { $set: { password: updatedPassword, generatedPassword: password, isFirstTimeLoggedIn: true } },
+      { returnDocument: 'after' }
+    );
+    const templateData = {
+      name: employee?.name,
+      userName: oemUserDetails?.userName,
+      password: password
+    };
+    sendEmail(
+      templateData,
+      employee?.email,
+      'support@serviceplug.in',
+      'EmployeeResetPassword'
+    );
     return res;
   }
 }
