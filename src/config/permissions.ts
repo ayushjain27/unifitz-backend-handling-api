@@ -12,13 +12,25 @@ export const permissions: any = {
            UPDATE: true,
            DELETE: true
        },
+       ANALYTICS_ADVERTISEMENT_AND_PLUS_FEATURE: {
+           CREATE: true,
+           READ: true,
+           UPDATE: true,
+           DELETE: true
+       },
        ADVERTISEMENT_AND_PLUS_FEATURE: {
            CREATE: true,
            READ: true,
            UPDATE: true,
            DELETE: true
        },
-       ANALYTICS: {
+       ADMIN_ANALYTICS: {
+           CREATE: true,
+           READ: true,
+           UPDATE: true,
+           DELETE: true
+       },
+       OEM_ANALYTICS: {
            CREATE: true,
            READ: true,
            UPDATE: true,
@@ -48,7 +60,7 @@ export const permissions: any = {
            UPDATE: true,
            DELETE: true
        },
-       PRODUCT_AND_SERVICES: {
+       ADMIN_PRODUCT_AND_SERVICES: {
            CREATE: true,
            READ: true,
            UPDATE: true,
@@ -102,7 +114,7 @@ export const permissions: any = {
            UPDATE: true,
            DELETE: true
        },
-       OFFERS: {
+       OEM_OFFERS: {
            CREATE: true,
            READ: true,
            UPDATE: true,
@@ -162,7 +174,7 @@ export const permissions: any = {
            UPDATE: true,
            DELETE: true
        },
-       PRODUCTS: {
+       OEM_PRODUCTS: {
            CREATE: true,
            READ: true,
            UPDATE: true,
@@ -194,13 +206,25 @@ export const permissions: any = {
             UPDATE: true,
             DELETE: true
         },
+        ANALYTICS_ADVERTISEMENT_AND_PLUS_FEATURE: {
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
+        },
         ADVERTISEMENT_AND_PLUS_FEATURE: {
             CREATE: true,
             READ: true,
             UPDATE: true,
             DELETE: true
         },
-        ANALYTICS: {
+        ADMIN_ANALYTICS: {
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
+        },
+        OEM_ANALYTICS: {
             CREATE: true,
             READ: true,
             UPDATE: true,
@@ -230,7 +254,7 @@ export const permissions: any = {
             UPDATE: true,
             DELETE: true
         },
-        PRODUCT_AND_SERVICES: {
+        ADMIN_PRODUCT_AND_SERVICES: {
             CREATE: true,
             READ: true,
             UPDATE: true,
@@ -284,7 +308,7 @@ export const permissions: any = {
             UPDATE: true,
             DELETE: true
         },
-        OFFERS: {
+        OEM_OFFERS: {
             CREATE: true,
             READ: true,
             UPDATE: true,
@@ -344,7 +368,7 @@ export const permissions: any = {
             UPDATE: true,
             DELETE: true
         },
-        PRODUCTS: {
+        OEM_PRODUCTS: {
             CREATE: true,
             READ: true,
             UPDATE: true,
