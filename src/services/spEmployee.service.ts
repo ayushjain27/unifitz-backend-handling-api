@@ -81,9 +81,8 @@ export class SPEmployeeService {
     upAdminFields.nameSalutation = employeePayload?.nameSalutation;
     upAdminFields.ownerName = employeePayload?.name;
     upAdminFields.businessName = oemUserDetails?.businessName;
-    upAdminFields.accessList = permissions;
     upAdminFields.isFirstTimeLoggedIn = true;
-    upAdminFields.accessList = permissions.EMPLOYEE;
+    upAdminFields.accessList = oemUserDetails?.accessList;
     upAdminFields.generatedPassword = password;
     upAdminFields.oemId = employeePayload.userName;
 
