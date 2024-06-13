@@ -111,12 +111,25 @@ export class ProductService {
     return res;
   }
 
-  async getAll(userName?: string, role?: string): Promise<IProduct[]> {
+  async getAll(
+    userName?: string,
+    role?: string,
+    oemId?: string
+  ): Promise<IProduct[]> {
     const query: any = {};
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    console.log(userName, role, oemId);
     const product: IProduct[] = await Product.find(query).lean();
 
     return product;
@@ -131,20 +144,30 @@ export class ProductService {
     offerType: string;
     userName?: string;
     role?: string;
+    oemId?: string;
   }): Promise<IPrelistProduct[]> {
     Logger.info(
       '<Service>:<ProductService>:<Search and Filter prelist product service initiated>'
     );
-    const query = {
+    let query: any = {};
+    query = {
       // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
       itemName: new RegExp(searchReqBody.itemName, 'i'),
       offerType: searchReqBody.offerType,
       'productCategory.catalogName': searchReqBody.productCategory,
-      'productSubCategory.catalogName': searchReqBody.productSubCategory,
-      oemUserName: searchReqBody?.userName
+      'productSubCategory.catalogName': searchReqBody.productSubCategory
+      // oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
-    if (searchReqBody?.role !== AdminRole.OEM) {
+    if (searchReqBody.role === AdminRole.OEM) {
+      query.oemUserName = searchReqBody.userName;
+    }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE) {
+      query.oemUserName = searchReqBody.oemId;
+    }
+
+    if (searchReqBody.oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
     if (!searchReqBody.itemName) {
@@ -772,13 +795,27 @@ export class ProductService {
     return productResult;
   }
 
-  async partnerProductGetAll(userName: string, role?: string): Promise<any> {
+  async partnerProductGetAll(
+    userName: string,
+    role?: string,
+    oemId?: string
+  ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {};
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    console.log(userName, role, oemId, 'partner');
+
     const product: IB2BPartnersProduct[] = await PartnersPoduct.find(
       query
     ).lean();

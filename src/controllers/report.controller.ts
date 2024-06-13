@@ -71,13 +71,18 @@ export class ReportController {
       '<Controller>:<ReportController>:<Get All request controller initiated>'
     );
     try {
-      const userName = req.query.userName;
+      const userName = req.userId;
       const role = req?.role;
+      const oemId = req?.query?.oemId;
       // const role = req?.role;
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
       // }
-      const result = await this.reportService.getAll(userName as string, role);
+      const result = await this.reportService.getAll(
+        userName as string,
+        role,
+        oemId as string
+      );
       res.send({
         result
       });

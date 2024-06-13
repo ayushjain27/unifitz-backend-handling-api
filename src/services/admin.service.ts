@@ -196,11 +196,10 @@ export class AdminService {
   }
 
   async getAll(roleBase: string, oemId: string): Promise<IAdmin[]> {
-
     const query = {
-      role : roleBase,
+      role: roleBase,
       oemId: oemId
-    }
+    };
     if (!roleBase) {
       delete query['role'];
     }
@@ -269,18 +268,18 @@ export class AdminService {
       accessListValue
     } = reqBody;
     let admin: IAdmin;
-      admin = await Admin.findOne({ userName });
-      let result: IAdmin = await Admin.findOneAndUpdate(
-        {
-          userName: reqBody?.userName
-        },
-        {
-          $set: {
-            [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
-          }
-        },
-        { returnDocument: 'after' }
-      );
+    admin = await Admin.findOne({ userName });
+    const result: IAdmin = await Admin.findOneAndUpdate(
+      {
+        userName: reqBody?.userName
+      },
+      {
+        $set: {
+          [`accessList.${accessListKey}.${accessListEntry}`]: accessListValue
+        }
+      },
+      { returnDocument: 'after' }
+    );
 
     return {
       message: `Access User Status has updated`
