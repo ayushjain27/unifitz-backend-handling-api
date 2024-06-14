@@ -256,16 +256,17 @@ export class SPEmployeeService {
     query.employeeId = employeeId;
     query.oemId = oemId;
     console.log(query, 'dlfme');
-    const password = secureRandomPassword.randomPassword();
-
+    
     let employee: ISPEmployee;
     if (employeeId) {
       employee = await SPEmployee.findOne({ employeeId, userName: oemId });
     }
     const oemUserDetails: IAdmin = await Admin.findOne({
-      userName: oemId
+      oemId,
+      employeeId
     });
-
+    
+    const password = secureRandomPassword.randomPassword();
     const updatedPassword = await this.encryptPassword(password);
     const res = await Admin.findOneAndUpdate(
       { employeeId: employeeId, oemId: oemId },
@@ -283,6 +284,6 @@ export class SPEmployeeService {
       'support@serviceplug.in',
       'EmployeeResetPassword'
     );
-    return res;
+    return "res";
   }
 }
