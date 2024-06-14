@@ -15,7 +15,11 @@ const newVehicleController = container.get<NewVehicleInfoController>(
   TYPES.NewVehicleInfoContoller
 );
 
-router.post('/create', newVehicleController.create);
+router.post(
+  '/create',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.create
+);
 
 router.post(
   '/uploadVehicleImages',
