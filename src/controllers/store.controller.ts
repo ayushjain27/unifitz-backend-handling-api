@@ -112,8 +112,9 @@ export class StoreController {
       '<Controller>:<StoreController>:<Get All stores request controller initiated>'
     );
     try {
+      const userName = req.userId;
       const role = req?.role;
-      const { userType, status, verifiedStore, userName } = req.body;
+      const { userType, status, verifiedStore, oemId } = req.body;
       Logger.debug(
         `${JSON.stringify(req.headers)}, ${JSON.stringify(req.body)}requests`
       );
@@ -123,7 +124,8 @@ export class StoreController {
         role,
         userType,
         status,
-        verifiedStore
+        verifiedStore,
+        oemId
       );
       res.send({
         result
@@ -464,8 +466,13 @@ export class StoreController {
     );
     const userId = req?.userId;
     const role = req?.role;
+    const oemId = req?.query?.oemId;
     try {
-      const result = await this.storeService.getAllReviews(userId, role);
+      const result = await this.storeService.getAllReviews(
+        userId,
+        role,
+        oemId as string
+      );
       res.send({
         result
       });
@@ -540,7 +547,7 @@ export class StoreController {
   };
 
   getStoresByCity = async (req: Request, res: Response) => {
-    const { state, city } = req.body;
+    const { state, city, oemId } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Store request controller initiated>'
     );
@@ -551,7 +558,8 @@ export class StoreController {
         state,
         city,
         userName,
-        role
+        role,
+        oemId
       );
       res.send({
         message: 'Store get Successful',

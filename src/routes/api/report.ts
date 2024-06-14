@@ -36,7 +36,7 @@ router.put(
   reportController.updateReport
 );
 
-router.get('/getAll', reportController.getAll);
+router.get('/getAll', roleAuth(ACL.STORE_GET_ALL), reportController.getAll);
 
 router.get(
   '/:reportId',

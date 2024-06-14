@@ -82,13 +82,22 @@ export class NewVehicleInfoService {
     return res;
   }
 
-  async getAllVehicle(userName?: string, role?: string) {
+  async getAllVehicle(userName?: string, role?: string, oemId?: string) {
     const query: any = {};
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
     const vehicle = await NewVehicle.aggregate([{ $match: query }]);
     return vehicle;
   }

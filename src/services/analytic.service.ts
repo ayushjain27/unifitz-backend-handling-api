@@ -37,13 +37,21 @@ export class AnalyticService {
     return { total: result };
   }
 
-  async getVerifiedStores(userName: string, role: string) {
+  async getVerifiedStores(userName: string, role: string, oemId?: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
     const query: any = {};
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
     }
     const gstVerStores = await Store.count({
       'verificationDetails.documentType': 'GST',
@@ -94,6 +102,7 @@ export class AnalyticService {
     city: string;
     role?: string;
     userName?: string;
+    oemId?: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
@@ -141,6 +150,14 @@ export class AnalyticService {
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
     }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE) {
+      query.oemUserName = searchReqBody.oemId;
+    }
+
+    if (searchReqBody.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
     res = await Store.find(query, {
       'verificationDetails.verifyObj': 0
     });
@@ -156,6 +173,7 @@ export class AnalyticService {
     city: string;
     role?: string;
     userName?: string;
+    oemId?: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
@@ -196,6 +214,14 @@ export class AnalyticService {
     // let res: any[] = [];
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
+    }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE) {
+      query.oemUserName = searchReqBody.oemId;
+    }
+
+    if (searchReqBody.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
     }
 
     const [offer, event, business, schoolOfAuto]: any = await Promise.all([
@@ -289,14 +315,15 @@ export class AnalyticService {
   }
 
   async getEventAnalytic(
-    userName: string,
     role: string,
+    userName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
     storeId: string,
-    platform: string
+    platform: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -316,8 +343,7 @@ export class AnalyticService {
       },
       platform: platform,
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId,
-      oemUserName: role
+      moduleInformation: storeId
     };
 
     if (!state) {
@@ -332,7 +358,15 @@ export class AnalyticService {
     if (!storeId) {
       delete query['moduleInformation'];
     }
-    if (userName !== AdminRole.OEM) {
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
     Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
@@ -464,13 +498,14 @@ export class AnalyticService {
   }
 
   async getActiveUser(
-    userName: string,
     role: string,
+    userName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
-    storeId: string
+    storeId: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -503,6 +538,17 @@ export class AnalyticService {
     }
     if (!city) {
       delete query['userInformation.city'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
     }
     // if (!storeId) {
     //   delete query['moduleInformation'];
@@ -548,15 +594,16 @@ export class AnalyticService {
   }
 
   async getUsersByState(
-    userName: string,
     role: string,
+    userName: string,
     state: string,
     city: string,
     firstDate: string,
     lastDate: string,
     storeId: string,
     platform: string,
-    limit: number
+    limit: number,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -592,6 +639,17 @@ export class AnalyticService {
     }
     if (!platform) {
       delete query['platform'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
     }
     const queryFilter: any = await EventAnalyticModel.aggregate([
       {
@@ -631,14 +689,15 @@ export class AnalyticService {
   }
 
   async getTrafficAnalaytic(
-    userName: string,
     role: string,
+    userName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
     storeId: string,
-    platform: string
+    platform: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -661,8 +720,7 @@ export class AnalyticService {
       },
       // event: 'LOGIN_OTP_VERIFY',
       moduleInformation: storeId,
-      platform: platform,
-      oemUserName: role
+      platform: platform
     };
 
     if (!state) {
@@ -677,7 +735,16 @@ export class AnalyticService {
     if (!storeId) {
       delete query['moduleInformation'];
     }
-    if (userName !== AdminRole.OEM) {
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
 
@@ -768,14 +835,15 @@ export class AnalyticService {
   }
 
   async getPlusFeatureAnalytic(
-    userName: string,
     role: string,
+    userName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
     moduleId: string,
-    platform: string
+    platform: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -798,8 +866,7 @@ export class AnalyticService {
       },
       // event: 'LOGIN_OTP_VERIFY',
       moduleInformation: moduleId,
-      platform: platform,
-      oemUserName: role
+      platform: platform
     };
 
     if (!state) {
@@ -814,7 +881,16 @@ export class AnalyticService {
     if (!moduleId) {
       delete query['moduleInformation'];
     }
-    if (userName !== AdminRole.OEM) {
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
 
@@ -849,14 +925,15 @@ export class AnalyticService {
   }
 
   async getAdvertisementAnalytic(
-    userName: string,
     role: string,
+    userName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
     moduleId: string,
-    platform: string
+    platform: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -875,8 +952,7 @@ export class AnalyticService {
       },
       event: 'IMPRESSION_COUNT',
       moduleInformation: moduleId,
-      platform: platform,
-      oemUserName: role
+      platform: platform
     };
 
     if (!state) {
@@ -891,7 +967,15 @@ export class AnalyticService {
     if (!platform) {
       delete query['platform'];
     }
-    if (userName !== AdminRole.OEM) {
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
     Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
@@ -1030,14 +1114,15 @@ export class AnalyticService {
   }
 
   async getPlusFeatureAnalyticByCity(
-    userName: string,
     role: string,
+    userName: string,
     state: string,
     city: string,
     firstDate: string,
     lastDate: string,
     moduleId: string,
-    platform: string
+    platform: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -1073,6 +1158,17 @@ export class AnalyticService {
     if (!moduleId) {
       delete query['moduleInformation'];
     }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
     const queryFilter: any = await PlusFeatureAnalyticModel.aggregate([
       {
         $match: query
@@ -1107,14 +1203,15 @@ export class AnalyticService {
   }
 
   async getCategoriesAnalytic(
-    userName: string,
     role: string,
+    userName: string,
     state: string,
     city: string,
     firstDate: string,
     lastDate: string,
     moduleId: string,
-    platform: string
+    platform: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -1139,6 +1236,17 @@ export class AnalyticService {
       moduleInformation: moduleId
       // oemUserName: role
     };
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
     if (!state) {
       delete query['userInformation.state'];
     }

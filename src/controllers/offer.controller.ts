@@ -123,9 +123,11 @@ export class OfferController {
     try {
       const userName = req?.userId;
       const role = req?.role;
+      const oemId = req?.query?.oemId;
       const result = await this.offerService.getAllOfferByInterest(
         userName,
-        role
+        role,
+        oemId as string
       );
       Logger.info('<Controller>:<OfferController>:<get successfully>');
       res.send({

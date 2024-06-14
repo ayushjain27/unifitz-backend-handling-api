@@ -97,15 +97,25 @@ export class ReportService {
     return updatedReport;
   }
 
-  async getAll(userName?: string, role?: string): Promise<IReport[]> {
-    let query: any = {};
+  async getAll(
+    userName?: string,
+    role?: string,
+    oemId?: string
+  ): Promise<IReport[]> {
+    const query: any = {};
 
-    query = {
-      oemUserName: userName
-    };
-    if(userName === 'SERVICEPLUG'  || !userName){
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    console.log(userName, role, oemId);
     const report: IReport[] = await Report.find(query).lean();
 
     return report;

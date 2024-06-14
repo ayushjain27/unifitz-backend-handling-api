@@ -355,7 +355,8 @@ export class StoreService {
     role?: string,
     userType?: string,
     status?: string,
-    verifiedStore?: string
+    verifiedStore?: string,
+    oemId?: string
   ) {
     Logger.info('<Service>:<StoreService>:<Get all stores service initiated>');
     let query: any = {};
@@ -364,16 +365,25 @@ export class StoreService {
 
     query = {
       isVerified: Boolean(verifiedStore),
-      profileStatus: status,
+      profileStatus: status
     };
-    if(role === AdminRole.ADMIN){
-      query.oemUserName = { $exists: userRoleType }
+    if (role === AdminRole.ADMIN) {
+      query.oemUserName = { $exists: userRoleType };
     }
     if (!userType) {
       delete query['oemUserName'];
     }
-    if (role === AdminRole.OEM || role === AdminRole.EMPLOYEE) {
+
+    if (role === AdminRole.OEM) {
       query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
     }
 
     // query = {
@@ -936,12 +946,14 @@ export class StoreService {
     }
   }
 
-  async getAllReviews(userName: string, role: string): Promise<IStoreReview[]> {
+  async getAllReviews(userName: string, role: string, oemId: string): Promise<IStoreReview[]> {
     Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
     let reviewResponse: any = []
-    if (role === 'ADMIN') {
+    console.log(userName, role, oemId);
+
+    if (role === 'ADMIN' || oemId === 'SERVICEPLUG') {
       reviewResponse = await StoreReview.find({});
-    }
+    }    
     else {
       reviewResponse = await StoreReview.aggregate([
         {
@@ -1081,7 +1093,8 @@ export class StoreService {
     state: string,
     city: string,
     userName?: string,
-    role?: string
+    role?: string,
+    oemId?: string
   ): Promise<any> {
     Logger.info(
       '<Route>:<StoreService>: <StoreService : store get initiated>'
@@ -1091,8 +1104,7 @@ export class StoreService {
     query = {
       'contactInfo.state': state,
       'contactInfo.city': city,
-      profileStatus: 'ONBOARDED',
-      oemUserName: userName
+      profileStatus: 'ONBOARDED'
     };
     if (!state) {
       delete query['contactInfo.state'];
@@ -1100,7 +1112,15 @@ export class StoreService {
     if (!city) {
       delete query['contactInfo.city'];
     }
-    if (role !== AdminRole.OEM) {
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
     Logger.debug(`${JSON.stringify(query)} queryyyyyyy`);
