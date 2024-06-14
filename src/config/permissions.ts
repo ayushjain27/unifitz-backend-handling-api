@@ -144,13 +144,13 @@ export const permissions: any = {
            UPDATE: false,
            DELETE: false
        },
-       PRIVILEDGE: {
+       PERMISSION: {
            CREATE: false,
            READ: false,
            UPDATE: false,
            DELETE: false
        },
-       SP_EMPLOYEE: {
+       USER: {
            CREATE: false,
            READ: false,
            UPDATE: false,
@@ -338,13 +338,13 @@ export const permissions: any = {
             UPDATE: false,
             DELETE: false
         },
-        PRIVILEDGE: {
+        PERMISSION: {
             CREATE: false,
             READ: false,
             UPDATE: false,
             DELETE: false
         },
-        SP_EMPLOYEE: {
+        USER: {
             CREATE: false,
             READ: false,
             UPDATE: false,
