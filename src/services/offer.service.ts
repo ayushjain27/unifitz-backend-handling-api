@@ -292,12 +292,26 @@ export class OfferService {
     return offerResponse;
   }
 
-  async getAllOfferByInterest(userName: any, role: any): Promise<any> {
+  async getAllOfferByInterest(
+    userName: any,
+    role: any,
+    oemId?: string
+  ): Promise<any> {
     Logger.info('<Service>:<OfferService>:<get offer initiated>');
     const query: any = {};
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    console.log(userName, role, oemId);
+
     const eventResult = await OfferModel.aggregate([
       { $match: query },
       {

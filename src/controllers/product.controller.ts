@@ -88,11 +88,16 @@ export class ProductController {
     try {
       const userName = req?.userId;
       const role = req?.role;
+      const oemId = req?.query?.oemId;
       // const role = req?.role;
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
       // }
-      const result = await this.productService.getAll(userName, role);
+      const result = await this.productService.getAll(
+        userName,
+        role,
+        oemId as string
+      );
       res.send({
         result
       });
@@ -109,8 +114,9 @@ export class ProductController {
       itemName,
       pageNo,
       pageSize,
-      offerType
-    }: IPrelistSearchRequest = req.body;
+      offerType,
+      oemId
+    } = req.body;
     const userName = req?.userId;
     const role = req?.role;
     // let { mrp } = req.body;
@@ -135,7 +141,8 @@ export class ProductController {
           pageSize,
           offerType,
           userName,
-          role
+          role,
+          oemId
         });
       res.send({
         result
@@ -584,13 +591,15 @@ export class ProductController {
     try {
       const userName = req?.userId;
       const role = req?.role;
+      const oemId = req?.query?.oemId;
       // const role = req?.role;
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
       // }
       const result = await this.productService.partnerProductGetAll(
         userName,
-        role
+        role,
+        oemId as string
       );
       res.send({
         message: 'Partner Product obtained successfully',

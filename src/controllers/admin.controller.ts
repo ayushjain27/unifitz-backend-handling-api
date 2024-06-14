@@ -137,15 +137,18 @@ export class AdminController {
   };
 
   getAll = async (req: Request, res: Response) => {
+
+    const roleBase = req.query.roleBase;
+    const oemId = req.query.oemId;
     Logger.info(
       '<Controller>:<AdminController>:<Get All request controller initiated>'
     );
     try {
       const role = req?.role;
-      if (role !== AdminRole.ADMIN) {
-        throw new Error('User not allowed');
-      }
-      const result = await this.adminService.getAll();
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.adminService.getAll(roleBase as string, oemId as string);
       res.send({
         result
       });

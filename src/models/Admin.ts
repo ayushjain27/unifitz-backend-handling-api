@@ -124,6 +124,8 @@ export interface IAdmin {
   updateCount?: string;
   lastModifyResult?: Date;
   lastLogin: Date;
+  oemId?: string;
+  employeeId?: string;
   accessList: object;
 }
 
@@ -201,7 +203,8 @@ export enum CompanyType {
 
 export enum AdminRole {
   ADMIN = 'ADMIN',
-  OEM = 'OEM'
+  OEM = 'OEM',
+  EMPLOYEE = 'EMPLOYEE'
 }
 
 export enum UserStatus {
@@ -248,15 +251,15 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     category: {
       type: [storeCatalogMapSchema],
-      required: true
+      // required: true
     },
     subCategory: {
       type: [storeCatalogMapSchema],
-      required: false
+      // required: false
     },
     brand: {
       type: [storeCatalogMapSchema],
-      required: false
+      // required: false
     },
     contactInfo: {
       type: storeContactSchema
@@ -271,11 +274,11 @@ const adminSchema: Schema = new Schema<IAdmin>(
       type: {
         category: {
           type: [productCateoryMapSchema],
-          required: true
+          // required: true
         },
         subCategory: {
           type: [productSubCateoryMapSchema],
-          required: false
+          // required: false
         },
         brand: {
           type: String
@@ -292,11 +295,11 @@ const adminSchema: Schema = new Schema<IAdmin>(
       },
       businessOpenTime: {
         type: String,
-        required: true
+        // required: true
       },
       businessCloseTime: {
         type: String,
-        required: true
+        // required: true
       },
       memberShip: {
         type: String

@@ -21,7 +21,7 @@ router.get(
 
 router.get(
   '/getVerifiedStores',
-  roleAuth(ACL.STORE_GET_ALL),
+  roleAuth(ACL.STORE_CREATE),
   analyticController.getVerifiedStores
 );
 
@@ -94,5 +94,11 @@ router.post(
   '/getPlusFeatureAnalyticTypes',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getPlusFeatureAnalyticTypes
+);
+
+router.get(
+  '/getTotalImpression',
+  roleAuth(ACL.STORE_GET_ALL),
+  analyticController.getStoreImpressoin
 );
 export default router;

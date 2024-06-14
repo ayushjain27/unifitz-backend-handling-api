@@ -11,7 +11,8 @@ export enum VehicleType {
 export enum FuelType {
   PETROL = 'PETROL',
   ELECTRIC = 'ELECTRIC',
-  KICK_SCOOTER = 'KICK_SCOOTER'
+  KICK_SCOOTER = 'KICK_SCOOTER',
+  CNG = 'CNG'
 }
 
 // export enum ClassificationType {
