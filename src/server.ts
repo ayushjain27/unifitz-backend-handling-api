@@ -286,7 +286,7 @@ async function updateSlug() {
 }
 
 app.get('/slug', async (req, res) => {
-  updateSlug();
+  updateSlugs();
 });
 
 const sqs = new AWS.SQS();
