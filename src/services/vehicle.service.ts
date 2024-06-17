@@ -263,14 +263,15 @@ export class VehicleInfoService {
   //   return updatedVehicle;
   // }
 
-  async vehicleDetailsFromRC(reqBody: { vehicleNumber: string }): Promise<any> {
+  async vehicleDetailsFromRC(reqBody: any): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Initiate fetching vehicle Details>'
     );
     // validate the store from user phone number and user id
     const { vehicleNumber } = reqBody;
     const vehiclePresent = await VehicleInfo.findOne({
-      vehicleNumber
+      vehicleNumber: reqBody.vehicleNumber,
+      userId: new Types.ObjectId(reqBody.userId)
     });
     if (!_.isEmpty(vehiclePresent)) {
       return {
