@@ -253,16 +253,8 @@ export class AnalyticController {
   getUsersByState = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const {
-      firstDate,
-      lastDate,
-      state,
-      city,
-      storeId,
-      platform,
-      limit,
-      oemId
-    } = req.body;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -276,7 +268,37 @@ export class AnalyticController {
         lastDate,
         storeId,
         platform,
-        limit,
+        oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getUsersByArea = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getUsersByArea(
+        role,
+        userName,
+        state,
+        city,
+        firstDate,
+        lastDate,
+        storeId,
+        platform,
         oemId
       );
       res.send({
