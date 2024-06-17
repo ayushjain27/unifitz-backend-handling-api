@@ -58,6 +58,12 @@ router.post(
 );
 
 router.post(
+  '/getUsersByArea',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getUsersByArea
+);
+
+router.post(
   '/getTrafficAnalaytic',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getTrafficAnalaytic

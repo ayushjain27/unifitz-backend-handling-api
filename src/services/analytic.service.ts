@@ -602,7 +602,6 @@ export class AnalyticService {
     lastDate: string,
     storeId: string,
     platform: string,
-    limit: number,
     oemId?: string
   ) {
     Logger.info(
@@ -682,8 +681,99 @@ export class AnalyticService {
       },
       { $sort: { users: -1 } },
       {
-        $limit: limit
+        $limit: 15
       }
+    ]);
+    return queryFilter;
+  }
+
+  async getUsersByArea(
+    role: string,
+    userName: string,
+    state: string,
+    city: string,
+    firstDate: string,
+    lastDate: string,
+    storeId: string,
+    platform: string,
+    oemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      event: 'LOCATION_CHANGE',
+      platform: platform
+      // moduleInformation: storeId
+      // oemUserName: role
+    };
+    if (!firstDate || !lastDate) {
+      delete query['createdAt'];
+    }
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const queryFilter: any = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$userInformation.city',
+          users: {
+            $sum: 1
+          },
+          state: {
+            $first: '$userInformation.state'
+          },
+          geoLocation: {
+            $first: '$userInformation.geoLocation'
+          }
+        }
+      },
+      {
+        $project: {
+          city: {
+            $toString: '$_id'
+          },
+          users: 1,
+          state: 1,
+          geoLocation: 1,
+          _id: 0
+        }
+      },
+      { $sort: { users: -1 } }
     ]);
     return queryFilter;
   }
