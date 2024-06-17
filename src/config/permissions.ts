@@ -9,192 +9,192 @@ export const permissions: any = {
     },
     ADMIN_ANALYTICS: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     OEM_ANALYTICS: {
       STATUS: 'OEM & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     STORES: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     CUSTOMER: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     VEHICLES_OWNED: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     VEHICLES_BUY_SELL: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     ADMIN_PRODUCT_AND_SERVICES: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PRELIST_PRODUCT_AND_SERVICES: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     B2B_PARTNER_PRODUCT: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     CATEGORY: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_EVENT: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_OFFERS: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_BUSINESS_OPPORTUNITIES: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_SCHOOL_OF_AUTO: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     OEM_OFFERS: {
       STATUS: 'OEM & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     B2B_PARTNERS: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     REPORT: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     REPORT_NOTES: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     RATING_AND_REVIEWS: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PERMISSION: {
       STATUS: 'ADMIN AND OEM',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     USER: {
       STATUS: 'ADMIN AND OEM',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     USER_PROFILE: {
       STATUS: 'OEM AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES: {
       STATUS: 'ADMIN AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     ADVERTISEMENTS: {
       STATUS: 'ADMIN AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     OEM_PRODUCTS: {
       STATUS: 'OEM & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     VEHICLES: {
       STATUS: 'ADMIN AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     NEW_VEHICLES: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   OEM: {
@@ -207,192 +207,192 @@ export const permissions: any = {
     },
     ADMIN_ANALYTICS: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     OEM_ANALYTICS: {
       STATUS: 'OEM & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     STORES: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     CUSTOMER: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     VEHICLES_OWNED: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     VEHICLES_BUY_SELL: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     ADMIN_PRODUCT_AND_SERVICES: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PRELIST_PRODUCT_AND_SERVICES: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     B2B_PARTNER_PRODUCT: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     CATEGORY: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_EVENT: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_OFFERS: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_BUSINESS_OPPORTUNITIES: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES_SCHOOL_OF_AUTO: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     OEM_OFFERS: {
       STATUS: 'OEM & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     B2B_PARTNERS: {
       STATUS: 'ADMIN & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     REPORT: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     REPORT_NOTES: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     RATING_AND_REVIEWS: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PERMISSION: {
       STATUS: 'ADMIN AND OEM',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     USER: {
       STATUS: 'ADMIN AND OEM',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     USER_PROFILE: {
       STATUS: 'OEM AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     PLUS_FEATURES: {
       STATUS: 'ADMIN AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     ADVERTISEMENTS: {
       STATUS: 'ADMIN AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     OEM_PRODUCTS: {
       STATUS: 'OEM & EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     VEHICLES: {
       STATUS: 'ADMIN AND EMPLOYEE',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     },
     NEW_VEHICLES: {
       STATUS: 'ALL',
-      CREATE: true,
-      READ: true,
-      UPDATE: true,
-      DELETE: true
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   }
 };
