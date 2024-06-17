@@ -258,22 +258,36 @@ const server = app.listen(port, () =>
   )
 );
 
-// async function updateSlugs() {
-//   try {
-//     // Use aggregation pipeline in updateMany
-//     await Admin.updateMany(// Only update documents that have storeId
-//      { $set: { accessList: permissions.OEM } },
-//     );
+async function updateSlugs() {
+  try {
+    // Use aggregation pipeline in updateMany
+    await Admin.updateMany(// Only update documents that have storeId
+     { $set: { accessList: permissions.OEM } },
+    );
 
-//     console.log('All documents have been updated with slugs.');
-//   } catch(err){
-//     console.log(err,"sa;lkfndj")
-//   }
-// }
+    console.log('All documents have been updated with slugs.');
+  } catch(err){
+    console.log(err,"sa;lkfndj")
+  }
+}
 
-// app.get('/slug', async (req, res) => {
-//   updateSlugs();
-// });
+async function updateSlug() {
+  try {
+    // Use aggregation pipeline in updateMany
+    await Admin.findOneAndUpdate(// Only update documents that have storeId
+    {userName: 'SERVICEPLUG'},
+     { $set: { accessList: permissions.OEM } },
+    );
+
+    console.log('All documents have been updated with slugs.');
+  } catch(err){
+    console.log(err,"sa;lkfndj")
+  }
+}
+
+app.get('/slug', async (req, res) => {
+  updateSlug();
+});
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
