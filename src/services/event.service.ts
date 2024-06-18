@@ -383,7 +383,7 @@ export class EventService {
       phoneNumber:
         store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
       email: store?.contactInfo?.email || customer?.email,
-      organiserName: event?.organizerName || offer?.storeName
+      organiserName: event?.organizerName
     };
     const templateDataUsers = {
       name: store?.basicInfo?.ownerName || customer?.fullName,
@@ -391,7 +391,7 @@ export class EventService {
         store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
       email: store?.contactInfo?.email || customer?.email,
       eventOfferName: event?.eventName || offer?.offerName,
-      organiserName: event?.organizerName || offer?.storeName
+      organiserName: event?.organizerName
     };
     sendEmail(
       templateData,

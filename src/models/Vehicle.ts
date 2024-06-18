@@ -78,7 +78,6 @@ export const vehicleInfoSchema: Schema = new Schema(
   {
     userId: {
       type: Types.ObjectId,
-      required: true
     },
     vehicleType: {
       type: String,

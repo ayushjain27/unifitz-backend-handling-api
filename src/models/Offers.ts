@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose';
+import { Document, model, Schema, ObjectId, Types } from 'mongoose';
 import { ICatalogMap, storeCatalogMapSchema } from './Store';
 
 export const offerDocumentSchema: Schema = new Schema<IOfferImage>({
@@ -9,6 +9,34 @@ export const offerDocumentSchema: Schema = new Schema<IOfferImage>({
     type: String
   }
 });
+
+export const storeListSchema: Schema = new Schema({
+  _id: {
+    type: Types.ObjectId,
+    required: false
+  },
+  storeId: {
+    type: String
+  },
+  storeName: {
+    type: String
+  },
+  geoLocation: {
+    // kind: String,
+    type: { type: String, default: 'Point' },
+    coordinates: [{ type: Number }]
+  }
+});
+
+export interface IStoreList {
+  _id?: ObjectId;
+  storeId: string;
+  storeName?: string;
+  geoLocation?: {
+    type: string;
+    coordinates: number[];
+  };
+}
 
 export enum OfferProfileStatus {
   PARTNER = 'PARTNER',
@@ -28,18 +56,18 @@ export enum OemOfferProfileStatus {
 
 export interface IOffer {
   _id?: string;
-  storeId?: string;
-  storeName?: string;
+  store?: IStoreList[];
+  // storeName?: string;
   offerName: string;
   // url?: string;
   externalUrl?: string;
   // altText?: string;
   // slugUrl?: string;
   status?: string;
-  geoLocation?: {
-    type: string;
-    coordinates: number[];
-  };
+  // geoLocation?: {
+  //   type: string;
+  //   coordinates: number[];
+  // };
   category?: ICatalogMap[];
   subCategory?: ICatalogMap[];
   brand?: ICatalogMap[];
@@ -71,12 +99,12 @@ export enum OfferStatus {
 
 const offerSchema: Schema = new Schema(
   {
-    storeId: {
-      type: String
+    store: {
+      type: [storeListSchema]
     },
-    storeName: {
-      type: String
-    },
+    // storeName: {
+    //   type: String
+    // },
     oemUserName: {
       type: String
     },
@@ -88,11 +116,11 @@ const offerSchema: Schema = new Schema(
       enum: OfferStatus,
       default: OfferStatus.ACTIVE
     },
-    geoLocation: {
-      // kind: String,
-      type: { type: String, default: 'Point' },
-      coordinates: [{ type: Number }]
-    },
+    // geoLocation: {
+    //   // kind: String,
+    //   type: { type: String, default: 'Point' },
+    //   coordinates: [{ type: Number }]
+    // },
     startDate: {
       type: String
     },
@@ -160,7 +188,7 @@ const offerSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-offerSchema.index({ geoLocation: '2dsphere' });
+// offerSchema.index({ geoLocation: '2dsphere' });
 
 const OfferModel = model<IOffer & Document>('offers', offerSchema);
 
