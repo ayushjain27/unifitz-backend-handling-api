@@ -50,13 +50,13 @@ export class VehicleInfoController {
         .status(HttpStatusCodes.BAD_REQUEST)
         .json({ errors: errors.array() });
     }
-    const getVehicleRequest: { userId: string; purpose: string } = req.body;
+    const { userId } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle by user request initiated>'
     );
     try {
       const result = await this.vehicleInfoService.getAllVehicleByUser(
-        getVehicleRequest
+        userId
       );
       res.send({
         result

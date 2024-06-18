@@ -70,11 +70,7 @@ export class VehicleInfoService {
     return vehicleResult;
   }
 
-  async getAllVehicleByUser(getVehicleRequest: {
-    userId: string;
-    purpose: string;
-  }) {
-    const { userId, purpose } = getVehicleRequest;
+  async getAllVehicleByUser(userId: string): Promise<any> {
     // Check if user exists
     const user: IUser = await User.findOne({
       userId: new Types.ObjectId(userId)
@@ -85,7 +81,6 @@ export class VehicleInfoService {
 
     const allVehicles = await VehicleInfo.find({
       userId: new Types.ObjectId(userId),
-      purpose
     }).lean();
     return allVehicles;
   }
