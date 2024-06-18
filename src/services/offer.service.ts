@@ -24,17 +24,17 @@ export class OfferService {
     Logger.info(
       '<Service>:<OfferService>: <Offer onboarding: creating new offer>'
     );
-    const { storeId, oemUserName, oemOfferType } = offerRequest;
+    // const { store, oemUserName, oemOfferType } = offerRequest;
     let newOffer: IOffer = offerRequest;
-    let store: IStore;
-    let user: IAdmin;
-    const defaultLocation = {
-      type: 'Point',
-      coordinates: [0, 0]
-    };
-    if (storeId) {
-      store = await Store.findOne({ storeId }, { verificationDetails: 0 });
-    }
+    // let storeData: IStore;
+    // let user: IAdmin;
+    // const defaultLocation = {
+    //   type: 'Point',
+    //   coordinates: [0, 0]
+    // };
+    // if (storeId) {
+    //   storeData = await Store.findOne({ storeId }, { verificationDetails: 0 });
+    // }
     if (role === AdminRole.OEM) {
       newOffer.oemOfferStatus = OemOfferProfileStatus.DRAFT;
     }
@@ -42,13 +42,13 @@ export class OfferService {
       newOffer.oemOfferStatus = OemOfferProfileStatus.ONBOARDED;
     }
 
-    newOffer.storeName = store?.basicInfo?.businessName;
-    newOffer.geoLocation =
-      oemOfferType === OemOfferType.PARTNER_OFFER
-        ? defaultLocation
-        : store
-        ? store?.contactInfo?.geoLocation
-        : defaultLocation;
+    // newOffer.storeName = storeData?.basicInfo?.businessName;
+    // newOffer.geoLocation =
+    //   oemOfferType === OemOfferType.PARTNER_OFFER
+    //     ? defaultLocation
+    //     : storeData
+    //     ? storeData?.contactInfo?.geoLocation
+    //     : defaultLocation;
 
     newOffer = await OfferModel.create(offerRequest);
 
