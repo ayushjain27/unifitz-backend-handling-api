@@ -70,11 +70,7 @@ export class VehicleInfoService {
     return vehicleResult;
   }
 
-  async getAllVehicleByUser(getVehicleRequest: {
-    userId: string;
-    purpose: string;
-  }) {
-    const { userId, purpose } = getVehicleRequest;
+  async getAllVehicleByUser(userId: string): Promise<any> {
     // Check if user exists
     const user: IUser = await User.findOne({
       userId: new Types.ObjectId(userId)
@@ -85,7 +81,6 @@ export class VehicleInfoService {
 
     const allVehicles = await VehicleInfo.find({
       userId: new Types.ObjectId(userId),
-      purpose
     }).lean();
     return allVehicles;
   }
@@ -263,14 +258,15 @@ export class VehicleInfoService {
   //   return updatedVehicle;
   // }
 
-  async vehicleDetailsFromRC(reqBody: { vehicleNumber: string }): Promise<any> {
+  async vehicleDetailsFromRC(reqBody: any): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Initiate fetching vehicle Details>'
     );
     // validate the store from user phone number and user id
     const { vehicleNumber } = reqBody;
     const vehiclePresent = await VehicleInfo.findOne({
-      vehicleNumber
+      vehicleNumber: reqBody.vehicleNumber,
+      userId: new Types.ObjectId(reqBody.userId)
     });
     if (!_.isEmpty(vehiclePresent)) {
       return {
