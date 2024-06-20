@@ -121,4 +121,14 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   storeController.getStoresByCity
 );
+
+router.post(
+  '/admin-store-paginated',
+  storeController.getAllStorePaginaed
+);
+
+router.get(
+  '/countAllStores',
+  storeController.getTotalStoresCount
+);
 export default router;

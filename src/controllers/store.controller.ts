@@ -31,7 +31,7 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM) {
+      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM || req?.role === AdminRole.EMPLOYEE) {
         const { phoneNumber } = storeRequest;
         await User.findOneAndUpdate(
           { phoneNumber, role: 'STORE_OWNER' },
@@ -563,6 +563,60 @@ export class StoreController {
       );
       res.send({
         message: 'Store get Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllStorePaginaed = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const { userType, status, verifiedStore, pageNo, pageSize, oemId } = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] =
+        await this.storeService.getAllStorePaginaed(
+          userName,
+        role,
+        userType,
+        status,
+        verifiedStore,
+        oemId,
+        pageNo,
+        pageSize
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getTotalStoresCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] =
+        await this.storeService.getTotalStoresCount();
+      res.send({
         result
       });
     } catch (err) {

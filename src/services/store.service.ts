@@ -1135,4 +1135,104 @@ export class StoreService {
     return newStore;
   }
 
+  async getAllStorePaginaed(
+    userName?: string,
+    role?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+  ): Promise<StoreResponse[]> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
+    );
+    let query: any = {};
+    const userRoleType = userType === 'OEM' ? true : false;
+
+    query = {
+      isVerified: Boolean(verifiedStore),
+      profileStatus: status
+    };
+    if (role === AdminRole.ADMIN) {
+      query.oemUserName = { $exists: userRoleType };
+    }
+    if (!userType) {
+      delete query['oemUserName'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    // query = {
+    //   isVerified: Boolean(verifiedStore),
+    //   profileStatus: status,
+    //   oemUserName: userName
+    // };
+    // if (!userType) {
+    //   delete query['oemUserName'];
+    // }
+    if (!verifiedStore) {
+      delete query['isVerified'];
+    }
+    if (!status || status === 'B2B') {
+      delete query['profileStatus'];
+    }
+
+    let stores: any = await Store.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      },
+      {
+        $project: { 'verificationDetails.verifyObj': 0 }
+      }
+    ]);
+    return stores;
+  }
+
+  async getTotalStoresCount(): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
+    );
+    const total = await Store.count();
+    const onboarded = await Store.count({
+      profileStatus: "ONBOARDED"
+    });
+    const rejected =  await Store.count({
+      profileStatus: "REJECTED" 
+    });
+    const draft = await Store.count({
+      profileStatus: "DRAFT"
+    });
+    const pending = await Store.count({
+      profileStatus: "PENDING" 
+    })
+
+    let totalCounts = {
+      total,
+      onboarded,
+      rejected,
+      draft,
+      pending
+    }
+
+    return totalCounts;
+  }
+
 }
