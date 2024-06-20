@@ -16,6 +16,16 @@ export const storeCatalogMapSchema: Schema = new Schema({
   }
 });
 
+export interface ILanguage {
+  name: string;
+}
+
+export const languageSchema: Schema = new Schema({
+  name: {
+    type: String
+  }
+});
+
 export enum StoreProfileStatus {
   DRAFT = 'DRAFT',
   PENDING = 'PENDING',
@@ -32,6 +42,7 @@ export interface IBasicInfo {
   brand: ICatalogMap[]; //<Object> {_id:, name:} {required}, _id - unique - (MD)
   category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
+  language: ILanguage[];
   // businessHours for the different
 }
 
@@ -66,6 +77,9 @@ const storeBasicInfoSchema: Schema = new Schema(
     subCategory: {
       type: [storeCatalogMapSchema],
       required: false
+    },
+    language: {
+      type: [languageSchema]
     }
   },
   {
