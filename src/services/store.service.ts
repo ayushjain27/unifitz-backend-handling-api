@@ -43,7 +43,8 @@ export class StoreService {
   async create(
     storeRequest: StoreRequest,
     userName?: string,
-    role?: string
+    role?: string,
+    oemId?: string
   ): Promise<IStore> {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
@@ -86,6 +87,14 @@ export class StoreService {
 
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      storePayload.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete storePayload['oemUserName'];
     }
     // const newStore = new Store(storePayload);
     const newStore = await Store.create(storePayload);

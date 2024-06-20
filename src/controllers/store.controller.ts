@@ -27,11 +27,16 @@ export class StoreController {
   }
   createStore = async (req: Request, res: Response) => {
     const storeRequest: StoreRequest = req.body;
+    const { oemId } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM) {
+      if (
+        req?.role === AdminRole.ADMIN ||
+        req?.role === AdminRole.OEM ||
+        req?.role === AdminRole.EMPLOYEE
+      ) {
         const { phoneNumber } = storeRequest;
         await User.findOneAndUpdate(
           { phoneNumber, role: 'STORE_OWNER' },
@@ -44,7 +49,8 @@ export class StoreController {
       const result = await this.storeService.create(
         storeRequest,
         userName,
-        role
+        role,
+        oemId
       );
       res.send({
         message: 'Store Onboarding Successful',
