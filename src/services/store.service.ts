@@ -1153,13 +1153,19 @@ export class StoreService {
 
     query = {
       isVerified: Boolean(verifiedStore),
-      profileStatus: status
+      profileStatus: status === 'PARTNERDRAFT' ? 'DRAFT' : status
     };
     if (role === AdminRole.ADMIN) {
       query.oemUserName = { $exists: userRoleType };
     }
     if (!userType) {
       delete query['oemUserName'];
+    }
+    if(status === 'PARTNERDRAFT'){
+      query.oemUserName = { $exists: true };
+    }
+    if(status === 'DRAFT'){
+      query.oemUserName = { $exists: false };
     }
 
     if (role === AdminRole.OEM) {
@@ -1173,7 +1179,8 @@ export class StoreService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-
+    // console.log(role, query, 'oemuserresult');
+    
     // query = {
     //   isVerified: Boolean(verifiedStore),
     //   profileStatus: status,
@@ -1185,7 +1192,7 @@ export class StoreService {
     if (!verifiedStore) {
       delete query['isVerified'];
     }
-    if (!status || status === 'B2B') {
+    if (!status) {
       delete query['profileStatus'];
     }
 
@@ -1206,19 +1213,35 @@ export class StoreService {
     return stores;
   }
 
-  async getTotalStoresCount(): Promise<any> {
+  async getTotalStoresCount( userName?: string,
+    role?: string, oemId?: string): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
     );
-    const total = await Store.count();
+    let query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const total = await Store.count({...query});
     const onboarded = await Store.count({
-      profileStatus: "ONBOARDED"
+      profileStatus: "ONBOARDED",
+      ...query
     });
     const rejected =  await Store.count({
-      profileStatus: "REJECTED" 
+      profileStatus: "REJECTED" ,
+      ...query
     });
     const draft = await Store.count({
-      profileStatus: "DRAFT"
+      profileStatus: "DRAFT",
+      ...query
     });
     const pending = await Store.count({
       profileStatus: "PENDING" 

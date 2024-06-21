@@ -124,11 +124,13 @@ router.post(
 
 router.post(
   '/admin-store-paginated',
+  roleAuth(ACL.STORE_CREATE),
   storeController.getAllStorePaginaed
 );
 
 router.get(
   '/countAllStores',
+  roleAuth(ACL.STORE_CREATE),
   storeController.getTotalStoresCount
 );
 export default router;

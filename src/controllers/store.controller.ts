@@ -31,7 +31,11 @@ export class StoreController {
       '<Controller>:<StoreController>:<Onboarding request controller initiated>'
     );
     try {
-      if (req?.role === AdminRole.ADMIN || req?.role === AdminRole.OEM || req?.role === AdminRole.EMPLOYEE) {
+      if (
+        req?.role === AdminRole.ADMIN ||
+        req?.role === AdminRole.OEM ||
+        req?.role === AdminRole.EMPLOYEE
+      ) {
         const { phoneNumber } = storeRequest;
         await User.findOneAndUpdate(
           { phoneNumber, role: 'STORE_OWNER' },
@@ -576,7 +580,8 @@ export class StoreController {
   getAllStorePaginaed = async (req: Request, res: Response) => {
     const userName = req.userId;
     const role = req?.role;
-    const { userType, status, verifiedStore, pageNo, pageSize, oemId } = req.body;
+    const { userType, status, verifiedStore, pageNo, pageSize, oemId } =
+      req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
     );
@@ -587,13 +592,13 @@ export class StoreController {
       const result: StoreResponse[] =
         await this.storeService.getAllStorePaginaed(
           userName,
-        role,
-        userType,
-        status,
-        verifiedStore,
-        oemId,
-        pageNo,
-        pageSize
+          role,
+          userType,
+          status,
+          verifiedStore,
+          oemId,
+          pageNo,
+          pageSize
         );
       res.send({
         result
@@ -607,6 +612,9 @@ export class StoreController {
   };
 
   getTotalStoresCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const oemId = req?.query?.oemId;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
     );
@@ -615,7 +623,11 @@ export class StoreController {
         '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
       );
       const result: StoreResponse[] =
-        await this.storeService.getTotalStoresCount();
+        await this.storeService.getTotalStoresCount(
+          userName,
+          role,
+          oemId as string
+        );
       res.send({
         result
       });
