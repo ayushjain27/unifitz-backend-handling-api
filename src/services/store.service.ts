@@ -209,19 +209,16 @@ export class StoreService {
       { 'verificationDetails.verifyObj': 0 }
     );
     await sendNotification(
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Store Onboarded'
-          : 'Store Rejected'
+      `${statusRequest.profileStatus === 'ONBOARDED'
+        ? 'Store Onboarded'
+        : 'Store Rejected'
       }`,
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Congratulations 😊'
-          : 'Sorry 😞'
-      } Your store has been ${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'onboarded'
-          : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      `${statusRequest.profileStatus === 'ONBOARDED'
+        ? 'Congratulations 😊'
+        : 'Sorry 😞'
+      } Your store has been ${statusRequest.profileStatus === 'ONBOARDED'
+        ? 'onboarded'
+        : `rejected due to this reason: ${statusRequest.rejectionReason}`
       }`,
       phoneNumber,
       'STORE_OWNER',
@@ -953,7 +950,7 @@ export class StoreService {
 
     if (role === 'ADMIN' || oemId === 'SERVICEPLUG') {
       reviewResponse = await StoreReview.find({});
-    }    
+    }
     else {
       reviewResponse = await StoreReview.aggregate([
         {
@@ -1034,52 +1031,52 @@ export class StoreService {
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
     }
-    
+
     storePayload.userId = ownerDetails._id;
-    
-    if(!store){
-    const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
-    
-    const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
 
-    await StaticIds.findOneAndUpdate(
-      {}, 
-      { storeId: newStoreId }
-    );
+    if (!store) {
+      const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
 
-    //   ? new Date().getFullYear() * 100
-    //   : +lastCreatedStoreId[0].storeId + 1;
-    Logger.info(
-      '<Route>:<StoreService>: <Store onboarding: creating new store>'
-    );
+      const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
 
-    storePayload.storeId = newStoreId;
-    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+      await StaticIds.findOneAndUpdate(
+        {},
+        { storeId: newStoreId }
+      );
+
+      //   ? new Date().getFullYear() * 100
+      //   : +lastCreatedStoreId[0].storeId + 1;
+      Logger.info(
+        '<Route>:<StoreService>: <Store onboarding: creating new store>'
+      );
+
+      storePayload.storeId = newStoreId;
+      storePayload.profileStatus = StoreProfileStatus.DRAFT;
     }
-    if(_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)){
+    if (_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)) {
       storePayload.missingItem = 'Contact Info'
-    }else if(_.isEmpty(storePayload?.storeTiming) && _.isEmpty(store?.storeTiming)){
+    } else if (_.isEmpty(storePayload?.storeTiming) && _.isEmpty(store?.storeTiming)) {
       storePayload.missingItem = 'Store Timing'
-    }else{ 
+    } else {
       storePayload.missingItem = ''
     }
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
-    
+
 
     // const newStore = new Store(storePayload);
-    if(store){
+    if (store) {
       const res = await Store.findOneAndUpdate(
-      { storeId: storeId },
-      { $set: storePayload  },
-      { returnDocument: 'after' }
+        { storeId: storeId },
+        { $set: storePayload },
+        { returnDocument: 'after' }
       );
       await sendNotification('Store Updated', 'Your store has updated. It is under review', phoneNumber, role, '');
-     Logger.info(
-      '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
-    );
-    return res;
+      Logger.info(
+        '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
+      );
+      return res;
     }
     const newStore = await Store.create(storePayload);
     await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, role, '');
@@ -1161,11 +1158,11 @@ export class StoreService {
     if (!userType) {
       delete query['oemUserName'];
     }
-    if(status === 'PARTNERDRAFT'){
+    if (status === 'PARTNERDRAFT') {
       query.oemUserName = { $exists: true };
     }
-    if(status === 'DRAFT'){
-      query.oemUserName = { $exists: false };
+    if (status === 'DRAFT') {
+      query.oemUserName = { $exists: userRoleType };
     }
 
     if (role === AdminRole.OEM) {
@@ -1180,7 +1177,7 @@ export class StoreService {
       delete query['oemUserName'];
     }
     // console.log(role, query, 'oemuserresult');
-    
+
     // query = {
     //   isVerified: Boolean(verifiedStore),
     //   profileStatus: status,
@@ -1213,12 +1210,38 @@ export class StoreService {
     return stores;
   }
 
-  async getTotalStoresCount( userName?: string,
-    role?: string, oemId?: string): Promise<any> {
+  async getTotalStoresCount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
     );
     let query: any = {};
+    const userRoleType = userType === 'OEM' ? true : false;
+    let onboarded: any = 0;
+    let rejected: any = 0;
+    let draft: any = 0;
+
+    query = {
+      isVerified: Boolean(verifiedStore)
+      // profileStatus: status === 'PARTNERDRAFT' ? 'DRAFT' : status
+    };
+    if (role === AdminRole.ADMIN) {
+      query.oemUserName = { $exists: userRoleType };
+    }
+    if (!userType) {
+      delete query['oemUserName'];
+    }
+    if (status === 'PARTNERDRAFT') {
+      query.oemUserName = { $exists: true };
+    }
+    if (status === 'DRAFT') {
+      query.oemUserName = { $exists: userRoleType };
+    }
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
@@ -1230,21 +1253,37 @@ export class StoreService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    const total = await Store.count({...query});
-    const onboarded = await Store.count({
-      profileStatus: "ONBOARDED",
-      ...query
-    });
-    const rejected =  await Store.count({
-      profileStatus: "REJECTED" ,
-      ...query
-    });
-    const draft = await Store.count({
-      profileStatus: "DRAFT",
-      ...query
-    });
+    if (!verifiedStore) {
+      delete query['isVerified'];
+    }
+    const overallStatus = {
+      profileStatus: status
+    }
+    if (!status) {
+      delete query['profileStatus'];
+      delete overallStatus['profileStatus'];
+    }
+    const total = await Store.count({ ...overallStatus, ...query });
+    if (status === 'ONBOARDED' || !status) {
+      onboarded = await Store.count({
+        profileStatus: "ONBOARDED",
+        ...query
+      });
+    }
+    if (status === 'REJECTED' || !status) {
+      rejected = await Store.count({
+        profileStatus: "REJECTED",
+        ...query
+      });
+    }
+    if (status === 'DRAFT' || !status) {
+      draft = await Store.count({
+        profileStatus: "DRAFT",
+        ...query
+      });
+    }
     const pending = await Store.count({
-      profileStatus: "PENDING" 
+      profileStatus: "PENDING"
     })
 
     let totalCounts = {

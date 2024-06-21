@@ -615,6 +615,10 @@ export class StoreController {
     const userName = req.userId;
     const role = req?.role;
     const oemId = req?.query?.oemId;
+    const status = req?.query?.status;
+    const userType = req?.query?.userType;
+    const verifiedStore = req?.query?.verifiedStore;
+
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
     );
@@ -626,7 +630,10 @@ export class StoreController {
         await this.storeService.getTotalStoresCount(
           userName,
           role,
-          oemId as string
+          oemId as string,
+          userType as string,
+          status as string,
+          verifiedStore as string
         );
       res.send({
         result
