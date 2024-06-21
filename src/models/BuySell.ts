@@ -30,6 +30,7 @@ export interface IBuySell extends Document {
   hpLoan: boolean;
   insuranceExperience: string;
   description: string;
+  vehicleCategory: string;
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -48,7 +49,8 @@ export const buySellSchema: Schema = new Schema(
     isAuthorised: { type: Boolean, required: true },
     hpLoan: { type: Boolean, required: true },
     insuranceExperience: { type: String, required: true },
-    description: { type: String }
+    description: { type: String },
+    vehicleCategory: { type: String }
   },
   { timestamps: true, strict: false }
 );
