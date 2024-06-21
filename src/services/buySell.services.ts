@@ -24,13 +24,13 @@ export class BuySellService {
     const { userId } = buySellVehicle;
 
     // Check if user exists
-    const user: IUser = await User.findOne({
-      _id: new Types.ObjectId(`${userId}`)
-    }).lean();
-    Logger.debug(`user result ${JSON.stringify(user)}`);
-    if (_.isEmpty(user)) {
-      throw new Error('User not found');
-    }
+    // const user: IUser = await User.findOne({
+    //   _id: new Types.ObjectId(`${userId}`)
+    // }).lean();
+    // Logger.debug(`user result ${JSON.stringify(user)}`);
+    // if (_.isEmpty(user)) {
+    //   throw new Error('User not found');
+    // }
     // first check if the vehicle present in the vehicle db if yes update the db
     const vehicleDetails = await VehicleInfo.findOne({
       vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
