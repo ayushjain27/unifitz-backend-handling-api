@@ -234,7 +234,7 @@ export class BuySellService {
       totalAmount += Number(list?.expectedPrice);
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-      if (Difference_In_Days <= 45) {
+      if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
         count += 1;
         const arr = [...activeVeh, { ...list }];
         activeVeh = arr;
