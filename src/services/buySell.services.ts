@@ -228,13 +228,20 @@ export class BuySellService {
     let count = 0;
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
+    let draftVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
       const date1 = new Date(list.createdAt);
       const date2 = new Date();
       totalAmount += Number(list?.expectedPrice);
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-      if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+      if (list?.status === 'DRAFT') {
+        count += 1;
+        const arr = [...activeVeh, { ...list }];
+        draftVeh = arr;
+        return count;
+      }
+      else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
         count += 1;
         const arr = [...activeVeh, { ...list }];
         activeVeh = arr;
