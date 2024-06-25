@@ -225,6 +225,8 @@ export class BuySellService {
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
+    let activeVehCount = 0;
+    let inActiveVehCount = 0;
    
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
@@ -240,17 +242,15 @@ export class BuySellService {
         draftVeh = arr;
         return 0;
       } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
-        let count = 0;
-        count += 1;
+        activeVehCount += 1;
         const arr = [...activeVeh, { ...list }];
         activeVeh = arr;
-        return count;
+        return activeVehCount;
       } else if(list?.status === 'INACTIVE') {
-        let count = 0;
-        count += 1;
+        inActiveVehCount += 1;
         const arr = [...activeVeh, { ...list }];
         nonActiveVeh = arr;
-        return count;
+        return inActiveVehCount;
       }
     });
     Logger.debug(
@@ -261,12 +261,12 @@ export class BuySellService {
       { title: 'Total Value', amount: totalAmount },
       {
         title: 'Active Vehicles',
-        total: activeVehicles[activeVehicles.length - 1] || 0,
+        total: activeVehCount || 0,
         list: activeVeh || []
       },
       {
         title: 'Inactive Vehicles',
-        total: result.length - activeVehicles[activeVehicles.length - 1] || 0,
+        total: inActiveVehCount || 0,
         list: nonActiveVeh || []
       },
       { title: 'Sold', total: 0 },
