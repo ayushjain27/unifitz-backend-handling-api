@@ -260,12 +260,12 @@ export class BuySellService {
       {
         title: 'Active Vehicles',
         total: activeVehicles[activeVehicles.length - 1] || 0,
-        list: activeVeh || []
+        list: JSON.parse(JSON.stringify(activeVeh))._doc || []
       },
       {
         title: 'Inactive Vehicles',
         total: result.length - activeVehicles[activeVehicles.length - 1] || 0,
-        list: nonActiveVeh || []
+        list: JSON.parse(JSON.stringify(nonActiveVeh))._doc || []
       },
       { title: 'Sold', total: 0 },
       { title: 'Enquiry', total: 0 }
