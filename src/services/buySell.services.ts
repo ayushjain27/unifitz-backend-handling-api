@@ -245,10 +245,11 @@ export class BuySellService {
         const arr = [...activeVeh, { ...list }];
         activeVeh = arr;
         return count;
-      }
+      }else{
       const arr = [...activeVeh, { ...list }];
       nonActiveVeh = arr;
       return count;
+      }
     });
     Logger.debug(
       `total length ${result.length}, ${totalAmount} ${activeVehicles}`
