@@ -225,7 +225,7 @@ export class BuySellService {
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
-    let count = 0;
+   
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
     let draftVeh: any = [];
@@ -239,16 +239,18 @@ export class BuySellService {
         const arr = [...draftVeh, { ...list }];
         draftVeh = arr;
         return 0;
-      }
-      else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+      } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+        let count = 0;
         count += 1;
         const arr = [...activeVeh, { ...list }];
         activeVeh = arr;
         return count;
-      }else{
-      const arr = [...activeVeh, { ...list }];
-      nonActiveVeh = arr;
-      return count;
+      } else {
+        let count = 0;
+        count += 1;
+        const arr = [...activeVeh, { ...list }];
+        nonActiveVeh = arr;
+        return count;
       }
     });
     Logger.debug(
@@ -470,9 +472,11 @@ export class BuySellService {
   async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
-    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({
-      vehicleId
-    }).populate('vehicleInfo');;
+    const vehicleResponse: IBuySell = await buySellVehicleInfo
+      .findOne({
+        vehicleId
+      })
+      .populate('vehicleInfo');
     return vehicleResponse;
   }
 }
