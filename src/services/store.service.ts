@@ -1225,6 +1225,7 @@ export class StoreService {
     let onboarded: any = 0;
     let rejected: any = 0;
     let draft: any = 0;
+    let partnerdraft: any = 0;
 
     query = {
       isVerified: Boolean(verifiedStore)
@@ -1236,9 +1237,9 @@ export class StoreService {
     if (!userType) {
       delete query['oemUserName'];
     }
-    if (status === 'PARTNERDRAFT') {
-      query.oemUserName = { $exists: true };
-    }
+    // if (status === 'PARTNERDRAFT') {
+    //   query.oemUserName = { $exists: true };
+    // }
     if (status === 'DRAFT') {
       query.oemUserName = { $exists: userRoleType };
     }
@@ -1282,6 +1283,25 @@ export class StoreService {
         ...query
       });
     }
+    if (status === 'PARTNERDRAFT' || !status) {
+      query.oemUserName = { $exists: true };
+      if (role === AdminRole.OEM) {
+        query.oemUserName = userName;
+      }
+  
+      if (role === AdminRole.EMPLOYEE) {
+        query.oemUserName = oemId;
+      }
+  
+      if (oemId === 'SERVICEPLUG') {
+        delete query['oemUserName'];
+      }
+
+      partnerdraft = await Store.count({
+        profileStatus: "DRAFT",
+        ...query
+      });
+    }
     const pending = await Store.count({
       profileStatus: "PENDING"
     })
@@ -1291,7 +1311,8 @@ export class StoreService {
       onboarded,
       rejected,
       draft,
-      pending
+      pending,
+      partnerdraft
     }
 
     return totalCounts;
