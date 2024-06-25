@@ -236,7 +236,7 @@ export class BuySellService {
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
       if (list?.status === 'DRAFT') {
-        const arr = [...draftVeh, { ...list }];
+        const arr = [...activeVeh, { ...list }];
         draftVeh = arr;
         return 0;
       } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
@@ -245,7 +245,7 @@ export class BuySellService {
         const arr = [...activeVeh, { ...list }];
         activeVeh = arr;
         return count;
-      } else {
+      } else if(list?.status === 'INACTIVE') {
         let count = 0;
         count += 1;
         const arr = [...activeVeh, { ...list }];
