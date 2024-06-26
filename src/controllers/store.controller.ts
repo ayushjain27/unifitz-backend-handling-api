@@ -580,7 +580,7 @@ export class StoreController {
   getAllStorePaginaed = async (req: Request, res: Response) => {
     const userName = req.userId;
     const role = req?.role;
-    const { userType, status, verifiedStore, pageNo, pageSize, oemId } =
+    const { userType, status, verifiedStore, pageNo, pageSize, oemId, searchQuery } =
       req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
@@ -598,7 +598,8 @@ export class StoreController {
           verifiedStore,
           oemId,
           pageNo,
-          pageSize
+          pageSize,
+          searchQuery
         );
       res.send({
         result

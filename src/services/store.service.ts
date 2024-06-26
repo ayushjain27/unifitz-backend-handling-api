@@ -1128,19 +1128,20 @@ export class StoreService {
     ]);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: get store successfully>'
-    );
-    return newStore;
-  }
-
-  async getAllStorePaginaed(
-    userName?: string,
-    role?: string,
-    userType?: string,
-    status?: string,
-    verifiedStore?: string,
-    oemId?: string,
-    pageNo?: number,
-    pageSize?: number,
+      );
+      return newStore;
+    }
+    
+    async getAllStorePaginaed(
+      userName?: string,
+      role?: string,
+      userType?: string,
+      status?: string,
+      verifiedStore?: string,
+      oemId?: string,
+      pageNo?: number,
+      pageSize?: number,
+      searchQuery?: string,
   ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -1152,6 +1153,12 @@ export class StoreService {
       isVerified: Boolean(verifiedStore),
       profileStatus: status === 'PARTNERDRAFT' ? 'DRAFT' : status
     };
+    if (searchQuery) {
+      query.$or = [
+        { 'storeId': new RegExp(searchQuery, 'i') },
+        { 'contactInfo.phoneNumber.primary': new RegExp(searchQuery, 'i') }
+      ];
+    }
     if (role === AdminRole.ADMIN) {
       query.oemUserName = { $exists: userRoleType };
     }
@@ -1176,16 +1183,6 @@ export class StoreService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    // console.log(role, query, 'oemuserresult');
-
-    // query = {
-    //   isVerified: Boolean(verifiedStore),
-    //   profileStatus: status,
-    //   oemUserName: userName
-    // };
-    // if (!userType) {
-    //   delete query['oemUserName'];
-    // }
     if (!verifiedStore) {
       delete query['isVerified'];
     }
