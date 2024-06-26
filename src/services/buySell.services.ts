@@ -248,7 +248,7 @@ export class BuySellService {
         return activeVehCount;
       } else if(list?.status === 'INACTIVE') {
         inActiveVehCount += 1;
-        const arr = [...activeVeh, { ...list }];
+        const arr = [...nonActiveVeh, { ...list }];
         nonActiveVeh = arr;
         return inActiveVehCount;
       }
