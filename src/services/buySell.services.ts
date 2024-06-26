@@ -243,12 +243,12 @@ export class BuySellService {
         return 0;
       } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
         activeVehCount += 1;
-        const arr = [...activeVeh, { ...list }];
+        const arr = [...activeVeh, { ...list?._doc }];
         activeVeh = arr;
         return activeVehCount;
       } else if(list?.status === 'INACTIVE') {
         inActiveVehCount += 1;
-        const arr = [...nonActiveVeh, { ...list }];
+        const arr = [...nonActiveVeh, { ...list?._doc }];
         nonActiveVeh = arr;
         return inActiveVehCount;
       }
