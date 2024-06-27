@@ -24,13 +24,13 @@ export class BuySellService {
     const { userId } = buySellVehicle;
 
     // Check if user exists
-    const user: IUser = await User.findOne({
-      _id: new Types.ObjectId(`${userId}`)
-    }).lean();
-    Logger.debug(`user result ${JSON.stringify(user)}`);
-    if (_.isEmpty(user)) {
-      throw new Error('User not found');
-    }
+    // const user: IUser = await User.findOne({
+    //   _id: new Types.ObjectId(`${userId}`)
+    // }).lean();
+    // Logger.debug(`user result ${JSON.stringify(user)}`);
+    // if (_.isEmpty(user)) {
+    //   throw new Error('User not found');
+    // }
     // first check if the vehicle present in the vehicle db if yes update the db
     const vehicleDetails = await VehicleInfo.findOne({
       vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
@@ -225,24 +225,33 @@ export class BuySellService {
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
-    let count = 0;
+    let activeVehCount = 0;
+    let inActiveVehCount = 0;
+   
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
+    let draftVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
       const date1 = new Date(list.createdAt);
       const date2 = new Date();
       totalAmount += Number(list?.expectedPrice);
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-      if (Difference_In_Days <= 45) {
-        count += 1;
+      if (list?.status === 'DRAFT') {
         const arr = [...activeVeh, { ...list }];
+        draftVeh = arr;
+        return 0;
+      } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+        activeVehCount += 1;
+        const arr = [...activeVeh, { ...list?._doc }];
         activeVeh = arr;
-        return count;
+        return activeVehCount;
+      } else if(list?.status === 'INACTIVE') {
+        inActiveVehCount += 1;
+        const arr = [...nonActiveVeh, { ...list?._doc }];
+        nonActiveVeh = arr;
+        return inActiveVehCount;
       }
-      const arr = [...activeVeh, { ...list }];
-      nonActiveVeh = arr;
-      return count;
     });
     Logger.debug(
       `total length ${result.length}, ${totalAmount} ${activeVehicles}`
@@ -252,12 +261,12 @@ export class BuySellService {
       { title: 'Total Value', amount: totalAmount },
       {
         title: 'Active Vehicles',
-        total: activeVehicles[activeVehicles.length - 1] || 0,
+        total: activeVehCount || 0,
         list: activeVeh || []
       },
       {
         title: 'Inactive Vehicles',
-        total: result.length - activeVehicles[activeVehicles.length - 1] || 0,
+        total: inActiveVehCount || 0,
         list: nonActiveVeh || []
       },
       { title: 'Sold', total: 0 },
@@ -463,9 +472,11 @@ export class BuySellService {
   async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
-    const vehicleResponse: IBuySell = await buySellVehicleInfo.findOne({
-      vehicleId
-    }).populate('vehicleInfo');;
+    const vehicleResponse: IBuySell = await buySellVehicleInfo
+      .findOne({
+        vehicleId
+      })
+      .populate('vehicleInfo');
     return vehicleResponse;
   }
 }
