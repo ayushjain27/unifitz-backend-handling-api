@@ -235,7 +235,7 @@ export class BusinessService {
       phoneNumber:
         store?.contactInfo?.phoneNumber?.primary || customer?.phoneNumber,
       email: store?.contactInfo?.email || customer?.email,
-      eventOfferName: 'job',
+      eventOfferName: 'new business opportunities',
       organiserName: business?.organizerName
     };
     sendEmail(
