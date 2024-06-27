@@ -1126,9 +1126,6 @@ export class StoreService {
         $match: query
       }
     ]);
-    Logger.info(
-      '<Service>:<StoreService>: <Store onboarding: get store successfully>'
-      );
       return newStore;
     }
     
