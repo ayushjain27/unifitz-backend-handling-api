@@ -214,19 +214,19 @@ export class BuySellService {
       .populate('vehicleInfo');
     return result;
   }
-  async getOwnStoreDetails(req: any, params: any) {
+  async getOwnStoreDetails(req: any, filters: any) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
     console.log(req,'dkl')
-    console.log(params,'dkl')
-    const filterParams = { ...params?.filter };
+    console.log(filters,'wfdr')
+    const filterParams = { ...filters };
     console.log(filterParams,"dfw;lk")
 
     const result = await buySellVehicleInfo
       .find({
         'storeDetails.storeId': req?.storeId,
-        ...filterParams
+        'vehType': filters?.vehType
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
