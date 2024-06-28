@@ -219,22 +219,37 @@ export class BuySellService {
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
 
-    const result = await buySellVehicleInfo
-      .find({
-        'storeDetails.storeId': req?.storeId,
-        'brandName': req?.brandName,
-        'fuelType': req?.fuelType,
-        'gearType': req?.gearType,
-        'regType': req?.regType,
-        'vehType': req?.vehType
-      })
-      .populate('vehicleInfo');
+    let query: any = {
+      'storeDetails.storeId': req?.storeId,
+      brandName: req?.brandName,
+      fuelType: req?.fuelType,
+      gearType: req?.gearType,
+      regType: req?.regType,
+      vehType: req?.vehType
+    };
+    if (!req?.brandName) {
+      delete query.brandName;
+    }
+    if (!req?.fuelType) {
+      delete query.fuelType;
+    }
+    if (!req?.gearType) {
+      delete query.gearType;
+    }
+    if (!req?.regType) {
+      delete query.regType;
+    }
+    if (!req?.vehType) {
+      delete query.vehType;
+    }
+
+    const result = await buySellVehicleInfo.find(query).populate('vehicleInfo');
     let totalAmount = 0;
     let activeVehCount = 0;
     let inActiveVehCount = 0;
     let soldVehCount = 0;
     let draftVehCount = 0;
-   
+
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
     let soldVeh: any = [];
@@ -243,27 +258,26 @@ export class BuySellService {
       const date1 = new Date(list.createdAt);
       const date2 = new Date();
       const Difference_In_Time = date2.getTime() - date1.getTime();
-      const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24); 
-      if(list?.status === 'DRAFT'){
+      const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+      if (list?.status === 'DRAFT') {
         totalAmount += Number(list?.expectedPrice);
         draftVehCount += 1;
         const arr = [...draftVeh, { ...list?._doc }];
         draftVeh = arr;
         return draftVehCount;
-      }
-      else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+      } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
         totalAmount += Number(list?.expectedPrice);
         activeVehCount += 1;
         const arr = [...activeVeh, { ...list?._doc }];
         activeVeh = arr;
         return activeVehCount;
-      } else if(list?.status === 'INACTIVE') {
+      } else if (list?.status === 'INACTIVE') {
         totalAmount += Number(list?.expectedPrice);
         inActiveVehCount += 1;
         const arr = [...nonActiveVeh, { ...list?._doc }];
         nonActiveVeh = arr;
         return inActiveVehCount;
-      } else if(list?.status === 'SOLD'){
+      } else if (list?.status === 'SOLD') {
         soldVehCount += 1;
         const arr = [...soldVeh, { ...list?._doc }];
         soldVeh = arr;
@@ -287,7 +301,11 @@ export class BuySellService {
     }
 
     const allQuery: any = [
-      { title: 'All Vehicles', total: activeVehCount + inActiveVehCount + draftVehCount || 0, list: activeVeh.concat(nonActiveVeh, draftVeh)  || [] },
+      {
+        title: 'All Vehicles',
+        total: activeVehCount + inActiveVehCount + draftVehCount || 0,
+        list: activeVeh.concat(nonActiveVeh, draftVeh) || []
+      },
       { title: 'Total Value', amount: finalAmount },
       {
         title: 'Active Vehicles',
