@@ -226,7 +226,7 @@ export class BuySellService {
     const result = await buySellVehicleInfo
       .find({
         'storeDetails.storeId': req?.storeId,
-        'vehType': filters?.vehType
+        ...filterParams
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
