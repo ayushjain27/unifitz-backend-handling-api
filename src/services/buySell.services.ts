@@ -218,46 +218,61 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
-    const query: any = {};
+    const filterParams = { ...req?.filter };
+
     const result = await buySellVehicleInfo
       .find({
-        'storeDetails.storeId': req?.storeId
+        'storeDetails.storeId': req?.storeId,
+        ...filterParams
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
     let activeVehCount = 0;
     let inActiveVehCount = 0;
+    let soldVehCount = 0;
+    let draftVehCount = 0;
    
     let activeVeh: any = [];
     let nonActiveVeh: any = [];
+    let soldVeh: any = [];
     let draftVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
       const date1 = new Date(list.createdAt);
       const date2 = new Date();
-      totalAmount += Number(list?.expectedPrice);
       const Difference_In_Time = date2.getTime() - date1.getTime();
-      const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-      if (list?.status === 'DRAFT') {
-        const arr = [...activeVeh, { ...list }];
+      const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24); 
+      if(list?.status === 'DRAFT'){
+        totalAmount += Number(list?.expectedPrice);
+        draftVehCount += 1;
+        const arr = [...draftVeh, { ...list?._doc }];
         draftVeh = arr;
-        return 0;
-      } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+        return draftVehCount;
+      }
+      else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+        totalAmount += Number(list?.expectedPrice);
         activeVehCount += 1;
         const arr = [...activeVeh, { ...list?._doc }];
         activeVeh = arr;
         return activeVehCount;
       } else if(list?.status === 'INACTIVE') {
+        totalAmount += Number(list?.expectedPrice);
         inActiveVehCount += 1;
         const arr = [...nonActiveVeh, { ...list?._doc }];
         nonActiveVeh = arr;
         return inActiveVehCount;
+      } else if(list?.status === 'SOLD'){
+        soldVehCount += 1;
+        const arr = [...soldVeh, { ...list?._doc }];
+        soldVeh = arr;
+        return soldVehCount;
       }
     });
     Logger.debug(
       `total length ${result.length}, ${totalAmount} ${activeVehicles}`
     );
+
     const allQuery: any = [
-      { title: 'All Vehicles', total: result.length, list: result },
+      { title: 'All Vehicles', total: activeVehCount + inActiveVehCount + draftVehCount || 0, list: activeVeh.concat(nonActiveVeh, draftVeh)  || [] },
       { title: 'Total Value', amount: totalAmount },
       {
         title: 'Active Vehicles',
@@ -269,7 +284,7 @@ export class BuySellService {
         total: inActiveVehCount || 0,
         list: nonActiveVeh || []
       },
-      { title: 'Sold', total: 0 },
+      { title: 'Sold', total: soldVehCount || 0, list: soldVeh || [] },
       { title: 'Enquiry', total: 0 }
     ];
     return allQuery;
@@ -322,7 +337,6 @@ export class BuySellService {
     }
     Logger.info('<Service>:<VehicleService>:<Upload all images - successful>');
     Logger.info('<Service>:<VehicleService>:<Updating the vehicle info>');
-    // console.log(req.body.vehicleNumber, 'Sdwl');
     const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
       {
         'vehicleInfo.vehicleNumber': req?.body?.vehicleNumber
@@ -335,7 +349,7 @@ export class BuySellService {
       },
       { returnDocument: 'after' }
     );
-    // console.log(updatedVehicle, 'd,l;sf');
+
     return updatedVehicle;
   }
 
@@ -364,7 +378,6 @@ export class BuySellService {
   }
 
   async updateBuySellVehicleStatus(statusRequest: any) {
-    console.log(statusRequest?.buySellVehicleId, 'dwfl');
     let buySellVehicle: IBuySell;
     buySellVehicle = await buySellVehicleInfo.findOne({
       vehicleId: statusRequest.buySellVehicleId
@@ -432,7 +445,6 @@ export class BuySellService {
 
       end = new Date(Date.UTC(req.year, 12, 0));
       end.setUTCHours(23, 59, 59, 999);
-      console.log(start.toISOString(), end.toISOString(), 'fdwrasfefdwr');
 
       query.createdAt = { $gte: start, $lte: end };
     }
@@ -440,7 +452,6 @@ export class BuySellService {
       delete query['vehicleInfo.vehicleType'];
     }
     Logger.debug(query);
-    console.log(query, 'jbkhjj');
     let vehicleResponse: IBuySell[] = await buySellVehicleInfo
       .find({})
       .populate('vehicleInfo');
