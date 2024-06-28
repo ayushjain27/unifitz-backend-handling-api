@@ -184,6 +184,7 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
     );
     console.log(req,'defm');
+    console.log(req?.query,'fdfwrdefm');
     try {
       const result = await this.buySellService.getOwnStoreDetails(req.query, req.params);
       res.send({
