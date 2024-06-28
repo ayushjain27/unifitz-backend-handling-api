@@ -219,6 +219,7 @@ export class BuySellService {
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
     console.log(req,'dkl')
+    console.log(params,'dkl')
     const filterParams = { ...params?.filter };
     console.log(filterParams,"dfw;lk")
 
