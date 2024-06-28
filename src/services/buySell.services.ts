@@ -218,12 +218,14 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
+    console.log(req,'dkl')
     const filterParams = { ...req?.filter };
+    console.log(filterParams,"dfw;lk")
 
     const result = await buySellVehicleInfo
       .find({
         'storeDetails.storeId': req?.storeId,
-        ...filterParams
+        ...req?.filter
       })
       .populate('vehicleInfo');
     let totalAmount = 0;
