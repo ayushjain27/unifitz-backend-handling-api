@@ -271,9 +271,21 @@ export class BuySellService {
       `total length ${result.length}, ${totalAmount} ${activeVehicles}`
     );
 
+    let finalAmount = '';
+
+    if (totalAmount >= 10000000) {
+      finalAmount = `${(totalAmount / 10000000).toFixed(2)}Cr`;
+    }
+    if (totalAmount >= 100000 && totalAmount < 10000000) {
+      finalAmount = `${(totalAmount / 100000).toFixed(2)}L`;
+    }
+    if (totalAmount >= 1000 && totalAmount < 100000) {
+      finalAmount = `${(totalAmount / 1000).toFixed(2)}k`;
+    }
+
     const allQuery: any = [
       { title: 'All Vehicles', total: activeVehCount + inActiveVehCount + draftVehCount || 0, list: activeVeh.concat(nonActiveVeh, draftVeh)  || [] },
-      { title: 'Total Value', amount: totalAmount },
+      { title: 'Total Value', amount: finalAmount },
       {
         title: 'Active Vehicles',
         total: activeVehCount || 0,
