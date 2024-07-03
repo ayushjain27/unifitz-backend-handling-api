@@ -33,7 +33,8 @@ export class BuySellService {
     // }
     // first check if the vehicle present in the vehicle db if yes update the db
     const vehicleDetails = await VehicleInfo.findOne({
-      vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
+      vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber,
+      status: { $ne: 'SOLD' }
     });
     let vehicleResult;
     if (_.isEmpty(vehicleDetails)) {
