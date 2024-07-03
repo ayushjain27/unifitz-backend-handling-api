@@ -95,9 +95,7 @@ export const vehicleInfoSchema: Schema = new Schema(
     },
     vehicleNumber: {
       type: String,
-      required: true,
-      unique: true,
-      index: true
+      required: true
     },
     brand: {
       type: String
