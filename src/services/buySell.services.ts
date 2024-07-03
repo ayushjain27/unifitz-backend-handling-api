@@ -44,7 +44,7 @@ export class BuySellService {
     } else {
       // Vehicle exists, check if it is not sold
       const isVehicleNotSold = await buySellVehicleInfo.findOne({
-        status: { $ne: 'SOLD' },
+        status: 'SOLD',
         vehicleId: String(vehicleDetail?._id)
       });
       if (!_.isEmpty(isVehicleNotSold)) {
