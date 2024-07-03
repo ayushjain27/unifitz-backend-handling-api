@@ -32,25 +32,36 @@ export class BuySellService {
     //   throw new Error('User not found');
     // }
     // first check if the vehicle present in the vehicle db if yes update the db
-    const vehicleDetails = await VehicleInfo.findOne({
-      vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber,
-      status: { $ne: 'SOLD' }
+    const vehicleDetail = await VehicleInfo.findOne({
+      vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
     });
+
     let vehicleResult;
-    if (_.isEmpty(vehicleDetails)) {
+
+    if (_.isEmpty(vehicleDetail)) {
+      // Vehicle does not exist, create a new vehicle entry
       vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
     } else {
-      const vehicleDetails = {
-        ...buySellVehicle.vehicleInfo,
-        purpose: 'OWNED_BUY_SELL'
-      };
-      vehicleResult = await VehicleInfo.findOneAndUpdate(
-        {
-          vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
-        },
-        vehicleDetails,
-        { returnDocument: 'after' }
-      );
+      // Vehicle exists, check if it is not sold
+      const isVehicleNotSold = await buySellVehicleInfo.findOne({
+        status: { $ne: 'SOLD' },
+        vehicleId: String(vehicleDetail?._id)
+      });
+      if (!_.isEmpty(isVehicleNotSold)) {
+        vehicleResult = await VehicleInfo.create(buySellVehicle.vehicleInfo);
+      } else {
+        const vehicleDetails = {
+          ...buySellVehicle.vehicleInfo,
+          purpose: 'OWNED_BUY_SELL'
+        };
+        vehicleResult = await VehicleInfo.findOneAndUpdate(
+          {
+            vehicleNumber: buySellVehicle.vehicleInfo?.vehicleNumber
+          },
+          vehicleDetails,
+          { returnDocument: 'after' }
+        );
+      }
     }
 
     delete buySellVehicle['vehicleInfo'];
