@@ -408,7 +408,8 @@ export class BuySellService {
     const vehiclePresent: {
       storeDetails: { basicInfo: { businessName: '' } };
     } = await buySellVehicleInfo.findOne({
-      vehicleId: String(vehicleId?._id)
+      vehicleId: String(vehicleId?._id),
+      status: { $ne: 'SOLD' }
     });
     if (!_.isEmpty(vehiclePresent)) {
       return {
