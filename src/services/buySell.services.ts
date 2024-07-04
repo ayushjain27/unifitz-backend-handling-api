@@ -402,15 +402,16 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const vehicleId = await VehicleInfo.findOne({
-      vehicleNumber
-    });
-    const vehiclePresent: {
-      storeDetails: { basicInfo: { businessName: '' } };
-    } = await buySellVehicleInfo.findOne({
-      vehicleId: String(vehicleId?._id),
-      status: { $ne: 'SOLD' }
-    });
+    const vehicleList = await VehicleInfo.find({ vehicleNumber });
+
+    let vehiclePresent: any;
+    for (const vehicle of vehicleList) {
+      vehiclePresent = await buySellVehicleInfo.findOne({
+        vehicleId: String(vehicle._id),
+        status: { $ne: 'SOLD' }
+      });
+    }
+
     if (!_.isEmpty(vehiclePresent)) {
       return {
         message: `This vehicle is already registered if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
