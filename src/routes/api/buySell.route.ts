@@ -70,4 +70,10 @@ router.get(
   buySellController.getBuySellDetailsByVehicleId
 );
 
+router.delete(
+  '/:vehicleId',
+  roleAuth(ACL.STORE_CREATE),
+  buySellController.deleteVehicle
+);
+
 export default router;

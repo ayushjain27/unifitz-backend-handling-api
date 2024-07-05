@@ -270,6 +270,24 @@ export class BuySellController {
     }
   };
 
+  deleteVehicle = async (req: Request, res: Response) => {
+    const vehicleId = req.params.vehicleId;
+    Logger.info(
+      '<Controller>:<BuySellController>:<Delete vehicle by vehicleID request controller initiated>'
+    );
+    try {
+      const result = await this.buySellService.deleteVehicle(
+        vehicleId as string,
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':
