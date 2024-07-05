@@ -183,6 +183,7 @@ export class BuySellController {
     Logger.info(
       '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
     );
+
     try {
       const result = await this.buySellService.getOwnStoreDetails(req.query);
       res.send({
@@ -260,6 +261,24 @@ export class BuySellController {
       const result = await this.buySellService.getBuySellDetailsByVehicleId(
         vehicleId as string
       );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteVehicle = async (req: Request, res: Response) => {
+    const vehicleId = req.params.vehicleId;
+    Logger.info(
+      '<Controller>:<BuySellController>:<Delete vehicle by vehicleID request controller initiated>'
+    );
+    try {
+      const result = await this.buySellService.deleteVehicle(
+        vehicleId as string,
+        );
       res.send({
         result
       });

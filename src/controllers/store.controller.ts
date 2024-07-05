@@ -579,6 +579,76 @@ export class StoreController {
     }
   };
 
+  getAllStorePaginaed = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const { userType, status, verifiedStore, pageNo, pageSize, oemId, searchQuery } =
+      req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] =
+        await this.storeService.getAllStorePaginaed(
+          userName,
+          role,
+          userType,
+          status,
+          verifiedStore,
+          oemId,
+          pageNo,
+          pageSize,
+          searchQuery
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getTotalStoresCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const oemId = req?.query?.oemId;
+    const status = req?.query?.status;
+    const userType = req?.query?.userType;
+    const verifiedStore = req?.query?.verifiedStore;
+
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] =
+        await this.storeService.getTotalStoresCount(
+          userName,
+          role,
+          oemId as string,
+          userType as string,
+          status as string,
+          verifiedStore as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateBusinessVerification':
