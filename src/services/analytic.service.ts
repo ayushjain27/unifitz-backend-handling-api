@@ -1544,7 +1544,7 @@ export class AnalyticService {
     eventResult.email = userResult?.contactInfo?.email || '';
     eventResult.phoneNumber =
       userResult?.contactInfo?.phoneNumber?.primary || requestData.phoneNumber;
-    eventResult.moduleInformation = userResult?.storeId;
+    eventResult.moduleInformation = requestData?.moduleInformation;
 
     Logger.info(
       '<Service>:<AnalyticService>:<Create analytic service initiated>'
@@ -1693,17 +1693,7 @@ export class AnalyticService {
     return queryFilter;
   }
 
-  async getActivePartnerUsers(
-    role: string,
-    userName: string
-    // firstDate: string,
-    // lastDate: string,
-    // state: string,
-    // city: string,
-    // storeId: string,
-    // platform: string,
-    // oemId?: string
-  ) {
+  async getActivePartnerUsers(role: string, userName: string) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
@@ -1713,18 +1703,11 @@ export class AnalyticService {
     tday.setDate(tday.getDate() - 1);
 
     query = {
-      // 'userInformation.state': state,
-      // 'userInformation.city': city,
       createdAt: {
         $gte: tday
       },
       module: 'SCREEN_MODE'
-      // event: 'ONLINE'
-      // moduleInformation: storeId,
-      // platform: platform
     };
-
-    // const storeResult: any = await Store.count({ profileStatus: 'ONBOARDED' });
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
