@@ -1526,7 +1526,8 @@ export class AnalyticService {
         startTime: requestData.startTime,
         endTime: requestData.endTime,
         platform: requestData.platform,
-        phoneNumber: requestData.phoneNumber
+        phoneNumber: requestData.phoneNumber,
+        moduleInformation: requestData.moduleInformation
       };
 
       if (requestData.event === 'ONLINE') {
