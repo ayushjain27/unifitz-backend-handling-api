@@ -1510,24 +1510,35 @@ export class AnalyticService {
     let userResult: any = {};
     const userData: any = {};
     const eventResult = requestData;
-    if (
-      requestData.event === 'LOGIN' ||
-      requestData.event === 'LOGIN_OTP_VERIFY' ||
-      requestData.event === 'ONLINE'
-    ) {
-      const getByPhoneNumber = {
-        'contactInfo.phoneNumber.primary': requestData.phoneNumber
-      };
-      userResult = await Store.findOne(getByPhoneNumber);
-    } else {
-      userResult = await Store.findOne({
-        'contactInfo.phoneNumber.primary': requestData.phoneNumber
-      })?.lean();
 
-      if (_.isEmpty(userResult)) {
-        throw new Error('Store does not exist');
+    const getByPhoneNumber = {
+      'contactInfo.phoneNumber.primary': requestData.phoneNumber
+    };
+    userResult = await Store.findOne(getByPhoneNumber);
+
+    if (_.isEmpty(userResult)) {
+      throw new Error('Store does not exist');
+    }
+
+    if (requestData.event === 'ONLINE' || requestData.event === 'OFFLINE') {
+      const jsonResult = {
+        event: requestData.event,
+        startTime: requestData.startTime,
+        endTime: requestData.endTime,
+        platform: requestData.platform,
+        phoneNumber: requestData.phoneNumber
+      };
+
+      if (requestData.event === 'ONLINE') {
+        delete jsonResult['endTime'];
+      }
+
+      const eventData = await PartnerAnalyticModel.findOne(jsonResult);
+      if (!_.isEmpty(eventData)) {
+        throw new Error('Event is already created');
       }
     }
+
     eventResult.userId = userResult?.userId;
     eventResult.fullName = userResult?.basicInfo?.ownerName || '';
     eventResult.email = userResult?.contactInfo?.email || '';
