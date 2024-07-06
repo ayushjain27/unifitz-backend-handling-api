@@ -32,6 +32,7 @@ export interface IPartnerAnalytic {
   phoneNumber: string;
   email: string;
   moduleInformation: string;
+  eventResultId: string;
   message: string;
   startTime: string;
   endTime: string;
@@ -68,6 +69,9 @@ const partnerAnalyticSchema: Schema = new Schema(
       type: String
     },
     moduleInformation: {
+      type: String
+    },
+    eventResultId: {
       type: String
     },
     startTime: {

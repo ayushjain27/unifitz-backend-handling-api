@@ -874,13 +874,14 @@ export class AnalyticService {
     let userResult: any = {};
     const userData: any = {};
     const eventResult = requestData;
+    let customerResponse: any = {};
     userResult = await User.findOne({
       _id: new Types.ObjectId(requestData.userId)
     })?.lean();
 
-    if (_.isEmpty(userResult)) {
-      throw new Error('User does not exist');
-    }
+    // if (_.isEmpty(userResult)) {
+    //   throw new Error('User does not exist');
+    // }
 
     // if (requestData.event === 'IMPRESSION_COUNT') {
     //   const getPlusFeatureAnalytic = await PlusFeatureAnalyticModel.findOne({
@@ -894,14 +895,16 @@ export class AnalyticService {
     //     return 'the impression is already created';
     //   }
     // }
-    const customerResponse = await Customer.findOne({
-      phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
-    }).lean();
-
-    userData.userId = userResult?._id || requestData.userId;
+    if (requestData?.phoneNumber || !_.isEmpty(userResult)) {
+      customerResponse = await Customer.findOne({
+        phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
+      }).lean();
+    }
+    userData.userId = userResult?._id || requestData.userId || '';
     userData.fullName = customerResponse?.fullName || '';
     userData.email = customerResponse?.email || '';
-    userData.phoneNumber = userResult?.phoneNumber || requestData.phoneNumber;
+    userData.phoneNumber =
+      userResult?.phoneNumber || requestData.phoneNumber || '';
     userData.geoLocation = {
       type: 'Point',
       coordinates: requestData?.coordinates
