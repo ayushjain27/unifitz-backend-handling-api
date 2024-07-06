@@ -238,18 +238,22 @@ export class BusinessService {
       eventOfferName: 'new business opportunities',
       organiserName: business?.organizerName
     };
+    if(!_.isEmpty(business?.email)){
     sendEmail(
       templateData,
       business?.email,
       'support@serviceplug.in',
       'EventsOfferscheme'
     );
+    }
+    if(!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)){
     sendEmail(
       templateDataUsers,
       store?.contactInfo?.email || customer?.email,
       'support@serviceplug.in',
       'EventsOffersUsersScheme'
     );
+    }
     return newInterest;
   }
 }
