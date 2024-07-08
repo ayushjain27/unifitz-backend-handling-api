@@ -545,26 +545,9 @@ export class BuySellService {
     const res = await buySellVehicleInfo.findOneAndDelete({
       vehicleId: vehicleId
     });
-
-    let vehicleDetails = await VehicleInfo.findOne({
+    const vehicleDelete = await VehicleInfo.findOneAndDelete({
       _id: new Types.ObjectId(vehicleId)
     });
-
-    if (vehicleDetails.purpose === 'OWNED_BUY_SELL') {
-      const vehicle = await VehicleInfo.findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(vehicleId)
-        },
-        {
-          purpose: 'OWNED'
-        },
-        { returnDocument: 'after' }
-      );
-    }else{
-      const vehicleDelete = await VehicleInfo.findOneAndDelete({
-        _id: new Types.ObjectId(vehicleId)
-      })
-    }
     return res;
   }
 }
