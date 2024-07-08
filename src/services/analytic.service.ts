@@ -23,6 +23,7 @@ import BusinessModel from '../models/Business';
 import EventAnalyticModel, {
   IEventAnalytic
 } from '../models/CustomerEventAnalytic';
+import PartnerAnalyticModel from '../models/PartnerAnalytic';
 import PlusFeatureAnalyticModel from '../models/PlusFeaturesAnalytic';
 
 @injectable()
@@ -750,12 +751,15 @@ export class AnalyticService {
       },
       {
         $group: {
-          _id: '$userInformation.city',
+          _id: '$userInformation.geoLocation.coordinates',
           users: {
             $sum: 1
           },
           state: {
             $first: '$userInformation.state'
+          },
+          city: {
+            $first: '$userInformation.city'
           },
           geoLocation: {
             $first: '$userInformation.geoLocation'
@@ -764,12 +768,10 @@ export class AnalyticService {
       },
       {
         $project: {
-          city: {
-            $toString: '$_id'
-          },
+          geoLocation: 1,
           users: 1,
           state: 1,
-          geoLocation: 1,
+          city: 1,
           _id: 0
         }
       },
@@ -872,13 +874,14 @@ export class AnalyticService {
     let userResult: any = {};
     const userData: any = {};
     const eventResult = requestData;
+    let customerResponse: any = {};
     userResult = await User.findOne({
       _id: new Types.ObjectId(requestData.userId)
     })?.lean();
 
-    if (_.isEmpty(userResult)) {
-      throw new Error('User does not exist');
-    }
+    // if (_.isEmpty(userResult)) {
+    //   throw new Error('User does not exist');
+    // }
 
     // if (requestData.event === 'IMPRESSION_COUNT') {
     //   const getPlusFeatureAnalytic = await PlusFeatureAnalyticModel.findOne({
@@ -892,14 +895,16 @@ export class AnalyticService {
     //     return 'the impression is already created';
     //   }
     // }
-    const customerResponse = await Customer.findOne({
-      phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
-    }).lean();
-
-    userData.userId = userResult?._id || requestData.userId;
+    if (requestData?.phoneNumber || !_.isEmpty(userResult)) {
+      customerResponse = await Customer.findOne({
+        phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
+      }).lean();
+    }
+    userData.userId = userResult?._id || requestData.userId || '';
     userData.fullName = customerResponse?.fullName || '';
     userData.email = customerResponse?.email || '';
-    userData.phoneNumber = userResult?.phoneNumber || requestData.phoneNumber;
+    userData.phoneNumber =
+      userResult?.phoneNumber || requestData.phoneNumber || '';
     userData.geoLocation = {
       type: 'Point',
       coordinates: requestData?.coordinates
@@ -1502,5 +1507,294 @@ export class AnalyticService {
       totalStoreImpression: storeEvent,
       totalBannerImpression: bannerEvent
     };
+  }
+
+  async createPartnerAnalytic(requestData: any): Promise<any> {
+    let userResult: any = {};
+    const userData: any = {};
+    const eventResult = requestData;
+
+    const getByPhoneNumber = {
+      'contactInfo.phoneNumber.primary': requestData.phoneNumber
+    };
+    userResult = await Store.findOne(getByPhoneNumber);
+
+    if (_.isEmpty(userResult)) {
+      throw new Error('Store does not exist');
+    }
+
+    if (requestData.event === 'ONLINE' || requestData.event === 'OFFLINE') {
+      const jsonResult = {
+        event: requestData.event,
+        startTime: requestData.startTime,
+        endTime: requestData.endTime,
+        platform: requestData.platform,
+        phoneNumber: requestData.phoneNumber,
+        moduleInformation: requestData.moduleInformation
+      };
+
+      if (requestData.event === 'ONLINE') {
+        delete jsonResult['endTime'];
+      }
+
+      const eventData = await PartnerAnalyticModel.findOne(jsonResult);
+      if (!_.isEmpty(eventData)) {
+        throw new Error('Event is already created');
+      }
+    }
+
+    eventResult.userId = userResult?.userId;
+    eventResult.fullName = userResult?.basicInfo?.ownerName || '';
+    eventResult.email = userResult?.contactInfo?.email || '';
+    eventResult.phoneNumber =
+      userResult?.contactInfo?.phoneNumber?.primary || requestData.phoneNumber;
+    eventResult.moduleInformation = requestData?.moduleInformation;
+
+    Logger.info(
+      '<Service>:<AnalyticService>:<Create analytic service initiated>'
+    );
+    let newAnalytic: any = [];
+    if (!_.isEmpty(eventResult)) {
+      newAnalytic = await PartnerAnalyticModel.create(eventResult);
+    }
+    Logger.info('<Service>:<AnalyticService>:<analytic created successfully>');
+    return newAnalytic;
+  }
+
+  async getPartnerAnalytic(
+    role: string,
+    userName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    // const currentDate = new Date(lastDay);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      platform: platform,
+      event: 'LOGIN_OTP_VERIFY',
+      moduleInformation: storeId
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
+    // const c_Date = new Date();
+
+    const queryFilter: any = await PartnerAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $project: {
+          createdAt: 1,
+          groupId: {
+            $dateFromParts: {
+              year: {
+                $year: '$createdAt'
+              },
+              month: {
+                $month: '$createdAt'
+              },
+              day: {
+                $dayOfMonth: '$createdAt'
+              },
+              hour: {
+                $cond: [
+                  {
+                    $gte: [
+                      {
+                        $dateDiff: {
+                          startDate: firstDay,
+                          endDate: lastDay,
+                          unit: 'day'
+                        }
+                      },
+                      1
+                    ]
+                  },
+                  0,
+                  {
+                    $hour: '$createdAt'
+                  }
+                ]
+              }
+            }
+          },
+          moduleInformation: 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            groupId: '$groupId',
+            store: '$moduleInformation'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.groupId',
+          views: {
+            $sum: 1
+          }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $toString: '$_id'
+          },
+          views: 1,
+          _id: 0
+        }
+      },
+      {
+        $unset: ['_id']
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return queryFilter;
+  }
+
+  async getActivePartnerUsers(role: string, userName: string) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    const tday = new Date();
+    tday.setDate(tday.getDate() - 1);
+
+    query = {
+      createdAt: {
+        $gte: tday
+      },
+      module: 'SCREEN_MODE'
+    };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    const queryFilter: any = await PartnerAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            phoneNumber: '$phoneNumber',
+            event: '$event',
+            platform: '$platform',
+            moduleInformation: '$moduleInformation',
+            startTime: '$startTime',
+            endTime: '$endTime',
+            totalTimeDuration: '$totalTimeDuration',
+            createdAt: '$createdAt'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.phoneNumber',
+          screenView: {
+            $sum: 1
+          },
+          userResult: {
+            $push: {
+              event: '$_id.event',
+              platform: '$_id.platform',
+              moduleInformation: '$_id.moduleInformation',
+              startTime: '$_id.startTime',
+              endTime: '$_id.endTime',
+              totalTimeDuration: '$_id.totalTimeDuration'
+            }
+          },
+          createdAt: {
+            $first: '$_id.createdAt'
+          }
+        }
+      },
+      {
+        $set: {
+          userData: { $size: '$userResult' }
+        }
+      },
+      {
+        $set: {
+          screenMode: {
+            $cond: [
+              { $eq: [{ $mod: ['$userData', 2] }, 0] },
+              'OFFLINE',
+              'ONLINE'
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          phoneNumber: {
+            $toString: '$_id'
+          },
+          screenView: 1,
+          // userResult: 1,
+          screenMode: 1,
+          createdAt: 1,
+          timeSpend: { $sum: '$userResult.totalTimeDuration' },
+          _id: 0
+        }
+      }
+    ]);
+
+    const finalResult = {
+      avgTimeSpend:
+        queryFilter
+          ?.map((val: any) => val?.timeSpend)
+          .reduce((num1: number, num2: number) => num1 + num2, 0) /
+        queryFilter?.length,
+      partnerUers: queryFilter
+    };
+    return finalResult;
   }
 }

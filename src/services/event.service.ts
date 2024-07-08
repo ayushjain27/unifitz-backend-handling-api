@@ -393,18 +393,22 @@ export class EventService {
       eventOfferName: event?.eventName || offer?.offerName,
       organiserName: event?.organizerName
     };
-    sendEmail(
-      templateData,
-      event?.email || offer?.email,
-      'support@serviceplug.in',
-      'EventsOfferscheme'
-    );
-    sendEmail(
-      templateDataUsers,
-      store?.contactInfo?.email || customer?.email,
-      'support@serviceplug.in',
-      'EventsOffersUsersScheme'
-    );
+    if (!_.isEmpty(event?.email) || !_.isEmpty(offer?.email)) {
+      sendEmail(
+        templateData,
+        event?.email || offer?.email,
+        'support@serviceplug.in',
+        'EventsOfferscheme'
+      );
+    }
+    if (!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)) {
+      sendEmail(
+        templateDataUsers,
+        store?.contactInfo?.email || customer?.email,
+        'support@serviceplug.in',
+        'EventsOffersUsersScheme'
+      );
+    }
     return newInterest;
   }
 

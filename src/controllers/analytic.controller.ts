@@ -536,4 +536,90 @@ export class AnalyticController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  createPartnerAnalytic = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createPartnerAnalytic(
+        requestData
+      );
+      res.send({
+        message: 'OK !!!!',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getPartnerAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getPartnerAnalytic(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getActivePartnerUsers = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    // const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+    //   req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getActivePartnerUsers(
+        role,
+        userName
+        // firstDate,
+        // lastDate,
+        // state,
+        // city,
+        // storeId,
+        // platform,
+        // oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

@@ -37,6 +37,8 @@ router.post(
   analyticController.getPlusFeatureData
 );
 
+// ====================event analytic api lists start=====================
+// =======================================================================
 router.post('/createEventAnalytic', analyticController.createEventAnalytic);
 
 router.post(
@@ -68,7 +70,13 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   analyticController.getTrafficAnalaytic
 );
+
+// ====================event analytic api lists ended=====================
+// =======================================================================
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
+
+// ====================Plus Feature analytic api lists start==============
+// =======================================================================
 
 router.post('/createPlusFeatures', analyticController.createPlusFeatures);
 
@@ -106,5 +114,24 @@ router.get(
   '/getTotalImpression',
   roleAuth(ACL.STORE_GET_ALL),
   analyticController.getStoreImpressoin
+);
+
+// ====================Plus Feature analytic api lists ended==============
+// =======================================================================
+
+// ====================Partner analytic api lists start===================
+// =======================================================================
+router.post('/createPartnerAnalytic', analyticController.createPartnerAnalytic);
+
+router.post(
+  '/getPartnerAnalytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getPartnerAnalytic
+);
+
+router.get(
+  '/getActivePartnerUsers',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getActivePartnerUsers
 );
 export default router;
