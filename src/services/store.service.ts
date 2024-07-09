@@ -1321,4 +1321,88 @@ export class StoreService {
     return totalCounts;
   }
 
+  async getNearestStore(searchReqBody: {
+    storeName: string;
+    brand: string;
+    subCategory: string[];
+    category: string;
+    pageNo: number;
+    pageSize: number;
+    coordinates: number[];
+    oemUserName: string;
+  }): Promise<StoreResponse[]> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
+    );
+    const query = {
+      'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
+      'basicInfo.brand.name': searchReqBody.brand,
+      'basicInfo.category.name': searchReqBody.category,
+      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      oemUserName: searchReqBody.oemUserName,
+      profileStatus: 'ONBOARDED'
+    };
+    if (!searchReqBody.brand) {
+      delete query['basicInfo.brand.name'];
+    }
+    if (!searchReqBody.category) {
+      delete query['basicInfo.category.name'];
+    }
+    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
+      delete query['basicInfo.subCategory.name'];
+    }
+    if (!searchReqBody.storeName) {
+      delete query['basicInfo.businessName'];
+    }
+    if (!searchReqBody.oemUserName) {
+      delete query.oemUserName;
+    }
+    Logger.debug(query);
+
+    let stores: any = await Store.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: searchReqBody.coordinates as [number, number]
+          },
+          spherical: true,
+          query: query,
+          distanceField: 'contactInfo.distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      {
+        $match: {
+          'contactInfo.distance': { $lte : 10}
+        }
+      },
+      {$limit: 15},
+      {
+        $project: { 'verificationDetails.verifyObj': 0 }
+      }
+    ]);
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service 2222222222>'
+    );
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          Logger.info(
+            '<Service>:<StoreService>:<Search and Filter stores service 3333333333333>'
+          );
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
+    }
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter stores service 4444444444444>'
+    );
+    return stores;
+  }
+
 }
