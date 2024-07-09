@@ -582,8 +582,15 @@ export class StoreController {
   getAllStorePaginaed = async (req: Request, res: Response) => {
     const userName = req.userId;
     const role = req?.role;
-    const { userType, status, verifiedStore, pageNo, pageSize, oemId, searchQuery } =
-      req.body;
+    const {
+      userType,
+      status,
+      verifiedStore,
+      pageNo,
+      pageSize,
+      oemId,
+      searchQuery
+    } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
     );
@@ -638,6 +645,58 @@ export class StoreController {
           status as string,
           verifiedStore as string
         );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getNearestStore = async (req: Request, res: Response) => {
+    const {
+      category,
+      brand,
+      storeName,
+      pageNo,
+      pageSize,
+      coordinates,
+      oemUserName
+    }: {
+      category: string;
+      brand: string;
+      storeName: string;
+      pageNo: number;
+      pageSize: number;
+      coordinates: number[];
+      oemUserName: string;
+    } = req.body;
+    let { subCategory } = req.body;
+    if (subCategory) {
+      subCategory = (subCategory as string).split(',');
+    } else {
+      subCategory = [];
+    }
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result: StoreResponse[] = await this.storeService.getNearestStore({
+        storeName,
+        category,
+        subCategory,
+        brand,
+        pageNo,
+        pageSize,
+        coordinates,
+        oemUserName
+      });
       res.send({
         result
       });

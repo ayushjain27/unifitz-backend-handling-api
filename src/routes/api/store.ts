@@ -133,4 +133,10 @@ router.get(
   roleAuth(ACL.STORE_CREATE),
   storeController.getTotalStoresCount
 );
+
+router.post(
+  '/getNearestStore',
+  // roleAuth(ACL.STORE_GET_ALL),
+  storeController.getNearestStore
+);
 export default router;
