@@ -9,6 +9,7 @@ import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
 import _ from 'lodash';
 import { S3Service } from './s3.service';
+import { AdminRole } from './../models/Admin';
 import { TYPES } from '../config/inversify.types';
 import container from '../config/inversify.container';
 import { SurepassService } from './surepass.service';
@@ -231,7 +232,7 @@ export class BuySellService {
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'
     );
 
-    let query: any = {
+    const query: any = {
       'storeDetails.storeId': req?.storeId,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
@@ -449,11 +450,16 @@ export class BuySellService {
     return updatedVehicle;
   }
 
-  async getAllBuySellVehilce(req: any): Promise<IBuySell[]> {
+  async getAllBuySellVehilce(
+    req: any,
+    userName?: string,
+    role?: string
+  ): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
     let start;
     let end;
+    const userResult: any = {};
 
     const query: any = {
       'vehicleInfo.vehicleType': req.vehicleType
@@ -499,8 +505,19 @@ export class BuySellService {
       delete query['vehicleInfo.vehicleType'];
     }
     Logger.debug(query);
+    if (role === AdminRole.OEM) {
+      userResult.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      userResult.oemUserName = req?.oemId;
+    }
+
+    if (req?.oemId === 'SERVICEPLUG') {
+      delete userResult['oemUserName'];
+    }
     let vehicleResponse: IBuySell[] = await buySellVehicleInfo
-      .find({})
+      .find(userResult)
       .populate('vehicleInfo');
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {

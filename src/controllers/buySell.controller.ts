@@ -241,8 +241,14 @@ export class BuySellController {
     Logger.info(
       '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.buySellService.getAllBuySellVehilce(req.body);
+      const result = await this.buySellService.getAllBuySellVehilce(
+        req.body,
+        userName,
+        role
+      );
       res.send({
         result
       });
@@ -277,8 +283,8 @@ export class BuySellController {
     );
     try {
       const result = await this.buySellService.deleteVehicle(
-        vehicleId as string,
-        );
+        vehicleId as string
+      );
       res.send({
         result
       });
