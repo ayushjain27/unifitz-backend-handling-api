@@ -13,7 +13,7 @@ import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 
 import { S3Service } from './s3.service';
-
+import { AdminRole } from './../models/Admin';
 import User, { IUser } from './../models/User';
 import { SurepassService } from './surepass.service';
 
@@ -44,7 +44,7 @@ export class VehicleInfoService {
         userId: new Types.ObjectId(vehicleStore.userId)
       };
       vehicleResult = await VehicleInfo.create(vehicleDetails);
-    }else if(vehicleDetails?.purpose === 'BUY_SELL'){
+    } else if (vehicleDetails?.purpose === 'BUY_SELL') {
       const vehicleDetails = {
         ...vehicleStore,
         purpose: 'OWNED_BUY_SELL'
@@ -56,7 +56,7 @@ export class VehicleInfoService {
         vehicleDetails,
         { returnDocument: 'after' }
       );
-    }else{
+    } else {
       vehicleResult = await VehicleInfo.findOneAndUpdate(
         {
           vehicleNumber: vehicleStore?.vehicleNumber
@@ -80,7 +80,7 @@ export class VehicleInfoService {
     }
 
     const allVehicles = await VehicleInfo.find({
-      userId: new Types.ObjectId(userId),
+      userId: new Types.ObjectId(userId)
     }).lean();
     return allVehicles;
   }
@@ -333,7 +333,7 @@ export class VehicleInfoService {
     return updatedVehicle;
   }
 
-  async getAll(req: any): Promise<IVehiclesInfo[]> {
+  async getAll(req: any, userName?: any, role?: any): Promise<IVehiclesInfo[]> {
     Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
     let start;
     let end;
@@ -381,6 +381,17 @@ export class VehicleInfoService {
     }
     if (!req.vehicleType) {
       delete query['vehicleType'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = req?.oemId;
+    }
+
+    if (req?.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
     }
     const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.find(query);
     return vehicleResponse;

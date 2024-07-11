@@ -55,9 +55,7 @@ export class VehicleInfoController {
       '<Controller>:<VehicleInfoController>:<Get All vehicle by user request initiated>'
     );
     try {
-      const result = await this.vehicleInfoService.getAllVehicleByUser(
-        userId
-      );
+      const result = await this.vehicleInfoService.getAllVehicleByUser(userId);
       res.send({
         result
       });
@@ -204,8 +202,14 @@ export class VehicleInfoController {
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get all vehicles request controller initiated>'
     );
+    const userName = req?.userId;
+    const role = req?.role;
     try {
-      const result = await this.vehicleInfoService.getAll(req.body);
+      const result = await this.vehicleInfoService.getAll(
+        req.body,
+        userName,
+        role
+      );
       res.send({
         result
       });

@@ -23,6 +23,7 @@ export interface IVehiclesInfo extends Document {
   registrationType?: string;
   expectedPrice?: number;
   noOfSeats?: number;
+  oemUserName?: string;
 }
 
 export interface IVehicleImage {
@@ -77,7 +78,7 @@ export const vehicleImageSchema: Schema = new Schema<IVehicleImage>({
 export const vehicleInfoSchema: Schema = new Schema(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Types.ObjectId
     },
     vehicleType: {
       type: String,
@@ -138,10 +139,14 @@ export const vehicleInfoSchema: Schema = new Schema(
     fitnessCertificate: { type: Boolean },
     registrationType: { type: String },
     expectedPrice: { type: Number },
-    noOfSeats: { type: Number }
+    noOfSeats: { type: Number },
+    oemUserName: {
+      type: String
+    }
   },
   {
-    timestamps: true, strict: false
+    timestamps: true,
+    strict: false
   }
 );
 
