@@ -810,7 +810,7 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: nextDate
       },
-      // event: 'LOGIN_OTP_VERIFY',
+      event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
       platform: platform
     };
