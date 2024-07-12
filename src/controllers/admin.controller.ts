@@ -419,6 +419,22 @@ export class AdminController {
     }
   };
 
+  resetPassword = async (req: Request, res: Response) => {
+    const userName = req.query.userName;
+    Logger.info(
+      '<Controller>:<AdminController>:<Reset admin partners password by request controller initiated>'
+    );
+    try {
+      const result = await this.adminService.resetPassword(userName as string);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':
