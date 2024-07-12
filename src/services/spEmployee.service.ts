@@ -255,7 +255,6 @@ export class SPEmployeeService {
     const query: any = {};
     query.employeeId = employeeId;
     query.oemId = oemId;
-    console.log(query, 'dlfme');
     
     let employee: ISPEmployee;
     if (employeeId) {

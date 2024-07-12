@@ -108,4 +108,9 @@ router.get(
 
 router.post('/createContactUs', adminController.createContactUs);
 
+router.get(
+  '/resetPassword',
+  adminController.resetPassword
+);
+
 export default router;
