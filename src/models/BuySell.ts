@@ -32,6 +32,7 @@ export interface IBuySell extends Document {
   description: string;
   oemUserName: string;
   vehicleCategory: string;
+  employeeId?: string;
   employeeName?: string;
   employeePhoneNumber?: string;
   purchasedPrice?: number
@@ -56,6 +57,7 @@ export const buySellSchema: Schema = new Schema(
     description: { type: String },
     vehicleCategory: { type: String },
     oemUserName: { type: String },
+    employeeId: {type: String},
     employeeName: { type: String },
     employeePhoneNumber: { type: String },
     purchasedPrice: { type: Number },
