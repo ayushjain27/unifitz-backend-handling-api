@@ -9,10 +9,11 @@ import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
 import _ from 'lodash';
 import { S3Service } from './s3.service';
-import { AdminRole } from './../models/Admin';
+import Admin, { AdminRole } from './../models/Admin';
 import { TYPES } from '../config/inversify.types';
 import container from '../config/inversify.container';
 import { SurepassService } from './surepass.service';
+import SPEmployee from '../models/SPEmployee';
 
 @injectable()
 export class BuySellService {
@@ -65,10 +66,17 @@ export class BuySellService {
       }
     }
 
+    let employeeDetail = await Admin.findOne({ userName: buySellVehicle?.employeeId }).lean();
+    let employeeDetails = await SPEmployee.findOne({ employeeId: employeeDetail?.employeeId, userName: employeeDetail?.oemId });
+
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
     query.vehicleInfo = vehicleResult?._id.toString();
+    query.employeeId = employeeDetail?.userName;
+    query.employeeName = employeeDetails?.name;
+    query.employeePhoneNumber = employeeDetails?.phoneNumber?.primary;
+    console.log(query,"vfklmf")
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -234,14 +242,18 @@ export class BuySellService {
 
     const query: any = {
       'storeDetails.storeId': req?.storeId,
+      'storeDetails.contactInfo.state': req?.state,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
       gearType: req?.gearType,
       regType: req?.regType,
       vehType: req?.vehType
     };
-    if (!req?.brandName) {
+    if (!req?.state) {
       delete query.brandName;
+    }
+    if (!req?.brandName) {
+      delete query.storeDetails.contactInfo.state;
     }
     if (!req?.fuelType) {
       delete query.fuelType;
