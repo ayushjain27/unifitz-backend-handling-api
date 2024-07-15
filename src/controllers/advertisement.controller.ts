@@ -69,12 +69,18 @@ export class AdvertisementController {
       coordinates,
       userType,
       bannerPlace,
-      category
+      category,
+      oemId,
+      userName,
+      role
     }: {
       coordinates: number[];
       userType: string;
       bannerPlace: string;
       category: string;
+      oemId?: string;
+      userName?: string;
+      role?: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -91,7 +97,10 @@ export class AdvertisementController {
         userType,
         bannerPlace,
         category,
-        subCategory
+        subCategory,
+        userName,
+        role,
+        oemId
       });
       if (result.length !== 0) {
         res.send({

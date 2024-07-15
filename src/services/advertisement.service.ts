@@ -12,6 +12,7 @@ import { S3Service } from './s3.service';
 import _ from 'lodash';
 import { sendNotification } from '../utils/common';
 import Store from '../models/Store';
+import { AdminRole } from './../models/Admin';
 import Customer from '../models/Customer';
 
 @injectable()
@@ -182,11 +183,14 @@ export class AdvertisementService {
     bannerPlace: string;
     subCategory: string[];
     category: string;
+    userName?: string;
+    role?: string;
+    oemId?: string;
   }): Promise<IBanner[]> {
     Logger.debug(`${searchReqBody.coordinates} coordinates`);
     Logger.info('<Service>:<AdvertisementService>:<Get All Banner initiated>');
     let bannerResponse: any;
-    const query = {
+    const query: any = {
       userType: searchReqBody.userType,
       bannerPlace: searchReqBody.bannerPlace,
       // 'geoLocation.coordinates': searchReqBody.coordinates,
@@ -209,12 +213,24 @@ export class AdvertisementService {
     if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
       delete query['subCategory.name'];
     }
+    if (searchReqBody.role === AdminRole.OEM) {
+      query.oemUserName = searchReqBody.userName;
+    }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE) {
+      query.oemUserName = searchReqBody.oemId;
+    }
+
+    if (searchReqBody.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
     if (
       _.isEmpty(searchReqBody.coordinates) &&
       _.isEmpty(searchReqBody.userType) &&
       _.isEmpty(searchReqBody.bannerPlace)
     ) {
-      bannerResponse = await Banner.find().lean();
+      delete query['status'];
+      bannerResponse = await Banner.find(query).lean();
     } else {
       bannerResponse = await Banner.aggregate([
         {
@@ -246,7 +262,11 @@ export class AdvertisementService {
         }
       ]);
     }
-    if (bannerResponse.length === 0) {
+    if (
+      bannerResponse.length === 0 &&
+      !query.oemUserName &&
+      !searchReqBody.oemId
+    ) {
       if (
         searchReqBody?.bannerPlace === 'Top Banner' &&
         searchReqBody?.userType === 'CUSTOMER_WEB'
