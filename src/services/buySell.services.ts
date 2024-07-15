@@ -234,14 +234,18 @@ export class BuySellService {
 
     const query: any = {
       'storeDetails.storeId': req?.storeId,
+      'storeDetails.contactInfo.state': req?.state,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
       gearType: req?.gearType,
       regType: req?.regType,
       vehType: req?.vehType
     };
-    if (!req?.brandName) {
+    if (!req?.state) {
       delete query.brandName;
+    }
+    if (!req?.brandName) {
+      delete query.storeDetails.contactInfo.state;
     }
     if (!req?.fuelType) {
       delete query.fuelType;
