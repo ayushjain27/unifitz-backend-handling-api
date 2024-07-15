@@ -127,6 +127,7 @@ export interface IAdmin {
   oemId?: string;
   employeeId?: string;
   accessList: object;
+  loginDate?: Date
 }
 
 export interface IDocumentImage {
@@ -341,6 +342,9 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     accessList: {
       type: Object
+    },
+    loginDate: {
+      type: Date
     }
   },
   { timestamps: true, strict: false }
