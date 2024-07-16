@@ -256,6 +256,7 @@ export class BuySellService {
     }
 
     delete filterParams.state;
+    console.log(filterParams,"dfmkl")
     const result = await buySellVehicleInfo
       .find({ ...filterParams })
       .populate('vehicleInfo');
