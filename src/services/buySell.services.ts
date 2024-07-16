@@ -254,6 +254,7 @@ export class BuySellService {
     if (query.state) {
         filterParams['storeDetails.contactInfo.state'] = query.state;
     }
+    console.log(filterParams,"dfmkl")
     const result = await buySellVehicleInfo
       .find({ ...filterParams })
       .populate('vehicleInfo');
