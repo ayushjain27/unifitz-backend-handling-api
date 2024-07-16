@@ -144,9 +144,23 @@ export class BuySellService {
       { returnDocument: 'after' }
     );
 
+    let employeeDetail = await Admin.findOne({
+      userName: buySellVehicle?.employeeId
+    }).lean();
+    let employeeDetails = await SPEmployee.findOne({
+      employeeId: employeeDetail?.employeeId,
+      userName: employeeDetail?.oemId
+    });
+
     delete buySellVehicle['vehicleInfo'];
+    const query = buySellVehicle;
+    query.vehicleId = vehicleResult?._id.toString();
+    query.vehicleInfo = vehicleResult?._id.toString();
+    query.employeeId = employeeDetail?.userName;
+    query.employeeName = employeeDetails?.name;
+    query.employeePhoneNumber = employeeDetails?.phoneNumber?.primary;
     const newVehicleStore = {
-      ...buySellVehicle,
+      ...query,
       VehicleInfo: buySellVehicle?.vehicleId,
       _id: new Types.ObjectId(buySellVehicle?._id)
     };
