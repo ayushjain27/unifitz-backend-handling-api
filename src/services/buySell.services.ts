@@ -255,10 +255,10 @@ export class BuySellService {
       vehType: req?.vehType
     };
     if (!req?.state) {
-      delete query.brandName;
+      delete query['storeDetails.contactInfo.state'];
     }
     if (!req?.brandName) {
-      delete query.storeDetails.contactInfo.state;
+      delete query.brandName;
     }
     if (!req?.fuelType) {
       delete query.fuelType;
