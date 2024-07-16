@@ -248,7 +248,11 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const filterParams = { ...query, status: 'ACTIVE' };
+    const filterParams = {
+      ...query,
+      status: 'ACTIVE',
+      'storeDetails.contactInfo.state': query.state // Adding state check here
+  };
     const result = await buySellVehicleInfo
       .find({ ...filterParams })
       .populate('vehicleInfo');
