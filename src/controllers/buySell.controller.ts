@@ -294,6 +294,50 @@ export class BuySellController {
     }
   };
 
+  updateBuySellVehicleCustomerDetails = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Update Buy Sell Vehicle Customer Details>'
+    );
+
+    try {
+      const result = await this.buySellService.updateBuySellVehicleCustomerDetails(
+        req.body
+      );
+      Logger.info(
+        '<Controller>:<BuySellController>: <Store: Sending notification of updated buySell vehilce>'
+      );
+      res.send({
+        message: 'BuySell vehicle Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  uploadPanAadharImage = async (req: Request, res: Response) => {
+    const { customerDetailsId } = req.body;
+    Logger.info(
+      '<Controller>:<BuySellController>:<Upload Customer Details request initiated>'
+    );
+    try {
+      const result = await this.buySellService.uploadPanAadharImage(
+        customerDetailsId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':

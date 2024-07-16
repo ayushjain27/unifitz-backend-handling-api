@@ -19,27 +19,28 @@ const adController = container.get<AdvertisementController>(
 router.post(
   '/uploadBannerImage',
   uploadFile.single('file'),
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.uploadBannerImage
 );
 
 router.post(
   '/uploadBanner',
   uploadFile.single('file'),
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.validate('uploadBanner'),
   adController.uploadBanner
 );
 
 router.post(
   '/getAllBanner',
-  // roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.STORE_CREATE),
   adController.getAllBanner
 );
 
 router.get(
   '/getBannerById',
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.getBannerById
 );
 
@@ -51,20 +52,20 @@ router.get(
 
 router.post(
   '/updateBannerStatus',
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.validate('updateBannerStatus'),
   adController.updateBannerStatus
 );
 
 router.put(
   '/updateBannerDetails/:bannerId',
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.updateBannerDetails
 );
 
 router.delete(
   '/deleteBanner',
-  roleAuth(ACL.ADVERTISEMENT_CREATE),
+  // roleAuth(ACL.ADVERTISEMENT_CREATE),
   adController.validate('deleteBanner'),
   adController.deleteBanner
 );

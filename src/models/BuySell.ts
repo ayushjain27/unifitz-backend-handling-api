@@ -16,6 +16,48 @@ export enum Status {
   DRAFT = 'DRAFT'
 }
 
+export interface ICustomerDetails {
+  name: string;
+  phoneNumber: number;
+  address: string;
+  aadharPanNumber: string;
+  soldPrice: number;
+  deliveryDate: Date;
+  aadharPanCardImage: string;
+  sellerName: string;
+  sellerPhoneNumber: number
+}
+
+export const customerDetailsSchema = new Schema({
+  name: {
+    type: String
+  },
+  phoneNumber: {
+    type: Number
+  },
+  address: {
+    type: String
+  },
+  aadharPanNumber: {
+    type: String
+  },
+  soldPrice: {
+    type: String
+  },
+  deliveryDate: {
+    type: Date
+  },
+  aadharPanCardImage: {
+    type: String
+  },
+  sellerName: {
+    type: String
+  },
+  sellerPhoneNumber: {
+    type: Number
+  }
+});
+
 export interface IBuySell extends Document {
   vehicleId: string;
   storeId: string;
@@ -32,13 +74,17 @@ export interface IBuySell extends Document {
   description: string;
   oemUserName: string;
   vehicleCategory: string;
+  employeeId?: string;
+  employeeName?: string;
+  employeePhoneNumber?: string;
+  purchasedPrice?: number;
+  customerDetails?: ICustomerDetails;
 }
 
 export const buySellSchema: Schema = new Schema(
   {
-    vehicleId: {type: String},
-    vehicleInfo: {type: String,
-      ref: "vehicles"},
+    vehicleId: { type: String },
+    vehicleInfo: { type: String, ref: 'vehicles' },
     userId: { type: Types.ObjectId },
     storeId: { type: String },
     userType: { type: String, enum: UserType },
@@ -52,12 +98,18 @@ export const buySellSchema: Schema = new Schema(
     insuranceExperience: { type: String, required: true },
     description: { type: String },
     vehicleCategory: { type: String },
-    oemUserName: { type: String }
+    oemUserName: { type: String },
+    employeeId: { type: String },
+    employeeName: { type: String },
+    employeePhoneNumber: { type: String },
+    purchasedPrice: { type: Number },
+    customerDetails: {
+      type: customerDetailsSchema
+    }
   },
   { timestamps: true, strict: false }
 );
 
 const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
-
 
 export default buySellVehicleInfo;

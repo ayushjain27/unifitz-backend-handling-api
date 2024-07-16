@@ -24,6 +24,7 @@ import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
 import { permissions } from '../config/permissions';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
+import { sendEmail } from '../utils/common';
 
 @injectable()
 export class AdminService {
@@ -532,5 +533,40 @@ export class AdminService {
     const newContactDetail = await ContactUsModel.create(contactDetail);
     Logger.info('<Service>:<AdminService>:<contact created successfully>');
     return newContactDetail;
+  }
+
+  async resetPassword(userName: string): Promise<any> {
+    Logger.info(
+      '<Service>:<SPEmployeeService>:<Delete employee by Id service initiated>'
+    );
+    const query: any = {};
+    query.userName = userName;
+    console.log(query, 'dlfme');
+    
+    const oemUserDetails: IAdmin = await Admin.findOne({
+      userName
+    });
+    
+    const password = secureRandomPassword.randomPassword();
+    const updatedPassword = await this.encryptPassword(password);
+    const res = await Admin.findOneAndUpdate(
+      { userName: userName },
+      { $set: { password: updatedPassword, generatedPassword: password, isFirstTimeLoggedIn: true } },
+      { returnDocument: 'after' }
+    );
+    const templateData = {
+      name: oemUserDetails?.ownerName,
+      userName: oemUserDetails?.userName,
+      password: password
+    };
+    if(!_.isEmpty(oemUserDetails?.contactInfo?.email)){
+    sendEmail(
+      templateData,
+      oemUserDetails?.contactInfo?.email,
+      'support@serviceplug.in',
+      'EmployeeResetPassword'
+    );
+    }
+    return "Email sent";
   }
 }

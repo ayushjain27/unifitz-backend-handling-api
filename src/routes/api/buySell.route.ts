@@ -76,4 +76,12 @@ router.delete(
   buySellController.deleteVehicle
 );
 
+router.post('/updateCustomerDetails', buySellController.updateBuySellVehicleCustomerDetails);
+
+router.post(
+  '/uploadPanAadharImage',
+  uploadFile.single('file'),
+  buySellController.uploadPanAadharImage
+);
+
 export default router;

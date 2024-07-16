@@ -33,6 +33,7 @@ export interface IBanner {
   startDate?: string;
   endDate?: string;
   externalUrl?: string;
+  oemUserName?: string;
 }
 
 export interface IBannerImage {
@@ -54,6 +55,9 @@ export enum BannerStatus {
 const bannerSchema: Schema = new Schema(
   {
     url: {
+      type: String
+    },
+    oemUserName: {
       type: String
     },
     title: {

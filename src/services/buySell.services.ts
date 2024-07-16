@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import Logger from '../config/winston';
-import buySellVehicleInfo from './../models/BuySell';
+import buySellVehicleInfo, { ICustomerDetails } from './../models/BuySell';
 
 import { IBuySell } from './../models/BuySell';
 import VehicleInfo, { IVehiclesInfo } from './../models/Vehicle';
@@ -9,10 +9,11 @@ import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
 import _ from 'lodash';
 import { S3Service } from './s3.service';
-import { AdminRole } from './../models/Admin';
+import Admin, { AdminRole } from './../models/Admin';
 import { TYPES } from '../config/inversify.types';
 import container from '../config/inversify.container';
 import { SurepassService } from './surepass.service';
+import SPEmployee from '../models/SPEmployee';
 
 @injectable()
 export class BuySellService {
@@ -65,10 +66,22 @@ export class BuySellService {
       }
     }
 
+    let employeeDetail = await Admin.findOne({
+      userName: buySellVehicle?.employeeId
+    }).lean();
+    let employeeDetails = await SPEmployee.findOne({
+      employeeId: employeeDetail?.employeeId,
+      userName: employeeDetail?.oemId
+    });
+
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
     query.vehicleInfo = vehicleResult?._id.toString();
+    query.employeeId = employeeDetail?.userName;
+    query.employeeName = employeeDetails?.name;
+    query.employeePhoneNumber = employeeDetails?.phoneNumber?.primary;
+    console.log(query, 'vfklmf');
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -131,9 +144,23 @@ export class BuySellService {
       { returnDocument: 'after' }
     );
 
+    let employeeDetail = await Admin.findOne({
+      userName: buySellVehicle?.employeeId
+    }).lean();
+    let employeeDetails = await SPEmployee.findOne({
+      employeeId: employeeDetail?.employeeId,
+      userName: employeeDetail?.oemId
+    });
+
     delete buySellVehicle['vehicleInfo'];
+    const query = buySellVehicle;
+    query.vehicleId = vehicleResult?._id.toString();
+    query.vehicleInfo = vehicleResult?._id.toString();
+    query.employeeId = employeeDetail?.userName;
+    query.employeeName = employeeDetails?.name;
+    query.employeePhoneNumber = employeeDetails?.phoneNumber?.primary;
     const newVehicleStore = {
-      ...buySellVehicle,
+      ...query,
       VehicleInfo: buySellVehicle?.vehicleId,
       _id: new Types.ObjectId(buySellVehicle?._id)
     };
@@ -222,6 +249,14 @@ export class BuySellService {
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
     const filterParams = { ...query, status: 'ACTIVE' };
+
+    // Conditionally add the nested state field if query.state is not empty
+    if (query.state) {
+        filterParams['storeDetails.contactInfo.state'] = query.state;
+    }
+
+    delete filterParams.state;
+    console.log(filterParams,"dfmkl")
     const result = await buySellVehicleInfo
       .find({ ...filterParams })
       .populate('vehicleInfo');
@@ -234,12 +269,16 @@ export class BuySellService {
 
     const query: any = {
       'storeDetails.storeId': req?.storeId,
+      'storeDetails.contactInfo.state': req?.state,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
       gearType: req?.gearType,
       regType: req?.regType,
       vehType: req?.vehType
     };
+    if (!req?.state) {
+      delete query['storeDetails.contactInfo.state'];
+    }
     if (!req?.brandName) {
       delete query.brandName;
     }
@@ -565,6 +604,69 @@ export class BuySellService {
     const vehicleDelete = await VehicleInfo.findOneAndDelete({
       _id: new Types.ObjectId(vehicleId)
     });
+    return res;
+  }
+
+  async updateBuySellVehicleCustomerDetails(request: any) {
+    let buySellVehicle: IBuySell;
+    buySellVehicle = await buySellVehicleInfo.findOne({
+      _id: new Types.ObjectId(request.id)
+    });
+
+    if (_.isEmpty(buySellVehicle)) {
+      throw new Error('BuySell Vehicle does not exist');
+    }
+
+    const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
+      { _id: new Types.ObjectId(request.id) },
+      {
+        $set: {
+          customerDetails: request.customerDetails
+        }
+      },
+      { returnDocument: 'after' }
+    );
+    Logger.info(
+      '<Service>:<BuySellService>: <Vehicle: Vehicle customer Details updated successfully>'
+    );
+    return updatedVehicle;
+  }
+
+  async uploadPanAadharImage(customerDetailsId: string, req: Request | any) {
+    Logger.info(
+      '<Service>:<BuySellService>:<Customer Details image uploading>'
+    );
+    const customer = await buySellVehicleInfo
+      .findOne({
+        _id: new Types.ObjectId(customerDetailsId)
+      })
+      .lean();
+
+    if (_.isEmpty(customer)) {
+      throw new Error('Customer does not exist');
+    }
+
+    const file: any = req.file;
+    if (!file) {
+      throw new Error('Files not found');
+    }
+
+    const fileName = 'profile';
+    const { url } = await this.s3Client.uploadFile(
+      customerDetailsId,
+      fileName,
+      file.buffer
+    );
+
+    const profileImageUrl = url;
+
+    const res = await buySellVehicleInfo
+      .findOneAndUpdate(
+        { _id: new Types.ObjectId(customerDetailsId) },
+        { $set: { 'customerDetails.aadharPanCardImage': profileImageUrl } },
+        { returnDocument: 'after' } // Ensures the updated document is returned
+      )
+
     return res;
   }
 }
