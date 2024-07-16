@@ -248,11 +248,12 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-    const filterParams = {
-      ...query,
-      status: 'ACTIVE',
-      'storeDetails.contactInfo.state': query.state // Adding state check here
-  };
+    const filterParams = { ...query, status: 'ACTIVE' };
+
+    // Conditionally add the nested state field if query.state is not empty
+    if (query.state) {
+        filterParams['storeDetails.contactInfo.state'] = query.state;
+    }
     const result = await buySellVehicleInfo
       .find({ ...filterParams })
       .populate('vehicleInfo');
