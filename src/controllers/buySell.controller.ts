@@ -32,7 +32,8 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Create Buy/Sell vehicle controller initiated>'
     );
     try {
-      const result = await this.buySellService.addSellVehicle(req.body);
+      const role = req?.role;
+      const result = await this.buySellService.addSellVehicle(req.body, role);
       res.send({
         message: 'Buy/Sell Vehicle Creation Successful',
         result
@@ -66,7 +67,6 @@ export class BuySellController {
     try {
       const vehicleId = req?.body?.vehicleId;
       const files = req?.files;
-      console.log(vehicleId, files, 'data for vehicle image');
       const result = await this.vehicleService.updateVehicleImages(
         vehicleId,
         files
