@@ -213,14 +213,36 @@ export class AdminService {
   }
 
   async getAdminUserByUserName(userName: string): Promise<IAdmin> {
-    const admin: IAdmin = await Admin.findOne({ userName })?.lean();
-
-    if (_.isEmpty(admin)) {
+    const query = {
+      userName: userName
+    };
+  
+    const adminUsers: IAdmin[] = await Admin.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemId',
+          foreignField: 'userName',
+          as: 'adminUserDetails'
+        }
+      }
+    ]);
+  
+    if (_.isEmpty(adminUsers)) {
       throw new Error('User does not exist');
     }
+  
+    // Assuming there's only one admin user in the result, get the first element
+    const admin = adminUsers[0];
     delete admin.password;
+    
     return admin;
   }
+  
+  
 
   async updatePassword(userName: string, password: string): Promise<any> {
     const admin: IAdmin = await Admin.findOne({ userName })?.lean();
