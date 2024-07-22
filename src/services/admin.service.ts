@@ -169,31 +169,47 @@ export class AdminService {
     userName: string,
     password: string
   ): Promise<{ user: IAdmin; token: string }> {
-    const admin: IAdmin = await Admin.findOne({ userName })?.lean();
+    // const admin: IAdmin = await Admin.findOne({ userName })?.lean();
+    const query = {
+      userName: userName
+    };
+    const admin: IAdmin[] = await Admin.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemId',
+          foreignField: 'userName',
+          as: 'employeeCompanyDetails'
+        }
+      }
+    ]);
 
     if (admin) {
       Logger.info('<Service>:<AdminService>:<Admin present in DB>');
-      if (!(await bcrypt.compare(password, admin.password))) {
+      if (!(await bcrypt.compare(password, admin[0].password))) {
         throw new Error('Password validation failed');
       }
       Logger.info(
         '<Service>:<AdminService>:<Admin password validated successfully>'
       );
-      if (admin.isFirstTimeLoggedIn) {
+      if (admin[0].isFirstTimeLoggedIn) {
         await Admin.findOneAndUpdate(
-          { _id: admin._id },
+          { _id: admin[0]._id },
           { $set: { isFirstTimeLoggedIn: false } }
         );
       }
     }
     const payload: Payload = {
-      userId: admin.userName,
-      role: admin.role
+      userId: admin[0].userName,
+      role: admin[0].role
     };
     const token = await generateToken(payload);
-    delete admin.password;
+    delete admin[0].password;
 
-    return { user: admin, token };
+    return { user: admin[0], token };
   }
 
   async getAll(roleBase: string, oemId: string): Promise<IAdmin[]> {
@@ -213,14 +229,36 @@ export class AdminService {
   }
 
   async getAdminUserByUserName(userName: string): Promise<IAdmin> {
-    const admin: IAdmin = await Admin.findOne({ userName })?.lean();
-
-    if (_.isEmpty(admin)) {
+    const query = {
+      userName: userName
+    };
+  
+    const adminUsers: IAdmin[] = await Admin.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemId',
+          foreignField: 'userName',
+          as: 'employeeCompanyDetails'
+        }
+      }
+    ]);
+  
+    if (_.isEmpty(adminUsers)) {
       throw new Error('User does not exist');
     }
+  
+    // Assuming there's only one admin user in the result, get the first element
+    const admin = adminUsers[0];
     delete admin.password;
+    
     return admin;
   }
+  
+  
 
   async updatePassword(userName: string, password: string): Promise<any> {
     const admin: IAdmin = await Admin.findOne({ userName })?.lean();

@@ -21,7 +21,7 @@ export class BuySellService {
     TYPES.SurepassService
   );
   private s3Client = container.get<S3Service>(TYPES.S3Service);
-  async addSellVehicle(buySellVehicle?: any) {
+  async addSellVehicle(buySellVehicle?: any, role?: string) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
 
@@ -66,22 +66,33 @@ export class BuySellService {
       }
     }
 
-    let employeeDetail = await Admin.findOne({
-      userName: buySellVehicle?.employeeId
-    }).lean();
-    let employeeDetails = await SPEmployee.findOne({
-      employeeId: employeeDetail?.employeeId,
-      userName: employeeDetail?.oemId
-    });
+    let employeeDetail;
+    let employeeDetails;
+
+    if (!_.isEmpty(buySellVehicle?.employeeId) || role === 'EMPLOYEE') {
+      employeeDetail = await Admin.findOne({
+        userName: buySellVehicle?.employeeId || buySellVehicle?.oemUserName
+      }).lean();
+
+      if (employeeDetail) {
+        employeeDetails = await SPEmployee.findOne({
+          employeeId: employeeDetail?.employeeId,
+          userName: employeeDetail?.oemId
+        }).lean();
+      }
+    }
+
+    console.log(role, 'dkmelf');
 
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
     query.vehicleInfo = vehicleResult?._id.toString();
-    query.employeeId = employeeDetail?.userName;
-    query.employeeName = employeeDetails?.name;
-    query.employeePhoneNumber = employeeDetails?.phoneNumber?.primary;
-    console.log(query, 'vfklmf');
+    if (!_.isEmpty(employeeDetail) || role === 'EMPLOYEE') {
+      query.employeeId = employeeDetail?.userName;
+      query.employeeName = employeeDetails?.name;
+      query.employeePhoneNumber = employeeDetails?.phoneNumber?.primary;
+    }
     const result = await buySellVehicleInfo.create(query);
     return result;
   }
@@ -252,11 +263,11 @@ export class BuySellService {
 
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
-        filterParams['storeDetails.contactInfo.state'] = query.state;
+      filterParams['storeDetails.contactInfo.state'] = query.state;
     }
 
     delete filterParams.state;
-    console.log(filterParams,"dfmkl")
+    console.log(filterParams, 'dfmkl');
     const result = await buySellVehicleInfo
       .find({ ...filterParams })
       .populate('vehicleInfo');
@@ -660,12 +671,11 @@ export class BuySellService {
 
     const profileImageUrl = url;
 
-    const res = await buySellVehicleInfo
-      .findOneAndUpdate(
-        { _id: new Types.ObjectId(customerDetailsId) },
-        { $set: { 'customerDetails.aadharPanCardImage': profileImageUrl } },
-        { returnDocument: 'after' } // Ensures the updated document is returned
-      )
+    const res = await buySellVehicleInfo.findOneAndUpdate(
+      { _id: new Types.ObjectId(customerDetailsId) },
+      { $set: { 'customerDetails.aadharPanCardImage': profileImageUrl } },
+      { returnDocument: 'after' } // Ensures the updated document is returned
+    );
 
     return res;
   }
