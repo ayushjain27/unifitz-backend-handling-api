@@ -226,7 +226,7 @@ export class AdminService {
           from: 'admin_users',
           localField: 'oemId',
           foreignField: 'userName',
-          as: 'adminUserDetails'
+          as: 'employeeCompanyDetails'
         }
       }
     ]);
