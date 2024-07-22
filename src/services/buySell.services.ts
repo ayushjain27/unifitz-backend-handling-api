@@ -280,6 +280,7 @@ export class BuySellService {
 
     const query: any = {
       'storeDetails.storeId': req?.storeId,
+      'customerDetails._id': new Types.ObjectId(req?.userId),
       'storeDetails.contactInfo.state': req?.state,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
@@ -287,6 +288,12 @@ export class BuySellService {
       regType: req?.regType,
       vehType: req?.vehType
     };
+    if(!req?.storeId){
+      delete query['storeDetails.storeId'];
+    }
+    if(!req?.userId){
+      delete query['customerDetails._id'];
+    }
     if (!req?.state) {
       delete query['storeDetails.contactInfo.state'];
     }
