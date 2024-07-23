@@ -280,7 +280,7 @@ export class BuySellService {
 
     const query: any = {
       'storeDetails.storeId': req?.storeId,
-      'sellerDetails._id': new Types.ObjectId(req?.userId),
+      'sellerDetails._id': req?.userId,
       'storeDetails.contactInfo.state': req?.state,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
