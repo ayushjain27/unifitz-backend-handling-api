@@ -2,7 +2,11 @@ import { Document, model, Schema } from 'mongoose';
 
 export enum Platform {
   PARTNER_APP_ANDROID = 'PARTNER_APP_ANDROID',
-  PARTNER_APP_IOS = 'PARTNER_APP_IOS'
+  PARTNER_APP_IOS = 'PARTNER_APP_IOS',
+  CUSTOMER_APP_ANDROID = 'CUSTOMER_APP_ANDROID',
+  CUSTOMER_APP_IOS = 'CUSTOMER_APP_IOS',
+  CUSTOMER_WEB = 'CUSTOMER_WEB',
+  ADMIN_PAGE = 'ADMIN_PAGE'
 }
 
 export enum ModuleType {

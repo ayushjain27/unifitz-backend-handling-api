@@ -129,9 +129,16 @@ router.post(
   analyticController.getPartnerAnalytic
 );
 
-router.get(
+router.post(
   '/getActivePartnerUsers',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getActivePartnerUsers
 );
+
+// router.post(
+//   '/getNonActivePartnerUsers',
+//   roleAuth(ACL.STORE_CREATE),
+//   analyticController.getNonActivePartnerUsers
+// );
+
 export default router;
