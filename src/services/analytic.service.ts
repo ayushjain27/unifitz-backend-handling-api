@@ -867,7 +867,45 @@ export class AnalyticService {
         }
       }
     ]);
-    return queryFilter;
+
+    delete query['createdAt'];
+    const AllEventResult: any = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+
+    const finalResult = AllEventResult.map((val: any) => {
+      const objectData = queryFilter.find((res: any) => res.name === val?.name);
+      return {
+        name: objectData?.name,
+        count: objectData?.count,
+        total: val?.count
+      };
+    });
+    return finalResult;
   }
 
   async createPlusFeatures(requestData: any): Promise<any> {
@@ -1016,7 +1054,45 @@ export class AnalyticService {
         }
       }
     ]);
-    return queryFilter;
+
+    delete query['createdAt'];
+    const AllEventResult: any = await PlusFeatureAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+
+    const finalResult = AllEventResult.map((val: any) => {
+      const objectData = queryFilter.find((res: any) => res.name === val?.name);
+      return {
+        name: objectData?.name,
+        count: objectData?.count,
+        total: val?.count
+      };
+    });
+    return finalResult;
   }
 
   async getAdvertisementAnalytic(
@@ -1589,7 +1665,8 @@ export class AnalyticService {
         $lte: nextDate
       },
       platform: platform,
-      event: 'LOGIN_OTP_VERIFY',
+      module: 'SCREEN_MODE',
+      event: 'ONLINE',
       moduleInformation: storeId
     };
 
@@ -1667,7 +1744,7 @@ export class AnalyticService {
           _id: {
             createdAt: '$createdAt',
             groupId: '$groupId',
-            store: '$moduleInformation'
+            phoneNumber: '$phoneNumber'
           }
         }
       },
@@ -1697,14 +1774,18 @@ export class AnalyticService {
     return queryFilter;
   }
 
-  async getActivePartnerUsers(role: string, userName: string) {
+  async getActivePartnerUsers(
+    role: string,
+    userName: string,
+    currentDate: any
+  ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
     let query: any = {};
     Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
-    const tday = new Date();
-    tday.setDate(tday.getDate() - 1);
+    const tday = new Date(currentDate);
+    // tday.setDate(tday.getDate() - 1);
 
     query = {
       createdAt: {
@@ -1721,39 +1802,40 @@ export class AnalyticService {
       {
         $match: query
       },
+      // {
+      //   $group: {
+      //     _id: {
+      //       phoneNumber: '$phoneNumber',
+      //       event: '$event',
+      //       platform: '$platform',
+      //       moduleInformation: '$moduleInformation',
+      //       startTime: '$startTime',
+      //       endTime: '$endTime',
+      //       totalTimeDuration: '$totalTimeDuration',
+      //       createdAt: '$createdAt'
+      //     }
+      //   }
+      // },
       {
         $group: {
-          _id: {
-            phoneNumber: '$phoneNumber',
-            event: '$event',
-            platform: '$platform',
-            moduleInformation: '$moduleInformation',
-            startTime: '$startTime',
-            endTime: '$endTime',
-            totalTimeDuration: '$totalTimeDuration',
-            createdAt: '$createdAt'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.phoneNumber',
+          _id: '$moduleInformation',
           screenView: {
             $sum: 1
           },
-          userResult: {
-            $push: {
-              event: '$_id.event',
-              platform: '$_id.platform',
-              moduleInformation: '$_id.moduleInformation',
-              startTime: '$_id.startTime',
-              endTime: '$_id.endTime',
-              totalTimeDuration: '$_id.totalTimeDuration'
-            }
-          },
-          createdAt: {
-            $first: '$_id.createdAt'
-          }
+          userResult: { $push: '$$ROOT' }
+          // userResult: {
+          //   $push: {
+          //     event: '$_id.event',
+          //     platform: '$_id.platform',
+          //     moduleInformation: '$_id.moduleInformation',
+          //     startTime: '$_id.startTime',
+          //     endTime: '$_id.endTime',
+          //     totalTimeDuration: '$_id.totalTimeDuration'
+          //   }
+          // }
+          // createdAt: {
+          //   $first: '$_id.createdAt'
+          // }
         }
       },
       {
@@ -1761,26 +1843,28 @@ export class AnalyticService {
           userData: { $size: '$userResult' }
         }
       },
-      {
-        $set: {
-          screenMode: {
-            $cond: [
-              { $eq: [{ $mod: ['$userData', 2] }, 0] },
-              'OFFLINE',
-              'ONLINE'
-            ]
-          }
-        }
-      },
+      // {
+      //   $set: {
+      //     screenMode: {
+      //       $cond: [
+      //         { $eq: [{ $mod: ['$userData', 2] }, 0] },
+      //         'OFFLINE',
+      //         'ONLINE'
+      //       ]
+      //     }
+      //   }
+      // },
       {
         $project: {
-          phoneNumber: {
+          storeUser: {
             $toString: '$_id'
           },
           screenView: 1,
           // userResult: 1,
-          screenMode: 1,
-          createdAt: 1,
+          screenMode: {
+            $arrayElemAt: ['$userResult', -1]
+          },
+          // createdAt: 1,
           timeSpend: { $sum: '$userResult.totalTimeDuration' },
           _id: 0
         }
@@ -1793,8 +1877,60 @@ export class AnalyticService {
           ?.map((val: any) => val?.timeSpend)
           .reduce((num1: number, num2: number) => num1 + num2, 0) /
         queryFilter?.length,
-      partnerUers: queryFilter
+      TodayPartnerUers: queryFilter,
+      currentPartnerUers: queryFilter?.filter(
+        (val: any) => val?.screenMode?.event === 'ONLINE'
+      )
     };
     return finalResult;
   }
+
+  // async getNonActivePartnerUsers(
+  //   role: string,
+  //   userName: string,
+  //   firstDate: any,
+  //   lastDate: any
+  // ) {
+  //   Logger.info(
+  //     '<Service>:<CategoryService>:<Get all analytic service initiated>'
+  //   );
+  //   let query: any = {};
+  //   Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+  //   // const firstDay = new Date(firstDate);
+  //   const lastDay = new Date(lastDate);
+  //   const nextDate = new Date(lastDay);
+  //   nextDate.setDate(lastDay.getDate() + 1);
+
+  //   const dateObj = lastDay;
+  //   const dateResult = dateObj.setDate(dateObj.getDate() - 30);
+  //   const startRes = new Date(dateResult);
+
+  //   query = {
+  //     createdAt: {
+  //       $gte: startRes,
+  //       $lte: nextDate
+  //     },
+  //     module: 'SCREEN_MODE',
+  //     event: 'ONLINE'
+  //   };
+
+  //   if (role === AdminRole.OEM) {
+  //     query.oemUserName = userName;
+  //   }
+
+  //   const queryFilter: any = await PartnerAnalyticModel.aggregate([
+  //     {
+  //       $match: query
+  //     }
+  //   ]);
+
+  //   const storeRes = await Store.find({ profileStatus: 'ONBOARDED' });
+
+  //   const finalResult = {
+  //     nonActiveStores: queryFilter?.map((res: any) =>
+  //       storeRes?.filter((val: any) => res?.moduleInformation !== val?.storeId)
+  //     )
+  //   };
+  //   return finalResult;
+  // }
 }
