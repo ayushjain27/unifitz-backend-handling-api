@@ -220,9 +220,11 @@ export class CustomerService {
       // Business is verified
       isVerified = true;
     }
+
+    console.log(customerDetails,"df")
     // update the store
     const updatedStore = await Customer.findOneAndUpdate(
-      { _id: customerDetails._id, phoneNumber: customerDetails.phoneNumber },
+      { _id: new Types.ObjectId(customerDetails._id), phoneNumber: customerDetails.phoneNumber },
       {
         $set: {
           isVerified,
