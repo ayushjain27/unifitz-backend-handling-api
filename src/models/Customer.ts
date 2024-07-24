@@ -12,7 +12,31 @@ export interface IVerificationDetails {
   documentType: DocType;
   gstAdhaarNumber?: string;
   verifyObj: unknown;
+  verifyName: string;
+  verifyAddress: string;
 }
+
+export const verificationDetailsSchema: Schema =
+  new Schema<IVerificationDetails>(
+    {
+      gstAdhaarNumber: {
+        type: String
+      },
+      verifyName: {
+        type: String
+      },
+      verifyAddress: {
+        type: String
+      },
+      documentType: {
+        type: String
+      }
+    },
+
+    {
+      _id: false
+    }
+  );
 
 const customerContactSchema: Schema = new Schema(
   {
@@ -85,6 +109,12 @@ const customerSchema: Schema = new Schema(
     },
     contactInfo: {
       type: customerContactSchema
+    },
+    verificationDetails: {
+      type: verificationDetailsSchema
+    },
+    isVerified: {
+      type: Boolean
     },
     geoLocation: {
       // kind: String,

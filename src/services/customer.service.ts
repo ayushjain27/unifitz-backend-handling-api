@@ -6,7 +6,11 @@ import Customer, { ICustomer } from './../models/Customer';
 import container from '../config/inversify.container';
 import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
-import { ApproveUserVerifyRequest, VerifyAadharUserRequest, VerifyCustomerRequest } from '../interfaces';
+import {
+  ApproveUserVerifyRequest,
+  VerifyAadharUserRequest,
+  VerifyCustomerRequest
+} from '../interfaces';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 
@@ -96,9 +100,7 @@ export class CustomerService {
     return customerResponse;
   }
 
-  async initiateUserVerification(
-    payload: VerifyCustomerRequest
-  ) {
+  async initiateUserVerification(payload: VerifyCustomerRequest) {
     Logger.info('<Service>:<CustomerService>:<Initiate Verifying user>');
     // validate the store from user phone number and user id
     let verifyResult: any = {};
@@ -106,16 +108,13 @@ export class CustomerService {
 
     try {
       // get the store data
-      const customerDetails = await Customer.findOne(
-        {
-          phoneNumber: payload.phoneNumber
-        }
-      );
+      const customerDetails = await Customer.findOne({
+        phoneNumber: payload.phoneNumber
+      });
 
       if (_.isEmpty(customerDetails)) {
         throw new Error('Customer does not exist');
       }
-
 
       // integrate surephass api based on doc type
       switch (payload.documentType) {
@@ -144,27 +143,25 @@ export class CustomerService {
     }
   }
 
-  async approveUserVerification(
-    payload: ApproveUserVerifyRequest
-  ) {
-    Logger.info('<Service>:<CustomerService>:<Approve Verifying user business>');
+  async approveUserVerification(payload: ApproveUserVerifyRequest) {
+    Logger.info(
+      '<Service>:<CustomerService>:<Approve Verifying user business>'
+    );
     // validate the store from user phone number and user id
 
     try {
-      const customerDetails = await Customer.findOne(
-        {
-          phoneNumber: payload.phoneNumber
-        }
-      );
+      const customerDetails = await Customer.findOne({
+        phoneNumber: payload.phoneNumber
+      });
 
-      if(_.isEmpty(customerDetails)){
-        throw new Error('Customer not found'); 
+      if (_.isEmpty(customerDetails)) {
+        throw new Error('Customer not found');
       }
-
+      const docDetails: any = payload;
       const updatedCustomer = await this.updateCustomerDetails(
-        payload.verificationDetails,
-        payload.documentType,
-        payload.gstAdhaarNumber,
+        docDetails.verificationDetails,
+        docDetails.documentType,
+        docDetails.gstAdhaarNumber || docDetails?.verificationDetails?.gstin,
         customerDetails
       );
 
@@ -177,13 +174,13 @@ export class CustomerService {
     }
   }
 
-  async verifyAadhar(
-    payload: VerifyAadharUserRequest,
-  ) {
+  async verifyAadhar(payload: VerifyAadharUserRequest) {
     Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
     // validate the store from user phone number and user id
-    let verifyResult: any = {};
-    const gstAdhaarNumber = payload?.gstAdhaarNumber ? payload?.gstAdhaarNumber : '';
+    const verifyResult: any = {};
+    const gstAdhaarNumber = payload?.gstAdhaarNumber
+      ? payload?.gstAdhaarNumber
+      : '';
 
     try {
       // get the store data
@@ -231,7 +228,13 @@ export class CustomerService {
       {
         $set: {
           isVerified,
-          verificationDetails: { documentType, verfiyName: verifyResult?.business_name, verifyAddress: verifyResult?.address ,verifyObj: verifyResult, gstAdhaarNumber }
+          verificationDetails: {
+            documentType,
+            verifyName: verifyResult?.business_name,
+            verifyAddress: verifyResult?.address,
+            verifyObj: verifyResult,
+            gstAdhaarNumber
+          }
         }
       },
       {
