@@ -39,11 +39,30 @@ export interface VerifyBusinessRequest {
   documentType: DocType;
   storeId?: string;
 }
+export interface VerifyCustomerRequest {
+  documentNo: string;
+  documentType: DocType;
+  phoneNumber?: string;
+}
 
 export interface ApproveBusinessVerifyRequest {
   documentType: DocType;
   storeId?: string;
   verificationDetails: object;
+  gstAdhaarNumber: string;
+}
+
+export interface ApproveUserVerifyRequest {
+  documentType: DocType;
+  phoneNumber?: string;
+  verificationDetails: object;
+  gstAdhaarNumber: string;
+}
+
+export interface VerifyAadharUserRequest {
+  clientId: string;
+  otp: string;
+  phoneNumber: string;
   gstAdhaarNumber: string;
 }
 
