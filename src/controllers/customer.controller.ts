@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { appendCodeToPhone } from '../utils/common';
@@ -8,6 +8,7 @@ import Logger from '../config/winston';
 import { ICustomer } from '../models/Customer';
 import Request from '../types/request';
 import { CustomerService } from './../services/customer.service';
+import { ApproveUserVerifyRequest, VerifyAadharUserRequest, VerifyCustomerRequest } from '../interfaces';
 
 @injectable()
 export class CustomerController {
@@ -87,7 +88,7 @@ export class CustomerController {
   getCustomerByPhoneNo = async (req: Request, res: Response) => {
     let phoneNumber = req.body.phoneNumber;
     Logger.info(
-      '<Controller>:<StoreController>:<Get customer by phone number request controller initiated>'
+      '<Controller>:<CustomerController>:<Get customer by phone number request controller initiated>'
     );
     try {
       let result: ICustomer;
@@ -110,7 +111,7 @@ export class CustomerController {
 
   getAll = async (req: Request, res: Response) => {
     Logger.info(
-      '<Controller>:<StoreController>:<Get all customers request controller initiated>'
+      '<Controller>:<CustomerController>:<Get all customers request controller initiated>'
     );
     try {
       const result = await this.customerService.getAll();
@@ -120,6 +121,112 @@ export class CustomerController {
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  initiateUserVerification = async (req: Request, res: Response) => {
+    const payload = req.body as VerifyCustomerRequest;
+    Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');
+
+    try {
+      const result = await this.customerService.initiateUserVerification(
+        payload
+      );
+      res.send({
+        message: 'Customer Verification Initatiation Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
+      }
+    }
+  };
+
+  approveUserVerification = async (req: Request, res: Response) => {
+    const payload = req.body as ApproveUserVerifyRequest;
+    Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');
+
+    try {
+      const result = await this.customerService.approveUserVerification(
+        payload
+      );
+      res.send({
+        message: 'User Verification Approval Successful',
+        result
+      });
+      // }
+    } catch (err) {
+      if (err.status && err.data) {
+        res
+          .status(err.status)
+          .json({ success: err.data?.success, message: err.data?.message });
+      } else {
+        Logger.error(err.message);
+        res
+          .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ message: err.message });
+      }
+    }
+  };
+
+  verifyAadhar = async (req: Request, res: Response) => {
+    const payload: VerifyAadharUserRequest = req.body;
+    Logger.info('<Controller>:<CustomerController>:<Verify Aadhar OTP>');
+    try {
+      const result = await this.customerService.verifyAadhar(
+        payload
+      );
+      res.send({
+        message: 'Aadhar Verification Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  validate = (method: string) => {
+    switch (method) {
+      case 'initiateUserVerification':
+        return [
+          // body('storeId', 'Store Id does not exist').exists().isString(),
+          body('documentNo', 'Document Number does not exist')
+            .exists()
+            .isString(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
+
+      case 'approveUserVerification':
+        return [
+          body('phoneNumber', 'Phone Number does not exist').exists().isString(),
+          body('verificationDetails', 'Details does not exist')
+            .exists()
+            .isObject(),
+          body('documentType', 'Document Type does not exist')
+            .exists()
+            .isString()
+        ];
+
+      case 'verifyAadhar':
+        return [
+          body('phoneNumber', 'Phone Number does not exist').exists().isString(),
+          body('clientId', 'Cliend Id does not exist').exists().isString(),
+          body('otp', 'OTP does not exist').exists().isString()
+        ];
     }
   };
 }

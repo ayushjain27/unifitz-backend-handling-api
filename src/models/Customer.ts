@@ -1,10 +1,17 @@
 import { Document, model, Schema, Types } from 'mongoose';
+import { DocType } from '../enum/docType.enum';
 
 export interface IContactInfo extends Document {
   address: string;
   state: string;
   city: string;
   pincode: string;
+}
+
+export interface IVerificationDetails {
+  documentType: DocType;
+  gstAdhaarNumber?: string;
+  verifyObj: unknown;
 }
 
 const customerContactSchema: Schema = new Schema(
@@ -45,6 +52,8 @@ export interface ICustomer extends Document {
     type: string;
     coordinates: number[];
   };
+  isVerified?: boolean;
+  verificationDetails?: IVerificationDetails;
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
