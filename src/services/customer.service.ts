@@ -175,9 +175,8 @@ export class CustomerService {
   }
 
   async verifyAadhar(payload: VerifyAadharUserRequest) {
-    Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
+    Logger.info('<Service>:<CustomerService>:<Initiate Verifying user>');
     // validate the store from user phone number and user id
-    const verifyResult: any = {};
     const gstAdhaarNumber = payload?.gstAdhaarNumber
       ? payload?.gstAdhaarNumber
       : '';
