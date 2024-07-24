@@ -230,8 +230,10 @@ export class CustomerService {
           isVerified,
           verificationDetails: {
             documentType,
-            verifyName: verifyResult?.business_name,
-            verifyAddress: verifyResult?.address,
+            verifyName: verifyResult?.business_name || verifyResult?.full_name,
+            verifyAddress:
+              verifyResult?.address ||
+              `${verifyResult?.house} ${verifyResult?.landmark} ${verifyResult?.street} ${verifyResult?.vtc} ${verifyResult?.state} - ${verifyResult?.zip}`,
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
