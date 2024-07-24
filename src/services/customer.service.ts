@@ -157,6 +157,10 @@ export class CustomerService {
         }
       );
 
+      if(_.isEmpty(customerDetails)){
+        throw new Error('Customer not found'); 
+      }
+
       const updatedCustomer = await this.updateCustomerDetails(
         payload.verificationDetails,
         payload.documentType,
@@ -195,14 +199,14 @@ export class CustomerService {
         payload.clientId,
         payload.otp
       );
-      const updatedStore = await this.updateCustomerDetails(
+      const updatedCustomer = await this.updateCustomerDetails(
         verifyResult,
         DocType.AADHAR,
         gstAdhaarNumber,
         customerDetails
       );
 
-      return updatedStore;
+      return updatedCustomer;
     } catch (err) {
       throw new Error(err);
     }
@@ -221,10 +225,9 @@ export class CustomerService {
       isVerified = true;
     }
 
-    console.log(customerDetails,"df")
     // update the store
-    const updatedStore = await Customer.findOneAndUpdate(
-      { _id: new Types.ObjectId(customerDetails._id), phoneNumber: customerDetails.phoneNumber },
+    const updatedCustomer = await Customer.findOneAndUpdate(
+      { phoneNumber: customerDetails.phoneNumber },
       {
         $set: {
           isVerified,
@@ -237,6 +240,6 @@ export class CustomerService {
       }
     );
 
-    return updatedStore;
+    return updatedCustomer;
   }
 }
