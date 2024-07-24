@@ -130,8 +130,8 @@ app.get('/category', async (req, res) => {
       a.displayOrder > b.displayOrder
         ? 1
         : b.displayOrder > a.displayOrder
-        ? -1
-        : 0
+          ? -1
+          : 0
     )
     .map(
       ({
@@ -262,12 +262,12 @@ async function updateSlugs() {
   try {
     // Use aggregation pipeline in updateMany
     await Admin.updateMany(// Only update documents that have storeId
-     { $set: { accessList: permissions.OEM } },
+      { $set: { accessList: permissions.OEM } },
     );
 
     console.log('All documents have been updated with slugs.');
-  } catch(err){
-    console.log(err,"sa;lkfndj")
+  } catch (err) {
+    console.log(err, "sa;lkfndj")
   }
 }
 
@@ -275,13 +275,13 @@ async function updateSlug() {
   try {
     // Use aggregation pipeline in updateMany
     await Admin.findOneAndUpdate(// Only update documents that have storeId
-    {userName: 'SERVICEPLUG'},
-     { $set: { accessList: permissions.OEM } },
+      { userName: 'SERVICEPLUG' },
+      { $set: { accessList: permissions.OEM } },
     );
 
     console.log('All documents have been updated with slugs.');
-  } catch(err){
-    console.log(err,"sa;lkfndj")
+  } catch (err) {
+    console.log(err, "sa;lkfndj")
   }
 }
 
@@ -296,8 +296,8 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'EmployeeResetPassword',
-      SubjectPart: 'Reset Password Email', // Use a placeholder for dynamic subject
+      TemplateName: 'NewSellerOnboarded',
+      SubjectPart: 'Successfully created NewSeller', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -336,11 +336,15 @@ app.get('/createTemplate', async (req, res) => {
         </head>
         <body>
           <div class="container">
-            <p>This is your reset password details</p>
-            <p>UserName: {{userName}}</p>
-            <p>This is one time password. After that you can update your password</p>
-            <p>Password: {{password}}</p>
-            <p>Best regards<p>
+          <h1>User Details</h1>
+          <p>name        : {{name}}</p>
+          <p>phoneNumber : {{phoneNumber}}</p>
+          <p>email       : {{email}}</p>
+          <p>state       : {{state}}</p>
+          <p>city        : {{city}}</p>
+          <p>comment     : {{comment}}</p>
+            <p>Thank you for getting in touch. Our team will contact you shortly.</p>
+            <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
           </div>
         </body>
         </html>`,

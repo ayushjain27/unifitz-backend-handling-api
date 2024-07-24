@@ -20,6 +20,7 @@ import { IDocumentImageList } from '../models/Admin';
 import { Types } from 'mongoose';
 import DistributorPartnersReview from '../models/DistributorPartnersReview';
 import Store, { IStore } from '../models/Store';
+import Seller from '../models/Seller';
 import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
 import { permissions } from '../config/permissions';
@@ -232,7 +233,7 @@ export class AdminService {
     const query = {
       userName: userName
     };
-  
+
     const adminUsers: IAdmin[] = await Admin.aggregate([
       {
         $match: query
@@ -246,19 +247,17 @@ export class AdminService {
         }
       }
     ]);
-  
+
     if (_.isEmpty(adminUsers)) {
       throw new Error('User does not exist');
     }
-  
+
     // Assuming there's only one admin user in the result, get the first element
     const admin = adminUsers[0];
     delete admin.password;
-    
+
     return admin;
   }
-  
-  
 
   async updatePassword(userName: string, password: string): Promise<any> {
     const admin: IAdmin = await Admin.findOne({ userName })?.lean();
@@ -580,16 +579,22 @@ export class AdminService {
     const query: any = {};
     query.userName = userName;
     console.log(query, 'dlfme');
-    
+
     const oemUserDetails: IAdmin = await Admin.findOne({
       userName
     });
-    
+
     const password = secureRandomPassword.randomPassword();
     const updatedPassword = await this.encryptPassword(password);
     const res = await Admin.findOneAndUpdate(
       { userName: userName },
-      { $set: { password: updatedPassword, generatedPassword: password, isFirstTimeLoggedIn: true } },
+      {
+        $set: {
+          password: updatedPassword,
+          generatedPassword: password,
+          isFirstTimeLoggedIn: true
+        }
+      },
       { returnDocument: 'after' }
     );
     const templateData = {
@@ -597,14 +602,38 @@ export class AdminService {
       userName: oemUserDetails?.userName,
       password: password
     };
-    if(!_.isEmpty(oemUserDetails?.contactInfo?.email)){
-    sendEmail(
-      templateData,
-      oemUserDetails?.contactInfo?.email,
-      'support@serviceplug.in',
-      'EmployeeResetPassword'
-    );
+    if (!_.isEmpty(oemUserDetails?.contactInfo?.email)) {
+      sendEmail(
+        templateData,
+        oemUserDetails?.contactInfo?.email,
+        'support@serviceplug.in',
+        'EmployeeResetPassword'
+      );
     }
-    return "Email sent";
+    return 'Email sent';
+  }
+
+  async sellerRegister(reqBody: any): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<Create new seller >');
+
+    let newSeller: any = reqBody;
+    newSeller = await Seller.create(newSeller);
+    const templateData = {
+      name: newSeller?.userName,
+      phoneNumber: newSeller?.phoneNumber,
+      email: newSeller?.email,
+      state: newSeller?.state,
+      city: newSeller?.city,
+      comment: newSeller?.comment
+    };
+    if (!_.isEmpty(newSeller?.email)) {
+      sendEmail(
+        templateData,
+        newSeller?.email,
+        'support@serviceplug.in',
+        'NewSellerOnboarded'
+      );
+    }
+    return newSeller;
   }
 }

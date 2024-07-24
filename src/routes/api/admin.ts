@@ -108,9 +108,8 @@ router.get(
 
 router.post('/createContactUs', adminController.createContactUs);
 
-router.get(
-  '/resetPassword',
-  adminController.resetPassword
-);
+router.get('/resetPassword', adminController.resetPassword);
+
+router.post('/sellerRegister', adminController.sellerRegister);
 
 export default router;
