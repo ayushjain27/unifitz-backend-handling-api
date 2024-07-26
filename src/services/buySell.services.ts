@@ -262,14 +262,21 @@ export class BuySellService {
     const filterParams = { ...query, status: 'ACTIVE' };
 
     // Conditionally add the nested state field if query.state is not empty
-    if (query.state) {
-      filterParams['storeDetails.contactInfo.state'] = query.state;
-    }
+    const stateFilter = query.state
+      ? {
+          $or: [
+            { 'storeDetails.contactInfo.state': query.state },
+            { 'sellerdetails.contactInfo.state': query.state }
+          ]
+        }
+      : {};
 
-    delete filterParams.state;
-    console.log(filterParams, 'dfmkl');
+    // Merge stateFilter with other filter parameters
+    const finalFilter = { ...filterParams, ...stateFilter };
+
+    console.log(finalFilter, 'dfmkl');
     const result = await buySellVehicleInfo
-      .find({ ...filterParams })
+      .find({ finalFilter })
       .populate('vehicleInfo');
     return result;
   }
@@ -287,16 +294,16 @@ export class BuySellService {
       regType: req?.regType,
       vehType: req?.vehType
     };
-    if(!_.isEmpty(req?.storeId) && !_.isEmpty(req?.state)){
-      query['storeDetails.contactInfo.state'] = req?.state
+    if (!_.isEmpty(req?.storeId) && !_.isEmpty(req?.state)) {
+      query['storeDetails.contactInfo.state'] = req?.state;
     }
-    if(!_.isEmpty(req?.userId) && !_.isEmpty(req?.state)){
-      query['sellerDetails.contactInfo.state'] = req?.state
+    if (!_.isEmpty(req?.userId) && !_.isEmpty(req?.state)) {
+      query['sellerDetails.contactInfo.state'] = req?.state;
     }
-    if(!req?.storeId){
+    if (!req?.storeId) {
       delete query['storeDetails.storeId'];
     }
-    if(!req?.userId){
+    if (!req?.userId) {
       delete query['sellerDetails._id'];
     }
     if (!req?.state) {
