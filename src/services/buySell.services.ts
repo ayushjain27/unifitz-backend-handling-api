@@ -263,9 +263,12 @@ export class BuySellService {
 
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
-      filterParams['storeDetails.contactInfo.state'] = query.state;
+      filterParams['$or'] = [
+        { 'storeDetails.contactInfo.state': query.state },
+        { 'sellerdetails.contactInfo.state': query.state }
+      ];
     }
-
+  
     delete filterParams.state;
     console.log(filterParams, 'dfmkl');
     const result = await buySellVehicleInfo
