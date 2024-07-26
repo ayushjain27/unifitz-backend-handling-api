@@ -265,7 +265,7 @@ export class BuySellService {
     if (query.state) {
       filterParams['$or'] = [
         { 'storeDetails.contactInfo.state': query.state },
-        { 'sellerdetails.contactInfo.state': query.state }
+        { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
   
