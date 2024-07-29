@@ -222,6 +222,7 @@ export class CustomerService {
     }
 
     // update the store
+
     const updatedCustomer = await Customer.findOneAndUpdate(
       { phoneNumber: customerDetails.phoneNumber },
       {
@@ -231,8 +232,8 @@ export class CustomerService {
             documentType,
             verifyName: verifyResult?.business_name || verifyResult?.full_name,
             verifyAddress:
-              verifyResult?.address ||
-              `${verifyResult?.house} ${verifyResult?.landmark} ${verifyResult?.street} ${verifyResult?.vtc} ${verifyResult?.state} - ${verifyResult?.zip}`,
+              documentType === 'GST' ? String(verifyResult?.address) :
+              String(`${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
