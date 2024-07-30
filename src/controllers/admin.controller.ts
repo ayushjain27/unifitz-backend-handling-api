@@ -435,6 +435,28 @@ export class AdminController {
     }
   };
 
+  sellerRegister = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    Logger.info(
+      '<Controller>:<AdminController>:<Add seller request initiated>'
+    );
+    try {
+      const result = await this.adminService.sellerRegister(interestRequest);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

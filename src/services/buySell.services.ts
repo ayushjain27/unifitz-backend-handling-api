@@ -155,10 +155,10 @@ export class BuySellService {
       { returnDocument: 'after' }
     );
 
-    let employeeDetail = await Admin.findOne({
+    const employeeDetail = await Admin.findOne({
       userName: buySellVehicle?.employeeId
     }).lean();
-    let employeeDetails = await SPEmployee.findOne({
+    const employeeDetails = await SPEmployee.findOne({
       employeeId: employeeDetail?.employeeId,
       userName: employeeDetail?.oemId
     });
@@ -263,7 +263,10 @@ export class BuySellService {
 
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
-      filterParams['storeDetails.contactInfo.state'] = query.state;
+      filterParams['$or'] = [
+        { 'storeDetails.contactInfo.state': query.state },
+        { 'sellerDetails.contactInfo.state': query.state }
+      ];
     }
 
     delete filterParams.state;
@@ -280,15 +283,28 @@ export class BuySellService {
 
     const query: any = {
       'storeDetails.storeId': req?.storeId,
-      'storeDetails.contactInfo.state': req?.state,
+      'sellerDetails._id': req?.userId,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
       gearType: req?.gearType,
       regType: req?.regType,
       vehType: req?.vehType
     };
+    if (!_.isEmpty(req?.storeId) && !_.isEmpty(req?.state)) {
+      query['storeDetails.contactInfo.state'] = req?.state;
+    }
+    if (!_.isEmpty(req?.userId) && !_.isEmpty(req?.state)) {
+      query['sellerDetails.contactInfo.state'] = req?.state;
+    }
+    if (!req?.storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!req?.userId) {
+      delete query['sellerDetails._id'];
+    }
     if (!req?.state) {
       delete query['storeDetails.contactInfo.state'];
+      delete query['sellerDetails.contactInfo.state'];
     }
     if (!req?.brandName) {
       delete query.brandName;
@@ -566,9 +582,81 @@ export class BuySellService {
     if (req?.oemId === 'SERVICEPLUG') {
       delete userResult['oemUserName'];
     }
-    let vehicleResponse: IBuySell[] = await buySellVehicleInfo
-      .find(userResult)
-      .populate('vehicleInfo');
+    let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+      {
+        $match: userResult
+      },
+      {
+        $lookup: {
+          from: 'vehicleanalytics',
+          localField: 'vehicleId',
+          foreignField: 'moduleInformation',
+          as: 'vehicleAnalytic'
+        }
+      },
+      { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      {
+        $set: {
+          impressionCount: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
+              }
+            }
+          },
+          vehicleDetailClick: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'VEHICLE_DETAIL_CLICK'] }
+              }
+            }
+          },
+          executivePhoneNo: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'EXECUTIVE_PHONE_NUMBER_CLICK'] }
+              }
+            }
+          },
+          storePhoneNo: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'STORE_PHONE_NUMBER_CLICK'] }
+              }
+            }
+          },
+          locationClickCount: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'LOCATION_CLICK'] }
+              }
+            }
+          }
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } },
+      {
+        $project: { vehicleAnalytic: 0 }
+      }
+    ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
         if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {

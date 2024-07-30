@@ -127,7 +127,7 @@ export interface IAdmin {
   oemId?: string;
   employeeId?: string;
   accessList: object;
-  loginDate?: Date
+  loginDate?: Date;
 }
 
 export interface IDocumentImage {

@@ -1,4 +1,5 @@
 import { Document, model, Schema, Types } from 'mongoose';
+import { DocType } from '../enum/docType.enum';
 
 export interface IContactInfo extends Document {
   address: string;
@@ -6,6 +7,36 @@ export interface IContactInfo extends Document {
   city: string;
   pincode: string;
 }
+
+export interface IVerificationDetails {
+  documentType: DocType;
+  gstAdhaarNumber?: string;
+  verifyObj: unknown;
+  verifyName: string;
+  verifyAddress: string;
+}
+
+export const verificationDetailsSchema: Schema =
+  new Schema<IVerificationDetails>(
+    {
+      gstAdhaarNumber: {
+        type: String
+      },
+      verifyName: {
+        type: String
+      },
+      verifyAddress: {
+        type: String
+      },
+      documentType: {
+        type: String
+      }
+    },
+
+    {
+      _id: false
+    }
+  );
 
 const customerContactSchema: Schema = new Schema(
   {
@@ -45,6 +76,8 @@ export interface ICustomer extends Document {
     type: string;
     coordinates: number[];
   };
+  isVerified?: boolean;
+  verificationDetails?: IVerificationDetails;
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
@@ -76,6 +109,12 @@ const customerSchema: Schema = new Schema(
     },
     contactInfo: {
       type: customerContactSchema
+    },
+    verificationDetails: {
+      type: verificationDetailsSchema
+    },
+    isVerified: {
+      type: Boolean
     },
     geoLocation: {
       // kind: String,

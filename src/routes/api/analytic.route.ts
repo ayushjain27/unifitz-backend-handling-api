@@ -129,9 +129,33 @@ router.post(
   analyticController.getPartnerAnalytic
 );
 
-router.get(
+router.post(
   '/getActivePartnerUsers',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getActivePartnerUsers
 );
+
+// ====================Partner analytic api lists end=====================
+// =======================================================================
+
+// ====================Vehicle analytic api lists start===================
+// =======================================================================
+
+router.post('/createVehicleAnalytic', analyticController.createVehicleAnalytic);
+
+router.post(
+  '/getVehicleImpression',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getVehicleAnalytic
+);
+
+router.post(
+  '/getBuyVehicleAll',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getBuyVehicleAll
+);
+
+// ====================Vehicle analytic api lists end=====================
+// =======================================================================
+
 export default router;
