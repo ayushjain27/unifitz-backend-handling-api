@@ -17,6 +17,7 @@ import container from '../config/inversify.container';
 import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
 import EventModel from './../models/Event';
+import VehicleAnalyticModel from './../models/VehicleAnalytic';
 import OfferModel from './../models/Offers';
 import SchoolOfAutoModel from '../models/SchoolOfAuto';
 import BusinessModel from '../models/Business';
@@ -1885,52 +1886,295 @@ export class AnalyticService {
     return finalResult;
   }
 
-  // async getNonActivePartnerUsers(
-  //   role: string,
-  //   userName: string,
-  //   firstDate: any,
-  //   lastDate: any
-  // ) {
-  //   Logger.info(
-  //     '<Service>:<CategoryService>:<Get all analytic service initiated>'
-  //   );
-  //   let query: any = {};
-  //   Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
-  //   // const firstDay = new Date(firstDate);
-  //   const lastDay = new Date(lastDate);
-  //   const nextDate = new Date(lastDay);
-  //   nextDate.setDate(lastDay.getDate() + 1);
+  async createVehicleAnalytic(requestData: any): Promise<any> {
+    const userData: any = {};
+    const eventResult = requestData;
 
-  //   const dateObj = lastDay;
-  //   const dateResult = dateObj.setDate(dateObj.getDate() - 30);
-  //   const startRes = new Date(dateResult);
+    userData.userId = requestData.userId || '';
+    userData.phoneNumber = requestData.phoneNumber || '';
+    userData.geoLocation = {
+      type: 'Point',
+      coordinates: requestData?.coordinates
+    };
+    userData.state = requestData?.state || '';
+    userData.city = requestData?.city || '';
 
-  //   query = {
-  //     createdAt: {
-  //       $gte: startRes,
-  //       $lte: nextDate
-  //     },
-  //     module: 'SCREEN_MODE',
-  //     event: 'ONLINE'
-  //   };
+    eventResult.userInformation = userData;
 
-  //   if (role === AdminRole.OEM) {
-  //     query.oemUserName = userName;
-  //   }
+    Logger.info(
+      '<Service>:<CategoryService>:<Create analytic service initiated>'
+    );
+    let newAnalytic: any = [];
+    if (!_.isEmpty(eventResult)) {
+      newAnalytic = await VehicleAnalyticModel.create(eventResult);
+    }
+    Logger.info('<Service>:<CategoryService>:<analytic created successfully>');
+    return newAnalytic;
+  }
 
-  //   const queryFilter: any = await PartnerAnalyticModel.aggregate([
-  //     {
-  //       $match: query
-  //     }
-  //   ]);
+  async getVehicleAnalytic(
+    role: string,
+    userName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    // const currentDate = new Date(lastDay);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      platform: platform,
+      event: 'IMPRESSION_COUNT',
+      moduleInformation: storeId
+    };
 
-  //   const storeRes = await Store.find({ profileStatus: 'ONBOARDED' });
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
 
-  //   const finalResult = {
-  //     nonActiveStores: queryFilter?.map((res: any) =>
-  //       storeRes?.filter((val: any) => res?.moduleInformation !== val?.storeId)
-  //     )
-  //   };
-  //   return finalResult;
-  // }
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
+    // const c_Date = new Date();
+
+    const queryFilter: any = await VehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $project: {
+          createdAt: 1,
+          groupId: {
+            $dateFromParts: {
+              year: {
+                $year: '$createdAt'
+              },
+              month: {
+                $month: '$createdAt'
+              },
+              day: {
+                $dayOfMonth: '$createdAt'
+              },
+              hour: {
+                $cond: [
+                  {
+                    $gte: [
+                      {
+                        $dateDiff: {
+                          startDate: firstDay,
+                          endDate: lastDay,
+                          unit: 'day'
+                        }
+                      },
+                      1
+                    ]
+                  },
+                  0,
+                  {
+                    $hour: '$createdAt'
+                  }
+                ]
+              }
+            }
+          },
+          moduleInformation: 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            groupId: '$groupId',
+            store: '$moduleInformation'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.groupId',
+          views: {
+            $sum: 1
+          }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $toString: '$_id'
+          },
+          views: 1,
+          // stores: 1,
+          // topViewStore: 1,
+          _id: 0
+        }
+      },
+      {
+        $unset: ['_id']
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return queryFilter;
+  }
+
+  async getBuyVehicleAll(
+    role: string,
+    userName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    const tday = new Date();
+
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      // event: { $ne: 'IMPRESSION_COUNT' },
+      moduleInformation: storeId,
+      platform: platform
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const queryFilter: any = await VehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+
+    delete query['createdAt'];
+    const AllEventResult: any = await VehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+
+    const finalResult = AllEventResult.map((val: any) => {
+      const objectData = queryFilter.find((res: any) => res.name === val?.name);
+      return {
+        name: objectData?.name,
+        count: objectData?.count,
+        total: val?.count
+      };
+    });
+    return finalResult;
+  }
 }

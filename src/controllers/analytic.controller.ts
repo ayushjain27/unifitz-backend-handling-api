@@ -625,28 +625,88 @@ export class AnalyticController {
     }
   };
 
-  // getNonActivePartnerUsers = async (req: Request, res: Response) => {
-  //   const role = req?.role;
-  //   const userName = req?.userId;
-  //   const { firstDate, lastDate } = req.body;
-  //   try {
-  //     Logger.info(
-  //       '<Controller>:<StoreController>:<get analytic request controller initiated>'
-  //     );
-  //     const result = await this.analyticService.getNonActivePartnerUsers(
-  //       role,
-  //       userName,
-  //       firstDate,
-  //       lastDate
-  //     );
-  //     res.send({
-  //       result
-  //     });
-  //   } catch (err) {
-  //     Logger.error(err.message);
-  //     res
-  //       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-  //       .json({ message: err.message });
-  //   }
-  // };
+  createVehicleAnalytic = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createVehicleAnalytic(
+        requestData
+      );
+      res.send({
+        message: 'OK !!!!'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getVehicleAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getVehicleAnalytic(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getBuyVehicleAll = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getBuyVehicleAll(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }
