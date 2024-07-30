@@ -263,7 +263,10 @@ export class BuySellService {
 
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
-      filterParams['storeDetails.contactInfo.state'] = query.state;
+      filterParams['$or'] = [
+        { 'storeDetails.contactInfo.state': query.state },
+        { 'sellerDetails.contactInfo.state': query.state }
+      ];
     }
 
     delete filterParams.state;
@@ -281,13 +284,18 @@ export class BuySellService {
     const query: any = {
       'storeDetails.storeId': req?.storeId,
       'sellerDetails._id': req?.userId,
-      'storeDetails.contactInfo.state': req?.state,
       brandName: req?.brandName,
       fuelType: req?.fuelType,
       gearType: req?.gearType,
       regType: req?.regType,
       vehType: req?.vehType
     };
+    if (!_.isEmpty(req?.storeId) && !_.isEmpty(req?.state)) {
+      query['storeDetails.contactInfo.state'] = req?.state;
+    }
+    if (!_.isEmpty(req?.userId) && !_.isEmpty(req?.state)) {
+      query['sellerDetails.contactInfo.state'] = req?.state;
+    }
     if (!req?.storeId) {
       delete query['storeDetails.storeId'];
     }
@@ -296,6 +304,7 @@ export class BuySellService {
     }
     if (!req?.state) {
       delete query['storeDetails.contactInfo.state'];
+      delete query['sellerDetails.contactInfo.state'];
     }
     if (!req?.brandName) {
       delete query.brandName;

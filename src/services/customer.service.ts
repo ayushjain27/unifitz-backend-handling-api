@@ -175,9 +175,8 @@ export class CustomerService {
   }
 
   async verifyAadhar(payload: VerifyAadharUserRequest) {
-    Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
+    Logger.info('<Service>:<CustomerService>:<Initiate Verifying user>');
     // validate the store from user phone number and user id
-    const verifyResult: any = {};
     const gstAdhaarNumber = payload?.gstAdhaarNumber
       ? payload?.gstAdhaarNumber
       : '';
@@ -223,6 +222,7 @@ export class CustomerService {
     }
 
     // update the store
+
     const updatedCustomer = await Customer.findOneAndUpdate(
       { phoneNumber: customerDetails.phoneNumber },
       {
@@ -230,8 +230,10 @@ export class CustomerService {
           isVerified,
           verificationDetails: {
             documentType,
-            verifyName: verifyResult?.business_name,
-            verifyAddress: verifyResult?.address,
+            verifyName: verifyResult?.business_name || verifyResult?.full_name,
+            verifyAddress:
+              documentType === 'GST' ? String(verifyResult?.address) :
+              String(`${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
