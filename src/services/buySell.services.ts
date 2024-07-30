@@ -271,52 +271,9 @@ export class BuySellService {
 
     delete filterParams.state;
     console.log(filterParams, 'dfmkl');
-
-    let result: any = await buySellVehicleInfo.aggregate([
-      {
-        $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: query.coordinates as [number, number]
-          },
-          spherical: true,
-          query: query,
-          distanceField: 'distance',
-          distanceMultiplier: 0.001
-        }
-      },
-      {
-        $project: {
-          // Add other fields you need in the projection
-          vehicleInfo: 1,
-          'storeDetails.contactInfo.distance': {
-            $cond: {
-              if: { $ne: ['$storeDetails', null] },
-              then: '$distance',
-              else: null
-            }
-          },
-          'sellerDetails.contactInfo.distance': {
-            $cond: {
-              if: { $ne: ['$sellerDetails', null] },
-              then: '$distance',
-              else: null
-            }
-          },
-          // Ensure distance is included only once if required
-          distance: 1,
-        }
-      }
-    ]);
-    
-    // After aggregation, populate the `vehicleInfo` field
-    result = await buySellVehicleInfo.populate(result, { path: 'vehicleInfo' });
-    
-    return result;
-    
-    // const result = await buySellVehicleInfo
-    //   .find({ ...filterParams })
-    //   .populate('vehicleInfo');
+    const result = await buySellVehicleInfo
+      .find({ ...filterParams })
+      .populate('vehicleInfo');
     return result;
   }
   async getOwnStoreDetails(req: any) {
