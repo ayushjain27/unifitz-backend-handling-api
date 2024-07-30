@@ -96,7 +96,7 @@ export class CustomerService {
 
   async getAll(): Promise<ICustomer[]> {
     Logger.info('<Service>:<CustomerService>:<Get all customers>');
-    const customerResponse: ICustomer[] = await Customer.find({});
+    const customerResponse: ICustomer[] = (await Customer.find({})).reverse();
     return customerResponse;
   }
 
