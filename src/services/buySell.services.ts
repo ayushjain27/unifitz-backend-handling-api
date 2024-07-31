@@ -550,8 +550,10 @@ export class BuySellService {
     const userResult: any = {};
 
     const query: any = {
-      'vehicleInfo.vehicleType': req.vehicleType
+      'vehicleInfo.vehicleType': req.vehicleType,
+      'userType': req.userType
     };
+
     if (req?.date) {
       // Create start time in UTC at the beginning of the day (00:00:00)
       start = new Date(req.date);
@@ -592,6 +594,12 @@ export class BuySellService {
     if (!req.vehicleType) {
       delete query['vehicleInfo.vehicleType'];
     }
+
+    if (!req.userType) {
+      delete query['userType'];
+    }
+    console.log(query,"dfwel;")
+    
     Logger.debug(query);
     if (role === AdminRole.OEM) {
       userResult.oemUserName = userName;
@@ -682,6 +690,12 @@ export class BuySellService {
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
         if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.userType)) {
+        if (item.userType !== query.userType) {
           return false;
         }
       }
