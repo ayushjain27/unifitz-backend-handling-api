@@ -25,7 +25,7 @@ export interface ICustomerDetails {
   deliveryDate: Date;
   aadharPanCardImage: string;
   sellerName: string;
-  sellerPhoneNumber: number
+  sellerPhoneNumber: number;
 }
 
 export const customerDetailsSchema = new Schema({
@@ -79,6 +79,10 @@ export interface IBuySell extends Document {
   employeePhoneNumber?: string;
   purchasedPrice?: number;
   customerDetails?: ICustomerDetails;
+  location: {
+    type: string;
+    coordinates: number[];
+  };
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -105,10 +109,16 @@ export const buySellSchema: Schema = new Schema(
     purchasedPrice: { type: Number },
     customerDetails: {
       type: customerDetailsSchema
+    },
+    location: {
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
     }
   },
   { timestamps: true, strict: false }
 );
+
+buySellSchema.index({ location: '2dsphere' }, { sparse: true });
 
 const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
 

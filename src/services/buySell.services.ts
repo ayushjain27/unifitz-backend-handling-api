@@ -260,7 +260,6 @@ export class BuySellService {
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
     const filterParams = { ...query, status: 'ACTIVE' };
-
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
       filterParams['$or'] = [
@@ -268,12 +267,35 @@ export class BuySellService {
         { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
-
     delete filterParams.state;
-    console.log(filterParams, 'dfmkl');
-    const result = await buySellVehicleInfo
-      .find({ ...filterParams })
-      .populate('vehicleInfo');
+    delete filterParams.coordinates;
+
+    console.log(filterParams, query, 'dfmkl');
+    const result = await buySellVehicleInfo.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: query.coordinates
+          },
+          key: 'location',
+          spherical: true,
+          query: filterParams,
+          distanceField: 'distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } }
+    ]);
     return result;
   }
   async getOwnStoreDetails(req: any) {

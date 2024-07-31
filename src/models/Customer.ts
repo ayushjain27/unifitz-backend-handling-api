@@ -38,7 +38,7 @@ export const verificationDetailsSchema: Schema =
     }
   );
 
-const customerContactSchema: Schema = new Schema(
+export const customerContactSchema: Schema = new Schema(
   {
     address: {
       type: String
@@ -124,6 +124,8 @@ const customerSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+customerSchema.index({ 'geoLocation': '2dsphere' }, { sparse: true });
 
 const Customer = model<ICustomer & Document>('customers', customerSchema);
 
