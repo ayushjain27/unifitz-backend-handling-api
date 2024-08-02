@@ -49,8 +49,12 @@ export class BuySellController {
       '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
     );
     try {
-      // const { storeId: string } = req.body;
-      const result = await this.buySellService.getAllBuyVehicles(req.body);
+      const { pageNo, pageSize } = req.body;
+      const result = await this.buySellService.getAllBuyVehicles(
+        req.body,
+        pageNo,
+        pageSize
+      );
       res.send({
         result
       });
@@ -300,9 +304,8 @@ export class BuySellController {
     );
 
     try {
-      const result = await this.buySellService.updateBuySellVehicleCustomerDetails(
-        req.body
-      );
+      const result =
+        await this.buySellService.updateBuySellVehicleCustomerDetails(req.body);
       Logger.info(
         '<Controller>:<BuySellController>: <Store: Sending notification of updated buySell vehilce>'
       );
@@ -336,7 +339,6 @@ export class BuySellController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-
 
   validate = (method: string) => {
     switch (method) {

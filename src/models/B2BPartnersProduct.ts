@@ -2,11 +2,6 @@ import { model, Schema, ObjectId } from 'mongoose';
 import { catalogSchema, ICatalog } from './Catalog';
 import { IContactInfo, storeContactSchema } from './Store';
 
-// export enum OfferType {
-//   PRODUCT = 'product',
-//   SERVICE = 'service'
-// }
-
 export enum ProductType {
   OEM = 'OEM',
   AFTER_MARKET = 'AFTER MARKET'
@@ -18,7 +13,7 @@ export interface IImage {
 }
 
 export interface IProductImageList {
-  profile: IImage;
+  // profile: IImage;
   first: IImage;
   second: IImage;
   third: IImage;
@@ -33,37 +28,39 @@ export const IImageSchema: Schema = new Schema<IImage>({
   }
 });
 
-export interface IVehicleType extends Document {
-  _id: ObjectId;
-  name: string;
-}
-
 export interface IB2BPartnersProduct {
   _id?: string;
-  //   offerType: OfferType;
-  itemName: string;
-  unit: string;
-  mrp: number;
-  productDescription: string;
-  productImageList: IProductImageList;
+  makeType: string;
+  brandName: string;
+  vehicleType: string;
+  vehicleModel: string;
+  variants: string;
+  fuelType: string;
+  oemPart: string;
+  aftermarketPartSku: string;
   productCategory?: ICatalog[];
   productSubCategory?: ICatalog[];
-  productBrand?: string;
+  startYear: Date;
+  endYear: Date;
+  oemBrandPartNumber: string;
+  partManufactureName: string;
+  productSuggest: string;
+  productDescription: string;
+  features: string;
+  inTheBox: string;
+  warranty: number;
+  materialDetails: string;
+  colour: string;
+  madeIn: string;
+  returnPolicy: string;
+  productImageList: IProductImageList;
   isActive: boolean;
   showPrice: boolean;
   oemUserName?: string;
-  productType: ProductType;
-  vehicleType: IVehicleType[];
-  startYear: Date;
-  endYear: Date;
-  modelName: string;
-  manufactureName: string;
-  oemBrandPartNumber: string;
   manufacturePartNumber: string;
   priceDetail: IPriceDetail;
   bulkOrders: IBulkOrderDetail;
   shippingAddress: IContactInfo;
-  moreDetail: IMoreDetail;
   status?: string;
 }
 
@@ -72,18 +69,9 @@ export enum ProductStatus {
   DISABLED = 'DISABLED'
 }
 
-export interface IMoreDetail {
-  features: string;
-  warranty: string;
-  materialDetails: string;
-  colour: string;
-  madeIn: string;
-}
-
 export interface IPriceDetail {
   mrp: number;
   sellingPrice: number;
-  productDescription: string;
   qty: number;
   // dimension: string;
   width: string;
@@ -100,32 +88,9 @@ export interface IBulkOrderDetail {
   width: string;
   height: string;
   depth: string;
+  weight: string;
   wholeSalePrice: number;
 }
-
-export const vehicleTypeSchema: Schema = new Schema<IVehicleType>({
-  name: {
-    type: String
-  }
-});
-
-export const moreDetailSchema: Schema = new Schema<IMoreDetail>({
-  features: {
-    type: String
-  },
-  warranty: {
-    type: String
-  },
-  materialDetails: {
-    type: String
-  },
-  colour: {
-    type: String
-  },
-  madeIn: {
-    type: String
-  }
-});
 
 export const priceDetailSchema: Schema = new Schema<IPriceDetail>({
   mrp: {
@@ -133,9 +98,6 @@ export const priceDetailSchema: Schema = new Schema<IPriceDetail>({
   },
   sellingPrice: {
     type: Number
-  },
-  productDescription: {
-    type: String
   },
   qty: {
     type: Number
@@ -170,6 +132,9 @@ export const bulkOrdersSchema: Schema = new Schema<IBulkOrderDetail>({
   width: {
     type: String
   },
+  weight: {
+    type: String
+  },
   height: {
     type: String
   },
@@ -186,17 +151,33 @@ export const bulkOrdersSchema: Schema = new Schema<IBulkOrderDetail>({
 
 const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
   {
-    // offerType: {
-    //   type: String,
-    //   enum: OfferType,
-    //   required: true
-    // },
+    makeType: {
+      type: String,
+      enum: ProductType
+    },
     oemUserName: {
       type: String
     },
-    itemName: {
-      type: String,
-      required: true
+    brandName: {
+      type: String
+    },
+    vehicleType: {
+      type: String
+    },
+    vehicleModel: {
+      type: String
+    },
+    variants: {
+      type: String
+    },
+    fuelType: {
+      type: String
+    },
+    oemPart: {
+      type: String
+    },
+    aftermarketPartSku: {
+      type: String
     },
     productCategory: {
       type: [catalogSchema]
@@ -204,57 +185,59 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     productSubCategory: {
       type: [catalogSchema]
     },
-    productBrand: {
-      type: String
-    },
-
-    unit: {
-      type: String
-    },
-    mrp: {
-      type: Number,
-      required: true
-    },
-    productDescription: {
-      type: String
-    },
-    showPrice: {
-      type: Boolean,
-      default: true
-    },
-    productImageList: {
-      type: {
-        profile: IImageSchema,
-        first: IImageSchema,
-        second: IImageSchema,
-        third: IImageSchema
-      }
-    },
-
-    productType: {
-      type: String,
-      enum: ProductType
-    },
-    vehicleType: {
-      type: [vehicleTypeSchema]
-    },
     startYear: {
       type: Date
     },
     endYear: {
       type: Date
     },
-    modelName: {
-      type: String
-    },
-    manufactureName: {
-      type: String
-    },
     oemBrandPartNumber: {
+      type: String
+    },
+    partManufactureName: {
+      type: String
+    },
+    productSuggest: {
+      type: String
+    },
+    productDescription: {
+      type: String
+    },
+    features: {
+      type: String
+    },
+    inTheBox: {
+      type: String
+    },
+    warranty: {
+      type: Number
+    },
+    materialDetails: {
+      type: String
+    },
+    colour: {
+      type: String
+    },
+    madeIn: {
+      type: String
+    },
+    returnPolicy: {
       type: String
     },
     manufacturePartNumber: {
       type: String
+    },
+    productImageList: {
+      type: {
+        // profile: IImageSchema,
+        first: IImageSchema,
+        second: IImageSchema,
+        third: IImageSchema
+      }
+    },
+    showPrice: {
+      type: Boolean,
+      default: true
     },
     priceDetail: {
       type: priceDetailSchema
@@ -264,9 +247,6 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     shippingAddress: {
       type: storeContactSchema
-    },
-    moreDetail: {
-      type: moreDetailSchema
     },
     status: {
       type: String,

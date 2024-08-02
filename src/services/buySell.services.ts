@@ -255,7 +255,7 @@ export class BuySellService {
     return buyVehicleList;
   }
 
-  async getAllBuyVehicles(query: any) {
+  async getAllBuyVehicles(query: any, pageNo?: number, pageSize?: number) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
@@ -269,6 +269,8 @@ export class BuySellService {
     }
     delete filterParams.state;
     delete filterParams.coordinates;
+    delete filterParams.pageNo;
+    delete filterParams.pageSize;
 
     console.log(filterParams, query, 'dfmkl');
     const result = await buySellVehicleInfo.aggregate([
@@ -294,7 +296,14 @@ export class BuySellService {
           as: 'vehicleInfo'
         }
       },
-      { $unwind: { path: '$vehicleInfo' } }
+      { $unwind: { path: '$vehicleInfo' } },
+      { $sort: { distance: 1 } },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
     ]);
     return result;
   }
