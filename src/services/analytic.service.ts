@@ -1886,6 +1886,52 @@ export class AnalyticService {
     return finalResult;
   }
 
+  async getOverallPartnerUsers(
+    role: string,
+    userName: string,
+    firstDate: any,
+    lastDate: any
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      module: 'SCREEN_MODE'
+      // event: 'OFFLINE'
+    };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    const queryFilter: any = await PartnerAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $project: {
+          _id: 1,
+          platform: 1,
+          module: 1,
+          event: 1,
+          totalTimeDuration: 1
+        }
+      }
+    ]);
+    return queryFilter;
+  }
+
   async createVehicleAnalytic(requestData: any): Promise<any> {
     const userData: any = {};
     const eventResult = requestData;

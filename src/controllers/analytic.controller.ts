@@ -625,6 +625,38 @@ export class AnalyticController {
     }
   };
 
+  getOverallPartnerUsers = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate } = req.body;
+    // const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+    //   req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getOverallPartnerUsers(
+        role,
+        userName,
+        firstDate,
+        lastDate
+        // state,
+        // city,
+        // storeId,
+        // platform,
+        // oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   createVehicleAnalytic = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

@@ -823,6 +823,40 @@ export class ProductService {
     return product;
   }
 
+  async partnerProductFilter(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    userType?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {};
+
+    console.log(userName, role, oemId, 'partner');
+
+    const product = await PartnersPoduct.aggregate([
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'employeeCompanyDetails'
+        }
+      },
+      { $unwind: { path: '$employeeCompanyDetails' } },
+      {
+        $match: {
+          'employeeCompanyDetails.companyType': userType
+        }
+      },
+      {
+        $project: { employeeCompanyDetails: 0 }
+      }
+    ]);
+
+    return product;
+  }
+
   async getPartnerProductById(partnerProductId: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get event initiated>');
 
@@ -909,7 +943,7 @@ export class ProductService {
 
     const productImageList: Partial<IProductImageList> | any =
       prelistProduct.productImageList || {
-        // profile: {},
+        profile: {},
         first: {},
         second: {},
         third: {}
@@ -918,7 +952,7 @@ export class ProductService {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' =
+      const fileName: 'first' | 'second' | 'third' | 'profile' =
         file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         partnerProductId,
