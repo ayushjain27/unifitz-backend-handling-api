@@ -909,7 +909,7 @@ export class ProductService {
 
     const productImageList: Partial<IProductImageList> | any =
       prelistProduct.productImageList || {
-        profile: {},
+        // profile: {},
         first: {},
         second: {},
         third: {}
@@ -918,8 +918,8 @@ export class ProductService {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' | 'profile' =
-        file.originalname?.split('.')[0] || 'profie';
+      const fileName: 'first' | 'second' | 'third' =
+        file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         partnerProductId,
         fileName,

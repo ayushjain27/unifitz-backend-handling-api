@@ -260,7 +260,6 @@ export class BuySellService {
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
     const filterParams = { ...query, status: 'ACTIVE' };
-
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
       filterParams['$or'] = [
@@ -268,12 +267,35 @@ export class BuySellService {
         { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
-
     delete filterParams.state;
-    console.log(filterParams, 'dfmkl');
-    const result = await buySellVehicleInfo
-      .find({ ...filterParams })
-      .populate('vehicleInfo');
+    delete filterParams.coordinates;
+
+    console.log(filterParams, query, 'dfmkl');
+    const result = await buySellVehicleInfo.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: query.coordinates
+          },
+          key: 'location',
+          spherical: true,
+          query: filterParams,
+          distanceField: 'distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } }
+    ]);
     return result;
   }
   async getOwnStoreDetails(req: any) {
@@ -528,8 +550,10 @@ export class BuySellService {
     const userResult: any = {};
 
     const query: any = {
-      'vehicleInfo.vehicleType': req.vehicleType
+      'vehicleInfo.vehicleType': req.vehicleType,
+      'userType': req.userType
     };
+
     if (req?.date) {
       // Create start time in UTC at the beginning of the day (00:00:00)
       start = new Date(req.date);
@@ -570,6 +594,12 @@ export class BuySellService {
     if (!req.vehicleType) {
       delete query['vehicleInfo.vehicleType'];
     }
+
+    if (!req.userType) {
+      delete query['userType'];
+    }
+    console.log(query,"dfwel;")
+    
     Logger.debug(query);
     if (role === AdminRole.OEM) {
       userResult.oemUserName = userName;
@@ -660,6 +690,12 @@ export class BuySellService {
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
         if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.userType)) {
+        if (item.userType !== query.userType) {
           return false;
         }
       }

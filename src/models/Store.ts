@@ -46,7 +46,7 @@ export interface IBasicInfo {
   // businessHours for the different
 }
 
-const storeBasicInfoSchema: Schema = new Schema(
+export const storeBasicInfoSchema: Schema = new Schema(
   {
     nameSalutation: {
       type: String,
@@ -147,7 +147,7 @@ export interface IStoreTiming {
   holiday: [string];
 }
 
-const storeTimingSchema: Schema = new Schema(
+export const storeTimingSchema: Schema = new Schema(
   {
     openTime: {
       type: Date
@@ -186,7 +186,7 @@ export interface IVerificationDetails {
   verifyObj: unknown;
 }
 
-const storeDocumentsSchema: Schema = new Schema<IDocuments>(
+export const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
     profile: {
       key: String,
