@@ -243,7 +243,7 @@ export interface IStore {
   verificationDetails?: IVerificationDetails;
 }
 
-export const storeSchema: Schema = new Schema<IStore>(
+const storeSchema: Schema = new Schema<IStore>(
   {
     userId: {
       type: Schema.Types.ObjectId,

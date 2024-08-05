@@ -735,40 +735,6 @@ app.get('/createTemplate', async (req, res) => {
 //   });
 // });
 
-app.get('/update-locations', async (req, res) => {
-  try {
-    // Find all documents in the buySell collection
-    const documents = await buySellVehicleInfo.find({});
-
-    // Process each document
-    for (const doc of documents) {
-      const geoCoordinates = doc.storeDetails?.contactInfo?.geoLocation?.coordinates;
-
-      if (geoCoordinates && geoCoordinates.length === 2) {
-        // Update the document with the new location field
-        await buySellVehicleInfo.findOneAndUpdate(
-          { _id: doc._id },
-          {
-            $set: {
-              location: {
-                type: "Point",
-                coordinates: geoCoordinates
-              }
-            }
-          },
-          { new: true } // Return the updated document
-        );
-      }
-    }
-
-    res.status(200).send('Location fields updated successfully');
-  } catch (error) {
-    console.error('Error during update process:', error);
-    res.status(500).send('An error occurred during the update process');
-  }
-});
-
-
 export default server;
 
 // exports.handler = async (event: { Records: any }) => {

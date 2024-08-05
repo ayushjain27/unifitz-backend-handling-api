@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Schema, Types } from 'mongoose';
-import { IContactInfo, IStore, storeContactSchema, storeSchema } from './Store';
+import { IContactInfo, storeContactSchema } from './Store';
 
 export enum UserType {
   CUSTOMER = 'CUSTOMER',
@@ -83,7 +83,6 @@ export interface IBuySell extends Document {
     type: string;
     coordinates: number[];
   };
-  storeDetails: IStore;
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -96,7 +95,6 @@ export const buySellSchema: Schema = new Schema(
     status: { type: String, enum: Status, default: Status.DRAFT },
     transactionDetails: { type: Schema.Types.Mixed },
     contactInfo: { type: storeContactSchema },
-    storeDetails: { type: storeSchema },
     isOwner: { type: Boolean, required: true },
     isDealer: { type: Boolean, required: true },
     isAuthorised: { type: Boolean, required: true },
