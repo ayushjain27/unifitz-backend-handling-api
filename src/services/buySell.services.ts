@@ -625,10 +625,11 @@ export class BuySellService {
       {
         $match: userResult
       },
+      { $set: { VehicleId: { $toString: '$_id' } } },
       {
         $lookup: {
           from: 'vehicleanalytics',
-          localField: 'vehicleId',
+          localField: 'VehicleId',
           foreignField: 'moduleInformation',
           as: 'vehicleAnalytic'
         }
@@ -691,10 +692,10 @@ export class BuySellService {
           }
         }
       },
-      { $unwind: { path: '$vehicleInfo' } },
-      {
-        $project: { vehicleAnalytic: 0 }
-      }
+      { $unwind: { path: '$vehicleInfo' } }
+      // {
+      //   $project: { vehicleAnalytic: 0 }
+      // }
     ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {

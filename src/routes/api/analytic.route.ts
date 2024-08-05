@@ -135,6 +135,12 @@ router.post(
   analyticController.getActivePartnerUsers
 );
 
+router.post(
+  '/getOverallPartnerUsers',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getOverallPartnerUsers
+);
+
 // ====================Partner analytic api lists end=====================
 // =======================================================================
 

@@ -59,6 +59,7 @@ export const customerDetailsSchema = new Schema({
 });
 
 export interface IBuySell extends Document {
+  _id?: Types.ObjectId | string;
   vehicleId: string;
   storeId: string;
   userId?: string;

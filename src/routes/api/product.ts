@@ -162,6 +162,12 @@ router.get(
   productController.partnerProductGetAll
 );
 
+router.get(
+  '/partner/filter',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.partnerProductFilter
+);
+
 router.get('/partner/productId', productController.getPartnerProductById);
 
 router.put(
