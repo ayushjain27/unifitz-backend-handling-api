@@ -523,11 +523,14 @@ export class BuySellService {
       throw new Error('BuySell Vehicle does not exist');
     }
 
+    const date = new Date();
+
     const updatedVehicle = await buySellVehicleInfo.findOneAndUpdate(
       { vehicleId: statusRequest.buySellVehicleId },
       {
         $set: {
-          status: statusRequest.status
+          status: statusRequest.status,
+          activeDate: statusRequest.status === 'ACTIVE' ? date : null
         }
       },
       { returnDocument: 'after' }
