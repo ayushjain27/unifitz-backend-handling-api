@@ -84,6 +84,7 @@ export interface IBuySell extends Document {
     type: string;
     coordinates: number[];
   };
+  activeDate?: Date
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -114,7 +115,10 @@ export const buySellSchema: Schema = new Schema(
     location: {
       type: { type: String, default: 'Point' },
       coordinates: [{ type: Number }]
-    }
+    },
+    activeDate: {
+      type: Date
+    },
   },
   { timestamps: true, strict: false }
 );

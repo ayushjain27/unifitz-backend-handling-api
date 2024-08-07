@@ -4337,6 +4337,13 @@ node-adm@0.9.1:
   resolved "https://registry.npmjs.org/node-adm/-/node-adm-0.9.1.tgz"
   integrity sha512-npudU9I1l6wUEUcZme6yhe1WTi48nMSM7v2BxqGtE7hO12knzCnRj+IeUmaDdNzNMNiOU8ZYqN6PE6PXX2F/3w==
 
+node-cron@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/node-cron/-/node-cron-3.0.3.tgz#c4bc7173dd96d96c50bdb51122c64415458caff2"
+  integrity sha512-dOal67//nohNgYWb+nWmg5dkFdIwDm8EpeGYMekPMrngV3637lqnX0lbUcCtgibHTz6SEz7DAIjKvKDFYCnO1A==
+  dependencies:
+    uuid "8.3.2"
+
 node-fetch@^2.6.1, node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.7.tgz"

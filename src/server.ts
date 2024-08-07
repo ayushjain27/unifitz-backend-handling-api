@@ -42,8 +42,10 @@ import { rateLimit } from 'express-rate-limit';
 import Store from './models/Store';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
+import buySellVehicleInfo from './models/BuySell';
 
 const app = express();
+// const cron = require('node-cron');
 // Connect to MongoDB
 
 AWS.config.update({
@@ -364,6 +366,23 @@ app.get('/createTemplate', async (req, res) => {
     }
   });
 });
+
+// cron.schedule('0 0 * * *', async () => {
+//   console.log('Running cron job to update vehicle status');
+
+//   const now = new Date();
+//   const cutoffDate = new Date(now.setDate(now.getDate() - 45));
+
+//   try {
+//     const result = await buySellVehicleInfo.updateMany(
+//       { activeDate: { $lt: cutoffDate }, status: { $ne: 'INACTIVE' } },
+//       { $set: { status: 'INACTIVE' } }
+//     );
+//     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+//   } catch (err) {
+//     console.error('Error updating vehicle status:', err);
+//   }
+// });
 
 // app.post('/sendToSQS', async (req, res) => {
 //   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
