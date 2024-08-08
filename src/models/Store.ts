@@ -184,6 +184,8 @@ export interface IVerificationDetails {
   documentType: DocType;
   gstAdhaarNumber?: string;
   verifyObj: unknown;
+  verifyName: string;
+  verifyAddress: string;
 }
 
 export const storeDocumentsSchema: Schema = new Schema<IDocuments>(
