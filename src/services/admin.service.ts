@@ -347,6 +347,7 @@ export class AdminService {
             verifyResult = await this.surepassService.getGstDetails(
               payload.documentNo
             );
+            displayFields.businessName = verifyResult?.business_name;
             displayFields.address = verifyResult?.address;
             break;
           default:
