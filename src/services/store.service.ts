@@ -218,16 +218,19 @@ export class StoreService {
       { 'verificationDetails.verifyObj': 0 }
     );
     await sendNotification(
-      `${statusRequest.profileStatus === 'ONBOARDED'
-        ? 'Store Onboarded'
-        : 'Store Rejected'
+      `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Store Onboarded'
+          : 'Store Rejected'
       }`,
-      `${statusRequest.profileStatus === 'ONBOARDED'
-        ? 'Congratulations 😊'
-        : 'Sorry 😞'
-      } Your store has been ${statusRequest.profileStatus === 'ONBOARDED'
-        ? 'onboarded'
-        : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Congratulations 😊'
+          : 'Sorry 😞'
+      } Your store has been ${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'onboarded'
+          : `rejected due to this reason: ${statusRequest.rejectionReason}`
       }`,
       phoneNumber,
       'STORE_OWNER',
@@ -769,7 +772,7 @@ export class StoreService {
         },
         { verificationDetails: 0 }
       ).lean();
-      Logger.debug(`${phoneNumber} ${role} user resulttttttttt`)
+      Logger.debug(`${phoneNumber} ${role} user resulttttttttt`);
       if (role !== 'ADMIN' && role !== 'OEM') {
         const userDetails = await User.findOne({ phoneNumber, role }).lean();
         if (_.isEmpty(storeDetails)) {
@@ -823,7 +826,7 @@ export class StoreService {
       throw new Error(err);
     }
   }
-  
+
   async approveBusinessVerification(
     payload: ApproveBusinessVerifyRequest,
     phoneNumber: string,
@@ -841,7 +844,6 @@ export class StoreService {
       ).lean();
 
       if (role !== 'ADMIN' && role !== 'OEM') {
-
         const userDetails = await User.findOne({ phoneNumber, role }).lean();
         if (_.isEmpty(storeDetails)) {
           throw new Error('Store does not exist');
@@ -893,7 +895,18 @@ export class StoreService {
       {
         $set: {
           isVerified,
-          verificationDetails: { documentType, verifyObj: verifyResult, gstAdhaarNumber: verifyResult?.gstin, businessName: verifyResult?.business_name }
+          verificationDetails: {
+            documentType,
+            verifyName: verifyResult?.business_name || verifyResult?.full_name,
+            verifyAddress:
+              documentType === 'GST'
+                ? String(verifyResult?.address)
+                : String(
+                    `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
+                  ),
+            verifyObj: verifyResult,
+            gstAdhaarNumber
+          }
         }
       },
       {
@@ -913,7 +926,9 @@ export class StoreService {
     Logger.info('<Service>:<StoreService>:<Initiate Verifying user business>');
     // validate the store from user phone number and user id
     let verifyResult: any = {};
-    const gstAdhaarNumber = payload?.gstAdhaarNumber ? payload?.gstAdhaarNumber : '';
+    const gstAdhaarNumber = payload?.gstAdhaarNumber
+      ? payload?.gstAdhaarNumber
+      : '';
 
     try {
       // get the store data
@@ -953,15 +968,18 @@ export class StoreService {
     }
   }
 
-  async getAllReviews(userName: string, role: string, oemId: string): Promise<IStoreReview[]> {
+  async getAllReviews(
+    userName: string,
+    role: string,
+    oemId: string
+  ): Promise<IStoreReview[]> {
     Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
-    let reviewResponse: any = []
+    let reviewResponse: any = [];
     console.log(userName, role, oemId);
 
     if (role === 'ADMIN' || oemId === 'SERVICEPLUG') {
       reviewResponse = await StoreReview.find({});
-    }
-    else {
+    } else {
       reviewResponse = await StoreReview.aggregate([
         {
           $lookup: {
@@ -975,13 +993,11 @@ export class StoreService {
         {
           $match: {
             $expr: {
-              $and: [
-                { $eq: ['$storeInfo.oemUserName', userName] }
-              ]
+              $and: [{ $eq: ['$storeInfo.oemUserName', userName] }]
             }
           }
-        },
-      ])
+        }
+      ]);
     }
     return reviewResponse;
   }
@@ -1049,10 +1065,7 @@ export class StoreService {
 
       const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
 
-      await StaticIds.findOneAndUpdate(
-        {},
-        { storeId: newStoreId }
-      );
+      await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
 
       //   ? new Date().getFullYear() * 100
       //   : +lastCreatedStoreId[0].storeId + 1;
@@ -1064,16 +1077,18 @@ export class StoreService {
       storePayload.profileStatus = StoreProfileStatus.DRAFT;
     }
     if (_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)) {
-      storePayload.missingItem = 'Contact Info'
-    } else if (_.isEmpty(storePayload?.storeTiming) && _.isEmpty(store?.storeTiming)) {
-      storePayload.missingItem = 'Store Timing'
+      storePayload.missingItem = 'Contact Info';
+    } else if (
+      _.isEmpty(storePayload?.storeTiming) &&
+      _.isEmpty(store?.storeTiming)
+    ) {
+      storePayload.missingItem = 'Store Timing';
     } else {
-      storePayload.missingItem = ''
+      storePayload.missingItem = '';
     }
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
     }
-
 
     // const newStore = new Store(storePayload);
     if (store) {
@@ -1082,14 +1097,26 @@ export class StoreService {
         { $set: storePayload },
         { returnDocument: 'after' }
       );
-      await sendNotification('Store Updated', 'Your store has updated. It is under review', phoneNumber, role, '');
+      await sendNotification(
+        'Store Updated',
+        'Your store has updated. It is under review',
+        phoneNumber,
+        role,
+        ''
+      );
       Logger.info(
         '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
       );
       return res;
     }
     const newStore = await Store.create(storePayload);
-    await sendNotification('Store Created', 'Your store has created. It is under review', phoneNumber, role, '');
+    await sendNotification(
+      'Store Created',
+      'Your store has created. It is under review',
+      phoneNumber,
+      role,
+      ''
+    );
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -1103,9 +1130,7 @@ export class StoreService {
     role?: string,
     oemId?: string
   ): Promise<any> {
-    Logger.info(
-      '<Route>:<StoreService>: <StoreService : store get initiated>'
-    );
+    Logger.info('<Route>:<StoreService>: <StoreService : store get initiated>');
     let query: any = {};
 
     query = {
@@ -1136,19 +1161,19 @@ export class StoreService {
         $match: query
       }
     ]);
-      return newStore;
-    }
-    
-    async getAllStorePaginaed(
-      userName?: string,
-      role?: string,
-      userType?: string,
-      status?: string,
-      verifiedStore?: string,
-      oemId?: string,
-      pageNo?: number,
-      pageSize?: number,
-      searchQuery?: string,
+    return newStore;
+  }
+
+  async getAllStorePaginaed(
+    userName?: string,
+    role?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string
   ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -1162,7 +1187,7 @@ export class StoreService {
     };
     if (searchQuery) {
       query.$or = [
-        { 'storeId': new RegExp(searchQuery, 'i') },
+        { storeId: new RegExp(searchQuery, 'i') },
         { 'contactInfo.phoneNumber.primary': new RegExp(searchQuery, 'i') }
       ];
     }
@@ -1220,7 +1245,8 @@ export class StoreService {
     oemId?: string,
     userType?: string,
     status?: string,
-    verifiedStore?: string): Promise<any> {
+    verifiedStore?: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
     );
@@ -1263,7 +1289,7 @@ export class StoreService {
     }
     const overallStatus = {
       profileStatus: status
-    }
+    };
     if (!status) {
       delete query['profileStatus'];
       delete overallStatus['profileStatus'];
@@ -1271,19 +1297,19 @@ export class StoreService {
     const total = await Store.count({ ...overallStatus, ...query });
     if (status === 'ONBOARDED' || !status) {
       onboarded = await Store.count({
-        profileStatus: "ONBOARDED",
+        profileStatus: 'ONBOARDED',
         ...query
       });
     }
     if (status === 'REJECTED' || !status) {
       rejected = await Store.count({
-        profileStatus: "REJECTED",
+        profileStatus: 'REJECTED',
         ...query
       });
     }
     if (status === 'DRAFT' || !status) {
       draft = await Store.count({
-        profileStatus: "DRAFT",
+        profileStatus: 'DRAFT',
         ...query
       });
     }
@@ -1292,23 +1318,23 @@ export class StoreService {
       if (role === AdminRole.OEM) {
         query.oemUserName = userName;
       }
-  
+
       if (role === AdminRole.EMPLOYEE) {
         query.oemUserName = oemId;
       }
-  
+
       if (oemId === 'SERVICEPLUG') {
         delete query['oemUserName'];
       }
 
       partnerdraft = await Store.count({
-        profileStatus: "DRAFT",
+        profileStatus: 'DRAFT',
         ...query
       });
     }
     const pending = await Store.count({
-      profileStatus: "PENDING"
-    })
+      profileStatus: 'PENDING'
+    });
 
     let totalCounts = {
       total,
@@ -1317,7 +1343,7 @@ export class StoreService {
       draft,
       pending,
       partnerdraft
-    }
+    };
 
     return totalCounts;
   }
@@ -1375,10 +1401,10 @@ export class StoreService {
       },
       {
         $match: {
-          'contactInfo.distance': { $lte : 10}
+          'contactInfo.distance': { $lte: 10 }
         }
       },
-      {$limit: 15},
+      { $limit: 15 },
       {
         $project: { 'verificationDetails.verifyObj': 0 }
       }
@@ -1405,5 +1431,4 @@ export class StoreService {
     );
     return stores;
   }
-
 }
