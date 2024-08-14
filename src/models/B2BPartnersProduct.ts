@@ -28,6 +28,41 @@ export const IImageSchema: Schema = new Schema<IImage>({
   }
 });
 
+export interface IState {
+  name: string;
+}
+export const stateSchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export const citySchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    },
+    value: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export interface ICity {
+  name: string;
+  value: string;
+}
+
 export interface IB2BPartnersProduct {
   _id?: string;
   makeType: string;
@@ -61,6 +96,11 @@ export interface IB2BPartnersProduct {
   priceDetail: IPriceDetail;
   bulkOrders: IBulkOrderDetail;
   shippingAddress: IContactInfo;
+  state?: IState[];
+  city?: ICity[];
+  distributor?: boolean;
+  dealer?: boolean;
+  selectAllStateAndCity?: boolean;
   status?: string;
 }
 
@@ -247,6 +287,24 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     shippingAddress: {
       type: storeContactSchema
+    },
+    state: {
+      type: [stateSchema]
+    },
+    city: {
+      type: [citySchema]
+    },
+    distributor: {
+      type: Boolean,
+      default: false
+    },
+    dealer: {
+      type: Boolean,
+      default: false
+    },
+    selectAllStateAndCity: {
+      type: Boolean,
+      default: false
     },
     status: {
       type: String,

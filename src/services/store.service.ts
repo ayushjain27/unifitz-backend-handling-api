@@ -893,7 +893,7 @@ export class StoreService {
       {
         $set: {
           isVerified,
-          verificationDetails: { documentType, verifyObj: verifyResult, gstAdhaarNumber }
+          verificationDetails: { documentType, verifyObj: verifyResult, gstAdhaarNumber: verifyResult?.gstin, businessName: verifyResult?.business_name }
         }
       },
       {

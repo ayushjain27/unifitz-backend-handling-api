@@ -162,7 +162,7 @@ router.get(
   productController.partnerProductGetAll
 );
 
-router.get(
+router.post(
   '/partner/filter',
   roleAuth(ACL.STORE_GET_ALL),
   productController.partnerProductFilter
@@ -183,6 +183,12 @@ router.delete(
 router.post(
   '/partner/updateStatus',
   productController.updatePartnerProductStatus
+);
+
+router.post(
+  '/partner/updateMany',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.updateManyProduct
 );
 
 router.post(
