@@ -852,7 +852,7 @@ export class ProductService {
     if (userType === 'Dealer') {
       query.$or = [
         {
-          'employeeCompanyDetails.companyType': 'Distributer'
+          'partnerDetail.companyType': 'Distributer'
         },
         { dealer: true }
       ];
@@ -883,16 +883,16 @@ export class ProductService {
           from: 'admin_users',
           localField: 'oemUserName',
           foreignField: 'userName',
-          as: 'employeeCompanyDetails'
+          as: 'partnerDetail'
         }
       },
-      { $unwind: { path: '$employeeCompanyDetails' } },
+      { $unwind: { path: '$partnerDetail' } },
       {
         $match: query
-      },
-      {
-        $project: { employeeCompanyDetails: 0 }
       }
+      // {
+      //   $project: { partnerDetail: 0 }
+      // }
     ]);
 
     return product;

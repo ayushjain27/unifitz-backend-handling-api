@@ -594,7 +594,23 @@ export class AdminService {
       userName
     });
 
-    const password = secureRandomPassword.randomPassword();
+    // const password = secureRandomPassword.randomPassword();
+    // const password = secureRandomPassword.randomPassword({
+    //   characters: [
+    //     secureRandomPassword.lower,
+    //     secureRandomPassword.upper,
+    //     secureRandomPassword.digits,
+    //     secureRandomPassword.symbols
+    //   ]
+    // });
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
     const updatedPassword = await this.encryptPassword(password);
     const res = await Admin.findOneAndUpdate(
       { userName: userName },
