@@ -34,7 +34,7 @@ export class AdminService {
     TYPES.SurepassService
   );
 
-  async create(reqBody: IAdmin): Promise<IAdmin> {
+  async create(reqBody: any): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
 
     // Update the password
@@ -56,6 +56,11 @@ export class AdminService {
     console.log(permissions.OEM, 'f;klmk');
     upAdminFields.accessList = permissions.OEM;
     console.log(upAdminFields, 'fw;elk');
+
+    if (reqBody?.documents?.gstData?.business_name) {
+      upAdminFields.documents.gstData.businessName =
+        reqBody?.documents?.gstData?.business_name;
+    }
 
     const newAdmin: IAdmin = (
       await Admin.create(upAdminFields)
@@ -116,7 +121,7 @@ export class AdminService {
     return res;
   }
 
-  async updateUser(reqBody: IAdmin, userName: string): Promise<any> {
+  async updateUser(reqBody: any, userName: string): Promise<any> {
     const user = await this.getAdminUserByUserName(userName);
     if (!user) {
       Logger.error('<Service>:<AdminService>:<Admin User not found>');
@@ -131,6 +136,10 @@ export class AdminService {
         reqBody.updateCount ? Number(reqBody.updateCount) + 1 : 1
       );
       reqBody.status = 'DISABLED';
+    }
+    if (reqBody?.documents?.gstData?.gstin) {
+      reqBody.documents.gstData.businessName =
+        reqBody?.documents?.gstData?.business_name;
     }
     Logger.debug(`${query.updateCount},${reqBody.userName}, ${reqBody}`);
     const res = await Admin.findOneAndUpdate(query, reqBody, {
@@ -585,7 +594,23 @@ export class AdminService {
       userName
     });
 
-    const password = secureRandomPassword.randomPassword();
+    // const password = secureRandomPassword.randomPassword();
+    // const password = secureRandomPassword.randomPassword({
+    //   characters: [
+    //     secureRandomPassword.lower,
+    //     secureRandomPassword.upper,
+    //     secureRandomPassword.digits,
+    //     secureRandomPassword.symbols
+    //   ]
+    // });
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
     const updatedPassword = await this.encryptPassword(password);
     const res = await Admin.findOneAndUpdate(
       { userName: userName },

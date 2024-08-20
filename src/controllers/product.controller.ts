@@ -619,7 +619,13 @@ export class ProductController {
       const userName = req?.userId;
       const role = req?.role;
       const oemId = req?.query?.oemId;
-      const userType = req?.query?.userType;
+      const userType = req?.body?.userType;
+      const vehicleType = req?.body?.vehicleType;
+      const vehicleModel = req?.body?.vehicleModel;
+      const brandName = req?.body?.brandName;
+      const makeType = req?.body?.makeType;
+      const productCategory = req?.body?.productCategory;
+      const productSubCategory = req?.body?.productSubCategory;
       // const role = req?.role;
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
@@ -628,7 +634,13 @@ export class ProductController {
         userName,
         role,
         oemId as string,
-        userType as string
+        userType as string,
+        vehicleType as string,
+        vehicleModel as string,
+        brandName as string,
+        makeType as string,
+        productCategory,
+        productSubCategory
       );
       res.send({
         message: 'Partner Product obtained successfully',
@@ -720,6 +732,31 @@ export class ProductController {
         req.body
       );
       res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateManyProduct = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+
+      const result = await this.productService.updateManyProduct(
+        userName,
+        role,
+        oemId as string,
+        req.body
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
         result
       });
     } catch (err) {

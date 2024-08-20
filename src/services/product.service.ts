@@ -350,6 +350,7 @@ export class ProductService {
       review: string;
       storeId: string;
       rating: number;
+      userName: string;
     },
     custPhoneNumber: string
   ) {
@@ -382,7 +383,8 @@ export class ProductService {
       productId: new Types.ObjectId(productReviewPayload.productId),
       name: store?.basicInfo?.ownerName || customer?.fullName,
       storeId: productReviewPayload?.storeId,
-      userId: customer._id
+      userId: customer?._id,
+      userName: productReviewPayload?.userName || ''
     };
 
     newProdReview = await ProductReview.create(newProdReview);
@@ -827,12 +829,55 @@ export class ProductService {
     userName: string,
     role?: string,
     oemId?: string,
-    userType?: string
+    userType?: string,
+    vehicleType?: string,
+    vehicleModel?: string,
+    brandName?: string,
+    makeType?: string,
+    productCategory?: any,
+    productSubCategory?: any
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
-    const query: any = {};
-
-    console.log(userName, role, oemId, 'partner');
+    let query: any = {};
+    query = {
+      // 'employeeCompanyDetails.companyType': userType,
+      vehicleType: vehicleType,
+      vehicleModel: vehicleModel,
+      brandName: brandName,
+      makeType: makeType
+      // productCategory: productCategory,
+      // productSubCategory: productSubCategory
+    };
+    if (userType === 'Distributer') {
+      query.distributor = true;
+    }
+    if (userType === 'Dealer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { dealer: true }
+      ];
+    }
+    if (!vehicleType) {
+      delete query['vehicleType'];
+    }
+    if (!vehicleModel) {
+      delete query['vehicleModel'];
+    }
+    if (!brandName) {
+      delete query['brandName'];
+    }
+    if (!makeType) {
+      delete query['makeType'];
+    }
+    if (_.isEmpty(productCategory)) {
+      delete query['productCategory'];
+    }
+    if (_.isEmpty(productSubCategory)) {
+      delete query['productSubCategory'];
+    }
+    console.log(userName, role, oemId, query, 'partner');
 
     const product = await PartnersPoduct.aggregate([
       {
@@ -840,18 +885,16 @@ export class ProductService {
           from: 'admin_users',
           localField: 'oemUserName',
           foreignField: 'userName',
-          as: 'employeeCompanyDetails'
+          as: 'partnerDetail'
         }
       },
-      { $unwind: { path: '$employeeCompanyDetails' } },
+      { $unwind: { path: '$partnerDetail' } },
       {
-        $match: {
-          'employeeCompanyDetails.companyType': userType
-        }
-      },
-      {
-        $project: { employeeCompanyDetails: 0 }
+        $match: query
       }
+      // {
+      //   $project: { partnerDetail: 0 }
+      // }
     ]);
 
     return product;
@@ -926,6 +969,42 @@ export class ProductService {
       );
 
     return productResult;
+  }
+
+  async updateManyProduct(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    allData?: any
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {};
+    let updateData: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    console.log(allData, 'allDataallDataallData');
+
+    if (allData?.state) updateData = { $set: { state: allData?.state } };
+    if (allData?.city) updateData = { $set: { city: allData?.city } };
+    if (allData?.distributor === true || allData?.distributor === false) {
+      updateData = { $set: { distributor: allData?.distributor } };
+    }
+    if (allData?.dealer === true || allData?.dealer === false) {
+      updateData = { $set: { dealer: allData?.dealer } };
+    }
+
+    const product = await PartnersPoduct.updateMany(query, updateData);
+
+    return product;
   }
 
   async updatePartnerProductImages(

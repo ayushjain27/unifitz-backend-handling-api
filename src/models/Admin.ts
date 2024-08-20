@@ -251,15 +251,15 @@ const adminSchema: Schema = new Schema<IAdmin>(
       docURL: String
     },
     category: {
-      type: [storeCatalogMapSchema],
+      type: [storeCatalogMapSchema]
       // required: true
     },
     subCategory: {
-      type: [storeCatalogMapSchema],
+      type: [storeCatalogMapSchema]
       // required: false
     },
     brand: {
-      type: [storeCatalogMapSchema],
+      type: [storeCatalogMapSchema]
       // required: false
     },
     contactInfo: {
@@ -274,11 +274,11 @@ const adminSchema: Schema = new Schema<IAdmin>(
     productCategory: {
       type: {
         category: {
-          type: [productCateoryMapSchema],
+          type: [productCateoryMapSchema]
           // required: true
         },
         subCategory: {
-          type: [productSubCateoryMapSchema],
+          type: [productSubCateoryMapSchema]
           // required: false
         },
         brand: {
@@ -295,11 +295,11 @@ const adminSchema: Schema = new Schema<IAdmin>(
         type: String
       },
       businessOpenTime: {
-        type: String,
+        type: String
         // required: true
       },
       businessCloseTime: {
-        type: String,
+        type: String
         // required: true
       },
       memberShip: {
