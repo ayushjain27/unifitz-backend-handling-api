@@ -7,6 +7,7 @@ export interface IProductReview {
   rating: number;
   storeId?: string;
   name?: string;
+  userName?: string;
 }
 
 const productReviewSchema: Schema = new Schema<IProductReview>(
@@ -33,6 +34,9 @@ const productReviewSchema: Schema = new Schema<IProductReview>(
     name: {
       type: String
     },
+    userName: {
+      type: String
+    }
   },
   { timestamps: true }
 );

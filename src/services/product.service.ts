@@ -350,6 +350,7 @@ export class ProductService {
       review: string;
       storeId: string;
       rating: number;
+      userName: string;
     },
     custPhoneNumber: string
   ) {
@@ -382,7 +383,8 @@ export class ProductService {
       productId: new Types.ObjectId(productReviewPayload.productId),
       name: store?.basicInfo?.ownerName || customer?.fullName,
       storeId: productReviewPayload?.storeId,
-      userId: customer._id
+      userId: customer?._id,
+      userName: productReviewPayload?.userName || ''
     };
 
     newProdReview = await ProductReview.create(newProdReview);
