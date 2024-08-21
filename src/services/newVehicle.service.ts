@@ -102,6 +102,42 @@ export class NewVehicleInfoService {
     return vehicle;
   }
 
+  async getVehiclePaginated(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number
+  ) {
+    const query: any = {};
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const productReviews = await NewVehicle.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return productReviews;
+  }
+
   async getById(vehicleID: string): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<get vehicle initiated>');
 

@@ -33,6 +33,12 @@ router.post(
   newVehicleController.getAllVehicle
 );
 
+router.get(
+  '/paginated',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.getVehiclePaginated
+);
+
 router.get('/getById', newVehicleController.getById);
 router.put('/update/:vehicleId', newVehicleController.update);
 router.delete('/:vehicleId', newVehicleController.delete);

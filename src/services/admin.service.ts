@@ -595,14 +595,7 @@ export class AdminService {
     });
 
     // const password = secureRandomPassword.randomPassword();
-    // const password = secureRandomPassword.randomPassword({
-    //   characters: [
-    //     secureRandomPassword.lower,
-    //     secureRandomPassword.upper,
-    //     secureRandomPassword.digits,
-    //     secureRandomPassword.symbols
-    //   ]
-    // });
+
     const password = secureRandomPassword.randomPassword({
       characters: [
         { characters: secureRandomPassword.upper, exactly: 3 },
