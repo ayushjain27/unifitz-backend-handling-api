@@ -68,7 +68,7 @@ export class NewVehicleInfoService {
       if (fileName === 'profile') {
         documents.profile = { key, docURL: url };
       } else {
-        documents.storeImageList[fileName] = { key, docURL: url };
+        documents.vehicleImageList[fileName] = { key, docURL: url };
       }
     }
     const res = await NewVehicle.findOneAndUpdate(
