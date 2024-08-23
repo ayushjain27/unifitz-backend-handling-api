@@ -50,7 +50,6 @@ export interface IUserInfo extends Document {
   address: string;
   city: string;
   state: string; //<String>
-  pincode: string; //<string>
   geoLocation: {
     type: string;
     coordinates: number[];
@@ -82,9 +81,6 @@ export const userInfoSchema: Schema = new Schema(
       type: String
     },
     city: {
-      type: String
-    },
-    pincode: {
       type: String
     }
   },

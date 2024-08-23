@@ -275,17 +275,6 @@ export class AnalyticService {
       }
     }
 
-    // if (requestData.event === 'IMPRESSION_COUNT') {
-    //   const getEventAnalytic = await EventAnalyticModel.findOne({
-    //     'userInformation.userId': userResult?._id || requestData.userId,
-    //     moduleInformation: requestData?.moduleInformation,
-    //     platform: requestData?.platform
-    //   });
-    //   Logger.debug(`${JSON.stringify(getEventAnalytic)}, getEventAnalytic`);
-    //   if (!_.isEmpty(getEventAnalytic)) {
-    //     return 'the impression is already created this store';
-    //   }
-    // }
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
     }).lean();
@@ -293,7 +282,7 @@ export class AnalyticService {
     userData.userId = userResult?._id || requestData.userId;
     userData.fullName = customerResponse?.fullName || '';
     userData.email = customerResponse?.email || '';
-    userData.phoneNumber = userResult?.phoneNumber || requestData.phoneNumber;
+    userData.phoneNumber = requestData.phoneNumber || '';
     userData.geoLocation = {
       type: 'Point',
       coordinates: requestData?.coordinates
@@ -301,7 +290,6 @@ export class AnalyticService {
     userData.address = requestData?.address || '';
     userData.state = requestData?.state || '';
     userData.city = requestData?.city || '';
-    userData.pincode = requestData?.pincode || '';
 
     eventResult.userInformation = userData;
 
@@ -901,7 +889,7 @@ export class AnalyticService {
     const finalResult = AllEventResult.map((val: any) => {
       const objectData = queryFilter.find((res: any) => res.name === val?.name);
       return {
-        name: objectData?.name,
+        name: val?.name,
         count: objectData?.count,
         total: val?.count
       };
@@ -914,26 +902,11 @@ export class AnalyticService {
     const userData: any = {};
     const eventResult = requestData;
     let customerResponse: any = {};
+
     userResult = await User.findOne({
       _id: new Types.ObjectId(requestData.userId)
     })?.lean();
 
-    // if (_.isEmpty(userResult)) {
-    //   throw new Error('User does not exist');
-    // }
-
-    // if (requestData.event === 'IMPRESSION_COUNT') {
-    //   const getPlusFeatureAnalytic = await PlusFeatureAnalyticModel.findOne({
-    //     'userInformation.userId': userResult?._id || requestData.userId,
-    //     moduleInformation: requestData?.moduleInformation
-    //   });
-    //   Logger.debug(
-    //     `${JSON.stringify(getPlusFeatureAnalytic)}, getPlusFeatureAnalytic`
-    //   );
-    //   if (!_.isEmpty(getPlusFeatureAnalytic)) {
-    //     return 'the impression is already created';
-    //   }
-    // }
     if (requestData?.phoneNumber || !_.isEmpty(userResult)) {
       customerResponse = await Customer.findOne({
         phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
@@ -942,8 +915,7 @@ export class AnalyticService {
     userData.userId = userResult?._id || requestData.userId || '';
     userData.fullName = customerResponse?.fullName || '';
     userData.email = customerResponse?.email || '';
-    userData.phoneNumber =
-      userResult?.phoneNumber || requestData.phoneNumber || '';
+    userData.phoneNumber = requestData.phoneNumber || '';
     userData.geoLocation = {
       type: 'Point',
       coordinates: requestData?.coordinates
@@ -951,7 +923,6 @@ export class AnalyticService {
     userData.address = requestData?.address || '';
     userData.state = requestData?.state || '';
     userData.city = requestData?.city || '';
-    userData.pincode = requestData?.pincode || '';
 
     eventResult.userInformation = userData;
 
@@ -1088,7 +1059,7 @@ export class AnalyticService {
     const finalResult = AllEventResult.map((val: any) => {
       const objectData = queryFilter.find((res: any) => res.name === val?.name);
       return {
-        name: objectData?.name,
+        name: val?.name,
         count: objectData?.count,
         total: val?.count
       };
@@ -1587,18 +1558,7 @@ export class AnalyticService {
   }
 
   async createPartnerAnalytic(requestData: any): Promise<any> {
-    let userResult: any = {};
-    const userData: any = {};
     const eventResult = requestData;
-
-    const getByPhoneNumber = {
-      'contactInfo.phoneNumber.primary': requestData.phoneNumber
-    };
-    userResult = await Store.findOne(getByPhoneNumber);
-
-    if (_.isEmpty(userResult)) {
-      throw new Error('Store does not exist');
-    }
 
     if (requestData.event === 'ONLINE' || requestData.event === 'OFFLINE') {
       const jsonResult = {
@@ -1620,11 +1580,8 @@ export class AnalyticService {
       }
     }
 
-    eventResult.userId = userResult?.userId;
-    eventResult.fullName = userResult?.basicInfo?.ownerName || '';
-    eventResult.email = userResult?.contactInfo?.email || '';
-    eventResult.phoneNumber =
-      userResult?.contactInfo?.phoneNumber?.primary || requestData.phoneNumber;
+    eventResult.userId = requestData?.userId || '';
+    eventResult.phoneNumber = requestData.phoneNumber || '';
     eventResult.moduleInformation = requestData?.moduleInformation;
 
     Logger.info(
@@ -2216,7 +2173,7 @@ export class AnalyticService {
     const finalResult = AllEventResult.map((val: any) => {
       const objectData = queryFilter.find((res: any) => res.name === val?.name);
       return {
-        name: objectData?.name,
+        name: val?.name,
         count: objectData?.count,
         total: val?.count
       };

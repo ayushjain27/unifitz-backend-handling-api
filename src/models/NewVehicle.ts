@@ -44,7 +44,6 @@ export enum FuelType {
 // }
 
 export interface IDocuments {
-  profile: { key: string; docURL: string };
   vehicleImageList: {
     first: { key: string; docURL: string };
     second: { key: string; docURL: string };
@@ -56,10 +55,6 @@ export interface IDocuments {
 
 const vehicleDocumentsSchema: Schema = new Schema<IDocuments>(
   {
-    profile: {
-      key: String,
-      docURL: String
-    },
     vehicleImageList: {
       type: {
         first: { key: String, docURL: String },
@@ -101,6 +96,7 @@ export interface INewVehicle {
   oemUserName?: string;
   documents: IDocuments;
   vehicleNameSuggest: string;
+  videoUrl: string;
   vehicle: string;
   fuelType: string;
   sku: string;
@@ -155,6 +151,9 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
       type: vehicleDocumentsSchema
     },
     vehicleNameSuggest: {
+      type: String
+    },
+    videoUrl: {
       type: String
     },
     vehicle: {

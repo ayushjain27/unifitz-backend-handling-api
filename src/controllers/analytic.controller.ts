@@ -552,8 +552,8 @@ export class AnalyticController {
         requestData
       );
       res.send({
-        message: 'OK !!!!'
-        // result
+        message: 'OK !!!!',
+        result
       });
     } catch (err) {
       Logger.error(err.message);

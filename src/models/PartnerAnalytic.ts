@@ -32,9 +32,9 @@ export interface IPartnerAnalytic {
   module: string;
   event: string;
   userId: string;
-  fullName: string;
+  // fullName: string;
   phoneNumber: string;
-  email: string;
+  // email: string;
   moduleInformation: string;
   eventResultId: string;
   message: string;
@@ -63,15 +63,15 @@ const partnerAnalyticSchema: Schema = new Schema(
     userId: {
       type: String
     },
-    fullName: {
-      type: String
-    },
+    // fullName: {
+    //   type: String
+    // },
     phoneNumber: {
       type: String
     },
-    email: {
-      type: String
-    },
+    // email: {
+    //   type: String
+    // },
     moduleInformation: {
       type: String
     },
