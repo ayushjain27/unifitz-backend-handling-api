@@ -43,6 +43,8 @@ import Store from './models/Store';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
+import { sendNotification } from './utils/common';
+import Customer from './models/Customer';
 // import cron from 'node-cron';
 
 const app = express();
@@ -133,8 +135,8 @@ app.get('/category', async (req, res) => {
       a.displayOrder > b.displayOrder
         ? 1
         : b.displayOrder > a.displayOrder
-          ? -1
-          : 0
+        ? -1
+        : 0
     )
     .map(
       ({
@@ -264,13 +266,14 @@ const server = app.listen(port, () =>
 async function updateSlugs() {
   try {
     // Use aggregation pipeline in updateMany
-    await Admin.updateMany(// Only update documents that have storeId
-      { $set: { accessList: permissions.OEM } },
+    await Admin.updateMany(
+      // Only update documents that have storeId
+      { $set: { accessList: permissions.OEM } }
     );
 
     console.log('All documents have been updated with slugs.');
   } catch (err) {
-    console.log(err, "sa;lkfndj")
+    console.log(err, 'sa;lkfndj');
   }
 }
 
@@ -287,6 +290,25 @@ async function updateSlug() {
     console.log(err, "sa;lkfndj")
   }
 }
+// async function updateSlug() {
+//   try {
+//     // Use aggregation pipeline in updateMany
+//     let customers = await Customer.find({});
+//     for (const customer of customers) {
+//       await sendNotification(
+//         '🚗 New Features Alert! 🚗',
+//         'Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now!',
+//         customer?.phoneNumber,
+//         'USER',
+//         ''
+//       );
+//     }
+//     console.log('All documents have been updated with slugs.');
+//     return 'Done';
+//   } catch (err) {
+//     console.log(err, 'sa;lkfndj');
+//   }
+// }
 
 app.get('/slug', async (req, res) => {
   updateSlug();
@@ -382,7 +404,7 @@ cron.schedule('0 0 * * *', async () => {
   try {
     const result = await buySellVehicleInfo.updateMany(
       { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
-      { $set: { status: 'INACTIVE' , activeDate: null} }
+      { $set: { status: 'INACTIVE', activeDate: null } }
     );
     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
   } catch (err) {
