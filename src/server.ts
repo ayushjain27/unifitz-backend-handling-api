@@ -276,38 +276,38 @@ async function updateSlugs() {
   }
 }
 
-// async function updateSlug() {
-//   try {
-//     // Use aggregation pipeline in updateMany
-//     await Admin.findOneAndUpdate(// Only update documents that have storeId
-//       { userName: 'SERVICEPLUG' },
-//       { $set: { accessList: permissions.OEM } },
-//     );
-
-//     console.log('All documents have been updated with slugs.');
-//   } catch (err) {
-//     console.log(err, "sa;lkfndj")
-//   }
-// }
 async function updateSlug() {
   try {
     // Use aggregation pipeline in updateMany
-    let stores = await Store.find({});
-    for (const store of stores) {
-      await sendNotification(
-        '🚗 New Features Alert! 🚗',
-        'Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now!',
-        store?.contactInfo?.phoneNumber?.primary,
-        'STORE_OWNER',
-        ''
-      );
-    }
+    await Admin.findOneAndUpdate(// Only update documents that have storeId
+      { userName: 'SERVICEPLUG' },
+      { $set: { accessList: permissions.OEM } },
+    );
+
     console.log('All documents have been updated with slugs.');
-    return 'Done';
   } catch (err) {
-    console.log(err, 'sa;lkfndj');
+    console.log(err, "sa;lkfndj")
   }
 }
+// async function updateSlug() {
+//   try {
+//     // Use aggregation pipeline in updateMany
+//     let stores = await Store.find({});
+//     for (const store of stores) {
+//       await sendNotification(
+//         '🚗 New Features Alert! 🚗',
+//         'Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now!',
+//         store?.contactInfo?.phoneNumber?.primary,
+//         'STORE_OWNER',
+//         ''
+//       );
+//     }
+//     console.log('All documents have been updated with slugs.');
+//     return 'Done';
+//   } catch (err) {
+//     console.log(err, 'sa;lkfndj');
+//   }
+// }
 
 app.get('/slug', async (req, res) => {
   updateSlug();
