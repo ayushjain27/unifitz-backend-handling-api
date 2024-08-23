@@ -76,10 +76,31 @@ const vehicleDocumentsSchema: Schema = new Schema<IDocuments>(
   }
 );
 
+export interface IColorCode {
+  color?: string;
+  colorName?: string;
+}
+
+export const colorCodeSchema: Schema = new Schema(
+  {
+    color: {
+      type: String
+    },
+    colorName: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
 export interface INewVehicle {
   _id?: Types.ObjectId;
   oemUserName?: string;
   documents: IDocuments;
+  vehicleNameSuggest: string;
   vehicle: string;
   fuelType: string;
   sku: string;
@@ -91,6 +112,7 @@ export interface INewVehicle {
   variant: string;
   color: string;
   colorName: string;
+  colorCode: IColorCode[];
   price: string;
   motors: string;
   battery: string;
@@ -132,6 +154,9 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     documents: {
       type: vehicleDocumentsSchema
     },
+    vehicleNameSuggest: {
+      type: String
+    },
     vehicle: {
       type: String,
       enum: VehicleType
@@ -163,11 +188,14 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     variant: {
       type: String
     },
-    color: {
-      type: String
-    },
-    colorName: {
-      type: String
+    // color: {
+    //   type: String
+    // },
+    // colorName: {
+    //   type: String
+    // },
+    colorCode: {
+      type: [colorCodeSchema]
     },
     price: {
       type: String

@@ -97,6 +97,40 @@ export class NewVehicleInfoController {
     }
   };
 
+  getVehiclePaginated = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<VehicleController>:<Vehicle controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query.oemId;
+
+    try {
+      const result = await this.vehicleInfoService.getVehiclePaginated(
+        userName,
+        role,
+        oemId as string,
+        pageNo,
+        pageSize
+      );
+      res.send({
+        message: 'New Vehicles Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<VehicleController>:<Getting ID>');
     try {

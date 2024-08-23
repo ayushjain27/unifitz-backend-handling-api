@@ -20,7 +20,7 @@ import {
   OverallStoreRatingResponse,
   PartnersProductStoreRatingResponse
 } from '../interfaces';
-import { AdminRole } from '../models/Admin';
+import Admin, { AdminRole } from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
 import {
@@ -910,9 +910,16 @@ export class ProductService {
     if (_.isEmpty(newProd)) {
       throw new Error('Partner product does not exist');
     }
+    const userData = await Admin.findOne({
+      userName: newProd?.oemUserName
+    })?.lean();
+    const jsonData = {
+      ...newProd,
+      partnerDetail: userData
+    };
     Logger.info('<Service>:<ProductService>:<Upload product successful>');
 
-    return newProd;
+    return jsonData;
   }
 
   async updatePartnerProduct(

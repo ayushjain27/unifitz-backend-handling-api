@@ -68,7 +68,7 @@ export class NewVehicleInfoService {
       if (fileName === 'profile') {
         documents.profile = { key, docURL: url };
       } else {
-        documents.storeImageList[fileName] = { key, docURL: url };
+        documents.vehicleImageList[fileName] = { key, docURL: url };
       }
     }
     const res = await NewVehicle.findOneAndUpdate(
@@ -102,6 +102,42 @@ export class NewVehicleInfoService {
     return vehicle;
   }
 
+  async getVehiclePaginated(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number
+  ) {
+    const query: any = {};
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const productReviews = await NewVehicle.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return productReviews;
+  }
+
   async getById(vehicleID: string): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<get vehicle initiated>');
 
@@ -109,12 +145,42 @@ export class NewVehicleInfoService {
       _id: vehicleID
     })?.lean();
 
+    const jsonData = {
+      ...vehicleResult,
+      colorCode: vehicleResult?.colorCode?.map((val, key) =>
+        key === 0
+          ? {
+              ...val,
+              image: vehicleResult?.documents?.vehicleImageList?.first?.docURL
+            }
+          : key === 1
+          ? {
+              ...val,
+              image: vehicleResult?.documents?.vehicleImageList?.second?.docURL
+            }
+          : key === 2
+          ? {
+              ...val,
+              image: vehicleResult?.documents?.vehicleImageList?.third?.docURL
+            }
+          : key === 3
+          ? {
+              ...val,
+              image: vehicleResult?.documents?.vehicleImageList?.fourth?.docURL
+            }
+          : {
+              ...val,
+              image: vehicleResult?.documents?.vehicleImageList?.fifth?.docURL
+            }
+      )
+    };
+
     if (_.isEmpty(vehicleResult)) {
       throw new Error('vehicle does not exist');
     }
     Logger.info('<Service>:<vehicleService>:<Upload vehicle successful>');
 
-    return vehicleResult;
+    return jsonData;
   }
 
   async update(reqBody: any, vehicleId: string): Promise<any> {
