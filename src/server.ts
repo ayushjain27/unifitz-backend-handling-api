@@ -44,6 +44,7 @@ import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
 import { sendNotification } from './utils/common';
+import Customer from './models/Customer';
 // import cron from 'node-cron';
 
 const app = express();
@@ -292,13 +293,13 @@ async function updateSlugs() {
 async function updateSlug() {
   try {
     // Use aggregation pipeline in updateMany
-    let stores = await Store.find({});
-    for (const store of stores) {
+    let customers = await Customer.find({});
+    for (const customer of customers) {
       await sendNotification(
         '🚗 New Features Alert! 🚗',
         'Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now!',
-        store?.contactInfo?.phoneNumber?.primary,
-        'STORE_OWNER',
+        customer?.phoneNumber,
+        'USER',
         ''
       );
     }
