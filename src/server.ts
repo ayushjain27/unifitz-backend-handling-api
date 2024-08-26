@@ -294,17 +294,17 @@ async function updateSlugs() {
 async function updateSlug() {
   try {
     // Use aggregation pipeline in updateMany
-    let stores = await Store.find({});
-    for (const store of stores) {
+    let customers = await Customer.find({});
+    for (const customer of customers) {
       const templateData = {
         name: ''
       };
-      if (!_.isEmpty(store?.contactInfo?.email)) {
+      if (!_.isEmpty(customer?.email)) {
         sendEmail(
           templateData,
-          store?.contactInfo?.email,
+          customer?.email,
           'support@serviceplug.in',
-          'NewFeatureBuySellAlertTemplatePartner'
+          'NewFeatureBuySellAlertTemplateCustomer'
         );
       }
     }
@@ -345,7 +345,7 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewFeatureBuySellAlertTemplatePartner',
+      TemplateName: 'NewFeatureBuySellAlertTemplateCustomer',
       SubjectPart: '🚗 New Features Alert! 🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
@@ -387,7 +387,7 @@ app.get('/createTemplate', async (req, res) => {
         <div class="container">
         <img src="https://serviceplug-prod.s3.ap-south-1.amazonaws.com/570/1724648950570/buyselltemplate.webp" width="100%" height="200px" />
        <p style="font-size: 20px; text-align: center;">🚗 New Features Alert! 🚗</p>
-          <p>Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now! <a href="https://play.google.com/store/apps/details?id=com.serviceplug.partner">https://play.google.com/store/apps/details?id=com.serviceplug.partner</a></p>
+          <p>Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now! <a href="https://play.google.com/store/apps/details?id=com.service_plug_customer_app">https://play.google.com/store/apps/details?id=com.service_plug_customer_app</a></p>
           <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
         </div>
       </body>
