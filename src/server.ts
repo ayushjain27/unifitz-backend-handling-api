@@ -291,6 +291,11 @@ async function updateSlugs() {
 //   }
 // }
 
+function isValidEmail(email: any) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 async function updateSlug() {
   try {
     // Use aggregation pipeline in updateMany
@@ -299,7 +304,7 @@ async function updateSlug() {
       const templateData = {
         name: ''
       };
-      if (!_.isEmpty(customer?.email)) {
+      if (!_.isEmpty(customer?.email) && isValidEmail(customer?.email)) {
         sendEmail(
           templateData,
           customer?.email,
@@ -311,7 +316,7 @@ async function updateSlug() {
 
     console.log('All documents have been updated with slugs.');
   } catch (err) {
-    console.log(err, 'sa;lkfndj');
+    console.log(err, 'sa;lkfndjS');
   }
 }
 // async function updateSlug() {
