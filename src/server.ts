@@ -291,34 +291,34 @@ async function updateSlugs() {
 //   }
 // }
 
-function isValidEmail(email: any) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
+// function isValidEmail(email: any) {
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//   return emailRegex.test(email);
+// }
 
-async function updateSlug() {
-  try {
-    // Use aggregation pipeline in updateMany
-    let customers = await Customer.find({});
-    for (const customer of customers) {
-      const templateData = {
-        name: ''
-      };
-      if (!_.isEmpty(customer?.email) && isValidEmail(customer?.email)) {
-        sendEmail(
-          templateData,
-          customer?.email,
-          'support@serviceplug.in',
-          'NewFeatureBuySellAlertTemplateCustomer'
-        );
-      }
-    }
+// async function updateSlug() {
+//   try {
+//     // Use aggregation pipeline in updateMany
+//     let customers = await Customer.find({});
+//     for (const customer of customers) {
+//       const templateData = {
+//         name: ''
+//       };
+//       if (!_.isEmpty(customer?.email) && isValidEmail(customer?.email)) {
+//         sendEmail(
+//           templateData,
+//           customer?.email,
+//           'support@serviceplug.in',
+//           'NewFeatureBuySellAlertTemplateCustomer'
+//         );
+//       }
+//     }
 
-    console.log('All documents have been updated with slugs.');
-  } catch (err) {
-    console.log(err, 'sa;lkfndjS');
-  }
-}
+//     console.log('All documents have been updated with slugs.');
+//   } catch (err) {
+//     console.log(err, 'sa;lkfndjS');
+//   }
+// }
 // async function updateSlug() {
 //   try {
 //     // Use aggregation pipeline in updateMany
@@ -339,9 +339,9 @@ async function updateSlug() {
 //   }
 // }
 
-app.get('/slug', async (req, res) => {
-  updateSlug();
-});
+// app.get('/slug', async (req, res) => {
+//   updateSlug();
+// });
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
