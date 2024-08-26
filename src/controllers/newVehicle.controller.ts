@@ -78,7 +78,7 @@ export class NewVehicleInfoController {
     }
     const userName = req?.userId;
     const role = req?.role;
-    const { oemId } = req.body;
+    const { oemId, vehicleType } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -86,7 +86,8 @@ export class NewVehicleInfoController {
       const result = await this.vehicleInfoService.getAllVehicle(
         userName,
         role,
-        oemId
+        oemId,
+        vehicleType
       );
       res.send({
         result

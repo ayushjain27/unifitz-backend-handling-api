@@ -46,30 +46,20 @@ export class NewVehicleInfoService {
 
     const files: Array<any> = req.files;
     const documents: Partial<IDocuments> | any = vehicle.documents || {
-      profile: {},
       vehicleImageList: {}
     };
     if (!files) {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName:
-        | 'first'
-        | 'second'
-        | 'third'
-        | 'fourth'
-        | 'fifth'
-        | 'profile' = file.originalname?.split('.')[0];
+      const fileName: 'first' | 'second' | 'third' | 'fourth' | 'fifth' =
+        file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         vehicleID,
         fileName,
         file.buffer
       );
-      if (fileName === 'profile') {
-        documents.profile = { key, docURL: url };
-      } else {
-        documents.vehicleImageList[fileName] = { key, docURL: url };
-      }
+      documents.vehicleImageList[fileName] = { key, docURL: url };
     }
     const res = await NewVehicle.findOneAndUpdate(
       { _id: vehicleID },
@@ -82,8 +72,15 @@ export class NewVehicleInfoService {
     return res;
   }
 
-  async getAllVehicle(userName?: string, role?: string, oemId?: string) {
-    const query: any = {};
+  async getAllVehicle(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    vehicleType?: string
+  ) {
+    const query: any = {
+      vehicle: vehicleType
+    };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
     if (role === AdminRole.OEM) {
@@ -96,6 +93,9 @@ export class NewVehicleInfoService {
 
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
+    }
+    if (!vehicleType) {
+      delete query['vehicle'];
     }
 
     const vehicle = await NewVehicle.aggregate([{ $match: query }]);
