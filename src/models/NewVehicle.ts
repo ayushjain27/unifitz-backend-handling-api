@@ -15,65 +15,10 @@ export enum FuelType {
   CNG = 'CNG'
 }
 
-// export enum ClassificationType {
-//   SCOOTER = 'SCOOTER',
-//   STANDERED = 'STANDERED',
-//   CRUISE = 'CRUISE',
-//   SPORTS = 'SPORTS',
-//   TOURING = 'TOURING',
-//   OFF_ROAD = 'OFF_ROAD'
-// }
-
-// export enum SpeedType {
-//   HIGH_SPEED = 'HIGH_SPEED',
-//   LOW_SPEED = 'LOW_SPEED'
-// }
-
-// export enum EngineType {
-//   SI = 'SI',
-//   FOUR_STROKE = 'FOUR_STROKE',
-//   AIR_COOLED = 'AIR_COOLED',
-//   SOHC = 'SOHC',
-//   FUEL_INJECTION = 'FUEL_INJECTION'
-// }
-
-// export enum RidingModeType {
-//   RAIN = 'RAIN',
-//   SPORTS = 'SPORTS',
-//   URBAN = 'URBAN'
-// }
-
-export interface IDocuments {
-  vehicleImageList: {
-    first: { key: string; docURL: string };
-    second: { key: string; docURL: string };
-    third: { key: string; docURL: string };
-    fourth: { key: string; docURL: string };
-    fifth: { key: string; docURL: string };
-  };
-}
-
-const vehicleDocumentsSchema: Schema = new Schema<IDocuments>(
-  {
-    vehicleImageList: {
-      type: {
-        first: { key: String, docURL: String },
-        second: { key: String, docURL: String },
-        third: { key: String, docURL: String },
-        fourth: { key: String, docURL: String },
-        fifth: { key: String, docURL: String }
-      }
-    }
-  },
-  {
-    _id: false,
-    strict: false
-  }
-);
-
 export interface IColorCode {
   color?: string;
   colorName?: string;
+  image: { key: string; docURL: string };
 }
 
 export const colorCodeSchema: Schema = new Schema(
@@ -83,7 +28,28 @@ export const colorCodeSchema: Schema = new Schema(
     },
     colorName: {
       type: String
+    },
+    vehicleImageList: {
+      type: { key: String, docURL: String }
     }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export interface IVideoUrl {
+  key: string;
+  docURL: string;
+}
+
+export const videoSchema: Schema = new Schema(
+  {
+    key: {
+      type: String
+    },
+    docURL: { type: String }
   },
   {
     _id: false,
@@ -94,9 +60,8 @@ export const colorCodeSchema: Schema = new Schema(
 export interface INewVehicle {
   _id?: Types.ObjectId;
   oemUserName?: string;
-  documents: IDocuments;
   vehicleNameSuggest: string;
-  videoUrl: string;
+  videoUrl: IVideoUrl;
   vehicle: string;
   fuelType: string;
   sku: string;
@@ -106,8 +71,6 @@ export interface INewVehicle {
   brand: string;
   model: string;
   variant: string;
-  color: string;
-  colorName: string;
   colorCode: IColorCode[];
   price: string;
   motors: string;
@@ -140,6 +103,7 @@ export interface INewVehicle {
   emissionType: string;
   ridingModes: string;
   displayType: string;
+  seats: string;
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -147,14 +111,11 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     oemUserName: {
       type: String
     },
-    documents: {
-      type: vehicleDocumentsSchema
-    },
     vehicleNameSuggest: {
       type: String
     },
     videoUrl: {
-      type: String
+      type: videoSchema
     },
     vehicle: {
       type: String,
@@ -185,6 +146,9 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
       type: String
     },
     variant: {
+      type: String
+    },
+    seats: {
       type: String
     },
     // color: {

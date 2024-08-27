@@ -21,10 +21,22 @@ router.post(
   newVehicleController.create
 );
 
+// router.post(
+//   '/uploadVehicleImages',
+//   uploadFiles.array('files'),
+//   newVehicleController.uploadVehicleImages
+// );
+
 router.post(
-  '/uploadVehicleImages',
+  '/uploadNewVehicleImages',
   uploadFiles.array('files'),
-  newVehicleController.uploadVehicleImages
+  newVehicleController.uploadNewVehicleImages
+);
+
+router.post(
+  '/uploadVehicleVideos',
+  uploadFiles.array('files'),
+  newVehicleController.updateVehicleVideos
 );
 
 router.post(
@@ -42,5 +54,6 @@ router.get(
 router.get('/getById', newVehicleController.getById);
 router.put('/update/:vehicleId', newVehicleController.update);
 router.delete('/:vehicleId', newVehicleController.delete);
+router.post('/createTestDrive', newVehicleController.createTestDrive);
 
 export default router;

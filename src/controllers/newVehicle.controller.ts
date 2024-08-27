@@ -48,13 +48,55 @@ export class NewVehicleInfoController {
     }
   };
 
-  uploadVehicleImages = async (req: Request, res: Response) => {
+  // uploadVehicleImages = async (req: Request, res: Response) => {
+  //   const { vehicleID } = req.body;
+  //   Logger.info(
+  //     '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+  //   );
+  //   try {
+  //     const result = await this.vehicleInfoService.updateVehicleImages(
+  //       vehicleID,
+  //       req
+  //     );
+  //     res.send({
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res
+  //       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+  //       .json({ message: err.message });
+  //   }
+  // };
+
+  uploadNewVehicleImages = async (req: Request, res: Response) => {
     const { vehicleID } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
     );
     try {
-      const result = await this.vehicleInfoService.updateVehicleImages(
+      const result = await this.vehicleInfoService.uploadNewVehicleImages(
+        vehicleID,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateVehicleVideos = async (req: Request, res: Response) => {
+    const { vehicleID } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.updateVehicleVideos(
         vehicleID,
         req
       );
@@ -113,6 +155,8 @@ export class NewVehicleInfoController {
     const userName = req?.userId;
     const role = req?.role;
     const oemId = req.query.oemId;
+    const vehicle = req?.query?.vehicleType;
+    const brand = req?.query?.brand;
 
     try {
       const result = await this.vehicleInfoService.getVehiclePaginated(
@@ -120,7 +164,9 @@ export class NewVehicleInfoController {
         role,
         oemId as string,
         pageNo,
-        pageSize
+        pageSize,
+        vehicle as string,
+        brand as string
       );
       res.send({
         message: 'New Vehicles Fetched Successful',
@@ -189,6 +235,31 @@ export class NewVehicleInfoController {
       }
       res.send({
         message: 'Vehicle deleted successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createTestDrive = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    Logger.info(
+      '<Controller>:<VehicleController>:<Add vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.createTestDrive(
+        interestRequest
+      );
+      res.send({
+        message: 'Vehicle Test Drive applied successfully',
+        result
       });
     } catch (err) {
       Logger.error(err.message);
