@@ -332,7 +332,7 @@ export class NewVehicleInfoService {
           templateData,
           newTestDrive?.email,
           'support@serviceplug.in',
-          'NewVehicleUserTestDrive'
+          'NewVehicleCustomersTestDrive'
         );
       }
     }
