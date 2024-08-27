@@ -356,7 +356,7 @@ app.get('/createTemplate', async (req, res) => {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>🚗 Thanks for Booking Test Drive 🚗</title>
+        <title>🚗 Booking Test Drive 🚗</title>
         <style>
           body {
             font-family: Arial, sans-serif;
