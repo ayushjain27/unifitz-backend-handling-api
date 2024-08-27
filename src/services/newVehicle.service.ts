@@ -10,6 +10,7 @@ import { AdminRole } from './../models/Admin';
 import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
+import { sendEmail } from '../utils/common';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -319,24 +320,22 @@ export class NewVehicleInfoService {
     query.brand = vehicleResult?.brand;
     query.model = vehicleResult?.model;
     const newTestDrive = await TestDrive.create(query);
-    // const templateData = {
-    //   name: newTestDrive?.userName,
-    //   phoneNumber: newTestDrive?.phoneNumber,
-    //   email: newTestDrive?.email,
-    //   state: newTestDrive?.state,
-    //   city: newTestDrive?.city,
-    //   vehicleName: newTestDrive?.vehicleName,
-    //   model: newTestDrive?.model,
-    //   brand: newTestDrive?.brand
-    // };
-    // if (!_.isEmpty(newTestDrive?.email)) {
-    //   sendEmail(
-    //     templateData,
-    //     newTestDrive?.email,
-    //     'support@serviceplug.in',
-    //     'NewVehicleTestDrive'
-    //   );
-    // }
+    if (newTestDrive?.email) {
+      const templateData = {
+        email: newTestDrive?.email,
+        vehicleName: newTestDrive?.vehicleName,
+        model: newTestDrive?.model,
+        brand: newTestDrive?.brand
+      };
+      if (!_.isEmpty(newTestDrive?.email)) {
+        sendEmail(
+          templateData,
+          newTestDrive?.email,
+          'support@serviceplug.in',
+          'NewVehicleTestDrive'
+        );
+      }
+    }
     return newTestDrive;
   }
 }

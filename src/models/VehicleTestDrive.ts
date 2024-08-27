@@ -6,7 +6,6 @@ export interface ITestDrive {
   vehicleName: string;
   brand: string;
   model: string;
-  userName?: string;
   userId?: string;
   email?: string;
   phoneNumber?: string;
@@ -31,9 +30,6 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
       type: String
     },
     model: {
-      type: String
-    },
-    userName: {
       type: String
     },
     userId: {
