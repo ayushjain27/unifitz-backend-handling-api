@@ -43,7 +43,7 @@ import Store from './models/Store';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
-import { sendNotification } from './utils/common';
+import { sendEmail, sendNotification } from './utils/common';
 import Customer from './models/Customer';
 // import cron from 'node-cron';
 
@@ -277,19 +277,48 @@ async function updateSlugs() {
   }
 }
 
-async function updateSlug() {
-  try {
-    // Use aggregation pipeline in updateMany
-    await Admin.findOneAndUpdate(// Only update documents that have storeId
-      { userName: 'SERVICEPLUG' },
-      { $set: { accessList: permissions.OEM } },
-    );
+// async function updateSlug() {
+//   try {
+//     // Use aggregation pipeline in updateMany
+//     await Admin.findOneAndUpdate(// Only update documents that have storeId
+//       { userName: 'SERVICEPLUG' },
+//       { $set: { accessList: permissions.OEM } },
+//     );
 
-    console.log('All documents have been updated with slugs.');
-  } catch (err) {
-    console.log(err, "sa;lkfndj")
-  }
-}
+//     console.log('All documents have been updated with slugs.');
+//   } catch (err) {
+//     console.log(err, "sa;lkfndj")
+//   }
+// }
+
+// function isValidEmail(email: any) {
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//   return emailRegex.test(email);
+// }
+
+// async function updateSlug() {
+//   try {
+//     // Use aggregation pipeline in updateMany
+//     let customers = await Customer.find({});
+//     for (const customer of customers) {
+//       const templateData = {
+//         name: ''
+//       };
+//       if (!_.isEmpty(customer?.email) && isValidEmail(customer?.email)) {
+//         sendEmail(
+//           templateData,
+//           customer?.email,
+//           'support@serviceplug.in',
+//           'NewFeatureBuySellAlertTemplateCustomer'
+//         );
+//       }
+//     }
+
+//     console.log('All documents have been updated with slugs.');
+//   } catch (err) {
+//     console.log(err, 'sa;lkfndjS');
+//   }
+// }
 // async function updateSlug() {
 //   try {
 //     // Use aggregation pipeline in updateMany
@@ -310,9 +339,9 @@ async function updateSlug() {
 //   }
 // }
 
-app.get('/slug', async (req, res) => {
-  updateSlug();
-});
+// app.get('/slug', async (req, res) => {
+//   updateSlug();
+// });
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();
@@ -321,58 +350,53 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewSellerOnboarded',
-      SubjectPart: 'Successfully created NewSeller', // Use a placeholder for dynamic subject
+      TemplateName: 'NewFeatureBuySellAlertTemplateCustomer',
+      SubjectPart: '🚗 New Features Alert! 🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <title>Congratulations {{name}}</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              background-color: #f4f4f4;
-              margin: 0;
-              padding: 0;
-            }
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              background-color: #fff;
-              border-radius: 8px;
-              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-            h1 {
-              color: #333;
-            }
-            p {
-              color: #666;
-            }
-            .cta-button {
-              display: inline-block;
-              padding: 10px 20px;
-              background-color: #ff6600;
-              color: #fff;
-              text-decoration: none;
-              border-radius: 4px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-          <h1>User Details</h1>
-          <p>name        : {{name}}</p>
-          <p>phoneNumber : {{phoneNumber}}</p>
-          <p>email       : {{email}}</p>
-          <p>state       : {{state}}</p>
-          <p>city        : {{city}}</p>
-          <p>comment     : {{comment}}</p>
-            <p>Thank you for getting in touch. Our team will contact you shortly.</p>
-            <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
-          </div>
-        </body>
-        </html>`,
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>🚗 New Features Alert! 🚗</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+          h1 {
+            color: #333;
+          }
+          p {
+            color: #666;
+          }
+          .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ff6600;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+        <img src="https://serviceplug-prod.s3.ap-south-1.amazonaws.com/570/1724648950570/buyselltemplate.webp" width="100%" height="200px" />
+       <p style="font-size: 20px; text-align: center;">🚗 New Features Alert! 🚗</p>
+          <p>Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now! <a href="https://play.google.com/store/apps/details?id=com.service_plug_customer_app">https://play.google.com/store/apps/details?id=com.service_plug_customer_app</a></p>
+          <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+        </div>
+      </body>
+      </html>`,
       TextPart: 'Plain text content goes here'
     }
   };
