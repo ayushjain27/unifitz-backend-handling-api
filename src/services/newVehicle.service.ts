@@ -327,6 +327,14 @@ export class NewVehicleInfoService {
         model: newTestDrive?.model,
         brand: newTestDrive?.brand
       };
+      const partnerTemplateData = {
+        email: newTestDrive?.email,
+        phoneNumber: newTestDrive?.phoneNumber,
+        vehicleID: newTestDrive?.vehicleId,
+        vehicleName: newTestDrive?.vehicleName,
+        model: newTestDrive?.model,
+        brand: newTestDrive?.brand
+      };
       if (!_.isEmpty(newTestDrive?.email)) {
         sendEmail(
           templateData,
@@ -334,8 +342,35 @@ export class NewVehicleInfoService {
           'support@serviceplug.in',
           'NewVehicleTestDrive'
         );
+        if (vehicleResult?.partnerEmail) {
+          sendEmail(
+            partnerTemplateData,
+            vehicleResult?.partnerEmail,
+            'support@serviceplug.in',
+            'PartnerNewVehicle'
+          );
+        }
       }
     }
     return newTestDrive;
+  }
+
+  async getAllTestDrive(userName?: string, role?: string, oemId?: string) {
+    const query: any = {};
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const vehicle = await TestDrive.aggregate([{ $match: query }]);
+    return vehicle;
   }
 }

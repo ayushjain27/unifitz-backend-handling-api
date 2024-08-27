@@ -104,6 +104,7 @@ export interface INewVehicle {
   ridingModes: string;
   displayType: string;
   seats: string;
+  partnerEmail: string;
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -253,6 +254,9 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
       //   enum: RidingModeType,
     },
     displayType: {
+      type: String
+    },
+    partnerEmail: {
       type: String
     }
   },

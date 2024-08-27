@@ -266,4 +266,32 @@ export class NewVehicleInfoController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getAllTestDrive = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query?.oemId;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAllTestDrive(
+        userName,
+        role,
+        oemId as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }
