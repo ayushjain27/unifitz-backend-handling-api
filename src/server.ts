@@ -350,7 +350,7 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewVehicleTestDrive',
+      TemplateName: 'NewVehicleUserTestDrive',
       SubjectPart: '🚗 Thanks for Booking Test Drive 🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
