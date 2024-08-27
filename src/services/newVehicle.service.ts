@@ -340,7 +340,7 @@ export class NewVehicleInfoService {
           templateData,
           newTestDrive?.email,
           'support@serviceplug.in',
-          'NewVehicleTestDrive'
+          'NewVehicleCustomersTestDrive'
         );
         if (vehicleResult?.partnerEmail) {
           sendEmail(
