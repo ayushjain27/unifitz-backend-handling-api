@@ -328,7 +328,14 @@ export class NewVehicleInfoService {
         brand: newTestDrive?.brand
       };
       const partnerTemplateData = {
+        userName: newTestDrive?.userName,
         email: newTestDrive?.email,
+        userState: newTestDrive?.state,
+        userCity: newTestDrive?.city,
+        dealerName: newTestDrive?.dealerName,
+        storeId: newTestDrive?.storeDetails?.storeId,
+        storeState: newTestDrive?.storeDetails?.state,
+        storeCity: newTestDrive?.storeDetails?.city,
         phoneNumber: newTestDrive?.phoneNumber,
         vehicleName: newTestDrive?.vehicleName,
         model: newTestDrive?.model,
@@ -346,7 +353,7 @@ export class NewVehicleInfoService {
             partnerTemplateData,
             vehicleResult?.partnerEmail,
             'support@serviceplug.in',
-            'NewVehiclePartnerTestDrive'
+            'NewVehicleTestDrivePartner'
           );
         }
       }
