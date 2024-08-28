@@ -350,13 +350,13 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewFeatureBuySellAlertTemplateCustomer',
-      SubjectPart: '🚗 New Features Alert! 🚗', // Use a placeholder for dynamic subject
+      TemplateName: 'NewVehiclePartnerTestDrive',
+      SubjectPart: '🚗New Booking Test Drive Alert🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>🚗 New Features Alert! 🚗</title>
+        <title>🚗 One User has booked test Drive🚗</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -390,9 +390,14 @@ app.get('/createTemplate', async (req, res) => {
       </head>
       <body>
         <div class="container">
-        <img src="https://serviceplug-prod.s3.ap-south-1.amazonaws.com/570/1724648950570/buyselltemplate.webp" width="100%" height="200px" />
-       <p style="font-size: 20px; text-align: center;">🚗 New Features Alert! 🚗</p>
-          <p>Buy and Sell Vehicles Easier Than Ever. Explore our latest updates to find your perfect ride or sell yours quickly. Check it out now! <a href="https://play.google.com/store/apps/details?id=com.service_plug_customer_app">https://play.google.com/store/apps/details?id=com.service_plug_customer_app</a></p>
+      <p style="font-size: 20px; text-align: center;">🚗Booking Test Drive 🚗</p>
+          <p style="font-size: 17px">Here are the user & vehicle details</p>
+          <P>Phone Number : {{phoneNumber}}</p>
+          <P>Email : {{email}}</p>
+          <P>Vehicle Name : {{vehicleName}}</p>
+          <p>Brand : {{brand}}</p>
+          <p>Model Name : {{model}}</p>
+
           <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
         </div>
       </body>

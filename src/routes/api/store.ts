@@ -139,4 +139,9 @@ router.post(
   // roleAuth(ACL.STORE_GET_ALL),
   storeController.getNearestStore
 );
+router.post(
+  '/getNearestDealer',
+  // roleAuth(ACL.STORE_GET_ALL),
+  storeController.getNearestDealer
+);
 export default router;

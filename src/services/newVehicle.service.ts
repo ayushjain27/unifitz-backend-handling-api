@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import NewVehicle, { INewVehicle, IDocuments } from '../models/NewVehicle';
+import NewVehicle, { INewVehicle } from '../models/NewVehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -7,8 +7,10 @@ import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import { AdminRole } from './../models/Admin';
+import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
+import { sendEmail } from '../utils/common';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -31,7 +33,58 @@ export class NewVehicleInfoService {
     return vehicleDetails;
   }
 
-  async updateVehicleImages(
+  // async updateVehicleImages(
+  //   vehicleID: string,
+  //   req: Request | any
+  // ): Promise<any> {
+  //   Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
+  //   const vehicle = await NewVehicle.findOne(
+  //     { _id: vehicleID },
+  //     { verificationDetails: 0 }
+  //   );
+  //   if (_.isEmpty(vehicle)) {
+  //     throw new Error('Vehicle does not exist');
+  //   }
+
+  //   const files: Array<any> = req.files;
+  //   const documents: Partial<IDocuments> | any = vehicle.documents || {
+  //     profile: {},
+  //     vehicleImageList: {}
+  //   };
+  //   if (!files) {
+  //     throw new Error('Files not found');
+  //   }
+  //   for (const file of files) {
+  //     const fileName:
+  //       | 'first'
+  //       | 'second'
+  //       | 'third'
+  //       | 'fourth'
+  //       | 'fifth'
+  //       | 'profile' = file.originalname?.split('.')[0];
+  //     const { key, url } = await this.s3Client.uploadFile(
+  //       vehicleID,
+  //       fileName,
+  //       file.buffer
+  //     );
+  //     if (fileName === 'profile') {
+  //       documents.profile = { key, docURL: url };
+  //     } else {
+  //       documents.storeImageList[fileName] = { key, docURL: url };
+  //     }
+  //   }
+  //   const res = await NewVehicle.findOneAndUpdate(
+  //     { _id: vehicleID },
+  //     { $set: { documents } },
+  //     {
+  //       returnDocument: 'after',
+  //       projection: { 'verificationDetails.verifyObj': 0 }
+  //     }
+  //   );
+  //   return res;
+  // }
+
+  async uploadNewVehicleImages(
     vehicleID: string,
     req: Request | any
   ): Promise<any> {
@@ -45,25 +98,84 @@ export class NewVehicleInfoService {
     }
 
     const files: Array<any> = req.files;
-    const documents: Partial<IDocuments> | any = vehicle.documents || {
-      vehicleImageList: {}
-    };
     if (!files) {
       throw new Error('Files not found');
     }
+    const ImageList: any = [];
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' | 'fourth' | 'fifth' =
-        file.originalname?.split('.')[0];
+      const fileName = file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         vehicleID,
         fileName,
         file.buffer
       );
-      documents.vehicleImageList[fileName] = { key, docURL: url };
+      ImageList.push({ key, docURL: url });
     }
+
+    const colorList: any = ImageList?.map((val: any, key: number) => {
+      const jsonData = {
+        image: val
+      };
+      return jsonData;
+    });
+    const vehicleImages = vehicle.colorCode
+      .map((val) => (val?.image ? { image: val?.image } : undefined))
+      .filter((res) => res !== undefined);
+    const colorImages: any = [...vehicleImages, ...colorList];
+    const colorCode: any = vehicle.colorCode?.map((val: any, key: number) => {
+      const jsonData = {
+        color: val?.color,
+        colorName: val?.colorName,
+        image: colorImages[key]?.image
+      };
+      return jsonData;
+    });
+
     const res = await NewVehicle.findOneAndUpdate(
       { _id: vehicleID },
-      { $set: { documents } },
+      { $set: { colorCode } },
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
+    );
+    return res;
+  }
+
+  async updateVehicleVideos(
+    vehicleID: string,
+    req: Request | any
+  ): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
+    const vehicle = await NewVehicle.findOne(
+      { _id: vehicleID },
+      { verificationDetails: 0 }
+    );
+    if (_.isEmpty(vehicle)) {
+      throw new Error('Vehicle does not exist');
+    }
+
+    const files: any = req.files;
+    // console.log(req.files, req.body, req.videoUrl, '1111111111111111');
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    const videoList: any = [];
+    for (const file of files) {
+      const fileName = file.originalname?.split('.')[0];
+      const { key, url } = await this.s3Client.uploadFile(
+        vehicleID,
+        fileName,
+        file.buffer
+      );
+      videoList.push({ key, docURL: url });
+    }
+    const videoUrl = videoList[0];
+
+    const res = await NewVehicle.findOneAndUpdate(
+      { _id: vehicleID },
+      { $set: { videoUrl } },
       {
         returnDocument: 'after',
         projection: { 'verificationDetails.verifyObj': 0 }
@@ -107,7 +219,9 @@ export class NewVehicleInfoService {
     role?: string,
     oemId?: string,
     pageNo?: number,
-    pageSize?: number
+    pageSize?: number,
+    vehicle?: string,
+    brand?: string
   ) {
     const query: any = {};
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
@@ -123,7 +237,12 @@ export class NewVehicleInfoService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-
+    if (vehicle) {
+      query.vehicle = vehicle;
+    }
+    if (brand) {
+      query.brand = brand;
+    }
     const productReviews = await NewVehicle.aggregate([
       {
         $match: query
@@ -145,42 +264,12 @@ export class NewVehicleInfoService {
       _id: vehicleID
     })?.lean();
 
-    const jsonData = {
-      ...vehicleResult,
-      colorCode: vehicleResult?.colorCode?.map((val, key) =>
-        key === 0
-          ? {
-              ...val,
-              image: vehicleResult?.documents?.vehicleImageList?.first?.docURL
-            }
-          : key === 1
-          ? {
-              ...val,
-              image: vehicleResult?.documents?.vehicleImageList?.second?.docURL
-            }
-          : key === 2
-          ? {
-              ...val,
-              image: vehicleResult?.documents?.vehicleImageList?.third?.docURL
-            }
-          : key === 3
-          ? {
-              ...val,
-              image: vehicleResult?.documents?.vehicleImageList?.fourth?.docURL
-            }
-          : {
-              ...val,
-              image: vehicleResult?.documents?.vehicleImageList?.fifth?.docURL
-            }
-      )
-    };
-
     if (_.isEmpty(vehicleResult)) {
       throw new Error('vehicle does not exist');
     }
     Logger.info('<Service>:<vehicleService>:<Upload vehicle successful>');
 
-    return jsonData;
+    return vehicleResult;
   }
 
   async update(reqBody: any, vehicleId: string): Promise<any> {
@@ -216,5 +305,71 @@ export class NewVehicleInfoService {
     }
     const res = await NewVehicle.findOneAndDelete(query);
     return res;
+  }
+
+  async createTestDrive(reqBody: any): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Create new Vehicle >');
+    const query = reqBody;
+    const vehicleResult = await NewVehicle.findOne({
+      _id: reqBody?.vehicleId
+    })?.lean();
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Vehicle does not exist');
+    }
+    query.vehicleName = vehicleResult?.vehicleNameSuggest;
+    query.brand = vehicleResult?.brand;
+    query.model = vehicleResult?.model;
+    const newTestDrive = await TestDrive.create(query);
+    if (newTestDrive?.email) {
+      const templateData = {
+        email: newTestDrive?.email,
+        vehicleName: newTestDrive?.vehicleName,
+        model: newTestDrive?.model,
+        brand: newTestDrive?.brand
+      };
+      const partnerTemplateData = {
+        email: newTestDrive?.email,
+        phoneNumber: newTestDrive?.phoneNumber,
+        vehicleName: newTestDrive?.vehicleName,
+        model: newTestDrive?.model,
+        brand: newTestDrive?.brand
+      };
+      if (!_.isEmpty(newTestDrive?.email)) {
+        sendEmail(
+          templateData,
+          newTestDrive?.email,
+          'support@serviceplug.in',
+          'NewVehicleCustomersTestDrive'
+        );
+        if (vehicleResult?.partnerEmail) {
+          sendEmail(
+            partnerTemplateData,
+            vehicleResult?.partnerEmail,
+            'support@serviceplug.in',
+            'NewVehiclePartnerTestDrive'
+          );
+        }
+      }
+    }
+    return newTestDrive;
+  }
+
+  async getAllTestDrive(userName?: string, role?: string, oemId?: string) {
+    const query: any = {};
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const vehicle = await TestDrive.aggregate([{ $match: query }]);
+    return vehicle;
   }
 }
