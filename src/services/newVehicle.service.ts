@@ -330,7 +330,6 @@ export class NewVehicleInfoService {
       const partnerTemplateData = {
         email: newTestDrive?.email,
         phoneNumber: newTestDrive?.phoneNumber,
-        vehicleID: newTestDrive?.vehicleId,
         vehicleName: newTestDrive?.vehicleName,
         model: newTestDrive?.model,
         brand: newTestDrive?.brand
@@ -347,7 +346,7 @@ export class NewVehicleInfoService {
             partnerTemplateData,
             vehicleResult?.partnerEmail,
             'support@serviceplug.in',
-            'PartnerNewVehicle'
+            'NewVehiclePartnerTestDrive'
           );
         }
       }
