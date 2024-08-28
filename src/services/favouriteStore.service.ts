@@ -7,11 +7,9 @@ import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import FavouriteStore, { IFavouriteStore } from '../models/FavouriteStore';
 import Store, { IStore } from './../models/Store';
-import User, { IUser } from './../models/User';
 import { AddToFavouriteRequest } from '../interfaces/addToFavouriteRequest.interface';
 import { StoreService } from './store.service';
-import { ICustomer } from 'src/models/Customer';
-import Customer from 'src/models/Customer';
+import Customer, { ICustomer } from '../models/Customer';
 
 @injectable()
 export class FavouriteStoreService {
