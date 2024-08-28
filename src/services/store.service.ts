@@ -1409,16 +1409,10 @@ export class StoreService {
         $project: { 'verificationDetails.verifyObj': 0 }
       }
     ]);
-    Logger.info(
-      '<Service>:<StoreService>:<Search and Filter stores service 2222222222>'
-    );
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
           const updatedStore = { ...store };
-          Logger.info(
-            '<Service>:<StoreService>:<Search and Filter stores service 3333333333333>'
-          );
           updatedStore.overAllRating = await this.getOverallRatings(
             updatedStore.storeId
           );
@@ -1426,9 +1420,70 @@ export class StoreService {
         })
       );
     }
+    return stores;
+  }
+
+  async getNearestDealer(searchReqBody: {
+    coordinates: number[];
+    oemUserName: string;
+  }): Promise<StoreResponse[]> {
     Logger.info(
-      '<Service>:<StoreService>:<Search and Filter stores service 4444444444444>'
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
     );
+    const query = {
+      profileStatus: 'ONBOARDED',
+      oemUserName: searchReqBody?.oemUserName
+    };
+    Logger.debug(query);
+
+    let stores: any = await Store.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: searchReqBody.coordinates as [number, number]
+          },
+          spherical: true,
+          query: query,
+          distanceField: 'contactInfo.distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {$set: {
+        partnerEmail: '$partnerDetail.contactInfo.email',
+        dealerName:  '$partnerDetail.businessName'
+      }},
+      {
+        $match: {
+          'contactInfo.distance': { $lte: 50 }
+        }
+      },
+      { $limit: 1 },
+      {
+        $project: { 'verificationDetails': 0, 'partnerDetail': 0 }
+      }
+    ]);
+
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating = await this.getOverallRatings(
+            updatedStore.storeId
+          );
+          return updatedStore;
+        })
+      );
+    }
     return stores;
   }
 }

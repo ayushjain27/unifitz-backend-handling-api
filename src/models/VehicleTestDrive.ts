@@ -1,9 +1,34 @@
 import mongoose, { model, Schema } from 'mongoose';
 
+export interface IStoreInfo {
+  state: string;
+  city: string;
+  storeId: string;
+}
+
+export const storeSchema: Schema = new Schema(
+  {
+    state: {
+      type: String
+    },
+    city: {
+      type: String
+    },
+    storeId: {
+      type: String
+    }
+  },
+  {
+    _id: false
+  }
+);
+
 export interface ITestDrive {
   _id?: string;
   vehicleId: string;
   vehicleName: string;
+  userName: string;
+  storeDetails: IStoreInfo;
   brand: string;
   model: string;
   userId?: string;
@@ -16,6 +41,8 @@ export interface ITestDrive {
     coordinates: number[];
   };
   oemUserName?: string;
+  partnerEmail: string;
+  dealerName: string;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
@@ -23,8 +50,14 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     vehicleId: {
       type: String
     },
+    userName: {
+      type: String
+    },
     vehicleName: {
       type: String
+    },
+    storeDetails: {
+      type: storeSchema
     },
     brand: {
       type: String
@@ -53,6 +86,12 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
       coordinates: [{ type: Number }]
     },
     oemUserName: {
+      type: String
+    },
+    partnerEmail: {
+      type: String
+    },
+    dealerName: {
       type: String
     }
   },
