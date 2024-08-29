@@ -11,7 +11,7 @@ import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
 import { sendEmail } from '../utils/common';
-import { isValidEmail } from 'src/enum/docType.enum';
+import { isValidEmail } from '../enum/docType.enum';
 
 @injectable()
 export class NewVehicleInfoService {
