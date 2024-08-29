@@ -11,6 +11,7 @@ import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
 import { sendEmail } from '../utils/common';
+import { isValidEmail } from 'src/enum/docType.enum';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -341,14 +342,14 @@ export class NewVehicleInfoService {
         model: newTestDrive?.model,
         brand: newTestDrive?.brand
       };
-      if (!_.isEmpty(newTestDrive?.email)) {
+      if ((!_.isEmpty(newTestDrive?.email) && isValidEmail(newTestDrive?.email))) {
         sendEmail(
           templateData,
           newTestDrive?.email,
           'support@serviceplug.in',
           'NewVehicleCustomersTestDrive'
         );
-        if (vehicleResult?.partnerEmail) {
+        if ((vehicleResult?.partnerEmail) && isValidEmail(vehicleResult?.partnerEmail)) {
           sendEmail(
             partnerTemplateData,
             vehicleResult?.partnerEmail,
