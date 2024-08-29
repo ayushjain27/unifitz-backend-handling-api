@@ -350,7 +350,7 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewVehicleTestDrivePartners',
+      TemplateName: 'NewVehicleTestDriveOemUserPartner',
       SubjectPart: '🚗New Booking Test Drive Alert🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
@@ -391,24 +391,24 @@ app.get('/createTemplate', async (req, res) => {
       <body>
         <div class="container">
       <p style="font-size: 20px; text-align: center;">🚗Booking Test Drive 🚗</p>
-          <p style="font-size: 17px">Here are the Details</p>
-          <p style="font-size: 16px">User Details</p>
+          <p style="font-size: 17px; text-align: center;">One User has booked the test drive. Here are the Details</p>
+          <p style="font-size: 16px; color: blue;">User Details</p>
           <p>UserName : {{userName}}</p>
           <p>Phone Number : {{phoneNumber}}</p>
           <p>Email : {{email}}</p>
           <p>State : {{userState}}</p>
           <p>City : {{userCity}}</p>
-          <p style="font-size: 16px, marginTop: 4px">Vehilce Details</p>
+          <p style="font-size: 17px; color: blue">Vehicle Details</p>
           <P>Vehicle Name : {{vehicleName}}</p>
           <p>Brand : {{brand}}</p>
           <p>Model Name : {{model}}</p>
-          <p style="font-size: 16px, marginTop: 4px">Nearby Store Details</p>
+          <p style="font-size: 17px; color: blue">Nearby Store Details</p>
           <P>Dealer Name : {{dealerName}}</p>
           <P>Store Id : {{storeId}}</p>
           <p>State : {{storeState}}</p>
           <p>City : {{storeCity}}</p>
 
-          <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+          <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
         </div>
       </body>
       </html>`,

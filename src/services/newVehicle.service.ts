@@ -353,7 +353,7 @@ export class NewVehicleInfoService {
             partnerTemplateData,
             vehicleResult?.partnerEmail,
             'support@serviceplug.in',
-            'NewVehicleTestDrivePartners'
+            'NewVehicleTestDriveOemUserPartner'
           );
         }
       }
