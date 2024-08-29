@@ -45,6 +45,7 @@ import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
 import { sendEmail, sendNotification } from './utils/common';
 import Customer from './models/Customer';
+import TestDrive from './models/VehicleTestDrive';
 // import cron from 'node-cron';
 
 const app = express();
@@ -451,6 +452,47 @@ cron.schedule('0 0 * * *', async () => {
   }
 });
 
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running cron job to update vehicle status');
+
+  const now = new Date();
+  const cutoffDate = new Date(now.setDate(now.getDate() - 45));
+
+  // const currentTime = new Date();
+  // const oneMinuteAgo = new Date(currentTime.getTime() - 60000);
+
+  // console.log(oneMinuteAgo,"fvlnf")
+
+  try {
+    const result = await buySellVehicleInfo.updateMany(
+      { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
+      { $set: { status: 'INACTIVE', activeDate: null } }
+    );
+    // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+  } catch (err) {
+    console.error('Error updating vehicle status:', err);
+  }
+});
+
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running cron job to update vehicle status every minute');
+
+  const now = new Date();
+  const cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  try {
+    // Perform the update operation
+    const result = await TestDrive.updateMany(
+      { createdAt: { $lt: cutoffDate }, status: 'ACTIVE' },
+      { $set: { status: 'INACTIVE' } }
+    );
+
+    // Log the result of the update operation
+    // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+  } catch (err) {
+    console.error('Error updating vehicle status:', err);
+  }
+});
 // app.post('/sendToSQS', async (req, res) => {
 //   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
 

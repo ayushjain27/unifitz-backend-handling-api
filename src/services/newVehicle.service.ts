@@ -320,6 +320,17 @@ export class NewVehicleInfoService {
     query.vehicleName = vehicleResult?.vehicleNameSuggest;
     query.brand = vehicleResult?.brand;
     query.model = vehicleResult?.model;
+    const lastTestDrive = await TestDrive.find({
+      userId: reqBody?.userId,
+      vehicleId: reqBody?.vehicleId
+    }).sort({ _id: -1 }).limit(1).exec();
+    console.log(lastTestDrive,"fkmleje")
+    if (lastTestDrive[0]?.status === 'ACTIVE') {
+      return {
+        message: `You cannot book test drive now. Now you can book this again after 24 hrs.`,
+        isPresent: true
+      };
+    }
     const newTestDrive = await TestDrive.create(query);
     if (newTestDrive?.email) {
       const templateData = {
