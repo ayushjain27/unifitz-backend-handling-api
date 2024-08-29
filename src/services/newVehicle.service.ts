@@ -342,23 +342,34 @@ export class NewVehicleInfoService {
         model: newTestDrive?.model,
         brand: newTestDrive?.brand
       };
-      console.log(isValidEmail(vehicleResult?.partnerEmail),"wlmkelf")
-      if ((!_.isEmpty(newTestDrive?.email) && isValidEmail(newTestDrive?.email))) {
+      console.log(isValidEmail(vehicleResult?.partnerEmail), 'wlmkelf');
+      if (
+        !_.isEmpty(newTestDrive?.email) &&
+        isValidEmail(newTestDrive?.email)
+      ) {
         sendEmail(
           templateData,
           newTestDrive?.email,
           'support@serviceplug.in',
           'NewVehicleCustomersTestDrive'
         );
-        if ((!_.isEmpty(vehicleResult?.partnerEmail) && isValidEmail(vehicleResult?.partnerEmail))) {
-          console.log("mslfjn")
-          sendEmail(
-            partnerTemplateData,
-            vehicleResult?.partnerEmail,
-            'support@serviceplug.in',
-            'NewVehicleTestDriveOemUserPartner'
-          );
-        }
+      }
+      console.log(
+        !_.isEmpty(vehicleResult?.partnerEmail) &&
+          isValidEmail(vehicleResult?.partnerEmail),
+        'd;lmskvnj'
+      );
+      if (
+        !_.isEmpty(vehicleResult?.partnerEmail) &&
+        isValidEmail(vehicleResult?.partnerEmail)
+      ) {
+        console.log('mslfjn');
+        sendEmail(
+          partnerTemplateData,
+          vehicleResult?.partnerEmail,
+          'support@serviceplug.in',
+          'NewVehicleTestDriveOemUserPartner'
+        );
       }
     }
     return newTestDrive;
