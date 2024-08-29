@@ -342,6 +342,7 @@ export class NewVehicleInfoService {
         model: newTestDrive?.model,
         brand: newTestDrive?.brand
       };
+      console.log(isValidEmail(vehicleResult?.partnerEmail),"wlmkelf")
       if ((!_.isEmpty(newTestDrive?.email) && isValidEmail(newTestDrive?.email))) {
         sendEmail(
           templateData,
@@ -349,7 +350,8 @@ export class NewVehicleInfoService {
           'support@serviceplug.in',
           'NewVehicleCustomersTestDrive'
         );
-        if ((vehicleResult?.partnerEmail) && isValidEmail(vehicleResult?.partnerEmail)) {
+        if ((!_.isEmpty(vehicleResult?.partnerEmail) && isValidEmail(vehicleResult?.partnerEmail))) {
+          console.log("mslfjn")
           sendEmail(
             partnerTemplateData,
             vehicleResult?.partnerEmail,
