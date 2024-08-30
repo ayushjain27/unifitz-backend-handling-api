@@ -1467,7 +1467,7 @@ export class StoreService {
           'contactInfo.distance': { $lte: 50 }
         }
       },
-      { $limit: 1 },
+      { $limit: 5 },
       {
         $project: { 'verificationDetails': 0, 'partnerDetail': 0 }
       }

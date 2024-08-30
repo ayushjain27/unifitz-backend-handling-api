@@ -1,5 +1,11 @@
 import mongoose, { model, Schema } from 'mongoose';
 
+export enum TestDriveStatus {
+  COLD = 'COLD',
+  WARM = 'WARM',
+  HOT = 'HOT'
+}
+
 export interface IStoreInfo {
   state: string;
   city: string;
@@ -43,6 +49,7 @@ export interface ITestDrive {
   oemUserName?: string;
   partnerEmail: string;
   dealerName: string;
+  status: string;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
@@ -93,6 +100,11 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     },
     dealerName: {
       type: String
+    },
+    status: {
+      type: String,
+      enum: TestDriveStatus,
+      default: TestDriveStatus.COLD
     }
   },
   { timestamps: true }
