@@ -303,6 +303,7 @@ export class NewVehicleInfoController {
     const role = req?.role;
     const oemId = req.query?.oemId;
     const storeId = req.query?.storeId;
+    const enquiryStatus = req.query?.enquiryStatus;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -311,7 +312,8 @@ export class NewVehicleInfoController {
         userName,
         role,
         oemId as string,
-        storeId as string
+        storeId as string,
+        enquiryStatus as string
       );
       res.send({
         result
