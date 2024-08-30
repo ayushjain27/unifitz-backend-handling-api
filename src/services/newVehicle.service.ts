@@ -389,12 +389,12 @@ export class NewVehicleInfoService {
           isPresent: true
         };
       }
-      return {
-        message: 'Available',
-        isPresent: false
-      };
       // Update the count if the test drive exists
     }
+    return {
+      message: 'Available',
+      isPresent: false
+    };
   }
 
   async getAllTestDrive(userName?: string, role?: string, oemId?: string) {
