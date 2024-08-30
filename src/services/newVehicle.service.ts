@@ -385,7 +385,7 @@ export class NewVehicleInfoService {
       // Check if the last test drive was within the last 24 hours
       if (hoursDifference < 24) {
         return {
-          message: `You cannot book a test drive now. You can book it again after 24 hours.`,
+          message: `Thank you! You’ll hear from the dealer shortly.`,
           isPresent: true
         };
       }

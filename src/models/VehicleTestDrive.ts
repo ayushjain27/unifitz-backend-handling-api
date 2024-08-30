@@ -1,6 +1,6 @@
 import mongoose, { model, Schema } from 'mongoose';
 
-export enum TemperatureStatus {
+export enum EnquiryStatus {
   COLD = 'COLD',
   WARM = 'WARM',
   HOT = 'HOT'
@@ -48,7 +48,7 @@ export interface ITestDrive {
   oemUserName?: string;
   partnerEmail: string;
   dealerName: string;
-  temperatureStatus: string;
+  enquiryStatus: string;
   count?: number;
   address?: string;
   createdAt?: Date;
@@ -107,10 +107,10 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     address: {
       type: String
     },
-    temperatureStatus: {
+    enquiryStatus: {
       type: String,
-      enum: TemperatureStatus,
-      default: TemperatureStatus.COLD
+      enum: EnquiryStatus,
+      default: EnquiryStatus.COLD
     },
     count: {
       type: Number,
