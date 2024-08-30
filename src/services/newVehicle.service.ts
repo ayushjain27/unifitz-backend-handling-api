@@ -11,6 +11,7 @@ import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
 import { sendEmail } from '../utils/common';
+import { isValidEmail } from '../enum/docType.enum';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -319,6 +320,17 @@ export class NewVehicleInfoService {
     query.vehicleName = vehicleResult?.vehicleNameSuggest;
     query.brand = vehicleResult?.brand;
     query.model = vehicleResult?.model;
+    const lastTestDrive = await TestDrive.find({
+      userId: reqBody?.userId,
+      vehicleId: reqBody?.vehicleId
+    }).sort({ _id: -1 }).limit(1).exec();
+    console.log(lastTestDrive,"fkmleje")
+    if (lastTestDrive[0]?.status === 'ACTIVE') {
+      return {
+        message: `You cannot book test drive now. Now you can book this again after 24 hrs.`,
+        isPresent: true
+      };
+    }
     const newTestDrive = await TestDrive.create(query);
     if (newTestDrive?.email) {
       const templateData = {
@@ -341,21 +353,34 @@ export class NewVehicleInfoService {
         model: newTestDrive?.model,
         brand: newTestDrive?.brand
       };
-      if (!_.isEmpty(newTestDrive?.email)) {
+      console.log(isValidEmail(vehicleResult?.partnerEmail), 'wlmkelf');
+      if (
+        !_.isEmpty(newTestDrive?.email) &&
+        isValidEmail(newTestDrive?.email)
+      ) {
         sendEmail(
           templateData,
           newTestDrive?.email,
           'support@serviceplug.in',
           'NewVehicleCustomersTestDrive'
         );
-        if (vehicleResult?.partnerEmail) {
-          sendEmail(
-            partnerTemplateData,
-            vehicleResult?.partnerEmail,
-            'support@serviceplug.in',
-            'NewVehicleTestDrivePartners'
-          );
-        }
+      }
+      console.log(
+        !_.isEmpty(vehicleResult?.partnerEmail) &&
+          isValidEmail(vehicleResult?.partnerEmail),
+        'd;lmskvnj'
+      );
+      if (
+        !_.isEmpty(vehicleResult?.partnerEmail) &&
+        isValidEmail(vehicleResult?.partnerEmail)
+      ) {
+        console.log('mslfjn');
+        sendEmail(
+          partnerTemplateData,
+          vehicleResult?.partnerEmail,
+          'support@serviceplug.in',
+          'NewVehicleTestDriveOemUserPartner'
+        );
       }
     }
     return newTestDrive;

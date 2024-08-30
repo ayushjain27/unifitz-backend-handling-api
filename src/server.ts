@@ -45,6 +45,7 @@ import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
 import { sendEmail, sendNotification } from './utils/common';
 import Customer from './models/Customer';
+import TestDrive from './models/VehicleTestDrive';
 // import cron from 'node-cron';
 
 const app = express();
@@ -350,7 +351,7 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewVehicleTestDrivePartners',
+      TemplateName: 'NewVehicleTestDriveOemUserPartner',
       SubjectPart: '🚗New Booking Test Drive Alert🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
@@ -391,24 +392,24 @@ app.get('/createTemplate', async (req, res) => {
       <body>
         <div class="container">
       <p style="font-size: 20px; text-align: center;">🚗Booking Test Drive 🚗</p>
-          <p style="font-size: 17px">Here are the Details</p>
-          <p style="font-size: 16px">User Details</p>
+          <p style="font-size: 17px; text-align: center;">One User has booked the test drive. Here are the Details</p>
+          <p style="font-size: 16px; color: blue;">User Details</p>
           <p>UserName : {{userName}}</p>
           <p>Phone Number : {{phoneNumber}}</p>
           <p>Email : {{email}}</p>
           <p>State : {{userState}}</p>
           <p>City : {{userCity}}</p>
-          <p style="font-size: 16px, marginTop: 4px">Vehilce Details</p>
+          <p style="font-size: 17px; color: blue">Vehicle Details</p>
           <P>Vehicle Name : {{vehicleName}}</p>
           <p>Brand : {{brand}}</p>
           <p>Model Name : {{model}}</p>
-          <p style="font-size: 16px, marginTop: 4px">Nearby Store Details</p>
+          <p style="font-size: 17px; color: blue">Nearby Store Details</p>
           <P>Dealer Name : {{dealerName}}</p>
           <P>Store Id : {{storeId}}</p>
           <p>State : {{storeState}}</p>
           <p>City : {{storeCity}}</p>
 
-          <p>Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+          <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
         </div>
       </body>
       </html>`,
@@ -451,6 +452,47 @@ cron.schedule('0 0 * * *', async () => {
   }
 });
 
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running cron job to update vehicle status');
+
+  const now = new Date();
+  const cutoffDate = new Date(now.setDate(now.getDate() - 45));
+
+  // const currentTime = new Date();
+  // const oneMinuteAgo = new Date(currentTime.getTime() - 60000);
+
+  // console.log(oneMinuteAgo,"fvlnf")
+
+  try {
+    const result = await buySellVehicleInfo.updateMany(
+      { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
+      { $set: { status: 'INACTIVE', activeDate: null } }
+    );
+    // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+  } catch (err) {
+    console.error('Error updating vehicle status:', err);
+  }
+});
+
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running cron job to update vehicle status every minute');
+
+  const now = new Date();
+  const cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  try {
+    // Perform the update operation
+    const result = await TestDrive.updateMany(
+      { createdAt: { $lt: cutoffDate }, status: 'ACTIVE' },
+      { $set: { status: 'INACTIVE' } }
+    );
+
+    // Log the result of the update operation
+    // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+  } catch (err) {
+    console.error('Error updating vehicle status:', err);
+  }
+});
 // app.post('/sendToSQS', async (req, res) => {
 //   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
 
