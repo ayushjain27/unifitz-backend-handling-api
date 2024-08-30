@@ -323,14 +323,18 @@ export class NewVehicleInfoService {
     const lastTestDrive = await TestDrive.find({
       userId: reqBody?.userId,
       vehicleId: reqBody?.vehicleId
-    }).sort({ _id: -1 }).limit(1).exec();
-    console.log(lastTestDrive,"fkmleje")
+    })
+      .sort({ _id: -1 })
+      .limit(1)
+      .exec();
+    console.log(lastTestDrive, 'fkmleje');
     if (lastTestDrive[0]?.status === 'ACTIVE') {
       return {
         message: `You cannot book test drive now. Now you can book this again after 24 hrs.`,
         isPresent: true
       };
     }
+    query.notificationView = false;
     const newTestDrive = await TestDrive.create(query);
     if (newTestDrive?.email) {
       const templateData = {
@@ -386,8 +390,15 @@ export class NewVehicleInfoService {
     return newTestDrive;
   }
 
-  async getAllTestDrive(userName?: string, role?: string, oemId?: string) {
-    const query: any = {};
+  async getAllTestDrive(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    storeId?: string
+  ) {
+    const query: any = {
+      'storeDetails.storeId': storeId
+    };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
     if (role === AdminRole.OEM) {
@@ -401,7 +412,30 @@ export class NewVehicleInfoService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    if (!storeId) {
+      delete query['storeDetails.storeId'];
+    }
     const vehicle = await TestDrive.aggregate([{ $match: query }]);
     return vehicle;
+  }
+
+  async updateNotificationStatus(
+    reqBody: any,
+    vehicleId: string
+  ): Promise<any> {
+    Logger.info('<Service>:<vehicleService>:<Update vehicle details >');
+    const vehicleResult = await TestDrive.findOne({
+      _id: vehicleId
+    })?.lean();
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Vehicle does not exist');
+    }
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await TestDrive.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
   }
 }

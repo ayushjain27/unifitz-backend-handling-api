@@ -277,6 +277,7 @@ export class NewVehicleInfoController {
     const userName = req?.userId;
     const role = req?.role;
     const oemId = req.query?.oemId;
+    const storeId = req.query?.storeId;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -284,10 +285,35 @@ export class NewVehicleInfoController {
       const result = await this.vehicleInfoService.getAllTestDrive(
         userName,
         role,
-        oemId as string
+        oemId as string,
+        storeId as string
       );
       res.send({
         result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateNotificationStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<VehicleController>:<Update Vehicle Status>');
+    // Validate the request body
+    const vehicleId = req.params.vehicleId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.vehicleInfoService.updateNotificationStatus(
+        req.body,
+        vehicleId
+      );
+      res.send({
+        message: 'Vehicle updated successfully'
       });
     } catch (err) {
       Logger.error(err.message);

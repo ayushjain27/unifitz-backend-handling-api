@@ -1,11 +1,5 @@
 import mongoose, { model, Schema } from 'mongoose';
 
-export enum TemperatureStatus {
-  COLD = 'COLD',
-  WARM = 'WARM',
-  HOT = 'HOT'
-}
-
 export enum Status {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE'
@@ -54,8 +48,8 @@ export interface ITestDrive {
   oemUserName?: string;
   partnerEmail: string;
   dealerName: string;
-  temperatureStatus: string;
   status?: string;
+  notificationView: boolean;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
@@ -107,15 +101,14 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     dealerName: {
       type: String
     },
-    temperatureStatus: {
-      type: String,
-      enum: TemperatureStatus,
-      default: TemperatureStatus.COLD
-    },
     status: {
       type: String,
       enum: Status,
       default: Status.ACTIVE
+    },
+    notificationView: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

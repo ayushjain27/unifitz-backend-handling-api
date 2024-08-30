@@ -61,4 +61,10 @@ router.get(
   newVehicleController.getAllTestDrive
 );
 
+router.put(
+  '/updateNotificationStatus/:vehicleId',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.updateNotificationStatus
+);
+
 export default router;
