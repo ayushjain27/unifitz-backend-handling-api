@@ -50,6 +50,7 @@ export interface ITestDrive {
   dealerName: string;
   temperatureStatus: string;
   count?: number;
+  address?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -101,6 +102,9 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
       type: String
     },
     dealerName: {
+      type: String
+    },
+    address: {
       type: String
     },
     temperatureStatus: {
