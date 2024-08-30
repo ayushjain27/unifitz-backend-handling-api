@@ -283,7 +283,7 @@ export class NewVehicleInfoController {
         interestRequest
       );
       res.send({
-        message: 'Vehicle Test Drive applied successfully',
+        message: 'Vehicle Test Drive checked successfully',
         result
       });
     } catch (err) {

@@ -374,7 +374,7 @@ export class NewVehicleInfoService {
     const lastTestDrive = await TestDrive.find({
       userId: reqBody?.userId,
       vehicleId: reqBody?.vehicleId,
-      'storeDetails.storeId': reqBody?.storeDetails?.storeId
+      'storeDetails.storeId': reqBody?.storeId
     });
     if (lastTestDrive.length > 0) {
       const lastTestDriveTime = new Date(lastTestDrive[0]?.updatedAt);
