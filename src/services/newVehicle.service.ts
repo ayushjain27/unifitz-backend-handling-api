@@ -10,8 +10,9 @@ import { AdminRole } from './../models/Admin';
 import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
-import { sendEmail } from '../utils/common';
+import { sendEmail, sendNotification } from '../utils/common';
 import { isValidEmail } from '../enum/docType.enum';
+import Store from '../models/Store';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -322,72 +323,78 @@ export class NewVehicleInfoService {
     query.model = vehicleResult?.model;
     const lastTestDrive = await TestDrive.find({
       userId: reqBody?.userId,
-      vehicleId: reqBody?.vehicleId
-    })
-      .sort({ _id: -1 })
-      .limit(1)
-      .exec();
-    console.log(lastTestDrive, 'fkmleje');
-    if (lastTestDrive[0]?.status === 'ACTIVE') {
-      return {
-        message: `You cannot book test drive now. Now you can book this again after 24 hrs.`,
-        isPresent: true
-      };
-    }
-    query.notificationView = false;
-    const newTestDrive = await TestDrive.create(query);
-    if (newTestDrive?.email) {
-      const templateData = {
-        email: newTestDrive?.email,
-        vehicleName: newTestDrive?.vehicleName,
-        model: newTestDrive?.model,
-        brand: newTestDrive?.brand
-      };
-      const partnerTemplateData = {
-        userName: newTestDrive?.userName,
-        email: newTestDrive?.email,
-        userState: newTestDrive?.state,
-        userCity: newTestDrive?.city,
-        dealerName: newTestDrive?.dealerName,
-        storeId: newTestDrive?.storeDetails?.storeId,
-        storeState: newTestDrive?.storeDetails?.state,
-        storeCity: newTestDrive?.storeDetails?.city,
-        phoneNumber: newTestDrive?.phoneNumber,
-        vehicleName: newTestDrive?.vehicleName,
-        model: newTestDrive?.model,
-        brand: newTestDrive?.brand
-      };
-      console.log(isValidEmail(vehicleResult?.partnerEmail), 'wlmkelf');
-      if (
-        !_.isEmpty(newTestDrive?.email) &&
-        isValidEmail(newTestDrive?.email)
-      ) {
-        sendEmail(
-          templateData,
-          newTestDrive?.email,
-          'support@serviceplug.in',
-          'NewVehicleCustomersTestDrive'
-        );
-      }
-      console.log(
-        !_.isEmpty(vehicleResult?.partnerEmail) &&
-          isValidEmail(vehicleResult?.partnerEmail),
-        'd;lmskvnj'
+      vehicleId: reqBody?.vehicleId,
+      'storeDetails.storeId': reqBody?.storeDetails?.storeId
+    });
+    if (lastTestDrive.length > 0) {
+      const updatedVehicle = await TestDrive.findOneAndUpdate(
+        {
+          userId: reqBody?.userId,
+          vehicleId: reqBody?.vehicleId,
+          'storeDetails.storeId': reqBody?.storeDetails?.storeId
+        },
+        {
+          $set: {
+            count: lastTestDrive[0]?.count + 1 // Initialize count to 0 if it's undefined
+          }
+        },
+        { returnDocument: 'after' }
       );
-      if (
-        !_.isEmpty(vehicleResult?.partnerEmail) &&
-        isValidEmail(vehicleResult?.partnerEmail)
-      ) {
-        console.log('mslfjn');
-        sendEmail(
-          partnerTemplateData,
-          vehicleResult?.partnerEmail,
-          'support@serviceplug.in',
-          'NewVehicleTestDriveOemUserPartner'
-        );
-      }
+      const storeDetails = await Store.findOne({
+        storeId: reqBody?.storeDetails?.storeId
+      });
+      sendNotification(
+        'New Enquiry',
+        `You've received a new inquiry`,
+        storeDetails?.contactInfo?.phoneNumber?.primary,
+        'STORE_OWNER',
+        ''
+      );
+      return updatedVehicle;
     }
+
+    // If no previous test drive, set the count to 0 and create a new test drive
+    query.count = 1;
+    const newTestDrive = await TestDrive.create(query);
+    const storeDetails = await Store.findOne({
+      storeId: reqBody?.storeDetails?.storeId
+    });
+    sendNotification(
+      'New Enquiry',
+      `You've received a new inquiry`,
+      storeDetails?.contactInfo?.phoneNumber?.primary,
+      'STORE_OWNER',
+      ''
+    );
     return newTestDrive;
+  }
+
+  async checkAvailabilityUserTestDrive(reqBody: any): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Create new Vehicle >');
+    const lastTestDrive = await TestDrive.find({
+      userId: reqBody?.userId,
+      vehicleId: reqBody?.vehicleId,
+      'storeDetails.storeId': reqBody?.storeId
+    });
+    if (lastTestDrive.length > 0) {
+      const lastTestDriveTime = new Date(lastTestDrive[0]?.updatedAt);
+      const now = new Date();
+      const timeDifference = now.getTime() - lastTestDriveTime.getTime();
+      const hoursDifference = timeDifference / (1000 * 3600); // Convert time difference to hours
+
+      // Check if the last test drive was within the last 24 hours
+      if (hoursDifference < 24) {
+        return {
+          message: `Thank you! You’ll hear from the dealer shortly.`,
+          isPresent: true
+        };
+      }
+      // Update the count if the test drive exists
+    }
+    return {
+      message: 'Available',
+      isPresent: false
+    };
   }
 
   async getAllTestDrive(

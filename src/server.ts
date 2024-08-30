@@ -474,25 +474,25 @@ cron.schedule('0 0 * * *', async () => {
   }
 });
 
-cron.schedule('0 0 * * *', async () => {
-  console.log('Running cron job to update vehicle status every minute');
+// cron.schedule('0 0 * * *', async () => {
+//   console.log('Running cron job to update vehicle status every minute');
 
-  const now = new Date();
-  const cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+//   const now = new Date();
+//   const cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  try {
-    // Perform the update operation
-    const result = await TestDrive.updateMany(
-      { createdAt: { $lt: cutoffDate }, status: 'ACTIVE' },
-      { $set: { status: 'INACTIVE' } }
-    );
+//   try {
+//     // Perform the update operation
+//     const result = await TestDrive.updateMany(
+//       { createdAt: { $lt: cutoffDate }, status: 'ACTIVE' },
+//       { $set: { status: 'INACTIVE' } }
+//     );
 
-    // Log the result of the update operation
-    // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
-  } catch (err) {
-    console.error('Error updating vehicle status:', err);
-  }
-});
+//     // Log the result of the update operation
+//     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+//   } catch (err) {
+//     console.error('Error updating vehicle status:', err);
+//   }
+// });
 // app.post('/sendToSQS', async (req, res) => {
 //   // Check if 'to', 'subject', and 'templateName' properties exist in req.body
 

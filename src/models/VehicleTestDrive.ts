@@ -1,10 +1,10 @@
 import mongoose, { model, Schema } from 'mongoose';
 
-export enum Status {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE'
+export enum EnquiryStatus {
+  COLD = 'COLD',
+  WARM = 'WARM',
+  HOT = 'HOT'
 }
-
 export interface IStoreInfo {
   state: string;
   city: string;
@@ -48,8 +48,12 @@ export interface ITestDrive {
   oemUserName?: string;
   partnerEmail: string;
   dealerName: string;
-  status?: string;
   notificationView: boolean;
+  enquiryStatus: string;
+  count?: number;
+  address?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
@@ -101,14 +105,20 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     dealerName: {
       type: String
     },
-    status: {
-      type: String,
-      enum: Status,
-      default: Status.ACTIVE
-    },
     notificationView: {
       type: Boolean,
       default: false
+    },
+    address: {
+      type: String
+    },
+    enquiryStatus: {
+      type: String,
+      enum: EnquiryStatus,
+      default: EnquiryStatus.COLD
+    },
+    count: {
+      type: Number
     }
   },
   { timestamps: true }
