@@ -8,9 +8,8 @@ export enum TemperatureStatus {
 
 export enum Status {
   ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
+  INACTIVE = 'INACTIVE'
 }
-
 
 export interface IStoreInfo {
   state: string;
@@ -56,7 +55,7 @@ export interface ITestDrive {
   partnerEmail: string;
   dealerName: string;
   temperatureStatus: string;
-  status?: string; 
+  status?: string;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
