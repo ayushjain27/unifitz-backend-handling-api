@@ -267,6 +267,31 @@ export class NewVehicleInfoController {
     }
   };
 
+  checkAvailabilityUserTestDrive = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    Logger.info(
+      '<Controller>:<VehicleController>:<Add vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.checkAvailabilityUserTestDrive(
+        interestRequest
+      );
+      res.send({
+        message: 'Vehicle Test Drive applied successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getAllTestDrive = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

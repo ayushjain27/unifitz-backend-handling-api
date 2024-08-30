@@ -5,12 +5,6 @@ export enum TemperatureStatus {
   WARM = 'WARM',
   HOT = 'HOT'
 }
-
-export enum Status {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE'
-}
-
 export interface IStoreInfo {
   state: string;
   city: string;
@@ -55,7 +49,9 @@ export interface ITestDrive {
   partnerEmail: string;
   dealerName: string;
   temperatureStatus: string;
-  status?: string;
+  count?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
@@ -112,10 +108,8 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
       enum: TemperatureStatus,
       default: TemperatureStatus.COLD
     },
-    status: {
-      type: String,
-      enum: Status,
-      default: Status.ACTIVE
+    count: {
+      type: Number,
     }
   },
   { timestamps: true }

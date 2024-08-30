@@ -55,10 +55,12 @@ router.get('/getById', newVehicleController.getById);
 router.put('/update/:vehicleId', newVehicleController.update);
 router.delete('/:vehicleId', newVehicleController.delete);
 router.post('/createTestDrive', newVehicleController.createTestDrive);
+router.post('/checkAvailabilityUserTestDrive', newVehicleController.checkAvailabilityUserTestDrive);
 router.get(
   '/getAllTestDrive',
   roleAuth(ACL.STORE_GET_ALL),
   newVehicleController.getAllTestDrive
 );
+
 
 export default router;
