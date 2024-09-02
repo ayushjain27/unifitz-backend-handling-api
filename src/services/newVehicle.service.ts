@@ -357,6 +357,7 @@ export class NewVehicleInfoService {
 
     // If no previous test drive, set the count to 0 and create a new test drive
     query.count = 1;
+    query.inactiveUserDate = date;
     const newTestDrive = await TestDrive.create(query);
     const storeDetails = await Store.findOne({
       storeId: reqBody?.storeDetails?.storeId
