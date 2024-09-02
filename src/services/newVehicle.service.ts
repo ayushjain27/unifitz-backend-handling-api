@@ -326,6 +326,7 @@ export class NewVehicleInfoService {
       vehicleId: reqBody?.vehicleId,
       'storeDetails.storeId': reqBody?.storeDetails?.storeId
     });
+    const date = new Date();
     if (lastTestDrive.length > 0) {
       const updatedVehicle = await TestDrive.findOneAndUpdate(
         {
@@ -335,7 +336,8 @@ export class NewVehicleInfoService {
         },
         {
           $set: {
-            count: lastTestDrive[0]?.count + 1 // Initialize count to 0 if it's undefined
+            count: lastTestDrive[0]?.count + 1, // Initialize count to 0 if it's undefined
+            inactiveUserDate: date
           }
         },
         { returnDocument: 'after' }
@@ -377,7 +379,7 @@ export class NewVehicleInfoService {
       'storeDetails.storeId': reqBody?.storeId
     });
     if (lastTestDrive.length > 0) {
-      const lastTestDriveTime = new Date(lastTestDrive[0]?.updatedAt);
+      const lastTestDriveTime = new Date(lastTestDrive[0]?.inactiveUserDate);
       const now = new Date();
       const timeDifference = now.getTime() - lastTestDriveTime.getTime();
       const hoursDifference = timeDifference / (1000 * 3600); // Convert time difference to hours

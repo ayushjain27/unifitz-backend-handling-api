@@ -52,6 +52,7 @@ export interface ITestDrive {
   enquiryStatus: string;
   count?: number;
   address?: string;
+  inactiveUserDate: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -119,6 +120,9 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     },
     count: {
       type: Number
+    },
+    inactiveUserDate: {
+      type: Date
     }
   },
   { timestamps: true }
