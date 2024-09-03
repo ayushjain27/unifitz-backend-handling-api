@@ -304,9 +304,7 @@ export class NewVehicleInfoController {
     const oemId = req.query?.oemId;
     const storeId = req.query?.storeId;
     const enquiryStatus = req.query?.enquiryStatus;
-    const brand = req.query?.brand;
-    const model = req.query?.model;
-    const phoneNumber = req.query?.phoneNumber;
+    const searchValue = req.query?.searchValue;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -317,9 +315,7 @@ export class NewVehicleInfoController {
         oemId as string,
         storeId as string,
         enquiryStatus as string,
-        brand as string,
-        model as string,
-        phoneNumber as string
+        searchValue as string
       );
       res.send({
         result

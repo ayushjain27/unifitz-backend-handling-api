@@ -406,16 +406,22 @@ export class NewVehicleInfoService {
     oemId?: string,
     storeId?: string,
     enquiryStatus?: string,
-    brand?: string,
-    model?: string,
-    phoneNumber?: string,
+    searchValue?: string,
   ) {
     const query: any = {
       'storeDetails.storeId': storeId,
       enquiryStatus: enquiryStatus,
-      brand: brand,
-      model: model,
-      phoneNumber: `+91${phoneNumber}`
+      $or: [
+        {
+          brand: new RegExp(searchValue, 'i')
+        },
+        {
+          model: new RegExp(searchValue, 'i')
+        },
+        {
+          phoneNumber: new RegExp(`\\+91${searchValue}`, 'i')
+        }
+      ]
     };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
@@ -436,13 +442,13 @@ export class NewVehicleInfoService {
     if (!enquiryStatus) {
       delete query['enquiryStatus'];
     }
-    if (!brand) {
+    if (!searchValue) {
       delete query['brand'];
     }
-    if (!model) {
+    if (!searchValue) {
       delete query['model'];
     }
-    if (!phoneNumber) {
+    if (!searchValue) {
       delete query['phoneNumber'];
     }
     const vehicle = await TestDrive.aggregate([{ $match: query }]);
