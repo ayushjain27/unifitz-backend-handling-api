@@ -7,26 +7,29 @@ export enum ProductType {
   AFTER_MARKET = 'AFTER MARKET'
 }
 
-export interface IImage {
-  key: string;
-  docURL: string;
+export interface IColorCode {
+  color?: string;
+  colorName?: string;
+  image: { key: string; docURL: string };
 }
 
-export interface IProductImageList {
-  // profile: IImage;
-  first: IImage;
-  second: IImage;
-  third: IImage;
-}
-
-export const IImageSchema: Schema = new Schema<IImage>({
-  key: {
-    type: String
+export const colorCodeSchema: Schema = new Schema(
+  {
+    color: {
+      type: String
+    },
+    colorName: {
+      type: String
+    },
+    productImageList: {
+      type: { key: String, docURL: String }
+    }
   },
-  docURL: {
-    type: String
+  {
+    _id: false,
+    strict: false
   }
-});
+);
 
 export interface IState {
   name: string;
@@ -88,7 +91,6 @@ export interface IB2BPartnersProduct {
   colour: string;
   madeIn: string;
   returnPolicy: string;
-  productImageList: IProductImageList;
   isActive: boolean;
   showPrice: boolean;
   oemUserName?: string;
@@ -102,6 +104,7 @@ export interface IB2BPartnersProduct {
   dealer?: boolean;
   selectAllStateAndCity?: boolean;
   status?: string;
+  colorCode: IColorCode[];
 }
 
 export enum ProductStatus {
@@ -267,14 +270,7 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     manufacturePartNumber: {
       type: String
     },
-    productImageList: {
-      type: {
-        // profile: IImageSchema,
-        first: IImageSchema,
-        second: IImageSchema,
-        third: IImageSchema
-      }
-    },
+
     showPrice: {
       type: Boolean,
       default: true
@@ -310,6 +306,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       type: String,
       enum: ProductStatus,
       default: ProductStatus.ACTIVE
+    },
+    colorCode: {
+      type: [colorCodeSchema]
     }
   },
   { timestamps: true }

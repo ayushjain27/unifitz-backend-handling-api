@@ -3,7 +3,10 @@ import mongoose, { model, Schema } from 'mongoose';
 export enum EnquiryStatus {
   COLD = 'COLD',
   WARM = 'WARM',
-  HOT = 'HOT'
+  HOT = 'HOT',
+  BOOKED = 'BOOKED',
+  DELIVERED = 'DELIVERED',
+  CLOSED = 'CLOSED'
 }
 export interface IStoreInfo {
   state: string;
@@ -28,10 +31,27 @@ export const storeSchema: Schema = new Schema(
   }
 );
 
+export interface IComment {
+  text: string;
+  createdAt: Date;
+}
+export const commentSchema: Schema = new Schema(
+  {
+    text: { type: String },
+    createdAt: { type: Date }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
 export interface ITestDrive {
   _id?: string;
   vehicleId: string;
   vehicleName: string;
+  comment: IComment[];
+  followUpdate: Date;
   userName: string;
   storeDetails: IStoreInfo;
   brand: string;
@@ -63,6 +83,12 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     },
     userName: {
       type: String
+    },
+    comment: {
+      type: [commentSchema]
+    },
+    followUpdate: {
+      type: Date
     },
     vehicleName: {
       type: String

@@ -444,6 +444,7 @@ export class NewVehicleInfoService {
     }
     const query: any = {};
     query._id = reqBody._id;
+
     const res = await TestDrive.findOneAndUpdate(query, reqBody, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }

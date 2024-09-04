@@ -168,6 +168,12 @@ router.post(
   productController.partnerProductFilter
 );
 
+router.get(
+  '/partner/similar',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.similarPartnerProduct
+);
+
 router.get('/partner/productId', productController.getPartnerProductById);
 
 router.put(

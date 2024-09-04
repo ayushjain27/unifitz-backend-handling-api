@@ -652,6 +652,40 @@ export class ProductController {
     }
   };
 
+  similarPartnerProduct = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const userType = req?.query?.userType;
+      const vehicleType = req?.query?.vehicleType;
+      const vehicleModel = req?.query?.vehicleModel;
+      const brandName = req?.query?.brandName;
+      const makeType = req?.query?.makeType;
+
+      const result = await this.productService.similarPartnerProduct(
+        userName,
+        role,
+        oemId as string,
+        userType as string,
+        vehicleType as string,
+        vehicleModel as string,
+        brandName as string,
+        makeType as string
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getPartnerProductById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<ProductController>:<Getting banner ID>');
     try {
