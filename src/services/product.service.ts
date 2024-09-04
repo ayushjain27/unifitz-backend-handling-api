@@ -844,7 +844,8 @@ export class ProductService {
       vehicleType: vehicleType,
       vehicleModel: vehicleModel,
       brandName: brandName,
-      makeType: makeType
+      makeType: makeType,
+      status: 'ACTIVE'
       // productCategory: productCategory,
       // productSubCategory: productSubCategory
     };
@@ -895,6 +896,120 @@ export class ProductService {
       // {
       //   $project: { partnerDetail: 0 }
       // }
+    ]);
+
+    return product;
+  }
+
+  async similarPartnerProduct(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    vehicleType?: string,
+    vehicleModel?: string,
+    brandName?: string,
+    makeType?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {
+      status: 'ACTIVE'
+    };
+
+    query.$or = [
+      { vehicleType: vehicleType },
+      { vehicleModel: vehicleModel },
+      { brandName: brandName },
+      { makeType: makeType }
+    ];
+    if (userType === 'Distributer') {
+      query.distributor = true;
+    }
+    if (userType === 'Dealer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { dealer: true }
+      ];
+    }
+    if (!vehicleType) {
+      delete query['vehicleType'];
+    }
+    if (!vehicleModel) {
+      delete query['vehicleModel'];
+    }
+    if (!brandName) {
+      delete query['brandName'];
+    }
+    if (!makeType) {
+      delete query['makeType'];
+    }
+
+    const product = await PartnersPoduct.aggregate([
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {
+        $match: query
+      },
+      { $limit: 10 }
+    ]);
+
+    return product;
+  }
+
+  async allSimilarBrand(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    brandName?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    let query: any = {};
+
+    query = {
+      brandName: brandName,
+      status: 'ACTIVE'
+    };
+
+    if (userType === 'Distributer') {
+      query.distributor = true;
+    }
+    if (userType === 'Dealer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { dealer: true }
+      ];
+    }
+
+    if (!brandName) {
+      delete query['brandName'];
+    }
+
+    const product = await PartnersPoduct.aggregate([
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {
+        $match: query
+      },
+      { $limit: 10 }
     ]);
 
     return product;
@@ -1014,46 +1129,109 @@ export class ProductService {
     return product;
   }
 
+  // async updatePartnerProductImages(
+  //   partnerProductId: string,
+  //   req: Request | any
+  // ) {
+  //   Logger.info('<Service>:<ProductService>:<Product image uploading>');
+  //   const prelistProduct: IB2BPartnersProduct = await PartnersPoduct.findOne({
+  //     _id: new Types.ObjectId(partnerProductId)
+  //   })?.lean();
+  //   if (_.isEmpty(prelistProduct)) {
+  //     throw new Error('Product does not exist');
+  //   }
+  //   const files: Array<any> = req.files;
+
+  //   const productImageList: Partial<IProductImageList> | any =
+  //     prelistProduct.productImageList || {
+  //       profile: {},
+  //       first: {},
+  //       second: {},
+  //       third: {}
+  //     };
+  //   if (!files) {
+  //     throw new Error('Files not found');
+  //   }
+  //   for (const file of files) {
+  //     const fileName: 'first' | 'second' | 'third' | 'profile' =
+  //       file.originalname?.split('.')[0];
+  //     const { key, url } = await this.s3Client.uploadFile(
+  //       partnerProductId,
+  //       fileName,
+  //       file.buffer
+  //     );
+
+  //     productImageList[fileName] = { key, docURL: url };
+  //   }
+  //   const producttDetails = {
+  //     ...prelistProduct,
+  //     productImageList,
+  //     status: 'ACTIVE',
+  //     _id: new Types.ObjectId(partnerProductId)
+  //   };
+  //   const res = await PartnersPoduct.findOneAndUpdate(
+  //     { _id: partnerProductId },
+  //     producttDetails,
+  //     { returnDocument: 'after' }
+  //   );
+  //   return res;
+  // }
+
   async updatePartnerProductImages(
     partnerProductId: string,
     req: Request | any
-  ) {
-    Logger.info('<Service>:<ProductService>:<Product image uploading>');
-    const prelistProduct: IB2BPartnersProduct = await PartnersPoduct.findOne({
+  ): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
+    const partnerProduct = await PartnersPoduct.findOne({
       _id: new Types.ObjectId(partnerProductId)
     })?.lean();
-    if (_.isEmpty(prelistProduct)) {
+    if (_.isEmpty(partnerProduct)) {
       throw new Error('Product does not exist');
     }
-    const files: Array<any> = req.files;
 
-    const productImageList: Partial<IProductImageList> | any =
-      prelistProduct.productImageList || {
-        profile: {},
-        first: {},
-        second: {},
-        third: {}
-      };
+    const files: Array<any> = req.files;
     if (!files) {
       throw new Error('Files not found');
     }
+    const ImageList: any = [];
     for (const file of files) {
-      const fileName: 'first' | 'second' | 'third' | 'profile' =
-        file.originalname?.split('.')[0];
+      const fileName = file.originalname?.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         partnerProductId,
         fileName,
         file.buffer
       );
-
-      productImageList[fileName] = { key, docURL: url };
+      ImageList.push({ key, docURL: url });
     }
+
+    const colorList: any = ImageList?.map((val: any, key: number) => {
+      const jsonData = {
+        image: val
+      };
+      return jsonData;
+    });
+    const vehicleImages = partnerProduct?.colorCode
+      .map((val) => (val?.image ? { image: val?.image } : undefined))
+      .filter((res) => res !== undefined);
+    const colorImages: any = [...vehicleImages, ...colorList];
+    const colorCode: any = partnerProduct?.colorCode?.map(
+      (val: any, key: number) => {
+        const jsonData = {
+          color: val?.color,
+          colorName: val?.colorName,
+          image: colorImages[key]?.image
+        };
+        return jsonData;
+      }
+    );
+
     const producttDetails = {
-      ...prelistProduct,
-      productImageList,
+      ...partnerProduct,
+      colorCode,
       status: 'ACTIVE',
       _id: new Types.ObjectId(partnerProductId)
     };
+
     const res = await PartnersPoduct.findOneAndUpdate(
       { _id: partnerProductId },
       producttDetails,
@@ -1061,7 +1239,6 @@ export class ProductService {
     );
     return res;
   }
-
   async getOverallPartnerProductRatings(
     partnerProductId: string
   ): Promise<PartnersProductStoreRatingResponse> {

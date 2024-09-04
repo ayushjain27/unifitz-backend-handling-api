@@ -28,6 +28,7 @@ export class NewVehicleInfoService {
     if (role === AdminRole.OEM) {
       vehicleInfo.oemUserName = userName;
     }
+    vehicleInfo.status = 'DRAFT';
 
     const vehicleDetails = await NewVehicle.create(vehicleInfo);
 
@@ -468,6 +469,7 @@ export class NewVehicleInfoService {
     }
     const query: any = {};
     query._id = reqBody._id;
+
     const res = await TestDrive.findOneAndUpdate(query, reqBody, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
