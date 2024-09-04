@@ -2,7 +2,7 @@
 import NewVehicle, { INewVehicle } from '../models/NewVehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
-import _ from 'lodash';
+import _, { identity } from 'lodash';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -496,5 +496,19 @@ export class NewVehicleInfoService {
       projection: { 'verificationDetails.verifyObj': 0 }
     });
     return res;
+  }
+
+  async getTestDriveDetailsById(id: string): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<get enquiry initiated>');
+
+    const vehicleResult = await TestDrive.findOne({
+      _id: new Types.ObjectId(id)
+    })?.lean();
+
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Enquiry does not exist');
+    }
+
+    return vehicleResult;
   }
 }

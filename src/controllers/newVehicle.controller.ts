@@ -349,4 +349,20 @@ export class NewVehicleInfoController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getTestDriveDetailsById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<VehicleController>:<Getting ID>');
+    try {
+      const id = req.query._id;
+      const result = await this.vehicleInfoService.getTestDriveDetailsById(id as string);
+      Logger.info('<Controller>:<VehicleController>:<get successfully>');
+      res.send({
+        message: 'Enquiry obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }

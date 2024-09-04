@@ -71,4 +71,6 @@ router.put(
   newVehicleController.updateNotificationStatus
 );
 
+router.get('/getTestDriveDetailsById', newVehicleController.getTestDriveDetailsById);
+
 export default router;
