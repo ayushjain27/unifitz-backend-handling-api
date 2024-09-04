@@ -353,7 +353,7 @@ export class NewVehicleInfoController {
   getTestDriveDetailsById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<VehicleController>:<Getting ID>');
     try {
-      const id = req.query._id;
+      const id = req.query.id;
       const result = await this.vehicleInfoService.getTestDriveDetailsById(id as string);
       Logger.info('<Controller>:<VehicleController>:<get successfully>');
       res.send({
