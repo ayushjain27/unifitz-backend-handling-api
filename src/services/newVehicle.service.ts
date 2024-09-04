@@ -313,6 +313,7 @@ export class NewVehicleInfoService {
   async createTestDrive(reqBody: any): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Create new Vehicle >');
     const query = reqBody;
+    if(query?.type === 'CUSTOMER'){
     const vehicleResult = await NewVehicle.findOne({
       _id: reqBody?.vehicleId
     })?.lean();
@@ -338,7 +339,8 @@ export class NewVehicleInfoService {
         {
           $set: {
             count: lastTestDrive[0]?.count + 1, // Initialize count to 0 if it's undefined
-            inactiveUserDate: date
+            inactiveUserDate: date,
+            query
           }
         },
         { returnDocument: 'after' }
@@ -370,6 +372,25 @@ export class NewVehicleInfoService {
       'STORE_OWNER',
       ''
     );
+    return newTestDrive;
+    }
+    const lastTestDrive = await TestDrive.find({
+      _id: new Types.ObjectId(query?._id)
+    });
+    if(lastTestDrive){
+      const updatedVehicle = await TestDrive.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(query._id),
+        },
+        {
+          $set: {
+            query
+          }
+        },
+        { returnDocument: 'after' }
+      );
+    }
+    const newTestDrive = await TestDrive.create(query);
     return newTestDrive;
   }
 

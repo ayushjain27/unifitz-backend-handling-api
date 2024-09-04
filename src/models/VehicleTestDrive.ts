@@ -8,6 +8,11 @@ export enum EnquiryStatus {
   DELIVERED = 'DELIVERED',
   CLOSED = 'CLOSED'
 }
+
+export enum Type {
+  CUSTOMER = 'CUSTOMER',
+  PARTNER = 'PARTNER'
+}
 export interface IStoreInfo {
   state: string;
   city: string;
@@ -70,6 +75,7 @@ export interface ITestDrive {
   dealerName: string;
   notificationView: boolean;
   enquiryStatus: string;
+  type: string;
   count?: number;
   address?: string;
   inactiveUserDate: Date;
@@ -143,6 +149,10 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
       type: String,
       enum: EnquiryStatus,
       default: EnquiryStatus.COLD
+    },
+    type: {
+      type: String,
+      enum: Type,
     },
     count: {
       type: Number
