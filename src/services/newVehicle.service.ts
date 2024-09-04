@@ -28,6 +28,7 @@ export class NewVehicleInfoService {
     if (role === AdminRole.OEM) {
       vehicleInfo.oemUserName = userName;
     }
+    vehicleInfo.status = 'DRAFT';
 
     const vehicleDetails = await NewVehicle.create(vehicleInfo);
 

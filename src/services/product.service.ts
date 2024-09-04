@@ -844,7 +844,8 @@ export class ProductService {
       vehicleType: vehicleType,
       vehicleModel: vehicleModel,
       brandName: brandName,
-      makeType: makeType
+      makeType: makeType,
+      status: 'ACTIVE'
       // productCategory: productCategory,
       // productSubCategory: productSubCategory
     };
@@ -911,7 +912,9 @@ export class ProductService {
     makeType?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
-    const query: any = {};
+    const query: any = {
+      status: 'ACTIVE'
+    };
 
     query.$or = [
       { vehicleType: vehicleType },
@@ -973,7 +976,8 @@ export class ProductService {
     let query: any = {};
 
     query = {
-      brandName: brandName
+      brandName: brandName,
+      status: 'ACTIVE'
     };
 
     if (userType === 'Distributer') {
