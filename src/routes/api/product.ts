@@ -173,6 +173,11 @@ router.get(
   roleAuth(ACL.STORE_GET_ALL),
   productController.similarPartnerProduct
 );
+router.get(
+  '/partner/similarBrand',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.allSimilarBrand
+);
 
 router.get('/partner/productId', productController.getPartnerProductById);
 

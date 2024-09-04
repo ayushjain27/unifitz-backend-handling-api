@@ -962,6 +962,55 @@ export class ProductService {
     return product;
   }
 
+  async allSimilarBrand(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    brandName?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    let query: any = {};
+
+    query = {
+      brandName: brandName
+    };
+
+    if (userType === 'Distributer') {
+      query.distributor = true;
+    }
+    if (userType === 'Dealer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { dealer: true }
+      ];
+    }
+
+    if (!brandName) {
+      delete query['brandName'];
+    }
+
+    const product = await PartnersPoduct.aggregate([
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {
+        $match: query
+      },
+      { $limit: 10 }
+    ]);
+
+    return product;
+  }
+
   async getPartnerProductById(partnerProductId: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get event initiated>');
 
