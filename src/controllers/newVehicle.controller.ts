@@ -305,6 +305,7 @@ export class NewVehicleInfoController {
     const storeId = req.query?.storeId;
     const enquiryStatus = req.query?.enquiryStatus;
     const searchValue = req.query?.searchValue;
+    const followUpdate = req.query?.followUpdate;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -315,7 +316,8 @@ export class NewVehicleInfoController {
         oemId as string,
         storeId as string,
         enquiryStatus as string,
-        searchValue as string
+        searchValue as string,
+        followUpdate as unknown as Date
       );
       res.send({
         result
@@ -343,6 +345,22 @@ export class NewVehicleInfoController {
       );
       res.send({
         message: 'Vehicle updated successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getTestDriveDetailsById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<VehicleController>:<Getting ID>');
+    try {
+      const id = req.query.id;
+      const result = await this.vehicleInfoService.getTestDriveDetailsById(id as string);
+      Logger.info('<Controller>:<VehicleController>:<get successfully>');
+      res.send({
+        message: 'Enquiry obtained successfully',
+        result
       });
     } catch (err) {
       Logger.error(err.message);
