@@ -403,6 +403,7 @@ export class NewVehicleInfoService {
         },
         { returnDocument: 'after' }
       );
+      return updatedVehicle; 
     }
     const newTestDrive = await TestDrive.create(query);
     return newTestDrive;
