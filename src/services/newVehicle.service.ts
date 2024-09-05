@@ -391,7 +391,8 @@ export class NewVehicleInfoService {
     const lastTestDrive = await TestDrive.find({
       _id: new Types.ObjectId(query?._id)
     });
-    if (lastTestDrive) {
+    console.log(lastTestDrive,"feklm")
+    if (lastTestDrive.length > 0) {
       const updatedVehicle = await TestDrive.findOneAndUpdate(
         {
           _id: new Types.ObjectId(query._id)
@@ -405,7 +406,9 @@ export class NewVehicleInfoService {
       );
       return updatedVehicle; 
     }
+    console.log(query,"dwf,e")
     const newTestDrive = await TestDrive.create(query);
+    console.log(newTestDrive,"efklm")
     return newTestDrive;
   }
 
