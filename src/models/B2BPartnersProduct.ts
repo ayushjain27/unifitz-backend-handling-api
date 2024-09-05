@@ -10,6 +10,9 @@ export enum ProductType {
 export interface IColorCode {
   color?: string;
   colorName?: string;
+  oemPartNumber?: string;
+  skuNumber?: string;
+  manufacturerPartNumber?: string;
   image: { key: string; docURL: string };
 }
 
@@ -19,6 +22,15 @@ export const colorCodeSchema: Schema = new Schema(
       type: String
     },
     colorName: {
+      type: String
+    },
+    oemPartNumber: {
+      type: String
+    },
+    skuNumber: {
+      type: String
+    },
+    manufacturerPartNumber: {
       type: String
     },
     productImageList: {
@@ -90,6 +102,7 @@ export interface IB2BPartnersProduct {
   materialDetails: string;
   colour: string;
   madeIn: string;
+  skuNumber: string;
   returnPolicy: string;
   isActive: boolean;
   showPrice: boolean;
@@ -262,6 +275,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       type: String
     },
     madeIn: {
+      type: String
+    },
+    skuNumber: {
       type: String
     },
     returnPolicy: {

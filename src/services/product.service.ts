@@ -1219,6 +1219,9 @@ export class ProductService {
         const jsonData = {
           color: val?.color,
           colorName: val?.colorName,
+          oemPartNumber: val?.oemPartNumber,
+          skuNumber: val?.skuNumber,
+          manufacturerPartNumber: val?.manufacturerPartNumber,
           image: colorImages[key]?.image
         };
         return jsonData;

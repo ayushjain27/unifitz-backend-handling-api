@@ -23,6 +23,7 @@ export enum VehicleProfileStatus {
 export interface IColorCode {
   color?: string;
   colorName?: string;
+  skuNumber?: string;
   image: { key: string; docURL: string };
 }
 
@@ -32,6 +33,9 @@ export const colorCodeSchema: Schema = new Schema(
       type: String
     },
     colorName: {
+      type: String
+    },
+    skuNumber: {
       type: String
     },
     vehicleImageList: {
@@ -111,6 +115,7 @@ export interface INewVehicle {
   seats: string;
   partnerEmail: string;
   status: string;
+  rejectionReason: string;
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -270,6 +275,10 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
       required: true,
       enum: VehicleProfileStatus,
       default: VehicleProfileStatus.DRAFT
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
     }
   },
   { timestamps: true, strict: false }
