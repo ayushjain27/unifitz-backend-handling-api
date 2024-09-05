@@ -317,7 +317,7 @@ export class NewVehicleInfoController {
         storeId as string,
         enquiryStatus as string,
         searchValue as string,
-        followUpdate as Date
+        followUpdate as unknown as Date
       );
       res.send({
         result
