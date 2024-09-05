@@ -129,7 +129,6 @@ export class NewVehicleInfoService {
       const jsonData = {
         color: val?.color,
         colorName: val?.colorName,
-        skuNumber: val?.skuNumber,
         image: colorImages[key]?.image
       };
       return jsonData;
@@ -392,7 +391,6 @@ export class NewVehicleInfoService {
     const lastTestDrive = await TestDrive.find({
       _id: new Types.ObjectId(query?._id)
     });
-    console.log(lastTestDrive,"feklm")
     if (lastTestDrive.length > 0) {
       const updatedVehicle = await TestDrive.findOneAndUpdate(
         {
@@ -407,9 +405,7 @@ export class NewVehicleInfoService {
       );
       return updatedVehicle; 
     }
-    console.log(query,"dwf,e")
     const newTestDrive = await TestDrive.create(query);
-    console.log(newTestDrive,"efklm")
     return newTestDrive;
   }
 
