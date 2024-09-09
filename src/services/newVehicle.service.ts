@@ -332,7 +332,7 @@ export class NewVehicleInfoService {
       console.log(query, 'ssdff');
       const date = new Date();
       if (lastTestDrive.length > 0) {
-        const changeType = query?.changeType || '';
+        const changeType = reqBody?.changeType || '';
 
         const updatedVehicle = await TestDrive.findOneAndUpdate(
           {
