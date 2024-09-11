@@ -78,6 +78,26 @@ export interface ICity {
   value: string;
 }
 
+export interface ITargetedAudience {
+  distributor: boolean;
+  dealer: boolean;
+  retailers: boolean;
+  consumers: boolean;
+}
+
+export const targetedAudienceSchema: Schema = new Schema(
+  {
+    distributor: { type: Boolean },
+    dealer: { type: Boolean },
+    retailers: { type: Boolean },
+    consumers: { type: Boolean }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
 export interface IB2BPartnersProduct {
   _id?: string;
   makeType: string;
@@ -113,11 +133,12 @@ export interface IB2BPartnersProduct {
   shippingAddress: IContactInfo;
   state?: IState[];
   city?: ICity[];
-  distributor?: boolean;
-  dealer?: boolean;
+  // distributor?: boolean;
+  // dealer?: boolean;
   selectAllStateAndCity?: boolean;
   status?: string;
   colorCode: IColorCode[];
+  targetedAudience: ITargetedAudience;
 }
 
 export enum ProductStatus {
@@ -306,14 +327,14 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     city: {
       type: [citySchema]
     },
-    distributor: {
-      type: Boolean,
-      default: false
-    },
-    dealer: {
-      type: Boolean,
-      default: false
-    },
+    // distributor: {
+    //   type: Boolean,
+    //   default: false
+    // },
+    // dealer: {
+    //   type: Boolean,
+    //   default: false
+    // },
     selectAllStateAndCity: {
       type: Boolean,
       default: false
@@ -325,12 +346,15 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     colorCode: {
       type: [colorCodeSchema]
+    },
+    targetedAudience: {
+      type: targetedAudienceSchema
     }
   },
   { timestamps: true }
 );
 
 export const PartnersPoduct = model<IB2BPartnersProduct>(
-  'partnersproduct',
+  'partnersproducts',
   partnersProductSchema
 );

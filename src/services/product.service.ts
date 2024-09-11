@@ -23,6 +23,7 @@ import {
 import Admin, { AdminRole } from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
+import ProductCartModel from '../models/ProductCart';
 import {
   PartnersPoduct,
   IB2BPartnersProduct
@@ -850,14 +851,14 @@ export class ProductService {
       // productSubCategory: productSubCategory
     };
     if (userType === 'Distributer') {
-      query.distributor = true;
+      query.$or = [{ 'targetedAudience.distributor': true }];
     }
     if (userType === 'Dealer') {
       query.$or = [
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { dealer: true }
+        { 'targetedAudience.dealer': true }
       ];
     }
     if (!vehicleType) {
@@ -901,6 +902,91 @@ export class ProductService {
     return product;
   }
 
+  async PaginatedPartnerProduct(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    vehicleType?: string,
+    vehicleModel?: string,
+    brandName?: string,
+    makeType?: string,
+    productCategory?: string,
+    productSubCategory?: string,
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    let query: any = {};
+    query = {
+      vehicleType: vehicleType,
+      vehicleModel: vehicleModel,
+      brandName: brandName,
+      makeType: makeType,
+      status: 'ACTIVE',
+      'productCategory.catalogName': { $in: productCategory },
+      'productSubCategory.catalogName': { $in: productSubCategory }
+    };
+    if (userType === 'Distributer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { 'targetedAudience.distributor': true }
+      ];
+    }
+    if (userType === 'Dealer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { 'targetedAudience.dealer': true }
+      ];
+    }
+    if (!vehicleType) {
+      delete query['vehicleType'];
+    }
+    if (!vehicleModel) {
+      delete query['vehicleModel'];
+    }
+    if (!brandName) {
+      delete query['brandName'];
+    }
+    if (!makeType) {
+      delete query['makeType'];
+    }
+    if (!productCategory) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!productSubCategory) {
+      delete query['productSubCategory.catalogName'];
+    }
+    console.log(userName, role, oemId, query, 'partner');
+
+    const product = await PartnersPoduct.aggregate([
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return product;
+  }
+
   async similarPartnerProduct(
     userName: string,
     role?: string,
@@ -923,14 +1009,14 @@ export class ProductService {
       { makeType: makeType }
     ];
     if (userType === 'Distributer') {
-      query.distributor = true;
+      query.$or = [{ 'targetedAudience.distributor': true }];
     }
     if (userType === 'Dealer') {
       query.$or = [
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { dealer: true }
+        { 'targetedAudience.dealer': true }
       ];
     }
     if (!vehicleType) {
@@ -981,14 +1067,14 @@ export class ProductService {
     };
 
     if (userType === 'Distributer') {
-      query.distributor = true;
+      query.$or = [{ 'targetedAudience.distributor': true }];
     }
     if (userType === 'Dealer') {
       query.$or = [
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { dealer: true }
+        { 'targetedAudience.dealer': true }
       ];
     }
 
@@ -1293,5 +1379,96 @@ export class ProductService {
       totalRatings,
       totalReviews
     };
+  }
+
+  async addToCart(
+    productPayload: any,
+    userName?: string,
+    role?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>: <adding new product>');
+
+    const newProd = productPayload;
+    if (role === AdminRole.OEM) {
+      newProd.oemUserName = userName;
+    }
+    const productResult = await ProductCartModel.create(newProd);
+    Logger.info('<Service>:<ProductService>:<Product added successfully>');
+    return productResult;
+  }
+
+  async getCartList(
+    userName: string,
+    role?: string,
+    oemId?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    console.log(userName, role, oemId, 'partner');
+
+    const product = await ProductCartModel.aggregate([
+      { $match: query },
+      { $set: { ProductInfo: { $toObjectId: '$productId' } } },
+      {
+        $lookup: {
+          from: 'partnersproducts',
+          localField: 'ProductInfo',
+          foreignField: '_id',
+          as: 'productInfo'
+        }
+      },
+      { $unwind: { path: '$productInfo' } },
+      { $set: { productName: '$productInfo.productSuggest' } },
+      { $set: { colorCode: '$productInfo.colorCode' } },
+      {
+        $project: { productInfo: 0 }
+      }
+    ]);
+
+    return product;
+  }
+
+  async updateCartProduct(
+    reqBody: IB2BPartnersProduct,
+    cartId: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Update Product details >');
+    const partnerResult: IB2BPartnersProduct = await ProductCartModel.findOne({
+      _id: cartId
+    })?.lean();
+
+    if (_.isEmpty(partnerResult)) {
+      throw new Error('Product does not exist');
+    }
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await ProductCartModel.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
+  }
+
+  async deleteCartProduct(cartId: string) {
+    Logger.info('<Service>:<ProductService>:<Delete product >');
+
+    // Delete the event from the s3
+    // await this.s3Client.deleteFile(reqBody.imageKey);
+    const res = await ProductCartModel.findOneAndDelete({
+      _id: new Types.ObjectId(cartId)
+    });
+    return res;
   }
 }

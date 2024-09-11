@@ -168,6 +168,12 @@ router.post(
   productController.partnerProductFilter
 );
 
+router.post(
+  '/partner/paginated',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.PaginatedPartnerProduct
+);
+
 router.get(
   '/partner/similar',
   roleAuth(ACL.STORE_GET_ALL),
@@ -225,6 +231,25 @@ router.get(
   // roleAuth(ACL.STORE_REVIEW_CREATE),
   productController.validate('getReviews'),
   productController.getProductReviews
+);
+
+router.post(
+  '/partner/addToCart',
+  roleAuth(ACL.STORE_CREATE),
+  productController.addToCart
+);
+
+router.get(
+  '/partner/getCartList',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getCartList
+);
+
+router.put('/partner/cart/update/:cartId', productController.updateCartProduct);
+
+router.delete(
+  '/partner/cart/delete/:cartId',
+  productController.deleteCartProduct
 );
 
 export default router;
