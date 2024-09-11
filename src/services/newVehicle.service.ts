@@ -2,7 +2,7 @@
 import NewVehicle, { INewVehicle } from '../models/NewVehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
-import _ from 'lodash';
+import _, { identity } from 'lodash';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -10,8 +10,9 @@ import { AdminRole } from './../models/Admin';
 import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
-import { sendEmail } from '../utils/common';
+import { sendEmail, sendNotification } from '../utils/common';
 import { isValidEmail } from '../enum/docType.enum';
+import Store from '../models/Store';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -27,6 +28,7 @@ export class NewVehicleInfoService {
     if (role === AdminRole.OEM) {
       vehicleInfo.oemUserName = userName;
     }
+    vehicleInfo.status = 'DRAFT';
 
     const vehicleDetails = await NewVehicle.create(vehicleInfo);
 
@@ -127,6 +129,7 @@ export class NewVehicleInfoService {
       const jsonData = {
         color: val?.color,
         colorName: val?.colorName,
+        skuNumber: val?.skuNumber,
         image: colorImages[key]?.image
       };
       return jsonData;
@@ -311,83 +314,149 @@ export class NewVehicleInfoService {
   async createTestDrive(reqBody: any): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Create new Vehicle >');
     const query = reqBody;
-    const vehicleResult = await NewVehicle.findOne({
-      _id: reqBody?.vehicleId
-    })?.lean();
-    if (_.isEmpty(vehicleResult)) {
-      throw new Error('Vehicle does not exist');
+    if (query?.type === 'CUSTOMER') {
+      const vehicleResult = await NewVehicle.findOne({
+        _id: reqBody?.vehicleId
+      })?.lean();
+      if (_.isEmpty(vehicleResult)) {
+        throw new Error('Vehicle does not exist');
+      }
+      query.vehicleName = vehicleResult?.vehicleNameSuggest;
+      query.brand = vehicleResult?.brand;
+      query.model = vehicleResult?.model;
+      const lastTestDrive = await TestDrive.find({
+        userId: reqBody?.userId,
+        vehicleId: reqBody?.vehicleId,
+        'storeDetails.storeId': reqBody?.storeDetails?.storeId
+      });
+      console.log(lastTestDrive, 'sf');
+      console.log(query, 'ssdff');
+      const date = new Date();
+      if (lastTestDrive.length > 0) {
+        const changeType = reqBody?.changeType || '';
+
+        const updatedVehicle = await TestDrive.findOneAndUpdate(
+          {
+            userId: reqBody?.userId,
+            vehicleId: reqBody?.vehicleId,
+            'storeDetails.storeId': reqBody?.storeDetails?.storeId
+          },
+          {
+            $set: {
+              count: !_.isEmpty(changeType)
+                ? lastTestDrive[0]?.count
+                : (lastTestDrive[0]?.count || 0) + 1, // Initialize count to 0 if it's undefined
+              inactiveUserDate: !_.isEmpty(changeType)
+                ? lastTestDrive[0]?.inactiveUserDate
+                : date,
+              ...query
+            }
+          },
+          { returnDocument: 'after' }
+        );
+        console.log(updatedVehicle, 'elknfnj');
+        const storeDetails = await Store.findOne({
+          storeId: reqBody?.storeDetails?.storeId
+        });
+        sendNotification(
+          'New Enquiry',
+          `You've received a new inquiry`,
+          storeDetails?.contactInfo?.phoneNumber?.primary,
+          'STORE_OWNER',
+          ''
+        );
+        return updatedVehicle;
+      }
+
+      // If no previous test drive, set the count to 0 and create a new test drive
+      query.count = 1;
+      query.inactiveUserDate = date;
+      const newTestDrive = await TestDrive.create(query);
+      const storeDetails = await Store.findOne({
+        storeId: reqBody?.storeDetails?.storeId
+      });
+      sendNotification(
+        'New Enquiry',
+        `You've received a new inquiry`,
+        storeDetails?.contactInfo?.phoneNumber?.primary,
+        'STORE_OWNER',
+        ''
+      );
+      return newTestDrive;
     }
-    query.vehicleName = vehicleResult?.vehicleNameSuggest;
-    query.brand = vehicleResult?.brand;
-    query.model = vehicleResult?.model;
     const lastTestDrive = await TestDrive.find({
-      userId: reqBody?.userId,
-      vehicleId: reqBody?.vehicleId
-    }).sort({ _id: -1 }).limit(1).exec();
-    console.log(lastTestDrive,"fkmleje")
-    if (lastTestDrive[0]?.status === 'ACTIVE') {
-      return {
-        message: `You cannot book test drive now. Now you can book this again after 24 hrs.`,
-        isPresent: true
-      };
+      _id: new Types.ObjectId(query?._id)
+    });
+    if (lastTestDrive.length > 0) {
+      const updatedVehicle = await TestDrive.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(query._id)
+        },
+        {
+          $set: {
+            ...query
+          }
+        },
+        { returnDocument: 'after' }
+      );
+      return updatedVehicle;
     }
     const newTestDrive = await TestDrive.create(query);
-    if (newTestDrive?.email) {
-      const templateData = {
-        email: newTestDrive?.email,
-        vehicleName: newTestDrive?.vehicleName,
-        model: newTestDrive?.model,
-        brand: newTestDrive?.brand
-      };
-      const partnerTemplateData = {
-        userName: newTestDrive?.userName,
-        email: newTestDrive?.email,
-        userState: newTestDrive?.state,
-        userCity: newTestDrive?.city,
-        dealerName: newTestDrive?.dealerName,
-        storeId: newTestDrive?.storeDetails?.storeId,
-        storeState: newTestDrive?.storeDetails?.state,
-        storeCity: newTestDrive?.storeDetails?.city,
-        phoneNumber: newTestDrive?.phoneNumber,
-        vehicleName: newTestDrive?.vehicleName,
-        model: newTestDrive?.model,
-        brand: newTestDrive?.brand
-      };
-      console.log(isValidEmail(vehicleResult?.partnerEmail), 'wlmkelf');
-      if (
-        !_.isEmpty(newTestDrive?.email) &&
-        isValidEmail(newTestDrive?.email)
-      ) {
-        sendEmail(
-          templateData,
-          newTestDrive?.email,
-          'support@serviceplug.in',
-          'NewVehicleCustomersTestDrive'
-        );
-      }
-      console.log(
-        !_.isEmpty(vehicleResult?.partnerEmail) &&
-          isValidEmail(vehicleResult?.partnerEmail),
-        'd;lmskvnj'
-      );
-      if (
-        !_.isEmpty(vehicleResult?.partnerEmail) &&
-        isValidEmail(vehicleResult?.partnerEmail)
-      ) {
-        console.log('mslfjn');
-        sendEmail(
-          partnerTemplateData,
-          vehicleResult?.partnerEmail,
-          'support@serviceplug.in',
-          'NewVehicleTestDriveOemUserPartner'
-        );
-      }
-    }
     return newTestDrive;
   }
 
-  async getAllTestDrive(userName?: string, role?: string, oemId?: string) {
-    const query: any = {};
+  async checkAvailabilityUserTestDrive(reqBody: any): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Create new Vehicle >');
+    const lastTestDrive = await TestDrive.find({
+      userId: reqBody?.userId,
+      vehicleId: reqBody?.vehicleId,
+      'storeDetails.storeId': reqBody?.storeId
+    });
+    if (lastTestDrive.length > 0) {
+      const lastTestDriveTime = new Date(lastTestDrive[0]?.inactiveUserDate);
+      const now = new Date();
+      const timeDifference = now.getTime() - lastTestDriveTime.getTime();
+      const hoursDifference = timeDifference / (1000 * 3600); // Convert time difference to hours
+
+      // Check if the last test drive was within the last 24 hours
+      if (hoursDifference < 24) {
+        return {
+          message: `Thank you! You’ll hear from the dealer shortly.`,
+          isPresent: true
+        };
+      }
+      // Update the count if the test drive exists
+    }
+    return {
+      message: 'Available',
+      isPresent: false
+    };
+  }
+
+  async getAllTestDrive(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    storeId?: string,
+    enquiryStatus?: string,
+    searchValue?: string,
+    followUpdate?: Date
+  ) {
+    const query: any = {
+      'storeDetails.storeId': storeId,
+      enquiryStatus: enquiryStatus,
+      $or: [
+        {
+          brand: new RegExp(searchValue, 'i')
+        },
+        {
+          model: new RegExp(searchValue, 'i')
+        },
+        {
+          phoneNumber: new RegExp(`\\+91${searchValue}`, 'i')
+        }
+      ]
+    };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
     if (role === AdminRole.OEM) {
@@ -401,7 +470,71 @@ export class NewVehicleInfoService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    if (!storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!enquiryStatus) {
+      delete query['enquiryStatus'];
+    }
+    if (!searchValue) {
+      delete query['brand'];
+    }
+    if (!searchValue) {
+      delete query['model'];
+    }
+    if (!searchValue) {
+      delete query['phoneNumber'];
+    }
+
+    if (followUpdate) {
+      const startOfDay = new Date(followUpdate);
+      startOfDay.setHours(0, 0, 0, 0); // Set to start of the day
+
+      const endOfDay = new Date(followUpdate);
+      endOfDay.setHours(23, 59, 59, 999); // Set to end of the day
+
+      query.followUpdate = {
+        $gte: startOfDay,
+        $lte: endOfDay
+      };
+    }
+
     const vehicle = await TestDrive.aggregate([{ $match: query }]);
     return vehicle;
+  }
+
+  async updateNotificationStatus(
+    reqBody: any,
+    vehicleId: string
+  ): Promise<any> {
+    Logger.info('<Service>:<vehicleService>:<Update vehicle details >');
+    const vehicleResult = await TestDrive.findOne({
+      _id: vehicleId
+    })?.lean();
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Vehicle does not exist');
+    }
+    const query: any = {};
+    query._id = reqBody._id;
+
+    const res = await TestDrive.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
+  }
+
+  async getTestDriveDetailsById(id: string): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<get enquiry initiated>');
+
+    const vehicleResult = await TestDrive.findOne({
+      _id: new Types.ObjectId(id)
+    })?.lean();
+
+    if (_.isEmpty(vehicleResult)) {
+      throw new Error('Enquiry does not exist');
+    }
+
+    return vehicleResult;
   }
 }

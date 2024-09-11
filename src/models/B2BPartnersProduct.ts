@@ -7,26 +7,41 @@ export enum ProductType {
   AFTER_MARKET = 'AFTER MARKET'
 }
 
-export interface IImage {
-  key: string;
-  docURL: string;
+export interface IColorCode {
+  color?: string;
+  colorName?: string;
+  oemPartNumber?: string;
+  skuNumber?: string;
+  manufacturerPartNumber?: string;
+  image: { key: string; docURL: string };
 }
 
-export interface IProductImageList {
-  // profile: IImage;
-  first: IImage;
-  second: IImage;
-  third: IImage;
-}
-
-export const IImageSchema: Schema = new Schema<IImage>({
-  key: {
-    type: String
+export const colorCodeSchema: Schema = new Schema(
+  {
+    color: {
+      type: String
+    },
+    colorName: {
+      type: String
+    },
+    oemPartNumber: {
+      type: String
+    },
+    skuNumber: {
+      type: String
+    },
+    manufacturerPartNumber: {
+      type: String
+    },
+    productImageList: {
+      type: { key: String, docURL: String }
+    }
   },
-  docURL: {
-    type: String
+  {
+    _id: false,
+    strict: false
   }
-});
+);
 
 export interface IState {
   name: string;
@@ -63,6 +78,26 @@ export interface ICity {
   value: string;
 }
 
+export interface ITargetedAudience {
+  distributor: boolean;
+  dealer: boolean;
+  retailers: boolean;
+  consumers: boolean;
+}
+
+export const targetedAudienceSchema: Schema = new Schema(
+  {
+    distributor: { type: Boolean },
+    dealer: { type: Boolean },
+    retailers: { type: Boolean },
+    consumers: { type: Boolean }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
 export interface IB2BPartnersProduct {
   _id?: string;
   makeType: string;
@@ -87,8 +122,8 @@ export interface IB2BPartnersProduct {
   materialDetails: string;
   colour: string;
   madeIn: string;
+  skuNumber: string;
   returnPolicy: string;
-  productImageList: IProductImageList;
   isActive: boolean;
   showPrice: boolean;
   oemUserName?: string;
@@ -98,10 +133,12 @@ export interface IB2BPartnersProduct {
   shippingAddress: IContactInfo;
   state?: IState[];
   city?: ICity[];
-  distributor?: boolean;
-  dealer?: boolean;
+  // distributor?: boolean;
+  // dealer?: boolean;
   selectAllStateAndCity?: boolean;
   status?: string;
+  colorCode: IColorCode[];
+  targetedAudience: ITargetedAudience;
 }
 
 export enum ProductStatus {
@@ -261,20 +298,16 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     madeIn: {
       type: String
     },
+    skuNumber: {
+      type: String
+    },
     returnPolicy: {
       type: String
     },
     manufacturePartNumber: {
       type: String
     },
-    productImageList: {
-      type: {
-        // profile: IImageSchema,
-        first: IImageSchema,
-        second: IImageSchema,
-        third: IImageSchema
-      }
-    },
+
     showPrice: {
       type: Boolean,
       default: true
@@ -294,14 +327,14 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     city: {
       type: [citySchema]
     },
-    distributor: {
-      type: Boolean,
-      default: false
-    },
-    dealer: {
-      type: Boolean,
-      default: false
-    },
+    // distributor: {
+    //   type: Boolean,
+    //   default: false
+    // },
+    // dealer: {
+    //   type: Boolean,
+    //   default: false
+    // },
     selectAllStateAndCity: {
       type: Boolean,
       default: false
@@ -310,12 +343,18 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       type: String,
       enum: ProductStatus,
       default: ProductStatus.ACTIVE
+    },
+    colorCode: {
+      type: [colorCodeSchema]
+    },
+    targetedAudience: {
+      type: targetedAudienceSchema
     }
   },
   { timestamps: true }
 );
 
 export const PartnersPoduct = model<IB2BPartnersProduct>(
-  'partnersproduct',
+  'partnersproducts',
   partnersProductSchema
 );

@@ -267,6 +267,31 @@ export class NewVehicleInfoController {
     }
   };
 
+  checkAvailabilityUserTestDrive = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const interestRequest = req.body;
+    Logger.info(
+      '<Controller>:<VehicleController>:<Add vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.checkAvailabilityUserTestDrive(
+        interestRequest
+      );
+      res.send({
+        message: 'Vehicle Test Drive checked successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getAllTestDrive = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -277,6 +302,10 @@ export class NewVehicleInfoController {
     const userName = req?.userId;
     const role = req?.role;
     const oemId = req.query?.oemId;
+    const storeId = req.query?.storeId;
+    const enquiryStatus = req.query?.enquiryStatus;
+    const searchValue = req.query?.searchValue;
+    const followUpdate = req.query?.followUpdate;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -284,9 +313,53 @@ export class NewVehicleInfoController {
       const result = await this.vehicleInfoService.getAllTestDrive(
         userName,
         role,
-        oemId as string
+        oemId as string,
+        storeId as string,
+        enquiryStatus as string,
+        searchValue as string,
+        followUpdate as unknown as Date
       );
       res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateNotificationStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<VehicleController>:<Update Vehicle Status>');
+    // Validate the request body
+    const vehicleId = req.params.vehicleId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.vehicleInfoService.updateNotificationStatus(
+        req.body,
+        vehicleId
+      );
+      res.send({
+        message: 'Vehicle updated successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getTestDriveDetailsById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<VehicleController>:<Getting ID>');
+    try {
+      const id = req.query.id;
+      const result = await this.vehicleInfoService.getTestDriveDetailsById(id as string);
+      Logger.info('<Controller>:<VehicleController>:<get successfully>');
+      res.send({
+        message: 'Enquiry obtained successfully',
         result
       });
     } catch (err) {

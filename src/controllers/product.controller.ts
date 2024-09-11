@@ -652,6 +652,113 @@ export class ProductController {
     }
   };
 
+  PaginatedPartnerProduct = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const userType = req?.body?.userType;
+      const vehicleType = req?.body?.vehicleType;
+      const vehicleModel = req?.body?.vehicleModel;
+      const brandName = req?.body?.brandName;
+      const makeType = req?.body?.makeType;
+      const productCategory = req?.body?.productCategory;
+      const productSubCategory = req?.body?.productSubCategory;
+      const pageNo = req?.body?.pageNo;
+      const pageSize = req?.body?.pageSize;
+      // const role = req?.role;
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.productService.PaginatedPartnerProduct(
+        userName,
+        role,
+        oemId as string,
+        userType as string,
+        vehicleType as string,
+        vehicleModel as string,
+        brandName as string,
+        makeType as string,
+        productCategory,
+        productSubCategory,
+        pageNo,
+        pageSize
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  similarPartnerProduct = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const userType = req?.query?.userType;
+      const vehicleType = req?.query?.vehicleType;
+      const vehicleModel = req?.query?.vehicleModel;
+      const brandName = req?.query?.brandName;
+      const makeType = req?.query?.makeType;
+
+      const result = await this.productService.similarPartnerProduct(
+        userName,
+        role,
+        oemId as string,
+        userType as string,
+        vehicleType as string,
+        vehicleModel as string,
+        brandName as string,
+        makeType as string
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  allSimilarBrand = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const userType = req?.query?.userType;
+      const brandName = req?.query?.brandName;
+
+      const result = await this.productService.allSimilarBrand(
+        userName,
+        role,
+        oemId as string,
+        userType as string,
+        brandName as string
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getPartnerProductById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<ProductController>:<Getting banner ID>');
     try {
@@ -801,6 +908,102 @@ export class ProductController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+    }
+  };
+
+  addToCart = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const prodRequest = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
+    Logger.info(
+      '<Controller>:<ProductController>:<Create partner product controller initiated>'
+    );
+    try {
+      const result = await this.productService.addToCart(
+        prodRequest,
+        userName,
+        role
+      );
+      res.send({
+        message: 'Product Added Successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getCartList = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const result = await this.productService.getCartList(
+        userName,
+        role,
+        oemId as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateCartProduct = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Update Product Status>');
+    // Validate the request body
+    const cartId = req.params.cartId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.updateCartProduct(
+        req.body,
+        cartId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteCartProduct = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Delete Product>');
+    // Validate the request body
+    const cartId = req.params.cartId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.productService.deleteCartProduct(cartId);
+      res.send({
+        message: 'Product deleted successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
 

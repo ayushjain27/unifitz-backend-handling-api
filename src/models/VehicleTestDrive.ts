@@ -1,11 +1,18 @@
 import mongoose, { model, Schema } from 'mongoose';
 
-export enum Status {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
+export enum EnquiryStatus {
+  COLD = 'COLD',
+  WARM = 'WARM',
+  HOT = 'HOT',
+  BOOKED = 'BOOKED',
+  DELIVERED = 'DELIVERED',
+  CLOSED = 'CLOSED'
 }
 
-
+export enum Type {
+  CUSTOMER = 'CUSTOMER',
+  PARTNER = 'PARTNER'
+}
 export interface IStoreInfo {
   state: string;
   city: string;
@@ -29,10 +36,27 @@ export const storeSchema: Schema = new Schema(
   }
 );
 
+export interface IComment {
+  text: string;
+  createdAt: Date;
+}
+export const commentSchema: Schema = new Schema(
+  {
+    text: { type: String },
+    createdAt: { type: Date }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
 export interface ITestDrive {
   _id?: string;
   vehicleId: string;
   vehicleName: string;
+  comment: IComment[];
+  followUpdate: Date;
   userName: string;
   storeDetails: IStoreInfo;
   brand: string;
@@ -49,7 +73,14 @@ export interface ITestDrive {
   oemUserName?: string;
   partnerEmail: string;
   dealerName: string;
-  status?: string; 
+  notificationView: boolean;
+  enquiryStatus: string;
+  type: string;
+  count?: number;
+  address?: string;
+  inactiveUserDate: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const testDriveSchema: Schema = new Schema<ITestDrive>(
@@ -59,6 +90,12 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     },
     userName: {
       type: String
+    },
+    comment: {
+      type: [commentSchema]
+    },
+    followUpdate: {
+      type: Date
     },
     vehicleName: {
       type: String
@@ -101,11 +138,28 @@ const testDriveSchema: Schema = new Schema<ITestDrive>(
     dealerName: {
       type: String
     },
-    status: {
-      type: String,
-      enum: Status,
-      default: Status.ACTIVE
+    notificationView: {
+      type: Boolean,
+      default: false
     },
+    address: {
+      type: String
+    },
+    enquiryStatus: {
+      type: String,
+      enum: EnquiryStatus,
+      default: EnquiryStatus.COLD
+    },
+    type: {
+      type: String,
+      enum: Type,
+    },
+    count: {
+      type: Number
+    },
+    inactiveUserDate: {
+      type: Date
+    }
   },
   { timestamps: true }
 );

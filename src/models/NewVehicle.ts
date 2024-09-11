@@ -14,10 +14,16 @@ export enum FuelType {
   KICK_SCOOTER = 'KICK_SCOOTER',
   CNG = 'CNG'
 }
+export enum VehicleProfileStatus {
+  DRAFT = 'DRAFT',
+  ONBOARDED = 'ONBOARDED',
+  REJECTED = 'REJECTED'
+}
 
 export interface IColorCode {
   color?: string;
   colorName?: string;
+  skuNumber?: string;
   image: { key: string; docURL: string };
 }
 
@@ -27,6 +33,9 @@ export const colorCodeSchema: Schema = new Schema(
       type: String
     },
     colorName: {
+      type: String
+    },
+    skuNumber: {
       type: String
     },
     vehicleImageList: {
@@ -105,6 +114,8 @@ export interface INewVehicle {
   displayType: string;
   seats: string;
   partnerEmail: string;
+  status: string;
+  rejectionReason: string;
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -258,6 +269,16 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     },
     partnerEmail: {
       type: String
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: VehicleProfileStatus,
+      default: VehicleProfileStatus.DRAFT
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
     }
   },
   { timestamps: true, strict: false }

@@ -1462,12 +1462,7 @@ export class StoreService {
         partnerEmail: '$partnerDetail.contactInfo.email',
         dealerName:  '$partnerDetail.businessName'
       }},
-      {
-        $match: {
-          'contactInfo.distance': { $lte: 50 }
-        }
-      },
-      { $limit: 1 },
+      { $limit: 5 },
       {
         $project: { 'verificationDetails': 0, 'partnerDetail': 0 }
       }
