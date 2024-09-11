@@ -129,7 +129,6 @@ export class NewVehicleInfoService {
       const jsonData = {
         color: val?.color,
         colorName: val?.colorName,
-        skuNumber: val?.skuNumber,
         image: colorImages[key]?.image
       };
       return jsonData;
@@ -333,10 +332,7 @@ export class NewVehicleInfoService {
       console.log(query, 'ssdff');
       const date = new Date();
       if (lastTestDrive.length > 0) {
-        const lastTestDriveTime = new Date(lastTestDrive[0]?.inactiveUserDate);
-        const now = new Date();
-        const timeDifference = now.getTime() - lastTestDriveTime.getTime();
-        const hoursDifference = timeDifference / (1000 * 3600);
+        const changeType = reqBody?.changeType || '';
 
         const updatedVehicle = await TestDrive.findOneAndUpdate(
           {
@@ -346,14 +342,12 @@ export class NewVehicleInfoService {
           },
           {
             $set: {
-              count:
-                hoursDifference < 24
-                  ? lastTestDrive[0]?.count
-                  : (lastTestDrive[0]?.count || 0) + 1, // Initialize count to 0 if it's undefined
-              inactiveUserDate:
-                hoursDifference < 24
-                  ? lastTestDrive[0]?.inactiveUserDate
-                  : date,
+              count: !_.isEmpty(changeType)
+                ? lastTestDrive[0]?.count
+                : (lastTestDrive[0]?.count || 0) + 1, // Initialize count to 0 if it's undefined
+              inactiveUserDate: !_.isEmpty(changeType)
+                ? lastTestDrive[0]?.inactiveUserDate
+                : date,
               ...query
             }
           },
@@ -392,7 +386,6 @@ export class NewVehicleInfoService {
     const lastTestDrive = await TestDrive.find({
       _id: new Types.ObjectId(query?._id)
     });
-    console.log(lastTestDrive,"feklm")
     if (lastTestDrive.length > 0) {
       const updatedVehicle = await TestDrive.findOneAndUpdate(
         {
@@ -405,11 +398,9 @@ export class NewVehicleInfoService {
         },
         { returnDocument: 'after' }
       );
-      return updatedVehicle; 
+      return updatedVehicle;
     }
-    console.log(query,"dwf,e")
     const newTestDrive = await TestDrive.create(query);
-    console.log(newTestDrive,"efklm")
     return newTestDrive;
   }
 
@@ -497,10 +488,10 @@ export class NewVehicleInfoService {
     if (followUpdate) {
       const startOfDay = new Date(followUpdate);
       startOfDay.setHours(0, 0, 0, 0); // Set to start of the day
-  
+
       const endOfDay = new Date(followUpdate);
       endOfDay.setHours(23, 59, 59, 999); // Set to end of the day
-  
+
       query.followUpdate = {
         $gte: startOfDay,
         $lte: endOfDay
