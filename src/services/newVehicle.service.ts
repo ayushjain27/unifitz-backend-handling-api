@@ -129,6 +129,7 @@ export class NewVehicleInfoService {
       const jsonData = {
         color: val?.color,
         colorName: val?.colorName,
+        skuNumber: val?.skuNumber,
         image: colorImages[key]?.image
       };
       return jsonData;
