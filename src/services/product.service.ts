@@ -1410,26 +1410,11 @@ export class ProductService {
     return productResult;
   }
 
-  async getCartList(
-    userName: string,
-    role?: string,
-    oemId?: string
-  ): Promise<any> {
+  async getCartList(oemId?: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
-    const query: any = {};
-
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
-
-    if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = oemId;
-    }
-
-    if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-    console.log(userName, role, oemId, 'partner');
+    const query: any = {
+      userId: oemId
+    };
 
     const product = await ProductCartModel.aggregate([
       { $match: query },
