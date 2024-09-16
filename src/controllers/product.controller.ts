@@ -944,7 +944,7 @@ export class ProductController {
       '<Controller>:<ProductController>:<Get All request controller initiated>'
     );
     try {
-      const oemId = req?.params?.oemuserid;
+      const oemId = req?.query?.oemuserid;
       const result = await this.productService.getCartList(oemId as string);
       res.send({
         result

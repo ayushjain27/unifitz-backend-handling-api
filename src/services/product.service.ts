@@ -1415,7 +1415,6 @@ export class ProductService {
     const query: any = {
       userId: oemId
     };
-
     const product = await ProductCartModel.aggregate([
       { $match: query },
       { $set: { ProductInfo: { $toObjectId: '$productId' } } },
