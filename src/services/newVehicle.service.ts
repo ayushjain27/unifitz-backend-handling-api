@@ -101,6 +101,8 @@ export class NewVehicleInfoService {
     }
 
     const files: Array<any> = req.files;
+    const imgKeys: Array<any> = req.body.keys;
+
     if (!files) {
       throw new Error('Files not found');
     }
@@ -117,14 +119,19 @@ export class NewVehicleInfoService {
 
     const colorList: any = ImageList?.map((val: any, key: number) => {
       const jsonData = {
-        image: val
+        image: val,
+        imgKey: Number(imgKeys[key])
       };
       return jsonData;
     });
     const vehicleImages = vehicle.colorCode
-      .map((val) => (val?.image ? { image: val?.image } : undefined))
+      .map((val, key) =>
+        val?.image ? { image: val?.image, imgKey: key } : undefined
+      )
       .filter((res) => res !== undefined);
-    const colorImages: any = [...vehicleImages, ...colorList];
+    const colorImages: any = [...vehicleImages, ...colorList].sort(
+      (a, b) => a.imgKey - b.imgKey
+    );
     const colorCode: any = vehicle.colorCode?.map((val: any, key: number) => {
       const jsonData = {
         color: val?.color,

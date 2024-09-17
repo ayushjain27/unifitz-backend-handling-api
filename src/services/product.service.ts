@@ -1276,6 +1276,8 @@ export class ProductService {
     }
 
     const files: Array<any> = req.files;
+    const imgKeys: Array<any> = req.body.keys;
+
     if (!files) {
       throw new Error('Files not found');
     }
@@ -1292,14 +1294,19 @@ export class ProductService {
 
     const colorList: any = ImageList?.map((val: any, key: number) => {
       const jsonData = {
-        image: val
+        image: val,
+        imgKey: Number(imgKeys[key])
       };
       return jsonData;
     });
     const vehicleImages = partnerProduct?.colorCode
-      .map((val) => (val?.image ? { image: val?.image } : undefined))
+      .map((val, key) =>
+        val?.image ? { image: val?.image, imgKey: key } : undefined
+      )
       .filter((res) => res !== undefined);
-    const colorImages: any = [...vehicleImages, ...colorList];
+    const colorImages: any = [...vehicleImages, ...colorList].sort(
+      (a, b) => a.imgKey - b.imgKey
+    );
     const colorCode: any = partnerProduct?.colorCode?.map(
       (val: any, key: number) => {
         const jsonData = {
