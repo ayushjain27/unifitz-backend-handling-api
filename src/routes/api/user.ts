@@ -100,7 +100,7 @@ router.post('/otp/login', async (req: Request, res: Response) => {
 
       // Check if the phone number starts with 3, 4, or 5 and the OTP is 6543
       const startsWith = ['3', '4', '5'];
-      const isMatchingCondition = startsWith.includes(phoneNumber.charAt(0)) && code === '6543';
+      const isMatchingCondition = startsWith.includes(phoneNumber.charAt(3)) && code === '6543';
 
       if (isMatchingCondition) {
         // Phone number starts with 3, 4, or 5, and OTP is 6543, proceed with login
