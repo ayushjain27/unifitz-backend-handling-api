@@ -120,7 +120,7 @@ export class StoreService {
     const { storePayload } = storeRequest;
 
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
-    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    // storePayload.profileStatus = StoreProfileStatus.DRAFT;
     const query: any = {};
     query.storeId = storePayload.storeId;
     if (role === AdminRole.OEM) {
