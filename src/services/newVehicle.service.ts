@@ -234,7 +234,9 @@ export class NewVehicleInfoService {
     vehicle?: string,
     brand?: string
   ) {
-    const query: any = {};
+    const query: any = {
+      status: 'ONBOARDED'
+    };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
     if (role === AdminRole.OEM) {
@@ -447,7 +449,8 @@ export class NewVehicleInfoService {
     storeId?: string,
     enquiryStatus?: string,
     searchValue?: string,
-    followUpdate?: Date
+    followUpdate?: Date,
+    oemUser?: string
   ) {
     const query: any = {
       'storeDetails.storeId': storeId,
@@ -472,6 +475,10 @@ export class NewVehicleInfoService {
 
     if (role === AdminRole.EMPLOYEE) {
       query.oemUserName = oemId;
+    }
+
+    if (oemUser) {
+      query.oemUserName = oemUser;
     }
 
     if (oemId === 'SERVICEPLUG') {
