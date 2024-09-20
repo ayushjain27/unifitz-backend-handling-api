@@ -120,7 +120,7 @@ export class StoreService {
     const { storePayload } = storeRequest;
 
     Logger.info('<Service>:<StoreService>: <Store: updating new store>');
-    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    // storePayload.profileStatus = StoreProfileStatus.DRAFT;
     const query: any = {};
     query.storeId = storePayload.storeId;
     if (role === AdminRole.OEM) {
@@ -1426,14 +1426,25 @@ export class StoreService {
   async getNearestDealer(searchReqBody: {
     coordinates: number[];
     oemUserName: string;
+    stores: any;
+    selectAllStores: any;
   }): Promise<StoreResponse[]> {
     Logger.info(
-      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
+      '<Service>:<StoreService>:<Search and Filter stores service initiated 111111> '
     );
-    const query = {
+    const query: any = {
       profileStatus: 'ONBOARDED',
       oemUserName: searchReqBody?.oemUserName
     };
+
+    const storeList: any = searchReqBody?.stores?.map((val: any) => val?.storeId) || [];
+    if(!_.isEmpty(searchReqBody?.stores)){
+      query.storeId = { $in: storeList };
+    }
+
+    if(_.isEmpty(searchReqBody?.stores)){
+      delete query['storeId'];
+    }
     Logger.debug(query);
 
     let stores: any = await Store.aggregate([
@@ -1462,7 +1473,6 @@ export class StoreService {
         partnerEmail: '$partnerDetail.contactInfo.email',
         dealerName:  '$partnerDetail.businessName'
       }},
-      { $limit: 5 },
       {
         $project: { 'verificationDetails': 0, 'partnerDetail': 0 }
       }

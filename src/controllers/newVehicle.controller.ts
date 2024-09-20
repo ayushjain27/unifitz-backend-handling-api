@@ -304,6 +304,7 @@ export class NewVehicleInfoController {
     const oemId = req.query?.oemId;
     const storeId = req.query?.storeId;
     const enquiryStatus = req.query?.enquiryStatus;
+    const oemUser = req.query?.oemUserName;
     const searchValue = req.query?.searchValue;
     const followUpdate = req.query?.followUpdate;
     Logger.info(
@@ -317,7 +318,8 @@ export class NewVehicleInfoController {
         storeId as string,
         enquiryStatus as string,
         searchValue as string,
-        followUpdate as unknown as Date
+        followUpdate as unknown as Date,
+        oemUser as string
       );
       res.send({
         result

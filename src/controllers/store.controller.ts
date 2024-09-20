@@ -711,8 +711,15 @@ export class StoreController {
   getNearestDealer = async (req: Request, res: Response) => {
     const {
       coordinates,
-      oemUserName
-    }: { coordinates: number[]; oemUserName: string } = req.body;
+      oemUserName,
+      stores,
+      selectAllStores
+    }: {
+      coordinates: number[];
+      oemUserName: string;
+      stores: any;
+      selectAllStores: any;
+    } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Filter nearest store request controller initiated>'
     );
@@ -722,7 +729,9 @@ export class StoreController {
       );
       const result = await this.storeService.getNearestDealer({
         coordinates,
-        oemUserName
+        oemUserName,
+        stores,
+        selectAllStores
       });
       res.send({
         result

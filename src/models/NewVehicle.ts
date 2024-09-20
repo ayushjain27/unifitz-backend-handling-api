@@ -17,7 +17,8 @@ export enum FuelType {
 export enum VehicleProfileStatus {
   DRAFT = 'DRAFT',
   ONBOARDED = 'ONBOARDED',
-  REJECTED = 'REJECTED'
+  REJECTED = 'REJECTED',
+  PENDING = 'PENDING'
 }
 
 export interface IColorCode {
@@ -59,6 +60,22 @@ export const videoSchema: Schema = new Schema(
       type: String
     },
     docURL: { type: String }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export interface IStoreList {
+  storeId: string;
+}
+
+export const storeListSchema: Schema = new Schema(
+  {
+    storeId: {
+      type: String
+    }
   },
   {
     _id: false,
@@ -116,6 +133,10 @@ export interface INewVehicle {
   partnerEmail: string;
   status: string;
   rejectionReason: string;
+  stores?: IStoreList[];
+  selectAllStores: boolean;
+  authorizedDealer: boolean;
+  subDealer: boolean;
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -279,6 +300,18 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     rejectionReason: {
       type: String,
       default: ''
+    },
+    stores: {
+      type: [storeListSchema]
+    },
+    selectAllStores: {
+      type: Boolean
+    },
+    authorizedDealer: {
+      type: Boolean
+    },
+    subDealer: {
+      type: Boolean
     }
   },
   { timestamps: true, strict: false }

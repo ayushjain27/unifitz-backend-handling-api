@@ -101,6 +101,8 @@ export class NewVehicleInfoService {
     }
 
     const files: Array<any> = req.files;
+    const imgKeys: Array<any> = req.body.keys;
+
     if (!files) {
       throw new Error('Files not found');
     }
@@ -117,14 +119,19 @@ export class NewVehicleInfoService {
 
     const colorList: any = ImageList?.map((val: any, key: number) => {
       const jsonData = {
-        image: val
+        image: val,
+        imgKey: Number(imgKeys[key])
       };
       return jsonData;
     });
     const vehicleImages = vehicle.colorCode
-      .map((val) => (val?.image ? { image: val?.image } : undefined))
+      .map((val, key) =>
+        val?.image ? { image: val?.image, imgKey: key } : undefined
+      )
       .filter((res) => res !== undefined);
-    const colorImages: any = [...vehicleImages, ...colorList];
+    const colorImages: any = [...vehicleImages, ...colorList].sort(
+      (a, b) => a.imgKey - b.imgKey
+    );
     const colorCode: any = vehicle.colorCode?.map((val: any, key: number) => {
       const jsonData = {
         color: val?.color,
@@ -227,7 +234,9 @@ export class NewVehicleInfoService {
     vehicle?: string,
     brand?: string
   ) {
-    const query: any = {};
+    const query: any = {
+      status: 'ONBOARDED'
+    };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
     if (role === AdminRole.OEM) {
@@ -440,7 +449,8 @@ export class NewVehicleInfoService {
     storeId?: string,
     enquiryStatus?: string,
     searchValue?: string,
-    followUpdate?: Date
+    followUpdate?: Date,
+    oemUser?: string
   ) {
     const query: any = {
       'storeDetails.storeId': storeId,
@@ -465,6 +475,10 @@ export class NewVehicleInfoService {
 
     if (role === AdminRole.EMPLOYEE) {
       query.oemUserName = oemId;
+    }
+
+    if (oemUser) {
+      query.oemUserName = oemUser;
     }
 
     if (oemId === 'SERVICEPLUG') {
