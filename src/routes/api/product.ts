@@ -239,11 +239,7 @@ router.post(
   productController.addToCart
 );
 
-router.get(
-  '/partner/getCartList',
-  roleAuth(ACL.STORE_GET_ALL),
-  productController.getCartList
-);
+router.get('/partner/getCartList', productController.getCartList);
 
 router.put('/partner/cart/update/:cartId', productController.updateCartProduct);
 

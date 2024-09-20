@@ -20,6 +20,8 @@ export interface IProductCart {
   email: string;
   productId: string;
   qty: number;
+  moqQty: number;
+  totalMoqQty: number;
   price: number;
   retailPrice: boolean;
   bulkPrice: boolean;
@@ -53,6 +55,12 @@ const productCartSchema: Schema = new Schema(
     qty: {
       type: Number
     },
+    moqQty: {
+      type: Number
+    },
+    totalMoqQty: {
+      type: Number
+    },
     price: {
       type: Number
     },
@@ -67,7 +75,8 @@ const productCartSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: Status
+      enum: Status,
+      default: Status.ACTIVE
     }
   },
   { timestamps: true }

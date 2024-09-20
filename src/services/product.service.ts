@@ -1276,6 +1276,8 @@ export class ProductService {
     }
 
     const files: Array<any> = req.files;
+    const imgKeys: Array<any> = req.body.keys;
+
     if (!files) {
       throw new Error('Files not found');
     }
@@ -1292,14 +1294,19 @@ export class ProductService {
 
     const colorList: any = ImageList?.map((val: any, key: number) => {
       const jsonData = {
-        image: val
+        image: val,
+        imgKey: Number(imgKeys[key])
       };
       return jsonData;
     });
     const vehicleImages = partnerProduct?.colorCode
-      .map((val) => (val?.image ? { image: val?.image } : undefined))
+      .map((val, key) =>
+        val?.image ? { image: val?.image, imgKey: key } : undefined
+      )
       .filter((res) => res !== undefined);
-    const colorImages: any = [...vehicleImages, ...colorList];
+    const colorImages: any = [...vehicleImages, ...colorList].sort(
+      (a, b) => a.imgKey - b.imgKey
+    );
     const colorCode: any = partnerProduct?.colorCode?.map(
       (val: any, key: number) => {
         const jsonData = {
@@ -1392,32 +1399,29 @@ export class ProductService {
     if (role === AdminRole.OEM) {
       newProd.oemUserName = userName;
     }
+    if (productPayload?.retailPrice) {
+      newProd.totalAmount =
+        Number(productPayload?.qty) * Number(productPayload?.price);
+    }
+    if (productPayload?.bulkPrice) {
+      const totalBulkQty =
+        Number(productPayload?.qty) * Number(productPayload?.moqQty);
+      newProd.moqQty = Number(productPayload?.moqQty);
+      newProd.totalMoqQty = totalBulkQty;
+      newProd.totalAmount =
+        Number(totalBulkQty) * Number(productPayload?.price);
+    }
+    newProd.status = 'ACTIVE';
     const productResult = await ProductCartModel.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product added successfully>');
     return productResult;
   }
 
-  async getCartList(
-    userName: string,
-    role?: string,
-    oemId?: string
-  ): Promise<any> {
+  async getCartList(oemId?: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
-    const query: any = {};
-
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
-
-    if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = oemId;
-    }
-
-    if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-    console.log(userName, role, oemId, 'partner');
-
+    const query: any = {
+      userId: oemId
+    };
     const product = await ProductCartModel.aggregate([
       { $match: query },
       { $set: { ProductInfo: { $toObjectId: '$productId' } } },
@@ -1440,12 +1444,9 @@ export class ProductService {
     return product;
   }
 
-  async updateCartProduct(
-    reqBody: IB2BPartnersProduct,
-    cartId: string
-  ): Promise<any> {
+  async updateCartProduct(reqBody: any, cartId: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<Update Product details >');
-    const partnerResult: IB2BPartnersProduct = await ProductCartModel.findOne({
+    const partnerResult: any = await ProductCartModel.findOne({
       _id: cartId
     })?.lean();
 
@@ -1453,8 +1454,20 @@ export class ProductService {
       throw new Error('Product does not exist');
     }
     const query: any = {};
-    query._id = reqBody._id;
-    const res = await ProductCartModel.findOneAndUpdate(query, reqBody, {
+    const cartJson: any = partnerResult;
+    query._id = partnerResult._id;
+    if (partnerResult?.retailPrice) {
+      cartJson.totalAmount =
+        Number(reqBody?.qty) * Number(partnerResult?.price);
+    }
+    if (partnerResult?.bulkPrice) {
+      const totalBulkQty = Number(reqBody?.qty) * Number(partnerResult?.moqQty);
+      cartJson.totalMoqQty = totalBulkQty;
+      cartJson.totalAmount =
+        Number(totalBulkQty) * Number(partnerResult?.price);
+    }
+    cartJson.qty = Number(reqBody?.qty);
+    const res = await ProductCartModel.findOneAndUpdate(query, cartJson, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
