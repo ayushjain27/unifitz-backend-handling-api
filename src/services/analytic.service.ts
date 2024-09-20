@@ -18,6 +18,8 @@ import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
 import EventModel from './../models/Event';
 import VehicleAnalyticModel from './../models/VehicleAnalytic';
+import NewVehicleAnalyticModel from './../models/NewVehicleAnalytic';
+
 import OfferModel from './../models/Offers';
 import SchoolOfAutoModel from '../models/SchoolOfAuto';
 import BusinessModel from '../models/Business';
@@ -1889,6 +1891,9 @@ export class AnalyticService {
     return queryFilter;
   }
 
+  /// buysell vehicle analytic creation api start ===========================
+  ///======================================================================//
+
   async createVehicleAnalytic(requestData: any): Promise<any> {
     const userData: any = {};
     const eventResult = requestData;
@@ -2180,4 +2185,305 @@ export class AnalyticService {
     });
     return finalResult;
   }
+
+  /// buysell vehicle analytic creation api end ===========================
+  ///======================================================================//
+
+  /// New vehicle analytic creation api start ===========================
+  ///======================================================================//
+
+  async createNewVehicle(requestData: any): Promise<any> {
+    const userData: any = {};
+    const eventResult = requestData;
+
+    userData.userId = requestData.userId || '';
+    userData.phoneNumber = requestData.phoneNumber || '';
+    userData.geoLocation = {
+      type: 'Point',
+      coordinates: requestData?.coordinates
+    };
+    userData.state = requestData?.state || '';
+    userData.city = requestData?.city || '';
+
+    eventResult.userInformation = userData;
+
+    Logger.info(
+      '<Service>:<CategoryService>:<Create analytic service initiated>'
+    );
+    let newAnalytic: any = [];
+    if (!_.isEmpty(eventResult)) {
+      newAnalytic = await NewVehicleAnalyticModel.create(eventResult);
+    }
+    Logger.info('<Service>:<CategoryService>:<analytic created successfully>');
+    return newAnalytic;
+  }
+
+  async getNewVehicleImpression(
+    role: string,
+    userName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    // const currentDate = new Date(lastDay);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      platform: platform,
+      event: 'IMPRESSION_COUNT',
+      moduleInformation: storeId
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
+    // const c_Date = new Date();
+
+    const queryFilter: any = await NewVehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $project: {
+          createdAt: 1,
+          groupId: {
+            $dateFromParts: {
+              year: {
+                $year: '$createdAt'
+              },
+              month: {
+                $month: '$createdAt'
+              },
+              day: {
+                $dayOfMonth: '$createdAt'
+              },
+              hour: {
+                $cond: [
+                  {
+                    $gte: [
+                      {
+                        $dateDiff: {
+                          startDate: firstDay,
+                          endDate: lastDay,
+                          unit: 'day'
+                        }
+                      },
+                      1
+                    ]
+                  },
+                  0,
+                  {
+                    $hour: '$createdAt'
+                  }
+                ]
+              }
+            }
+          },
+          moduleInformation: 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            groupId: '$groupId',
+            store: '$moduleInformation'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.groupId',
+          views: {
+            $sum: 1
+          }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $toString: '$_id'
+          },
+          views: 1,
+          // stores: 1,
+          // topViewStore: 1,
+          _id: 0
+        }
+      },
+      {
+        $unset: ['_id']
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return queryFilter;
+  }
+
+  async getNewVehicleAll(
+    role: string,
+    userName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    const tday = new Date();
+
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      // event: { $ne: 'IMPRESSION_COUNT' },
+      moduleInformation: storeId,
+      platform: platform
+    };
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const queryFilter: any = await NewVehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+
+    delete query['createdAt'];
+    const AllEventResult: any = await NewVehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: {
+            createdAt: '$createdAt',
+            moduleInformation: '$moduleInformation',
+            event: '$event'
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.event',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          _id: 0,
+          count: 1
+        }
+      }
+    ]);
+
+    const finalResult = AllEventResult.map((val: any) => {
+      const objectData = queryFilter.find((res: any) => res.name === val?.name);
+      return {
+        name: val?.name,
+        count: objectData?.count,
+        total: val?.count
+      };
+    });
+    return finalResult;
+  }
+
+  /// New vehicle analytic creation api end ===========================
+  ///======================================================================//
 }

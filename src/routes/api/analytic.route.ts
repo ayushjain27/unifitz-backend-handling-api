@@ -164,4 +164,24 @@ router.post(
 // ====================Vehicle analytic api lists end=====================
 // =======================================================================
 
+// ====================NewVehicle analytic api lists start===================
+// =======================================================================
+
+router.post('/createNewVehicle', analyticController.createNewVehicle);
+
+router.post(
+  '/getNewVehicleImpression',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getNewVehicleImpression
+);
+
+router.post(
+  '/getNewVehicleAll',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getNewVehicleAll
+);
+
+// ====================NewVehicle analytic api lists end=====================
+// =======================================================================
+
 export default router;

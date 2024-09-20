@@ -787,7 +787,12 @@ export class ProductService {
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>: <creating new  partner product>');
 
-    const newProd = productPayload;
+    const newProd: any = productPayload;
+    const numVal =
+      (productPayload?.priceDetail?.mrp -
+        productPayload?.priceDetail?.sellingPrice) /
+      productPayload?.priceDetail?.mrp;
+    newProd.discount = numVal * 100;
     if (role === AdminRole.OEM) {
       newProd.oemUserName = userName;
     }
@@ -914,10 +919,14 @@ export class ProductService {
     productCategory?: string,
     productSubCategory?: string,
     pageNo?: number,
-    pageSize?: number
+    pageSize?: number,
+    discount?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     let query: any = {};
+    const discountStart = Number(discount?.split('-')[0]);
+    const discountEnd = Number(discount?.split('-')[1]);
+
     query = {
       vehicleType: vehicleType,
       vehicleModel: vehicleModel,
@@ -925,7 +934,11 @@ export class ProductService {
       makeType: makeType,
       status: 'ACTIVE',
       'productCategory.catalogName': { $in: productCategory },
-      'productSubCategory.catalogName': { $in: productSubCategory }
+      'productSubCategory.catalogName': { $in: productSubCategory },
+      discount: {
+        $gte: discountStart,
+        $lte: discountEnd
+      }
     };
     if (userType === 'Distributer') {
       query.$or = [
@@ -954,6 +967,9 @@ export class ProductService {
     }
     if (!makeType) {
       delete query['makeType'];
+    }
+    if (!discount) {
+      delete query['discount'];
     }
     if (!productCategory) {
       delete query['productCategory.catalogName'];
@@ -1137,6 +1153,10 @@ export class ProductService {
     }
     const query: any = {};
     query._id = reqBody._id;
+    const numVal =
+      (reqBody?.priceDetail?.mrp - reqBody?.priceDetail?.sellingPrice) /
+      reqBody?.priceDetail?.mrp;
+    reqBody.discount = numVal * 100;
     const res = await PartnersPoduct.findOneAndUpdate(query, reqBody, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
@@ -1434,10 +1454,10 @@ export class ProductService {
         }
       },
       { $unwind: { path: '$productInfo' } },
-      { $set: { productName: '$productInfo.productSuggest' } },
-      { $set: { colorCode: '$productInfo.colorCode' } },
+      // { $set: { productName: '$productInfo.productSuggest' } },
+      // { $set: { colorCode: '$productInfo.colorCode' } }
       {
-        $project: { productInfo: 0 }
+        $project: { ProductInfo: 0 }
       }
     ]);
 
