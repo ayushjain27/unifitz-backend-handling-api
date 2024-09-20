@@ -656,6 +656,8 @@ export class AnalyticController {
         .json({ message: err.message });
     }
   };
+  /// buysell vehicle analytic creation api start ===========================
+  ///======================================================================//
 
   createVehicleAnalytic = async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -741,4 +743,97 @@ export class AnalyticController {
         .json({ message: err.message });
     }
   };
+
+  /// buysell vehicle analytic creation api end ===========================
+  ///======================================================================//
+
+  /// New vehicle analytic creation api start===========================
+  ///======================================================================//
+
+  createNewVehicle = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<Vehiclecontroller>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createNewVehicle(requestData);
+      res.send({
+        message: 'OK !!!!',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getNewVehicleImpression = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
+    try {
+      Logger.info(
+        '<Controller>:<Vehiclecontroller>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getNewVehicleImpression(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getNewVehicleAll = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
+      req.body;
+    try {
+      Logger.info(
+        '<Controller>:<Vehiclecontroller>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getNewVehicleAll(
+        role,
+        userName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  /// New vehicle analytic creation api end===========================
+  ///======================================================================//
 }

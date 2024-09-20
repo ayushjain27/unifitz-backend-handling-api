@@ -139,6 +139,7 @@ export interface IB2BPartnersProduct {
   status?: string;
   colorCode: IColorCode[];
   targetedAudience: ITargetedAudience;
+  discount?: number;
 }
 
 export enum ProductStatus {
@@ -346,6 +347,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     colorCode: {
       type: [colorCodeSchema]
+    },
+    discount: {
+      type: Number
     },
     targetedAudience: {
       type: targetedAudienceSchema

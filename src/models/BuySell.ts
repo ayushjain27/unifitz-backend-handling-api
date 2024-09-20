@@ -13,7 +13,8 @@ export enum Status {
   EXPIRED = 'EXPIRED',
   PROCESSING = 'PROCESSING',
   INACTIVE = 'INACTIVE',
-  DRAFT = 'DRAFT'
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING'
 }
 
 export interface ICustomerDetails {
