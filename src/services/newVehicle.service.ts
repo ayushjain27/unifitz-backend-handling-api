@@ -6,7 +6,7 @@ import _, { identity } from 'lodash';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
-import { AdminRole } from './../models/Admin';
+import Admin, { AdminRole } from './../models/Admin';
 import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
@@ -374,6 +374,35 @@ export class NewVehicleInfoService {
           'STORE_OWNER',
           ''
         );
+        if(!_.isEmpty(storeDetails?.oemUserName)){
+          const adminDetails = await Admin.findOne({
+            userName: storeDetails?.oemUserName
+          })
+          if(!_.isEmpty(adminDetails?.contactInfo)){
+            if(!_.isEmpty(adminDetails?.contactInfo?.email)){
+              const templateData = {
+                userName: reqBody?.userName,
+                phoneNumber: reqBody?.phoneNumber,
+                email: reqBody?.email,
+                userState: reqBody?.state,
+                userCity: reqBody?.city,
+                vehicleName: vehicleResult?.vehicleNameSuggest,
+                brand: vehicleResult?.brand,
+                model: vehicleResult?.model,
+                dealerName: reqBody?.dealerName,
+                storeId: reqBody?.storeDetails?.storeId,
+                storeState: reqBody?.storeDetails?.state,
+                storeCity: reqBody?.storeDetails?.city
+              }
+              sendEmail(
+                templateData,
+                adminDetails?.contactInfo?.email,
+                'support@serviceplug.in',
+                'NewVehicleTestDriveOemUserPartner'
+              );
+            }
+          }
+        }
         return updatedVehicle;
       }
 
