@@ -394,13 +394,31 @@ export class NewVehicleInfoService {
                 storeState: reqBody?.storeDetails?.state,
                 storeCity: reqBody?.storeDetails?.city
               }
-              sendEmail(
+              await sendEmail(
                 templateData,
                 adminDetails?.contactInfo?.email,
                 'support@serviceplug.in',
-                'NewVehicleTestDriveOemUserPartner'
+                'NewVehicleEnquiryOemUserPartner'
               );
             }
+          }
+          if(!_.isEmpty(storeDetails?.contactInfo?.email)){
+            const templateDataToStore = {
+              userName: reqBody?.userName,
+              phoneNumber: reqBody?.phoneNumber,
+              email: reqBody?.email,
+              userState: reqBody?.state,
+              userCity: reqBody?.city,
+              vehicleName: vehicleResult?.vehicleNameSuggest,
+              brand: vehicleResult?.brand,
+              model: vehicleResult?.model
+            }
+            await sendEmail(
+              templateDataToStore,
+              storeDetails?.contactInfo?.email,
+              'support@serviceplug.in',
+              'NewVehicleTestDriveStore'
+            );
           }
         }
         return updatedVehicle;
