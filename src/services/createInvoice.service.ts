@@ -99,7 +99,7 @@ export class CreateInvoiceService {
         'USER',
         'INVOICE'
       );
-      this.createOrUpdateUser(phoneNumber, jobCard);
+      // this.createOrUpdateUser(phoneNumber, jobCard);
       //  "category": "", "fuel": "", "fuelType": "PETROL", "gearType": "MANUAL", "kmsDriven": "2000", "lastInsuanceDate": "2020-10-22T18:30:00.000Z", "lastServiceDate": "2023-11-14T07:03:33.476Z", "manufactureYear": "8/2019", "modelName": "ACCESS 125", "ownerShip": "1", "purpose": "OWNED", "userId": "63aadcd071f7e310475492f1", "vehicleImageList": [], "vehicleNumber": "DL8SCS6791"}
       return newInvoice;
     } catch (error) {
@@ -111,75 +111,75 @@ export class CreateInvoiceService {
     }
   }
 
-  async createOrUpdateUser(phoneNumber: string, jobCard: any) {
-    const updatedPhoneNumber = `+91${phoneNumber}`;
-    const userFields = {
-      updatedPhoneNumber,
-      role: 'USER'
-    };
-    const newUser = await User.findOneAndUpdate(
-      { phoneNumber: updatedPhoneNumber, role: 'USER' },
-      userFields,
-      { upsert: true, new: true }
-    );
-    await this.createCustomer(updatedPhoneNumber, jobCard);
-  }
+  // async createOrUpdateUser(phoneNumber: string, jobCard: any) {
+  //   const updatedPhoneNumber = `+91${phoneNumber}`;
+  //   const userFields = {
+  //     updatedPhoneNumber,
+  //     role: 'USER'
+  //   };
+  //   const newUser = await User.findOneAndUpdate(
+  //     { phoneNumber: updatedPhoneNumber, role: 'USER' },
+  //     userFields,
+  //     { upsert: true, new: true }
+  //   );
+  //   await this.createCustomer(updatedPhoneNumber, jobCard);
+  // }
 
-  async createCustomer(updatedPhoneNumber: string, jobCard: any) {
-    const customer = await Customer.findOne({
-      phoneNumber: updatedPhoneNumber
-    });
-    console.log(customer, 'wlekr');
-    let newCustomer;
-    if (!customer) {
-      const customerDetails = {
-        fullName: jobCard?.customerDetails[0]?.name,
-        email: jobCard?.customerDetails[0]?.email,
-        phoneNumber: updatedPhoneNumber
-      };
-      newCustomer = await Customer.create(customerDetails);
-    }
+  // async createCustomer(updatedPhoneNumber: string, jobCard: any) {
+  //   const customer = await Customer.findOne({
+  //     phoneNumber: updatedPhoneNumber
+  //   });
+  //   console.log(customer, 'wlekr');
+  //   let newCustomer;
+  //   if (!customer) {
+  //     const customerDetails = {
+  //       fullName: jobCard?.customerDetails[0]?.name,
+  //       email: jobCard?.customerDetails[0]?.email,
+  //       phoneNumber: updatedPhoneNumber
+  //     };
+  //     newCustomer = await Customer.create(customerDetails);
+  //   }
 
-    console.log(newCustomer, 'wfr;ekl');
-    await this.createVehicle(jobCard, customer, newCustomer);
-  }
+  //   console.log(newCustomer, 'wfr;ekl');
+  //   await this.createVehicle(jobCard, customer, newCustomer);
+  // }
 
-  async createVehicle(jobCard: any, customer: any, newCustomer: any) {
-    const vehicleDetailsFetch =
-      jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0];
-    if (vehicleDetailsFetch?.registeredVehicle === 'registered') {
-      const checkExistingVehicle: IVehiclesInfo = await VehicleInfo.findOne({
-        vehicleNumber: vehicleDetailsFetch?.vehicleNumber,
-        userId: newCustomer?._id || customer?._id
-      });
-      if (!checkExistingVehicle) {
-        const vehicleNumber = vehicleDetailsFetch?.vehicleNumber;
-        const vehicleDetails = await this.surepassService.getRcDetails(
-          vehicleNumber
-        );
-        const addVehicleDetails = {
-          userId: newCustomer?._id || customer?._id,
-          brand: vehicleDetails?.maker_description,
-          fuelType: vehicleDetails?.fuel_type,
-          vehicleType:
-            jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
-              ?.vehicleType,
-          vehicleNumber: vehicleDetails?.rc_number,
-          purpose: 'OWNED',
-          modelName: vehicleDetails?.maker_model,
-          manufactureYear: vehicleDetails?.manufacturing_date,
-          ownership: vehicleDetails?.owner_number,
-          vehicleImageList:
-            jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
-              ?.vehicleImageList,
-          lastInsuanceDate: new Date(vehicleDetails?.insurance_upto)
-        };
-        const newVehicle: IVehiclesInfo = await VehicleInfo.create(
-          addVehicleDetails
-        );
-      }
-    }
-  }
+  // async createVehicle(jobCard: any, customer: any, newCustomer: any) {
+  //   const vehicleDetailsFetch =
+  //     jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0];
+  //   if (vehicleDetailsFetch?.registeredVehicle === 'registered') {
+  //     const checkExistingVehicle: IVehiclesInfo = await VehicleInfo.findOne({
+  //       vehicleNumber: vehicleDetailsFetch?.vehicleNumber,
+  //       userId: newCustomer?._id || customer?._id
+  //     });
+  //     if (!checkExistingVehicle) {
+  //       const vehicleNumber = vehicleDetailsFetch?.vehicleNumber;
+  //       const vehicleDetails = await this.surepassService.getRcDetails(
+  //         vehicleNumber
+  //       );
+  //       const addVehicleDetails = {
+  //         userId: newCustomer?._id || customer?._id,
+  //         brand: vehicleDetails?.maker_description,
+  //         fuelType: vehicleDetails?.fuel_type,
+  //         vehicleType:
+  //           jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
+  //             ?.vehicleType,
+  //         vehicleNumber: vehicleDetails?.rc_number,
+  //         purpose: 'OWNED',
+  //         modelName: vehicleDetails?.maker_model,
+  //         manufactureYear: vehicleDetails?.manufacturing_date,
+  //         ownership: vehicleDetails?.owner_number,
+  //         vehicleImageList:
+  //           jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
+  //             ?.vehicleImageList,
+  //         lastInsuanceDate: new Date(vehicleDetails?.insurance_upto)
+  //       };
+  //       const newVehicle: IVehiclesInfo = await VehicleInfo.create(
+  //         addVehicleDetails
+  //       );
+  //     }
+  //   }
+  // }
 
   async getInvoiceById(id: string): Promise<ICreateInvoice> {
     Logger.info(

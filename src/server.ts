@@ -351,13 +351,12 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewVehicleTestDriveOemUserPartner',
-      SubjectPart: '🚗New Booking Test Drive Alert🚗', // Use a placeholder for dynamic subject
+      TemplateName: 'NewVehicleEnquiryOemUserPartner',
+      SubjectPart: '🚗 New Vehicle Enquiry 🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>🚗 One User has booked test Drive🚗</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -391,8 +390,7 @@ app.get('/createTemplate', async (req, res) => {
       </head>
       <body>
         <div class="container">
-      <p style="font-size: 20px; text-align: center;">🚗Booking Test Drive 🚗</p>
-          <p style="font-size: 17px; text-align: center;">One User has booked the test drive. Here are the Details</p>
+      <p style="font-size: 20px; text-align: center;">🚗 New Vehicle Enquiry 🚗</p>
           <p style="font-size: 16px; color: blue;">User Details</p>
           <p>UserName : {{userName}}</p>
           <p>Phone Number : {{phoneNumber}}</p>
