@@ -1255,6 +1255,7 @@ export class StoreService {
     let onboarded: any = 0;
     let rejected: any = 0;
     let draft: any = 0;
+    let pending: any = 0;
     let partnerdraft: any = 0;
 
     query = {
@@ -1338,9 +1339,12 @@ export class StoreService {
         ...query
       });
     }
-    const pending = await Store.count({
-      profileStatus: 'PENDING'
-    });
+    if (status === 'PENDING' || !status) {
+      pending = await Store.count({
+        profileStatus: 'PENDING',
+        ...query
+      });
+    }
 
     let totalCounts = {
       total,
