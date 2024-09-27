@@ -1313,6 +1313,12 @@ export class StoreService {
         ...query
       });
     }
+    if (status === 'PENDING' || !status) {
+      draft = await Store.count({
+        profileStatus: 'PENDING',
+        ...query
+      });
+    }
     if (status === 'PARTNERDRAFT' || !status) {
       query.oemUserName = { $exists: true };
       if (role === AdminRole.OEM) {
