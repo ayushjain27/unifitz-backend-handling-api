@@ -1315,7 +1315,7 @@ export class StoreService {
       });
     }
     if (status === 'PENDING' || !status) {
-      draft = await Store.count({
+      pending = await Store.count({
         profileStatus: 'PENDING',
         ...query
       });
@@ -1336,12 +1336,6 @@ export class StoreService {
 
       partnerdraft = await Store.count({
         profileStatus: 'DRAFT',
-        ...query
-      });
-    }
-    if (status === 'PENDING' || !status) {
-      pending = await Store.count({
-        profileStatus: 'PENDING',
         ...query
       });
     }
