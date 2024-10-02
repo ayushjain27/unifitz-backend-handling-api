@@ -46,6 +46,16 @@ import buySellVehicleInfo from './models/BuySell';
 import { sendEmail, sendNotification } from './utils/common';
 import Customer from './models/Customer';
 import TestDrive from './models/VehicleTestDrive';
+import User from './models/User';
+import mongoose from 'mongoose';
+import Product from './models/Product';
+import ProductReview from './models/ProductReview';
+import StoreReview from './models/Store-Review';
+import VehicleInfo from './models/Vehicle';
+import JobCard from './models/JobCard';
+import CreateInvoice from './models/CreateInvoice';
+import { Employee } from './models/Employee';
+import StoreCustomer from './models/StoreCustomer';
 // import cron from 'node-cron';
 
 const app = express();
@@ -263,6 +273,97 @@ const server = app.listen(port, () =>
     `Server started on port ${port} & v ${window?.env?.VERSION_NAME}(${window?.env?.VERSION_CODE})`
   )
 );
+
+// app.delete('/deleteAll', async (req, res) => {
+//   let phoneNumber = req.query.phoneNumber;
+//   let role = req.query.role;
+
+//   if (!phoneNumber || !role) {
+//     return res
+//       .status(400)
+//       .json({ message: 'Phone number and role are required' });
+//   }
+
+//   const session = await mongoose.startSession();
+
+//   try {
+//     // Start a transaction
+//     session.startTransaction();
+
+//     await User.deleteOne(
+//       { phoneNumber: phoneNumber, role: role },
+//       { session } // Pass the session to ensure this is part of the transaction
+//     );
+
+//     if (role === 'STORE_OWNER') {
+//       // Perform the delete operation inside the transaction
+//       //User delete
+
+//       //Stores Delete
+//       let stores = await Store.find({
+//         'contactInfo.phoneNumber.primary': `+91${phoneNumber}`
+//       }).lean();
+
+//       for (let store of stores) {
+//         await Store.deleteOne({ storeId: store.storeId }, { session });
+//         await StoreReview.deleteMany({ storeId: store.storeId }, { session });
+       
+//         //Products Delete
+//         let products = await Product.find({ storeId: store.storeId });
+//         for (let product of products) {
+//           await ProductReview.deleteOne(
+//             { productId: product._id },
+//             { session }
+//           );
+//         }
+//         await Product.deleteOne({ storeId: store.storeId }, { session });
+       
+//         //Vehicle Delete
+//         let buySell = await buySellVehicleInfo.find({
+//           'storeDetails.storeId': store.storeId
+//         });
+//         for (let item of buySell) {
+//           await VehicleInfo.deleteOne({
+//             _id: new mongoose.Types.ObjectId(item.vehicleId)
+//           });
+//         }
+//         await buySellVehicleInfo.deleteMany({
+//           'storeDetails.storeId': store.storeId
+//         });
+//         //JobCard Delete
+//         await JobCard.deleteMany({ storeId: store.storeId });
+//         await CreateInvoice.deleteMany({ storeId: store.storeId });
+//         await Employee.deleteMany({ storeId: store.storeId });
+//         await StoreCustomer.deleteMany({ storeId: store.storeId });
+//       }
+
+//       // Commit the transaction
+//       await session.commitTransaction();
+
+//       // End the session
+//       session.endSession();
+
+//       return res.status(200).json({
+//         message: `Successfully deleted user with phone number ${phoneNumber} and role ${role}`
+//       });
+//     } else {
+//       // If role is not STORE_OWNER
+      
+//     }
+//   } catch (error) {
+//     // Rollback the transaction in case of any error
+//     await session.abortTransaction();
+
+//     // End the session
+//     session.endSession();
+
+//     return res.status(500).json({
+//       message:
+//         'Error occurred while deleting user data. Transaction rolled back.',
+//       error: error.message
+//     });
+//   }
+// });
 
 async function updateSlugs() {
   try {
