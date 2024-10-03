@@ -36,7 +36,6 @@ import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
-import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
