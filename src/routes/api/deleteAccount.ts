@@ -16,7 +16,18 @@ const deleteAccountController = container.get<DeleteAccountController>(
   TYPES.DeleteAccountController
 );
 
-router.post('/delete-request', deleteAccountController.createDeleteRequestAccount);
+router.post(
+  '/delete-request',
+  roleAuth(ACL.STORE_GET_ALL),
+  deleteAccountController.validate('createRequest'),
+  validationHandler(),
+  deleteAccountController.createDeleteRequestAccount
+);
 
+router.get(
+  '/delete-request',
+  roleAuth(ACL.STORE_GET_ALL),
+  deleteAccountController.getDeleteRequest
+);
 
 export default router;

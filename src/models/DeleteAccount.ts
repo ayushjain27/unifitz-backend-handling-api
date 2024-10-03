@@ -9,6 +9,7 @@ export interface IDeleteAccount {
   createdAt?: Date;
   updatedAt?: Date;
   userId: string;
+  phoneNumber: string;
   app: string;
   storeId?: string;
   customerId?: string;
@@ -29,6 +30,10 @@ const deleteAccountSchema: Schema = new Schema(
       required: true
     },
     app: {
+      type: String,
+      required: true
+    },
+    phoneNumber: {
       type: String,
       required: true
     },

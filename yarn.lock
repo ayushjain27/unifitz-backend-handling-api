@@ -1874,6 +1874,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-cron@npm:^3.0.11":
+  version: 3.0.11
+  resolution: "@types/node-cron@npm:3.0.11"
+  checksum: a73f69bcca52a5f3b1671cfb00a8e4a1d150d0aef36a611564a2f94e66b6981bade577e267ceeeca6fcee241768902d55eb8cf3a81f9ef4ed767a23112fdb16d
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0":
   version: 18.11.2
   resolution: "@types/node@npm:18.11.2"
@@ -4675,10 +4682,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-status-codes@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "http-status-codes@npm:2.2.0"
-  checksum: 31e1d730856210445da0907d9b484629e69e4fe92ac032478a7aa4d89e5b215e2b4e75d7ebce40d0537b6850bd281b2f65c7cc36cc2677e5de056d6cea1045ce
+"http-status-codes@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "http-status-codes@npm:2.3.0"
+  checksum: dae3b99e0155441b6df28e8265ff27c56a45f82c6092f736414233e9ccf063d5ea93c1e1279e8b499c4642e2538b37995c76b1640ed3f615d0e2883d3a1dcfd5
   languageName: node
   linkType: hard
 
@@ -7178,6 +7185,7 @@ __metadata:
     "@types/long": 4.0.0
     "@types/morgan": ^1.9.3
     "@types/multer": ^1.4.7
+    "@types/node-cron": ^3.0.11
     "@types/nodemailer": ^6.4.14
     "@types/secure-random-password": ^0.2.1
     "@typescript-eslint/eslint-plugin": ^5.30.5
@@ -7199,7 +7207,7 @@ __metadata:
     fcm-node: ^1.6.1
     firebase-admin: ^11.0.0
     helmet: ^5.1.0
-    http-status-codes: ^2.2.0
+    http-status-codes: ^2.3.0
     inversify: ^6.0.1
     jsonwebtoken: ^8.5.1
     lodash: ^4.17.21

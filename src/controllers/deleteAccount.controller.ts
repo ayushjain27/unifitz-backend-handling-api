@@ -5,23 +5,32 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { DeleteAccountService } from './../services/deleteAccount.service';
+import { AccountDeleteRequest } from '../interfaces/accountDeleteRequest.interface';
 
 @injectable()
 export class DeleteAccountController {
   private deleteAccountService: DeleteAccountService;
-  constructor(@inject(TYPES.DeleteAccountService) deleteAccountService: DeleteAccountService) {
+  constructor(
+    @inject(TYPES.DeleteAccountService)
+    deleteAccountService: DeleteAccountService
+  ) {
     this.deleteAccountService = deleteAccountService;
   }
 
-  createDeleteRequestAccount = async (req: Request, res: Response) => {
+  createDeleteRequestAccount = async (req: any, res: Response) => {
     Logger.info(
       '<Controller>:<DeleteAccountController>:<Request Delete Account controller initiated>'
     );
     try {
-
-      const result = await this.deleteAccountService.create(
-        req.body
-      );
+      const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+      const reqBody: AccountDeleteRequest = {
+        feedback: req.body.feedback as string[],
+        comments: req.body?.comments as string,
+        phoneNumber,
+        userRole
+      };
+      const result = await this.deleteAccountService.create(reqBody);
       res.send({
         message: 'Deletion Request Successful',
         result
@@ -31,6 +40,40 @@ export class DeleteAccountController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+    }
+  };
+
+  getDeleteRequest = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<DeleteAccountController>:<Request Delete Account controller initiated>'
+    );
+    try {
+      const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+      const reqBody: AccountDeleteRequest = {
+        feedback: req.body.feedback as string[],
+        comments: req.body?.comments as string,
+        phoneNumber,
+        userRole
+      };
+      const result = await this.deleteAccountService.create(reqBody);
+      res.send({
+        message: 'Deletion Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+  validate = (method: string) => {
+    switch (method) {
+      case 'createRequest':
+        return [
+          body('feedback', 'Feedback does not exist').exists().isString()
+        ];
     }
   };
 }

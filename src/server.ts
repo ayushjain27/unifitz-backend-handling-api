@@ -40,27 +40,14 @@ import deleteAccount from './routes/api/deleteAccount';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
-import Store from './models/Store';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
-import { sendEmail, sendNotification } from './utils/common';
-import Customer from './models/Customer';
-import TestDrive from './models/VehicleTestDrive';
-import User from './models/User';
-import mongoose from 'mongoose';
-import Product from './models/Product';
-import ProductReview from './models/ProductReview';
-import StoreReview from './models/Store-Review';
-import VehicleInfo from './models/Vehicle';
-import JobCard from './models/JobCard';
-import CreateInvoice from './models/CreateInvoice';
-import { Employee } from './models/Employee';
-import StoreCustomer from './models/StoreCustomer';
+import errorHandler from './routes/middleware/errorHandler';
 // import cron from 'node-cron';
 
 const app = express();
-const cron = require('node-cron');
+import cron from 'node-cron';
 // Connect to MongoDB
 
 AWS.config.update({
@@ -268,6 +255,8 @@ app.get('/stateCityList', async (req, res) => {
 app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
 });
+
+app.use(errorHandler);
 
 const port = app.get('port');
 const server = app.listen(port, () =>
