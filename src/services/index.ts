@@ -25,3 +25,4 @@ export * from './schoolOfAuto.service';
 export * from './createInvoice.service';
 export * from './newVehicle.service';
 export * from './spEmployee.service';
+export * from './deleteAccount.service';

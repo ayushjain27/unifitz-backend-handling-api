@@ -70,5 +70,8 @@ export const TYPES = {
   NewVehicleInfoService: Symbol('NewVehicleInfoService'),
 
   SPEmployeeController: Symbol('SPEmployeeController'),
-  SPEmployeeService: Symbol('SPEmployeeService')
+  SPEmployeeService: Symbol('SPEmployeeService'),
+
+  DeleteAccountController: Symbol('DeleteAccountController'),
+  DeleteAccountService: Symbol('DeleteAccountService'),
 };
