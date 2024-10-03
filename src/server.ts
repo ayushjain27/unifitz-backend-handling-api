@@ -136,7 +136,7 @@ app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer);
 app.use('/spEmployee', spEmployee);
-app.use('/deleteAccount', deleteAccount);
+app.use('/account', deleteAccount);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({

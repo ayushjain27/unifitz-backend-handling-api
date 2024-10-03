@@ -12,4 +12,25 @@ export class DeleteAccountController {
   constructor(@inject(TYPES.DeleteAccountService) deleteAccountService: DeleteAccountService) {
     this.deleteAccountService = deleteAccountService;
   }
+
+  createDeleteRequestAccount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<DeleteAccountController>:<Request Delete Account controller initiated>'
+    );
+    try {
+
+      const result = await this.deleteAccountService.create(
+        req.body
+      );
+      res.send({
+        message: 'Deletion Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }
