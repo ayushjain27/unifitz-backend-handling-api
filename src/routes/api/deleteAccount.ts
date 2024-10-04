@@ -31,7 +31,7 @@ router.get(
 );
 
 router.delete(
-  '/restore-request',
+  '/delete-request',
   roleAuth(ACL.STORE_GET_ALL),
   deleteAccountController.getRestoreRequest
 );
