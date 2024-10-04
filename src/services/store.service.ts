@@ -1482,9 +1482,9 @@ export class StoreService {
     return stores;
   }
 
-  async getStoreByUserId(userId: any): Promise<IStore> {
+  async getStoreByUserId(userId: Types.ObjectId): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Get store by storeId>');
-    const storeResponse: IStore = await Store.find({ userId: new Types.ObjectId(userId) }).lean();
+    const storeResponse: IStore = await Store.findOne({ userId }).lean();
     return storeResponse;
   }
 }

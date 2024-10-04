@@ -48,7 +48,12 @@ export class DeleteAccountController {
       '<Controller>:<DeleteAccountController>:<Request Delete Account controller initiated>'
     );
     try {
-      const result = await this.deleteAccountService.getDeleteRequest(req.body);
+      const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+      const result = await this.deleteAccountService.getDeleteRequest(
+        phoneNumber,
+        userRole
+      );
       res.send({
         message: 'Deletion Request Successful',
         result
@@ -63,9 +68,7 @@ export class DeleteAccountController {
   validate = (method: string) => {
     switch (method) {
       case 'createRequest':
-        return [
-          body('feedback', 'Feedback does not exist').exists().isString()
-        ];
+        return [body('feedback', 'Feedback does not exist').exists().isArray()];
     }
   };
 }

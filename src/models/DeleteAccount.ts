@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema, ObjectId, Types } from 'mongoose';
 
 /**
  * Interface to model the Customer Schema for TypeScript.
@@ -8,7 +8,7 @@ export interface IDeleteAccount {
   comments?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  userId: string;
+  userId: Types.ObjectId;
   phoneNumber: string;
   app: string;
   storeId?: string;
@@ -26,7 +26,7 @@ const deleteAccountSchema: Schema = new Schema(
       required: false
     },
     userId: {
-      type: String,
+      type: Types.ObjectId,
       required: true
     },
     app: {

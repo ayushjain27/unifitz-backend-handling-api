@@ -13,8 +13,10 @@ export class UserService {
 
   async getUserByPhoneNumber(userPayload: any): Promise<IUser> {
     Logger.info('<Service>:<UserService>:<Get user by phone number>');
-    const userResponse: IUser = await User.find({ phoneNumber: userPayload.phoneNumber, role: userPayload.role }).lean();
+    const userResponse: IUser = await User.findOne({
+      phoneNumber: userPayload.phoneNumber,
+      role: userPayload.role
+    }).lean();
     return userResponse;
   }
-
 }
