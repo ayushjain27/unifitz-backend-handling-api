@@ -27,7 +27,8 @@ import {
   StoreCustomerController,
   CreateInvoiceController,
   NewVehicleInfoController,
-  SPEmployeeController
+  SPEmployeeController,
+  DeleteAccountController
 } from '../controllers';
 import {
   StoreService,
@@ -56,7 +57,9 @@ import {
   StoreCustomerService,
   CreateInvoiceService,
   NewVehicleInfoService,
-  SPEmployeeService
+  SPEmployeeService,
+  DeleteAccountService,
+  UserService
 } from '../services';
 
 const container = new Container();
@@ -217,5 +220,17 @@ container
 container
   .bind<SPEmployeeService>(TYPES.SPEmployeeService)
   .to(SPEmployeeService);
+
+  container
+  .bind<DeleteAccountController>(TYPES.DeleteAccountController)
+  .to(DeleteAccountController);
+
+container
+  .bind<DeleteAccountService>(TYPES.DeleteAccountService)
+  .to(DeleteAccountService);
+
+container
+  .bind<UserService>(TYPES.UserService)
+  .to(UserService);
 
 export default container;
