@@ -1481,4 +1481,10 @@ export class StoreService {
     }
     return stores;
   }
+
+  async getStoreByUserId(userId: any): Promise<IStore> {
+    Logger.info('<Service>:<StoreService>:<Get store by storeId>');
+    const storeResponse: IStore = await Store.find({ userId: new Types.ObjectId(userId) }).lean();
+    return storeResponse;
+  }
 }

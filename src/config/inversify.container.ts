@@ -58,7 +58,8 @@ import {
   CreateInvoiceService,
   NewVehicleInfoService,
   SPEmployeeService,
-  DeleteAccountService
+  DeleteAccountService,
+  UserService
 } from '../services';
 
 const container = new Container();
@@ -227,5 +228,9 @@ container
 container
   .bind<DeleteAccountService>(TYPES.DeleteAccountService)
   .to(DeleteAccountService);
+
+container
+  .bind<UserService>(TYPES.UserService)
+  .to(UserService);
 
 export default container;

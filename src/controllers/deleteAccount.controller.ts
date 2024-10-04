@@ -48,15 +48,7 @@ export class DeleteAccountController {
       '<Controller>:<DeleteAccountController>:<Request Delete Account controller initiated>'
     );
     try {
-      const phoneNumber = req.userId as string;
-      const userRole = req.role as string;
-      const reqBody: AccountDeleteRequest = {
-        feedback: req.body.feedback as string[],
-        comments: req.body?.comments as string,
-        phoneNumber,
-        userRole
-      };
-      const result = await this.deleteAccountService.create(reqBody);
+      const result = await this.deleteAccountService.getDeleteRequest(req.body);
       res.send({
         message: 'Deletion Request Successful',
         result

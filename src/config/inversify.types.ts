@@ -74,4 +74,6 @@ export const TYPES = {
 
   DeleteAccountController: Symbol('DeleteAccountController'),
   DeleteAccountService: Symbol('DeleteAccountService'),
+
+  UserService: Symbol('UserService'),
 };

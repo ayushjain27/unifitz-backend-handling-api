@@ -14,11 +14,18 @@ import { generateToken } from '../../utils';
 import { TwilioService } from '../../services/twilio.service';
 import { TwoFactorService } from '../../services/twoFactor.service';
 import { testUsers } from '../../config/constants';
+import { UserService } from '../../services';
+import { roleAuth } from '../middleware/rbac';
+import { ACL } from '../../enum/rbac.enum';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
 const twoFactorService = container.get<TwoFactorService>(
   TYPES.TwoFactorService
+);
+
+const userService = container.get<UserService>(
+  TYPES.UserService
 );
 // @route   GET user/auth
 // @desc    Get authenticated user given the token
@@ -197,5 +204,26 @@ const getTestUser = (phoneNumber: string) => {
   );
   return testUser;
 };
+
+router.get(
+  '/getUserByPhoneNumber',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  async (req, res) => {
+ 
+    try {
+      const userPayload = req.body;
+      Logger.info('<Router>:<UserService>:<User creation initiated>');
+
+      const result = await userService.getUserByPhoneNumber(userPayload);
+      res.json({
+        message: 'User obtained successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
+);
 
 export default router;
