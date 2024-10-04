@@ -30,4 +30,10 @@ router.get(
   deleteAccountController.getDeleteRequest
 );
 
+router.delete(
+  '/restore-request',
+  roleAuth(ACL.STORE_GET_ALL),
+  deleteAccountController.getRestoreRequest
+);
+
 export default router;

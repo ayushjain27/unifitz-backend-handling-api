@@ -86,4 +86,16 @@ export class DeleteAccountService {
     }).lean();
     return deleteAccountResponse;
   }
+
+  async getRestoreRequest(
+    phoneNumber: string,
+    userRole: string
+  ): Promise<IDeleteAccount> {
+    Logger.info('<Service>:<DeleteAccountService>:<Get deleted account by id>');
+    const deleteAccountResponse: IDeleteAccount = await DeleteAccount.deleteOne({
+      phoneNumber: `+91${phoneNumber?.slice(-10)}`,
+      userRole
+    }).lean();
+    return deleteAccountResponse;
+  }
 }
