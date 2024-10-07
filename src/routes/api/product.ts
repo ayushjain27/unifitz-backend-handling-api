@@ -6,6 +6,7 @@ import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../../routes/middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
+import { validationHandler } from '../middleware/auth';
 
 const storage = multer.memoryStorage();
 const uploadFiles = multer({ storage: storage });
@@ -246,6 +247,20 @@ router.put('/partner/cart/update/:cartId', productController.updateCartProduct);
 router.delete(
   '/partner/cart/delete/:cartId',
   productController.deleteCartProduct
+);
+
+router.post(
+  '/partner/product-order-address',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.validate('createNewAddress'),
+  // validationHandler(),
+  productController.createNewAddress
+);
+
+router.get(
+  '/partner/product-order-address',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getProductOrderAddressRequest
 );
 
 export default router;
