@@ -1314,6 +1314,12 @@ export class StoreService {
         ...query
       });
     }
+    if (status === 'PENDING' || !status) {
+      pending = await Store.count({
+        profileStatus: 'PENDING',
+        ...query
+      });
+    }
     if (status === 'PARTNERDRAFT' || !status) {
       query.oemUserName = { $exists: true };
       if (role === AdminRole.OEM) {
@@ -1332,12 +1338,6 @@ export class StoreService {
         profileStatus: 'DRAFT',
         ...query
       });
-    }
-    if (status === 'PENDING' || !status) {
-      pending = await Store.count({
-      profileStatus: 'PENDING',
-      ...query
-    });
     }
 
     let totalCounts = {
@@ -1494,5 +1494,11 @@ export class StoreService {
       );
     }
     return stores;
+  }
+
+  async getStoreByUserId(userId: Types.ObjectId): Promise<IStore> {
+    Logger.info('<Service>:<StoreService>:<Get store by storeId>');
+    const storeResponse: IStore = await Store.findOne({ userId }).lean();
+    return storeResponse;
   }
 }

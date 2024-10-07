@@ -30,7 +30,8 @@ export enum StoreProfileStatus {
   DRAFT = 'DRAFT',
   PENDING = 'PENDING',
   ONBOARDED = 'ONBOARDED',
-  REJECTED = 'REJECTED'
+  REJECTED = 'REJECTED',
+  DELETED = 'DELETED'
 }
 
 export interface IBasicInfo {

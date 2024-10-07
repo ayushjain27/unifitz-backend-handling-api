@@ -36,20 +36,18 @@ import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
+import deleteAccount from './routes/api/deleteAccount';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
-import Store from './models/Store';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
-import { sendEmail, sendNotification } from './utils/common';
-import Customer from './models/Customer';
-import TestDrive from './models/VehicleTestDrive';
+import errorHandler from './routes/middleware/errorHandler';
 // import cron from 'node-cron';
 
 const app = express();
-const cron = require('node-cron');
+import cron from 'node-cron';
 // Connect to MongoDB
 
 AWS.config.update({
@@ -125,6 +123,7 @@ app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer);
 app.use('/spEmployee', spEmployee);
+app.use('/account', deleteAccount);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -257,12 +256,105 @@ app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
 });
 
+app.use(errorHandler);
+
 const port = app.get('port');
 const server = app.listen(port, () =>
   Logger.debug(
     `Server started on port ${port} & v ${window?.env?.VERSION_NAME}(${window?.env?.VERSION_CODE})`
   )
 );
+
+// app.delete('/deleteAll', async (req, res) => {
+//   let phoneNumber = req.query.phoneNumber;
+//   let role = req.query.role;
+
+//   if (!phoneNumber || !role) {
+//     return res
+//       .status(400)
+//       .json({ message: 'Phone number and role are required' });
+//   }
+
+//   const session = await mongoose.startSession();
+
+//   try {
+//     // Start a transaction
+//     session.startTransaction();
+
+//     await User.deleteOne(
+//       { phoneNumber: phoneNumber, role: role },
+//       { session } // Pass the session to ensure this is part of the transaction
+//     );
+
+//     if (role === 'STORE_OWNER') {
+//       // Perform the delete operation inside the transaction
+//       //User delete
+
+//       //Stores Delete
+//       let stores = await Store.find({
+//         'contactInfo.phoneNumber.primary': `+91${phoneNumber}`
+//       }).lean();
+
+//       for (let store of stores) {
+//         await Store.deleteOne({ storeId: store.storeId }, { session });
+//         await StoreReview.deleteMany({ storeId: store.storeId }, { session });
+       
+//         //Products Delete
+//         let products = await Product.find({ storeId: store.storeId });
+//         for (let product of products) {
+//           await ProductReview.deleteOne(
+//             { productId: product._id },
+//             { session }
+//           );
+//         }
+//         await Product.deleteOne({ storeId: store.storeId }, { session });
+       
+//         //Vehicle Delete
+//         let buySell = await buySellVehicleInfo.find({
+//           'storeDetails.storeId': store.storeId
+//         });
+//         for (let item of buySell) {
+//           await VehicleInfo.deleteOne({
+//             _id: new mongoose.Types.ObjectId(item.vehicleId)
+//           });
+//         }
+//         await buySellVehicleInfo.deleteMany({
+//           'storeDetails.storeId': store.storeId
+//         });
+//         //JobCard Delete
+//         await JobCard.deleteMany({ storeId: store.storeId });
+//         await CreateInvoice.deleteMany({ storeId: store.storeId });
+//         await Employee.deleteMany({ storeId: store.storeId });
+//         await StoreCustomer.deleteMany({ storeId: store.storeId });
+//       }
+
+//       // Commit the transaction
+//       await session.commitTransaction();
+
+//       // End the session
+//       session.endSession();
+
+//       return res.status(200).json({
+//         message: `Successfully deleted user with phone number ${phoneNumber} and role ${role}`
+//       });
+//     } else {
+//       // If role is not STORE_OWNER
+      
+//     }
+//   } catch (error) {
+//     // Rollback the transaction in case of any error
+//     await session.abortTransaction();
+
+//     // End the session
+//     session.endSession();
+
+//     return res.status(500).json({
+//       message:
+//         'Error occurred while deleting user data. Transaction rolled back.',
+//       error: error.message
+//     });
+//   }
+// });
 
 async function updateSlugs() {
   try {
@@ -351,13 +443,12 @@ const path = require('path');
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewVehicleTestDriveOemUserPartner',
-      SubjectPart: '🚗New Booking Test Drive Alert🚗', // Use a placeholder for dynamic subject
+      TemplateName: 'NewVehicleEnquiryOemUserPartner',
+      SubjectPart: '🚗 New Vehicle Enquiry 🚗', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>🚗 One User has booked test Drive🚗</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -391,8 +482,7 @@ app.get('/createTemplate', async (req, res) => {
       </head>
       <body>
         <div class="container">
-      <p style="font-size: 20px; text-align: center;">🚗Booking Test Drive 🚗</p>
-          <p style="font-size: 17px; text-align: center;">One User has booked the test drive. Here are the Details</p>
+      <p style="font-size: 20px; text-align: center;">🚗 New Vehicle Enquiry 🚗</p>
           <p style="font-size: 16px; color: blue;">User Details</p>
           <p>UserName : {{userName}}</p>
           <p>Phone Number : {{phoneNumber}}</p>

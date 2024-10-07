@@ -1,6 +1,11 @@
+# OSX
+#
+.DS_Store
+
 node_modules
 package-lock.json
 logs
 .vscode
 dist/
+.yarn/
 src/db_update_script.js
