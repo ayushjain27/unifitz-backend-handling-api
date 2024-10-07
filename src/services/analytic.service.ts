@@ -107,6 +107,9 @@ export class AnalyticService {
     role?: string;
     userName?: string;
     oemId?: string;
+    oemUserId?: string;
+    brandName?: string;
+    storeId?: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
@@ -128,16 +131,28 @@ export class AnalyticService {
       // },
       'basicInfo.category.name': { $in: searchReqBody.category },
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
+      'basicInfo.brand.name': { $in: searchReqBody.brandName },
       'contactInfo.state': { $in: searchReqBody.state },
       'contactInfo.city': { $in: searchReqBody.city },
       createdAt: { $gte: startDate, $lt: endDate },
-      profileStatus: 'ONBOARDED'
+      profileStatus: 'ONBOARDED',
+      storeId: searchReqBody.storeId,
+      oemUserName: searchReqBody.oemUserId
     };
+    if (!searchReqBody.storeId) {
+      delete query['storeId'];
+    }
+    if (!searchReqBody.oemUserId) {
+      delete query['oemUserName'];
+    }
     if (!searchReqBody.category) {
       delete query['basicInfo.category.name'];
     }
     if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
       delete query['basicInfo.subCategory.name'];
+    }
+    if (!searchReqBody.brandName) {
+      delete query['basicInfo.brand.name'];
     }
     if (!searchReqBody.state) {
       delete query['contactInfo.state'];
@@ -315,7 +330,9 @@ export class AnalyticService {
     city: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -335,9 +352,12 @@ export class AnalyticService {
       },
       platform: platform,
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId
+      moduleInformation: storeId,
+      oemUserName: adminFilterOemId
     };
-
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
     if (!state) {
       delete query['userInformation.state'];
     }
@@ -497,7 +517,9 @@ export class AnalyticService {
     state: string,
     city: string,
     storeId: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -520,10 +542,14 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: nextDate
       },
-      event: 'LOCATION_CHANGE'
+      event: 'LOCATION_CHANGE',
       // moduleInformation: storeId
       // oemUserName: role
+      oemUserName: adminFilterOemId
     };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
 
     if (!state) {
       delete query['userInformation.state'];
@@ -594,7 +620,9 @@ export class AnalyticService {
     lastDate: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -615,10 +643,14 @@ export class AnalyticService {
       'userInformation.state': state,
       'userInformation.city': city,
       event: 'LOCATION_CHANGE',
-      platform: platform
+      platform: platform,
       // moduleInformation: storeId
       // oemUserName: role
+      oemUserName: adminFilterOemId
     };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
     if (!firstDate || !lastDate) {
       delete query['createdAt'];
     }
@@ -688,7 +720,9 @@ export class AnalyticService {
     lastDate: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -709,10 +743,14 @@ export class AnalyticService {
       'userInformation.state': state,
       'userInformation.city': city,
       event: 'LOCATION_CHANGE',
-      platform: platform
+      platform: platform,
       // moduleInformation: storeId
       // oemUserName: role
+      oemUserName: adminFilterOemId
     };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
     if (!firstDate || !lastDate) {
       delete query['createdAt'];
     }
@@ -780,7 +818,9 @@ export class AnalyticService {
     city: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -803,8 +843,12 @@ export class AnalyticService {
       },
       event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
-      platform: platform
+      platform: platform,
+      oemUserName: adminFilterOemId
     };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
 
     if (!state) {
       delete query['userInformation.state'];
@@ -1922,14 +1966,16 @@ export class AnalyticService {
 
   async getVehicleAnalytic(
     role: string,
-    userName: string,
+    oemUserName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    brandName?: string,
+    userName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -1949,9 +1995,13 @@ export class AnalyticService {
       },
       platform: platform,
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId
+      moduleInformation: storeId,
+      oemUserName: userName
     };
 
+    if (!userName) {
+      delete query['oemUserName'];
+    }
     if (!state) {
       delete query['userInformation.state'];
     }
@@ -1965,7 +2015,7 @@ export class AnalyticService {
       delete query['moduleInformation'];
     }
     if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+      query.oemUserName = oemUserName;
     }
 
     if (role === AdminRole.EMPLOYEE) {
@@ -1975,7 +2025,7 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
+    Logger.debug(`${JSON.stringify(query)} ${role} ${oemUserName} datateee`);
     // const c_Date = new Date();
 
     const queryFilter: any = await VehicleAnalyticModel.aggregate([
@@ -2060,20 +2110,22 @@ export class AnalyticService {
 
   async getBuyVehicleAll(
     role: string,
-    userName: string,
+    oemUserName: string,
     firstDate: string,
     lastDate: string,
     state: string,
     city: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    brandName?: string,
+    userName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
     let query: any = {};
-    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    Logger.debug(`${role} ${oemUserName} getTrafficAnalaytic`);
     // const c_Date = new Date();
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
@@ -2090,9 +2142,13 @@ export class AnalyticService {
       },
       // event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
-      platform: platform
+      platform: platform,
+      oemUserName: userName
     };
 
+    if (!userName) {
+      delete query['oemUserName'];
+    }
     if (!state) {
       delete query['userInformation.state'];
     }
@@ -2107,7 +2163,7 @@ export class AnalyticService {
     }
 
     if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+      query.oemUserName = oemUserName;
     }
 
     if (role === AdminRole.EMPLOYEE) {
@@ -2227,7 +2283,9 @@ export class AnalyticService {
     city: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -2247,9 +2305,12 @@ export class AnalyticService {
       },
       platform: platform,
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId
+      moduleInformation: storeId,
+      oemUserName: adminFilterOemId
     };
-
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
     if (!state) {
       delete query['userInformation.state'];
     }
@@ -2365,7 +2426,9 @@ export class AnalyticService {
     city: string,
     storeId: string,
     platform: string,
-    oemId?: string
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -2388,8 +2451,12 @@ export class AnalyticService {
       },
       // event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
-      platform: platform
+      platform: platform,
+      oemUserName: adminFilterOemId
     };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
 
     if (!state) {
       delete query['userInformation.state'];
