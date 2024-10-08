@@ -356,7 +356,7 @@ export class BuySellService {
     let soldVeh: any = [];
     let draftVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
-      const date1 = new Date(list.createdAt);
+      const date1 = new Date(list.activeDate || list.createdAt);
       const date2 = new Date();
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
