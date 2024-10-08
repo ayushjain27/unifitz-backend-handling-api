@@ -77,7 +77,10 @@ export class AnalyticController {
       subCategory,
       state,
       city,
-      oemId
+      oemId,
+      oemUserId,
+      brandName,
+      storeId
     }: {
       startDate: string;
       endDate: string;
@@ -86,6 +89,9 @@ export class AnalyticController {
       state: string;
       city: string;
       oemId: string;
+      oemUserId: string;
+      brandName: string;
+      storeId: string;
     } = req.body;
     const role = req?.role;
     const userName = req?.userId;
@@ -105,7 +111,10 @@ export class AnalyticController {
         city,
         role,
         userName,
-        oemId
+        oemId,
+        oemUserId,
+        brandName,
+        storeId
       });
       res.send({
         result
@@ -193,8 +202,17 @@ export class AnalyticController {
   getEventAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -208,7 +226,9 @@ export class AnalyticController {
         city,
         storeId,
         platform,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -224,7 +244,16 @@ export class AnalyticController {
   getActiveUser = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, oemId } = req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -237,7 +266,9 @@ export class AnalyticController {
         state,
         city,
         storeId,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -253,8 +284,17 @@ export class AnalyticController {
   getUsersByState = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -268,7 +308,9 @@ export class AnalyticController {
         lastDate,
         storeId,
         platform,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -284,8 +326,17 @@ export class AnalyticController {
   getUsersByArea = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -299,7 +350,9 @@ export class AnalyticController {
         lastDate,
         storeId,
         platform,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -315,8 +368,17 @@ export class AnalyticController {
   getTrafficAnalaytic = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
@@ -330,7 +392,9 @@ export class AnalyticController {
         city,
         storeId,
         platform,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -684,23 +748,34 @@ export class AnalyticController {
 
   getVehicleAnalytic = async (req: Request, res: Response) => {
     const role = req?.role;
-    const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      brandName,
+      userName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
       );
       const result = await this.analyticService.getVehicleAnalytic(
         role,
-        userName,
+        oemUserName,
         firstDate,
         lastDate,
         state,
         city,
         storeId,
         platform,
-        oemId
+        oemId,
+        brandName,
+        userName
       );
       res.send({
         result
@@ -715,23 +790,34 @@ export class AnalyticController {
 
   getBuyVehicleAll = async (req: Request, res: Response) => {
     const role = req?.role;
-    const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      brandName,
+      userName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get analytic request controller initiated>'
       );
       const result = await this.analyticService.getBuyVehicleAll(
         role,
-        userName,
+        oemUserName,
         firstDate,
         lastDate,
         state,
         city,
         storeId,
         platform,
-        oemId
+        oemId,
+        brandName,
+        userName
       );
       res.send({
         result
@@ -775,8 +861,17 @@ export class AnalyticController {
   getNewVehicleImpression = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<Vehiclecontroller>:<get analytic request controller initiated>'
@@ -790,7 +885,9 @@ export class AnalyticController {
         city,
         storeId,
         platform,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -806,8 +903,17 @@ export class AnalyticController {
   getNewVehicleAll = async (req: Request, res: Response) => {
     const role = req?.role;
     const userName = req?.userId;
-    const { firstDate, lastDate, state, city, storeId, platform, oemId } =
-      req.body;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<Vehiclecontroller>:<get analytic request controller initiated>'
@@ -821,7 +927,9 @@ export class AnalyticController {
         city,
         storeId,
         platform,
-        oemId
+        oemId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result

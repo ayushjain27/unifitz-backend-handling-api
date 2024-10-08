@@ -145,6 +145,17 @@ router.post(
   storeController.getNearestDealer
 );
 
+router.post(
+  '/createHistory',
+  roleAuth(ACL.STORE_CREATE),
+  storeController.createHistory
+);
+router.post(
+  '/getHistory',
+  // roleAuth(ACL.STORE_GET_ALL),
+  storeController.getHistory
+);
+
 // router.get(
 //   '/getStoreByUserId',
 //   // roleAuth(ACL.STORE_GET_SINGLE),

@@ -356,7 +356,7 @@ export class BuySellService {
     let soldVeh: any = [];
     let draftVeh: any = [];
     const activeVehicles: any = result.map((list: any) => {
-      const date1 = new Date(list.createdAt);
+      const date1 = new Date(list.activeDate || list.createdAt);
       const date2 = new Date();
       const Difference_In_Time = date2.getTime() - date1.getTime();
       const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
@@ -554,8 +554,21 @@ export class BuySellService {
 
     const query: any = {
       'vehicleInfo.vehicleType': req.vehicleType,
-      'userType': req.userType
+      userType: req.userType,
+      'storeDetails.storeId': req?.storeId,
+      oemUserName: req?.userName,
+      brandName: req?.brandName
     };
+
+    if (!req.storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!req.userName) {
+      delete query['oemUserName'];
+    }
+    if (!req.brandName) {
+      delete query['brandName'];
+    }
 
     if (req?.date) {
       // Create start time in UTC at the beginning of the day (00:00:00)
@@ -601,23 +614,23 @@ export class BuySellService {
     if (!req.userType) {
       delete query['userType'];
     }
-    console.log(query,"dfwel;")
-    
+    console.log(query, 'dfwel;');
+
     Logger.debug(query);
     if (role === AdminRole.OEM) {
-      userResult.oemUserName = userName;
+      query.oemUserName = userName;
     }
 
     if (role === AdminRole.EMPLOYEE) {
-      userResult.oemUserName = req?.oemId;
+      query.oemUserName = req?.oemId;
     }
 
     if (req?.oemId === 'SERVICEPLUG') {
-      delete userResult['oemUserName'];
+      delete query['oemUserName'];
     }
     let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
       {
-        $match: userResult
+        $match: query
       },
       { $set: { VehicleId: { $toString: '$_id' } } },
       {

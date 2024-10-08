@@ -80,16 +80,16 @@ export interface ICity {
 
 export interface ITargetedAudience {
   distributor: boolean;
-  dealer: boolean;
-  retailers: boolean;
+  dealerRetailer: boolean;
+  // retailers: boolean;
   consumers: boolean;
 }
 
 export const targetedAudienceSchema: Schema = new Schema(
   {
     distributor: { type: Boolean },
-    dealer: { type: Boolean },
-    retailers: { type: Boolean },
+    dealerRetailer: { type: Boolean },
+    // retailers: { type: Boolean },
     consumers: { type: Boolean }
   },
   {
@@ -106,14 +106,10 @@ export interface IB2BPartnersProduct {
   vehicleModel: string;
   variants: string;
   fuelType: string;
-  oemPart: string;
-  aftermarketPartSku: string;
   productCategory?: ICatalog[];
   productSubCategory?: ICatalog[];
   startYear: Date;
   endYear: Date;
-  oemBrandPartNumber: string;
-  partManufactureName: string;
   productSuggest: string;
   productDescription: string;
   features: string;
@@ -122,7 +118,6 @@ export interface IB2BPartnersProduct {
   materialDetails: string;
   colour: string;
   madeIn: string;
-  skuNumber: string;
   returnPolicy: string;
   isActive: boolean;
   showPrice: boolean;
@@ -251,12 +246,6 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     fuelType: {
       type: String
     },
-    oemPart: {
-      type: String
-    },
-    aftermarketPartSku: {
-      type: String
-    },
     productCategory: {
       type: [catalogSchema]
     },
@@ -268,12 +257,6 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     endYear: {
       type: Date
-    },
-    oemBrandPartNumber: {
-      type: String
-    },
-    partManufactureName: {
-      type: String
     },
     productSuggest: {
       type: String
@@ -297,9 +280,6 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       type: String
     },
     madeIn: {
-      type: String
-    },
-    skuNumber: {
       type: String
     },
     returnPolicy: {
