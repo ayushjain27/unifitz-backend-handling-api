@@ -7,6 +7,7 @@ export interface S3Config {
   AWS_KEY_ID: string;
   ACCESS_KEY: string;
   BUCKET_NAME: string;
+  VIDEO_BUCKET_NAME: string;
 }
 
 export interface TwoFactorConfig {
