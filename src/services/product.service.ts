@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import ProductReview, { IProductReview } from './../models/ProductReview';
 import { injectable } from 'inversify';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import container from '../config/inversify.container';
 import mongoose, { Types } from 'mongoose';
 import Request from '../types/request';
@@ -28,10 +28,18 @@ import {
   PartnersPoduct,
   IB2BPartnersProduct
 } from '../models/B2BPartnersProduct';
+import { UserService } from './user.service';
+import { StoreService } from './store.service';
+import ProductOrderAddress, { IProductOrderAddress } from '../models/ProductOrderAddress';
 
 @injectable()
 export class ProductService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private userService = container.get<UserService>(TYPES.UserService);
+  private storeService = container.get<StoreService>(TYPES.StoreService);
+  private customerService = container.get<CustomerService>(
+    TYPES.CustomerService
+  );
 
   async create(productPayload: IProduct): Promise<IProduct> {
     Logger.info(
@@ -1503,5 +1511,70 @@ export class ProductService {
       _id: new Types.ObjectId(cartId)
     });
     return res;
+  }
+
+  async createNewAddress(requestBody: any): Promise<IProductOrderAddress> {
+    Logger.info('<Service>:<ProductService>: <New Address created>');
+
+    const params: IProductOrderAddress = {
+      ...requestBody,
+      app: requestBody.userRole === 'STORE_OWNER' ? 'PARTNER' : 'CUSTOMER',
+      userId: new Types.ObjectId()
+    };
+
+    // Check if the request exist
+    // const accountRequest = await this.getDeleteRequest(
+    //   requestBody.phoneNumber,
+    //   requestBody.userRole
+    // );
+
+    // if (!isEmpty(accountRequest)) {
+    //   throw new Error('Request already exist');
+    // }
+
+    // Get the user and attach the user id
+    const userPayload = {
+      phoneNumber: `+91${requestBody.phoneNumber?.slice(-10)}`,
+      role: requestBody.userRole
+    };
+
+    // Get the user details
+    const user = await this.userService.getUserByPhoneNumber(userPayload);
+
+    if (isEmpty(user)) {
+      throw new Error('User not found');
+    }
+
+    params.userId = user._id;
+
+    // If user role is store owner then get store id, else get customer id if available.
+
+    if (requestBody.userRole === 'STORE_OWNER') {
+      const store = await this.storeService.getStoreByUserId(user._id);
+
+      if (isEmpty(store)) {
+        throw new Error('Store not found');
+      }
+      params.storeId = store?.storeId;
+    } else {
+      const phoneNumber = requestBody.phoneNumber.slice(-10);
+      const customer = await this.customerService.getByPhoneNumber(phoneNumber);
+      params.customerId = customer?._id;
+    }
+
+    const newAddressRequest = await ProductOrderAddress.create(params);
+    return newAddressRequest;
+  }
+
+  async getAllAddress(
+    phoneNumber: string,
+    userRole: string
+  ): Promise<IProductOrderAddress[]> {
+    Logger.info('<Service>:<DeleteAccountService>:<Get deleted account by id>');
+    const productOrderAddressResponse: IProductOrderAddress[] = await ProductOrderAddress.find({
+      phoneNumber: `+91${phoneNumber?.slice(-10)}`,
+      userRole
+    }).lean();
+    return productOrderAddressResponse;
   }
 }

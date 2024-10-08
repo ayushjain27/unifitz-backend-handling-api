@@ -1003,6 +1003,54 @@ export class ProductController {
     }
   };
 
+  createNewAddress = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Request New Address controller initiated>'
+    );
+    try {
+      const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+      const reqBody = {
+        address: req.body.address as string,
+        phoneNumber,
+        userRole
+      };
+      const result = await this.productService.createNewAddress(reqBody);
+      res.send({
+        message: 'Created Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getProductOrderAddressRequest = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Request Product Address controller initiated>'
+    );
+    try {
+      const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+      const result = await this.productService.getAllAddress(
+        phoneNumber,
+        userRole
+      );
+      res.send({
+        message: 'Get Product Address Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':
@@ -1050,6 +1098,12 @@ export class ProductController {
             .exists()
             .isString(),
           body('productData', 'Product Data does not exist').exists().isArray()
+        ];
+      case 'createNewAddress':
+        return [
+          body('address', 'Address does not exist')
+            .exists()
+            .isString()
         ];
     }
   };
