@@ -745,6 +745,45 @@ export class StoreController {
     }
   };
 
+  createHistory = async (req: Request, res: Response) => {
+    const storeRequest = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<request controller initiated>'
+    );
+    try {
+      const result = await this.storeService.createHistory(storeRequest);
+      res.send({
+        message: 'History is created'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getHistory = async (req: Request, res: Response) => {
+    const { storeId }: { storeId: any } = req.body;
+    Logger.info(
+      '<Controller>:<StoreController>:<StoreHistory request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<StoreHistory request controller initiated>'
+      );
+      const result = await this.storeService.getHistory({ storeId });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   // getStoreByUserId = async (req: Request, res: Response) => {
   //   const userId = req.query.userId;
 
