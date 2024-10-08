@@ -167,7 +167,6 @@ export class NewVehicleInfoService {
     }
 
     const files: any = req.files;
-    // console.log(req.files, req.body, req.videoUrl, '1111111111111111');
 
     if (!files) {
       throw new Error('Files not found');

@@ -17,6 +17,7 @@ import {
   VerifyBusinessRequest
 } from '../interfaces';
 import Store, { IDocuments, IStore } from '../models/Store';
+import StoreHistory from '../models/StoreHistory';
 import StoreReview, { IStoreReview } from '../models/Store-Review';
 import User, { IUser } from '../models/User';
 import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
@@ -1501,4 +1502,30 @@ export class StoreService {
     const storeResponse: IStore = await Store.findOne({ userId }).lean();
     return storeResponse;
   }
+
+ async createHistory(storeRequest: any) {
+  Logger.info('<Service>:<StoreService>: <Adding history intiiated>');
+
+  const historyInfo = storeRequest;
+
+  const historyDetails = await StoreHistory.create(historyInfo);
+
+  Logger.info('<Service>:<StoreService>:<history created successfully>');
+  return historyDetails;
+} 
+
+async getHistory(searchReqBody: { storeId: any; }): Promise<StoreResponse[]> {
+  Logger.info(
+    '<Service>:<StoreService>:<StoreHistory service initiated> '
+  );
+  const query: any = {
+    storeId: searchReqBody?.storeId
+  };
+
+  let stores: any = await StoreHistory.aggregate([
+   { $match: query },
+   { $sort: { createdAt: -1 } }
+  ]);
+  return stores;
+}
 }
