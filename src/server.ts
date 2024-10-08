@@ -520,6 +520,28 @@ app.get('/createTemplate', async (req, res) => {
   });
 });
 
+// cron.schedule('0 0 * * *', async () => {
+//   console.log('Running cron job to update vehicle status');
+
+//   const now = new Date();
+//   const cutoffDate = new Date(now.setDate(now.getDate() - 45));
+
+//   // const currentTime = new Date();
+//   // const oneMinuteAgo = new Date(currentTime.getTime() - 60000);
+
+//   // console.log(oneMinuteAgo,"fvlnf")
+
+//   try {
+//     const result = await buySellVehicleInfo.updateMany(
+//       { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
+//       { $set: { status: 'INACTIVE', activeDate: null } }
+//     );
+//     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
+//   } catch (err) {
+//     console.error('Error updating vehicle status:', err);
+//   }
+// });
+
 cron.schedule('0 0 * * *', async () => {
   console.log('Running cron job to update vehicle status');
 
@@ -536,28 +558,7 @@ cron.schedule('0 0 * * *', async () => {
       { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
       { $set: { status: 'INACTIVE', activeDate: null } }
     );
-    // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
-  } catch (err) {
-    console.error('Error updating vehicle status:', err);
-  }
-});
-
-cron.schedule('0 0 * * *', async () => {
-  console.log('Running cron job to update vehicle status');
-
-  const now = new Date();
-  const cutoffDate = new Date(now.setDate(now.getDate() - 45));
-
-  // const currentTime = new Date();
-  // const oneMinuteAgo = new Date(currentTime.getTime() - 60000);
-
-  // console.log(oneMinuteAgo,"fvlnf")
-
-  try {
-    const result = await buySellVehicleInfo.updateMany(
-      { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
-      { $set: { status: 'INACTIVE', activeDate: null } }
-    );
+    console.log(result,'dflkml')
     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
   } catch (err) {
     console.error('Error updating vehicle status:', err);
