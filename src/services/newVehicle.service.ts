@@ -548,10 +548,10 @@ export class NewVehicleInfoService {
 
     if (followUpdate) {
       const startOfDay = new Date(followUpdate);
-      startOfDay.setHours(0, 0, 0, 0); // Set to start of the day
+      startOfDay.setUTCHours(0, 0, 0, 0); // Set to start of the day
 
       const endOfDay = new Date(followUpdate);
-      endOfDay.setHours(23, 59, 59, 999); // Set to end of the day
+      endOfDay.setUTCHours(23, 59, 59, 999); // Set to end of the day
 
       query.followUpdate = {
         $gte: startOfDay,
