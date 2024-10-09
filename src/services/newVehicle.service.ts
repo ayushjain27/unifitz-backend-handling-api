@@ -547,12 +547,16 @@ export class NewVehicleInfoService {
     }
 
     if (followUpdate) {
+      // Create the start of day in IST (UTC+5:30)
       const startOfDay = new Date(followUpdate);
-      startOfDay.setUTCHours(0, 0, 0, 0); // Set to start of the day
-
+      startOfDay.setHours(0, 0, 0, 0); // Set to start of the day in local time
+      startOfDay.setMinutes(startOfDay.getMinutes() - startOfDay.getTimezoneOffset() - 330); // Adjust to IST (330 minutes ahead of UTC)
+    
+      // Create the end of day in IST (UTC+5:30)
       const endOfDay = new Date(followUpdate);
-      endOfDay.setUTCHours(23, 59, 59, 999); // Set to end of the day
-
+      endOfDay.setHours(23, 59, 59, 999); // Set to end of the day in local time
+      endOfDay.setMinutes(endOfDay.getMinutes() - endOfDay.getTimezoneOffset() - 330); // Adjust to IST (330 minutes ahead of UTC)
+    
       query.followUpdate = {
         $gte: startOfDay,
         $lte: endOfDay
