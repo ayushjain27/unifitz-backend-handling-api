@@ -1,0 +1,1 @@
+web: $APP_COMMAND
