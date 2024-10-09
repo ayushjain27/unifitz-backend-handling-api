@@ -20,7 +20,7 @@ jobs:
     - name: Generate Build
       run: npm run tsc
     - name: Generate Deployment Package
-      run: zip -r serviceplug-app-build.zip ./dist
+      run: zip -r serviceplug-app-build.zip .
     - name: Deploy to AWS EB
       uses: einaregilsson/beanstalk-deploy@v22
       with:
