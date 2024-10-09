@@ -173,8 +173,8 @@ export class NewVehicleInfoService {
     }
     const videoList: any = [];
     for (const file of files) {
-      const fileName = file.originalname?.split('.')[0];
-      const { key, url } = await this.s3Client.uploadFile(
+      const fileName = file.originalname;
+      const { key, url } = await this.s3Client.uploadVideo(
         vehicleID,
         fileName,
         file.buffer

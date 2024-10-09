@@ -52,16 +52,12 @@ export class S3Service {
     url: string;
   }> {
     Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
-    const timeStamp = String(new Date().getTime());
     const params = {
-      Bucket: this.bucketName,
-      Key: `${keySalt}/${timeStamp}/${fileName}`,
-      Body: fileBuffer,
-      ACL: 'public-read'
+      Bucket: this.videoBucketName,
+      Key: `${keySalt}/${fileName}`,
+      Body: fileBuffer
+      // ACL: 'public-read'
     };
-    Logger.info('---------------------');
-    Logger.info('upload file is filereq body is', params);
-    Logger.info('---------------------');
     try {
       const { Location } = await this.client.upload(params).promise();
       return {
