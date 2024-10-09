@@ -17,7 +17,7 @@ jobs:
         node-version: '20'
     - name: Install Dependencies
       run: npm install
-    - name: Genereate Build
+    - name: Generate Build
       run: npm run tsc
     - name: Generate Deployment Package
       run: zip -r serviceplug-app-build.zip ./dist
@@ -28,7 +28,7 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: 'serviceplug-apis'
         environment_name: 'serviceplug-apis-dev-env'
-        version_label: {{ github.sha }}
+        version_label: "${{ github.sha }}"
         region: ap-south-1
         deployment_package: serviceplug-app-build.zip
 
