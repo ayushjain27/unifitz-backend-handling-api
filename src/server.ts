@@ -80,8 +80,6 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
 // @route   GET /
 // @desc    Liveliness base API
 // @access  Public
@@ -89,7 +87,7 @@ app.get('/', async (_req, res) => {
   res.send('ok');
 });
 
-app.get('/test', async (req, res) => {
+app.get('/health', async (req, res) => {
   res.send({ message: 'Server is started successfully' });
 });
 
