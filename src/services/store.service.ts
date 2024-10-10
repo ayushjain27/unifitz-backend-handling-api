@@ -1129,7 +1129,8 @@ export class StoreService {
     city: string,
     userName?: string,
     role?: string,
-    oemId?: string
+    oemId?: string,
+    filterOemUser?: string
   ): Promise<any> {
     Logger.info('<Route>:<StoreService>: <StoreService : store get initiated>');
     let query: any = {};
@@ -1137,8 +1138,12 @@ export class StoreService {
     query = {
       'contactInfo.state': state,
       'contactInfo.city': city,
-      profileStatus: 'ONBOARDED'
+      profileStatus: 'ONBOARDED',
+      oemUserName: filterOemUser
     };
+    if (!filterOemUser) {
+      delete query['oemUserName'];
+    }
     if (!state) {
       delete query['contactInfo.state'];
     }
