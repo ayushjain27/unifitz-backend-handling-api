@@ -1018,7 +1018,8 @@ export class ProductController {
         state: req.body.state as string,
         city: req.body.city as string,
         pincode: req.body.pincode as string,
-        userPhoneNumber: req.body.userPhoneNumber as string
+        userPhoneNumber: req.body.userPhoneNumber as string,
+        name: req.body.name as string
       };
       const result = await this.productService.createNewAddress(reqBody);
       res.send({
