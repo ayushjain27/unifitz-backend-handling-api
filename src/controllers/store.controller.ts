@@ -591,6 +591,7 @@ export class StoreController {
       pageNo,
       pageSize,
       oemId,
+      employeeId,
       searchQuery
     } = req.body;
     Logger.info(
@@ -610,6 +611,7 @@ export class StoreController {
           oemId,
           pageNo,
           pageSize,
+          employeeId,
           searchQuery
         );
       res.send({
@@ -630,6 +632,7 @@ export class StoreController {
     const status = req?.query?.status;
     const userType = req?.query?.userType;
     const verifiedStore = req?.query?.verifiedStore;
+    const employeeId = req?.query?.employeeId
 
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
@@ -645,7 +648,8 @@ export class StoreController {
           oemId as string,
           userType as string,
           status as string,
-          verifiedStore as string
+          verifiedStore as string,
+          employeeId as string
         );
       res.send({
         result

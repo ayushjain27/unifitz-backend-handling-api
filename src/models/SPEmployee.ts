@@ -1,5 +1,24 @@
 import { model, Schema } from 'mongoose';
 
+export interface IState {
+  name: string;
+}
+
+export const stateSchema: Schema = new Schema({
+  name: {
+    type: String
+  }
+});
+
+export interface ICity {
+  name: string;
+}
+
+export const citySchema: Schema = new Schema({
+  name: {
+    type: String
+  }
+});
 export interface ISPEmployee {
   _id?: string;
   nameSalutation: string;
@@ -22,7 +41,9 @@ export interface ISPEmployee {
   dateOfBirth: Date;
   userName: string;
   profileImageUrl: string;
-  loginDate?: Date
+  loginDate?: Date;
+  state?: IState[]; 
+  city?: ICity[]; 
 }
 
 const spEmployeeSchema: Schema = new Schema(
@@ -71,6 +92,12 @@ const spEmployeeSchema: Schema = new Schema(
     },
     loginDate: {
       type: Date
+    },
+    state: {
+      type: [stateSchema]
+    },
+    city: {
+      type: [citySchema]
     }
   },
   { timestamps: true }

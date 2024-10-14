@@ -3,7 +3,7 @@ import { AdminRole } from './../models/Admin';
 
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
@@ -30,6 +30,7 @@ import Customer, { ICustomer } from './../models/Customer';
 import { StaticIds } from './../models/StaticId';
 import { sendNotification } from '../utils/common';
 import slugify from 'slugify';
+import { SPEmployeeService } from './spEmployee.service';
 
 @injectable()
 export class StoreService {
@@ -39,6 +40,9 @@ export class StoreService {
   );
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
+  );
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
   );
 
   async create(
@@ -1179,6 +1183,7 @@ export class StoreService {
     oemId?: string,
     pageNo?: number,
     pageSize?: number,
+    employeeId?: string,
     searchQuery?: string
   ): Promise<StoreResponse[]> {
     Logger.info(
@@ -1227,6 +1232,27 @@ export class StoreService {
     if (!status) {
       delete query['profileStatus'];
     }
+    if (role === 'EMPLOYEE') {
+      const userName = oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      console.log(employeeDetails, 'dfwklm');
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if(!isEmpty(employeeDetails?.city)){
+        query['contactInfo.city'] = {
+          $in: employeeDetails.city.map((cityObj) => cityObj.name)
+        };
+      }
+      }
+    }
+
+    console.log(query, 'FEWFm');
 
     let stores: any = await Store.aggregate([
       {
@@ -1251,7 +1277,8 @@ export class StoreService {
     oemId?: string,
     userType?: string,
     status?: string,
-    verifiedStore?: string
+    verifiedStore?: string,
+    employeeId?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -1301,6 +1328,27 @@ export class StoreService {
       delete query['profileStatus'];
       delete overallStatus['profileStatus'];
     }
+
+    if (role === 'EMPLOYEE') {
+      const userName = oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      console.log(employeeDetails, 'dfwklm');
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if(!isEmpty(employeeDetails?.city)){
+        query['contactInfo.city'] = {
+          $in: employeeDetails.city.map((cityObj) => cityObj.name)
+        };
+      }
+      }
+    }
+    
     const total = await Store.count({ ...overallStatus, ...query });
     if (status === 'ONBOARDED' || !status) {
       onboarded = await Store.count({
@@ -1447,12 +1495,13 @@ export class StoreService {
       oemUserName: searchReqBody?.oemUserName
     };
 
-    const storeList: any = searchReqBody?.stores?.map((val: any) => val?.storeId) || [];
-    if(!_.isEmpty(searchReqBody?.stores)){
+    const storeList: any =
+      searchReqBody?.stores?.map((val: any) => val?.storeId) || [];
+    if (!_.isEmpty(searchReqBody?.stores)) {
       query.storeId = { $in: storeList };
     }
 
-    if(_.isEmpty(searchReqBody?.stores)){
+    if (_.isEmpty(searchReqBody?.stores)) {
       delete query['storeId'];
     }
     Logger.debug(query);
@@ -1479,12 +1528,14 @@ export class StoreService {
         }
       },
       { $unwind: { path: '$partnerDetail' } },
-      {$set: {
-        partnerEmail: '$partnerDetail.contactInfo.email',
-        dealerName:  '$partnerDetail.businessName'
-      }},
       {
-        $project: { 'verificationDetails': 0, 'partnerDetail': 0 }
+        $set: {
+          partnerEmail: '$partnerDetail.contactInfo.email',
+          dealerName: '$partnerDetail.businessName'
+        }
+      },
+      {
+        $project: { verificationDetails: 0, partnerDetail: 0 }
       }
     ]);
 
@@ -1508,29 +1559,27 @@ export class StoreService {
     return storeResponse;
   }
 
- async createHistory(storeRequest: any) {
-  Logger.info('<Service>:<StoreService>: <Adding history intiiated>');
+  async createHistory(storeRequest: any) {
+    Logger.info('<Service>:<StoreService>: <Adding history intiiated>');
 
-  const historyInfo = storeRequest;
+    const historyInfo = storeRequest;
 
-  const historyDetails = await StoreHistory.create(historyInfo);
+    const historyDetails = await StoreHistory.create(historyInfo);
 
-  Logger.info('<Service>:<StoreService>:<history created successfully>');
-  return historyDetails;
-} 
+    Logger.info('<Service>:<StoreService>:<history created successfully>');
+    return historyDetails;
+  }
 
-async getHistory(searchReqBody: { storeId: any; }): Promise<StoreResponse[]> {
-  Logger.info(
-    '<Service>:<StoreService>:<StoreHistory service initiated> '
-  );
-  const query: any = {
-    storeId: searchReqBody?.storeId
-  };
+  async getHistory(searchReqBody: { storeId: any }): Promise<StoreResponse[]> {
+    Logger.info('<Service>:<StoreService>:<StoreHistory service initiated> ');
+    const query: any = {
+      storeId: searchReqBody?.storeId
+    };
 
-  let stores: any = await StoreHistory.aggregate([
-   { $match: query },
-   { $sort: { createdAt: -1 } }
-  ]);
-  return stores;
-}
+    let stores: any = await StoreHistory.aggregate([
+      { $match: query },
+      { $sort: { createdAt: -1 } }
+    ]);
+    return stores;
+  }
 }
