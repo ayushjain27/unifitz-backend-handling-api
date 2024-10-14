@@ -12,6 +12,13 @@ export interface IProductOrderAddress {
   app: string;
   storeId?: string;
   customerId?: string;
+  name?: string,
+  userPhoneNumber?: string,
+  landmark?: string,
+  state?: string,
+  city?: string,
+  pincode?: string,
+  isDefault?: boolean
 }
 
 const productOrderAddressSchema: Schema = new Schema(
@@ -39,6 +46,27 @@ const productOrderAddressSchema: Schema = new Schema(
     customerId: {
       type: String,
       required: false
+    },
+    name: {
+      type: String,
+    },
+    userPhoneNumber: {
+      type: String,
+    },
+    landmark: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    pincode: {
+      type: String,
+    },
+    isDefault: {
+      type: Boolean
     }
   },
   { timestamps: true, strict: false }

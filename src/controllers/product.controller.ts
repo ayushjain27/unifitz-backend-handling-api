@@ -1013,7 +1013,12 @@ export class ProductController {
       const reqBody = {
         address: req.body.address as string,
         phoneNumber,
-        userRole
+        userRole,
+        landmark: req.body.landmark as string,
+        state: req.body.state as string,
+        city: req.body.city as string,
+        pincode: req.body.pincode as string,
+        userPhoneNumber: req.body.userPhoneNumber as string
       };
       const result = await this.productService.createNewAddress(reqBody);
       res.send({
@@ -1041,6 +1046,72 @@ export class ProductController {
       );
       res.send({
         message: 'Get Product Address Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getProductOrderAddressRequestByAddressId = async (
+    req: any,
+    res: Response
+  ) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Request Product Address controller initiated>'
+    );
+    try {
+      const addressId = req.query.addressId as string;
+      const result = await this.productService.getAddressByAddressId(addressId);
+      res.send({
+        message: 'Get Product Address Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  deleteAddressById = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Request Delete Address controller initiated>'
+    );
+    try {
+      const addressId = req.query.addressId as string;
+      const result = await this.productService.deleteAddressById(addressId);
+      res.send({
+        message: 'Delete Address Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateStatusOfAddress = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Request Product Address Status Updation controller initiated>'
+    );
+    try {
+      const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+      const addressId = req.query.addressId as string;
+      const result = await this.productService.updateStatusOfAddress(
+        phoneNumber,
+        userRole,
+        addressId
+      );
+      res.send({
+        message: 'Get Product Address Status Updated Request Successful',
         result
       });
     } catch (err) {
@@ -1100,11 +1171,7 @@ export class ProductController {
           body('productData', 'Product Data does not exist').exists().isArray()
         ];
       case 'createNewAddress':
-        return [
-          body('address', 'Address does not exist')
-            .exists()
-            .isString()
-        ];
+        return [body('address', 'Address does not exist').exists().isString()];
     }
   };
 }
