@@ -1105,7 +1105,7 @@ export class ProductController {
     try {
       const phoneNumber = req.userId as string;
       const userRole = req.role as string;
-      const addressId = req.query.addressId as string;
+      const addressId = req.body.addressId as string;
       const result = await this.productService.updateStatusOfAddress(
         phoneNumber,
         userRole,
