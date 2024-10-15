@@ -8,4 +8,5 @@ logs
 .vscode
 dist/
 .yarn/
+yarn.lock
 src/db_update_script.js

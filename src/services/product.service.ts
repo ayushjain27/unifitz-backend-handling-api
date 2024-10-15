@@ -30,7 +30,9 @@ import {
 } from '../models/B2BPartnersProduct';
 import { UserService } from './user.service';
 import { StoreService } from './store.service';
-import ProductOrderAddress, { IProductOrderAddress } from '../models/ProductOrderAddress';
+import ProductOrderAddress, {
+  IProductOrderAddress
+} from '../models/ProductOrderAddress';
 
 @injectable()
 export class ProductService {
@@ -1522,16 +1524,6 @@ export class ProductService {
       userId: new Types.ObjectId()
     };
 
-    // Check if the request exist
-    // const accountRequest = await this.getDeleteRequest(
-    //   requestBody.phoneNumber,
-    //   requestBody.userRole
-    // );
-
-    // if (!isEmpty(accountRequest)) {
-    //   throw new Error('Request already exist');
-    // }
-
     // Get the user and attach the user id
     const userPayload = {
       phoneNumber: `+91${requestBody.phoneNumber?.slice(-10)}`,
@@ -1561,6 +1553,8 @@ export class ProductService {
       const customer = await this.customerService.getByPhoneNumber(phoneNumber);
       params.customerId = customer?._id;
     }
+    params.userPhoneNumber = `+91${requestBody?.userPhoneNumber?.slice(-10)}`;
+    params.isDefault = false;
 
     const newAddressRequest = await ProductOrderAddress.create(params);
     return newAddressRequest;
@@ -1570,11 +1564,59 @@ export class ProductService {
     phoneNumber: string,
     userRole: string
   ): Promise<IProductOrderAddress[]> {
-    Logger.info('<Service>:<DeleteAccountService>:<Get deleted account by id>');
-    const productOrderAddressResponse: IProductOrderAddress[] = await ProductOrderAddress.find({
-      phoneNumber: `+91${phoneNumber?.slice(-10)}`,
-      userRole
-    }).lean();
+    Logger.info('<Service>:<ProductService>:<Get all addresses>');
+    const productOrderAddressResponse: IProductOrderAddress[] =
+      await ProductOrderAddress.find({
+        phoneNumber: `+91${phoneNumber?.slice(-10)}`,
+        userRole
+      }).lean();
+    return productOrderAddressResponse;
+  }
+
+  async getAddressByAddressId(
+    addressId: string
+  ): Promise<IProductOrderAddress> {
+    Logger.info('<Service>:<ProductService>:<Get data by id>');
+    const productOrderAddressResponse: IProductOrderAddress =
+      await ProductOrderAddress.findOne({
+        _id: new Types.ObjectId(addressId)
+      }).lean();
+    return productOrderAddressResponse;
+  }
+
+  async deleteAddressById(addressId: string): Promise<IProductOrderAddress> {
+    Logger.info('<Service>:<ProductService>:<Delete address by id>');
+    const productOrderAddressResponse: IProductOrderAddress =
+      await ProductOrderAddress.deleteOne({
+        _id: new Types.ObjectId(addressId)
+      }).lean();
+    return productOrderAddressResponse;
+  }
+
+  async updateStatusOfAddress(
+    phoneNumber: string,
+    userRole: string,
+    addressId: string
+  ): Promise<IProductOrderAddress> {
+    Logger.info('<Service>:<ProductService>:<Get all addresses>');
+    const productOrderAddressResponseStatusUpdate: IProductOrderAddress =
+      await ProductOrderAddress.findOneAndUpdate(
+        {
+          phoneNumber: `+91${phoneNumber?.slice(-10)}`,
+          userRole,
+          isDefault: true
+        },
+        { $set: { isDefault: false } },
+        { new: true }
+      ).lean();
+    const productOrderAddressResponse: IProductOrderAddress =
+      await ProductOrderAddress.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(addressId)
+        },
+        { $set: { isDefault: true } },
+        { new: true }
+      ).lean();
     return productOrderAddressResponse;
   }
 }

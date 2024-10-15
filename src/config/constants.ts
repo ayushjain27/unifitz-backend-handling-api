@@ -17,7 +17,8 @@ export const twilioConfig: TwilioConfig = {
 export const s3Config: S3Config = {
   AWS_KEY_ID: config.get('AWS_KEY_ID'),
   ACCESS_KEY: config.get('ACCESS_KEY'),
-  BUCKET_NAME: config.get('BUCKET_NAME')
+  BUCKET_NAME: config.get('BUCKET_NAME'),
+  VIDEO_BUCKET_NAME: config.get('VIDEO_BUCKET_NAME')
 };
 
 export const twoFactorConfig: TwoFactorConfig = {

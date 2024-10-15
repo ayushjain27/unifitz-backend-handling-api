@@ -8,6 +8,7 @@ import Logger from '../config/winston';
 export class S3Service {
   private client: S3;
   private readonly bucketName: string = s3Config.BUCKET_NAME;
+  private readonly videoBucketName: string = s3Config.VIDEO_BUCKET_NAME;
   constructor(@inject(TYPES.S3Client) client: S3) {
     this.client = client;
   }
@@ -30,6 +31,33 @@ export class S3Service {
     Logger.info('---------------------');
     Logger.info('upload file is filereq body is', params);
     Logger.info('---------------------');
+    try {
+      const { Location } = await this.client.upload(params).promise();
+      return {
+        key: params.Key,
+        url: Location
+      };
+    } catch (err) {
+      Logger.error('err in s3', err);
+      throw new Error('There is some problem with file uploading');
+    }
+  }
+
+  async uploadVideo(
+    keySalt: string,
+    fileName: string,
+    fileBuffer: Buffer
+  ): Promise<{
+    key: string;
+    url: string;
+  }> {
+    Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
+    const params = {
+      Bucket: this.videoBucketName,
+      Key: `${keySalt}/${fileName}`,
+      Body: fileBuffer
+      // ACL: 'public-read'
+    };
     try {
       const { Location } = await this.client.upload(params).promise();
       return {

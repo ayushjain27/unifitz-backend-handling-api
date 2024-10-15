@@ -263,4 +263,22 @@ router.get(
   productController.getProductOrderAddressRequest
 );
 
+router.get(
+  '/partner/product-order-address-detail',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getProductOrderAddressRequestByAddressId
+);
+
+router.delete(
+  '/partner/delete-address',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.deleteAddressById
+);
+
+router.post(
+  '/partner/update-status',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.updateStatusOfAddress
+);
+
 export default router;
