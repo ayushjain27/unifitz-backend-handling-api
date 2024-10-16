@@ -557,9 +557,13 @@ export class BuySellService {
       userType: req.userType,
       'storeDetails.storeId': req?.storeId,
       oemUserName: req?.userName,
-      brandName: req?.brandName
+      brandName: req?.brandName,
+      status: req?.status
     };
 
+    if (!req.status) {
+      delete query['status'];
+    }
     if (!req.storeId) {
       delete query['storeDetails.storeId'];
     }
@@ -614,7 +618,6 @@ export class BuySellService {
     if (!req.userType) {
       delete query['userType'];
     }
-    console.log(query, 'dfwel;');
 
     Logger.debug(query);
     if (role === AdminRole.OEM) {
@@ -632,6 +635,151 @@ export class BuySellService {
       {
         $match: query
       },
+      { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } }
+      // {
+      //   $project: { vehicleAnalytic: 0 }
+      // }
+    ]);
+    vehicleResponse = vehicleResponse.filter((item: any) => {
+      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
+        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.userType)) {
+        if (item.userType !== query.userType) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.createdAt)) {
+        const createdAt = new Date(item.createdAt);
+        if (
+          !(
+            createdAt >= query.createdAt['$gte'] &&
+            createdAt <= query.createdAt['$lte']
+          )
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    return vehicleResponse;
+  }
+
+  async getPaginatedAll(
+    req: any,
+    userName?: string,
+    role?: string
+  ): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    let start;
+    let end;
+    const userResult: any = {};
+
+    const query: any = {
+      'vehicleInfo.vehicleType': req.vehicleType,
+      userType: req.userType,
+      'storeDetails.storeId': req?.storeId,
+      oemUserName: req?.userName,
+      brandName: req?.brandName,
+      status: req?.status
+    };
+
+    if (req.searchQuery !== '') {
+      query.$or = [
+        {
+          'storeDetails.storeId': req.searchQuery
+        },
+        { 'vehicleInfo.vehicleNumber': req.searchQuery }
+      ];
+    }
+
+    if (!req.storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!req.userName) {
+      delete query['oemUserName'];
+    }
+    if (!req.brandName) {
+      delete query['brandName'];
+    }
+    if (!req.status) {
+      delete query['status'];
+    }
+
+    if (req?.date) {
+      // Create start time in UTC at the beginning of the day (00:00:00)
+      start = new Date(req.date);
+      start.setDate(start.getDate() + 1);
+      start.setUTCHours(0, 0, 0, 0);
+
+      // Create end time in UTC at the end of the day (23:59:59)
+      end = new Date(req.date);
+      end.setDate(end.getDate() + 1);
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      !_.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, req.month - 1, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, req.month, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      _.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, 0, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, 12, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    }
+    if (!req.vehicleType) {
+      delete query['vehicleInfo.vehicleType'];
+    }
+
+    if (!req.userType) {
+      delete query['userType'];
+    }
+
+    Logger.debug(query);
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = req?.oemId;
+    }
+
+    if (req?.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
       { $set: { VehicleId: { $toString: '$_id' } } },
       {
         $lookup: {
@@ -699,10 +847,16 @@ export class BuySellService {
           }
         }
       },
-      { $unwind: { path: '$vehicleInfo' } }
-      // {
-      //   $project: { vehicleAnalytic: 0 }
-      // }
+      { $unwind: { path: '$vehicleInfo' } },
+      {
+        $match: query
+      },
+      {
+        $skip: req?.pageNo * req?.pageSize
+      },
+      {
+        $limit: req?.pageSize
+      }
     ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
@@ -733,6 +887,141 @@ export class BuySellService {
     });
 
     return vehicleResponse;
+  }
+
+  async getTotalBuySellCount(
+    req: any,
+    userName?: string,
+    role?: string
+  ): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    let start;
+    let end;
+    const userResult: any = {};
+
+    const query: any = {
+      'vehicleInfo.vehicleType': req.vehicleType,
+      userType: req.userType,
+      'storeDetails.storeId': req?.storeId,
+      oemUserName: req?.userName,
+      brandName: req?.brandName,
+      status: req?.status
+    };
+
+    if (req.searchQuery !== '') {
+      query.$or = [
+        {
+          'storeDetails.storeId': req.searchQuery
+        },
+        { 'vehicleInfo.vehicleNumber': req.searchQuery }
+      ];
+    }
+
+    if (!req.storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!req.userName) {
+      delete query['oemUserName'];
+    }
+    if (!req.brandName) {
+      delete query['brandName'];
+    }
+    if (!req.status) {
+      delete query['status'];
+    }
+
+    if (req?.date) {
+      // Create start time in UTC at the beginning of the day (00:00:00)
+      start = new Date(req.date);
+      start.setDate(start.getDate() + 1);
+      start.setUTCHours(0, 0, 0, 0);
+
+      // Create end time in UTC at the end of the day (23:59:59)
+      end = new Date(req.date);
+      end.setDate(end.getDate() + 1);
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      !_.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, req.month - 1, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, req.month, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (
+      !_.isEmpty(req.year) &&
+      _.isEmpty(req.month) &&
+      _.isEmpty(req.date)
+    ) {
+      start = new Date(Date.UTC(req.year, 0, 1));
+      start.setUTCHours(0, 0, 0, 0);
+
+      end = new Date(Date.UTC(req.year, 12, 0));
+      end.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    }
+    if (!req.vehicleType) {
+      delete query['vehicleInfo.vehicleType'];
+    }
+
+    if (!req.userType) {
+      delete query['userType'];
+    }
+
+    Logger.debug(query);
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = req?.oemId;
+    }
+
+    if (req?.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    let vehicleResponse: IBuySell[] = await buySellVehicleInfo
+      .find(query)
+      .populate('vehicleInfo');
+    vehicleResponse = vehicleResponse.filter((item: any) => {
+      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
+        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.userType)) {
+        if (item.userType !== query.userType) {
+          return false;
+        }
+      }
+
+      if (!_.isEmpty(query.createdAt)) {
+        const createdAt = new Date(item.createdAt);
+        if (
+          !(
+            createdAt >= query.createdAt['$gte'] &&
+            createdAt <= query.createdAt['$lte']
+          )
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+    const vehicleResult: any = {
+      total: vehicleResponse.length
+    };
+    return vehicleResult;
   }
 
   async getBuySellDetailsByVehicleId(vehicleId: string): Promise<any> {
