@@ -554,7 +554,7 @@ export class StoreController {
   };
 
   getStoresByCity = async (req: Request, res: Response) => {
-    const { state, city, oemId, filterOemUser } = req.body;
+    const { state, city, oemId, filterOemUser, userType } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Store request controller initiated>'
     );
@@ -567,7 +567,8 @@ export class StoreController {
         userName,
         role,
         oemId,
-        filterOemUser
+        filterOemUser,
+        userType
       );
       res.send({
         message: 'Store get Successful',
