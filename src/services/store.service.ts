@@ -102,7 +102,12 @@ export class StoreService {
       delete storePayload['oemUserName'];
     }
     // const newStore = new Store(storePayload);
-    const newStore = await Store.create(storePayload);
+    let newStore;
+    try {
+      newStore = await Store.create(storePayload);
+    } catch (err) {
+      throw new Error(err);
+    }
     await sendNotification(
       'Store Created',
       'Your store has created. It is under review',
