@@ -257,6 +257,13 @@ router.post(
   productController.createNewAddress
 );
 
+router.put(
+  '/partner/product-order-address/:addressId',
+  roleAuth(ACL.STORE_CREATE),
+  productController.validate('createNewAddress'),
+  productController.updateProductAddress
+);
+
 router.get(
   '/partner/product-order-address',
   roleAuth(ACL.STORE_GET_ALL),

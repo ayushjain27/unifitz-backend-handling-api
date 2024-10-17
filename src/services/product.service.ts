@@ -42,7 +42,6 @@ export class ProductService {
   private customerService = container.get<CustomerService>(
     TYPES.CustomerService
   );
-
   async create(productPayload: IProduct): Promise<IProduct> {
     Logger.info(
       '<Service>:<ProductService>: <Product Creation: creating new product>'
@@ -1553,7 +1552,6 @@ export class ProductService {
       const customer = await this.customerService.getByPhoneNumber(phoneNumber);
       params.customerId = customer?._id;
     }
-    params.userPhoneNumber = `+91${requestBody?.userPhoneNumber?.slice(-10)}`;
     params.isDefault = false;
 
     const newAddressRequest = await ProductOrderAddress.create(params);
@@ -1581,6 +1579,9 @@ export class ProductService {
       await ProductOrderAddress.findOne({
         _id: new Types.ObjectId(addressId)
       }).lean();
+    if (isEmpty(productOrderAddressResponse)) {
+      throw new Error('Address not found');
+    }
     return productOrderAddressResponse;
   }
 
@@ -1599,6 +1600,12 @@ export class ProductService {
     addressId: string
   ): Promise<IProductOrderAddress> {
     Logger.info('<Service>:<ProductService>:<Get all addresses>');
+    const address: IProductOrderAddress = await ProductOrderAddress.findOne({
+      _id: new Types.ObjectId(addressId)
+    }).lean();
+    if (isEmpty(address)) {
+      throw new Error('Address not found');
+    }
     const productOrderAddressResponseStatusUpdate: IProductOrderAddress =
       await ProductOrderAddress.findOneAndUpdate(
         {
@@ -1618,5 +1625,63 @@ export class ProductService {
         { new: true }
       ).lean();
     return productOrderAddressResponse;
+  }
+
+  async updateAddress(
+    addressPayload: any,
+    addressId: string
+  ): Promise<IProductOrderAddress> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Update: updating address>'
+    );
+
+    let address: IProductOrderAddress;
+    if (addressId) {
+      address = await ProductOrderAddress.findOne({ _id: addressId });
+    }
+    if (!address) {
+      Logger.error(
+        '<Service>:<ProductService>:<Address not found with that address Id>'
+      );
+      throw new Error('Address not found');
+    }
+    const userPayload = {
+      phoneNumber: `+91${addressPayload.phoneNumber?.slice(-10)}`,
+      role: addressPayload.userRole
+    };
+
+    // Get the user details
+    const user = await this.userService.getUserByPhoneNumber(userPayload);
+
+    if (isEmpty(user)) {
+      throw new Error('User not found');
+    }
+
+    addressPayload.userId = user._id;
+
+    // If user role is store owner then get store id, else get customer id if available.
+
+    if (addressPayload.userRole === 'STORE_OWNER') {
+      const store = await this.storeService.getStoreByUserId(user._id);
+
+      if (isEmpty(store)) {
+        throw new Error('Store not found');
+      }
+      addressPayload.storeId = store?.storeId;
+    } else {
+      const phoneNumber = addressPayload.phoneNumber.slice(-10);
+      const customer = await this.customerService.getByPhoneNumber(phoneNumber);
+      addressPayload.customerId = customer?._id;
+    }
+
+    let updatedAddr: IProductOrderAddress = addressPayload;
+
+    updatedAddr = await ProductOrderAddress.findOneAndUpdate(
+      { _id: new Types.ObjectId(addressId) },
+      updatedAddr,
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<ProductService>:<Address uppdated successfully>');
+    return updatedAddr;
   }
 }

@@ -1011,15 +1011,9 @@ export class ProductController {
       const phoneNumber = req.userId as string;
       const userRole = req.role as string;
       const reqBody = {
-        address: req.body.address as string,
+        ...req.body,
         phoneNumber,
         userRole,
-        landmark: req.body.landmark as string,
-        state: req.body.state as string,
-        city: req.body.city as string,
-        pincode: req.body.pincode as string,
-        userPhoneNumber: req.body.userPhoneNumber as string,
-        name: req.body.name as string
       };
       const result = await this.productService.createNewAddress(reqBody);
       res.send({
@@ -1120,6 +1114,42 @@ export class ProductController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+    }
+  };
+
+  updateProductAddress = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const phoneNumber = req.userId as string;
+      const userRole = req.role as string;
+    const addressId = req.params.addressId;
+    if (!addressId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Address Id is not present' } });
+      return;
+    }
+    const addressRequest = {
+      ...req.body,
+      phoneNumber,
+      userRole,
+    };
+    Logger.info(
+      '<Controller>:<ProductController>:<Update product address controller initiated>'
+    );
+
+    try {
+      const result = await this.productService.updateAddress(addressRequest, addressId);
+      res.send({
+        message: 'Address Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
 
