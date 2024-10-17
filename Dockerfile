@@ -1,6 +1,12 @@
 # Use the official Node.js image as the base image
 FROM node:20
 
+# Define the argument
+ARG ENV
+
+# Set the environment variable based on the branch
+ENV NODE_ENV=$ENV
+
 # Set the working directory
 WORKDIR /app
 
