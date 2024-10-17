@@ -12,12 +12,15 @@ export interface IProductOrderAddress {
   app: string;
   storeId?: string;
   customerId?: string;
-  name?: string,
-  userPhoneNumber?: string,
   landmark?: string,
   state?: string,
   city?: string,
   pincode?: string,
+  geoLocation: {
+    // kind: string;
+    type: string;
+    coordinates: number[];
+  }; 
   isDefault?: boolean
 }
 
@@ -64,6 +67,11 @@ const productOrderAddressSchema: Schema = new Schema(
     },
     pincode: {
       type: String,
+    },
+    geoLocation: {
+      // kind: String,
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
     },
     isDefault: {
       type: Boolean
