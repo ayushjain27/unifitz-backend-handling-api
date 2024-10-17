@@ -1161,7 +1161,7 @@ export class StoreService {
     }
     const userRoleType = userType === 'OEM' ? true : false;
 
-    if (userType) {
+    if (userType && !filterOemUser) {
       query.oemUserName = { $exists: userRoleType };
     }
 

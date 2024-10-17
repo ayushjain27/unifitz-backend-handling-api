@@ -146,6 +146,8 @@ export class OfferService {
     if (!subCategory || subCategory.length === 0) {
       delete query['subCategory.name'];
     }
+    console.log(query, 'queryyyyyyyyyyyyyyyyyy');
+    
     if (
       _.isEmpty(coordinates) &&
       _.isEmpty(category) &&
@@ -227,8 +229,37 @@ export class OfferService {
           }
         },
         {
+          $set: {
+            offerCompleted: {
+              $dateDiff: {
+                startDate: { $toDate: '$endDate' },
+                endDate: new Date(),
+                unit: 'day'
+              }
+            }
+          }
+        },
+        {
+          $set: {
+            status: {
+              $cond: {
+                if: { $eq: ['$status', 'DISABLED'] },
+                then: 'DISABLED',
+                else: {
+                  $cond: {
+                    if: { $lte: ['$offerCompleted', 1] },
+                    then: 'ACTIVE',
+                    else: 'DISABLED'
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
           $match: {
-            oemOfferStatus: { $eq: 'ONBOARDED' }
+            oemOfferStatus: { $eq: 'ONBOARDED' },
+            status: { $eq: 'ACTIVE' }
           }
         },
         {
