@@ -690,6 +690,8 @@ export class BuySellService {
     let start;
     let end;
     const userResult: any = {};
+    const filterState = [req?.state];
+    const filterCity = [req?.city];
 
     const query: any = {
       'vehicleInfo.vehicleType': req.vehicleType,
@@ -697,16 +699,24 @@ export class BuySellService {
       'storeDetails.storeId': req?.storeId,
       oemUserName: req?.userName,
       brandName: req?.brandName,
-      status: req?.status
+      status: req?.status,
+      'vehicleAnalytic.userInformation.state': { $in: filterState },
+      'vehicleAnalytic.userInformation.city': { $in: filterCity }
     };
 
     if (req.searchQuery !== '') {
       query.$or = [
         {
-          'storeDetails.storeId': req.searchQuery
+          employeePhoneNumber: req.searchQuery
         },
         { 'vehicleInfo.vehicleNumber': req.searchQuery }
       ];
+    }
+    if (!req.state) {
+      delete query['vehicleAnalytic.userInformation.state'];
+    }
+    if (!req.city) {
+      delete query['vehicleAnalytic.userInformation.city'];
     }
 
     if (!req.storeId) {
@@ -912,7 +922,7 @@ export class BuySellService {
     if (req.searchQuery !== '') {
       query.$or = [
         {
-          'storeDetails.storeId': req.searchQuery
+          employeePhoneNumber: req.searchQuery
         },
         { 'vehicleInfo.vehicleNumber': req.searchQuery }
       ];
