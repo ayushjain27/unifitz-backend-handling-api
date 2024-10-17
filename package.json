@@ -16,9 +16,12 @@
     "watch-deploy": "nodemon dist/server.js",
     "server": "concurrently \"npm run watch-tsc\" \"npm run watch-deploy\"",
     "start-js": "npm run deploy",
-    "start": "NODE_ENV=development node dist/server.ts",
+    "start": "node dist/server.js",
     "start:dev": "NODE_ENV=development PORT=5055 ts-node src/server.ts",
-    "local": "NODE_ENV=development nodemon"
+    "local": "NODE_ENV=development nodemon",
+    "docker:build:dev": "docker build --build-arg ENV=development --platform linux/amd64 -t serviceplug/serviceplug-dev-api .",
+    "docker:build:prod": "docker build --build-arg ENV=production --platform linux/amd64 -t serviceplug/serviceplug-prod-api ."
+
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.540.0",
