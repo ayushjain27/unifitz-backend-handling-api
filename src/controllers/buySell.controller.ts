@@ -258,6 +258,51 @@ export class BuySellController {
     }
   };
 
+  getPaginatedAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
+    );
+    const userName = req?.userId;
+    const role = req?.role;
+    try {
+      const result = await this.buySellService.getPaginatedAll(
+        req.body,
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getTotalBuySellCount = async (req: Request, res: Response) => {
+    const userName = req?.userId;
+    const role = req?.role;
+
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
+    );
+    try {
+      const result = await this.buySellService.getTotalBuySellCount(
+        req.body,
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   getBuySellDetailsByVehicleId = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
@@ -300,9 +345,8 @@ export class BuySellController {
     );
 
     try {
-      const result = await this.buySellService.updateBuySellVehicleCustomerDetails(
-        req.body
-      );
+      const result =
+        await this.buySellService.updateBuySellVehicleCustomerDetails(req.body);
       Logger.info(
         '<Controller>:<BuySellController>: <Store: Sending notification of updated buySell vehilce>'
       );
@@ -336,7 +380,6 @@ export class BuySellController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-
 
   validate = (method: string) => {
     switch (method) {

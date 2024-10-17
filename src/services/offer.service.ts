@@ -146,6 +146,8 @@ export class OfferService {
     if (!subCategory || subCategory.length === 0) {
       delete query['subCategory.name'];
     }
+    console.log(query, 'queryyyyyyyyyyyyyyyyyy');
+    
     if (
       _.isEmpty(coordinates) &&
       _.isEmpty(category) &&

@@ -102,7 +102,12 @@ export class StoreService {
       delete storePayload['oemUserName'];
     }
     // const newStore = new Store(storePayload);
-    const newStore = await Store.create(storePayload);
+    let newStore;
+    try {
+      newStore = await Store.create(storePayload);
+    } catch (err) {
+      throw new Error(err);
+    }
     await sendNotification(
       'Store Created',
       'Your store has created. It is under review',
@@ -223,19 +228,16 @@ export class StoreService {
       { 'verificationDetails.verifyObj': 0 }
     );
     await sendNotification(
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Store Onboarded'
-          : 'Store Rejected'
+      `${statusRequest.profileStatus === 'ONBOARDED'
+        ? 'Store Onboarded'
+        : 'Store Rejected'
       }`,
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Congratulations 😊'
-          : 'Sorry 😞'
-      } Your store has been ${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'onboarded'
-          : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      `${statusRequest.profileStatus === 'ONBOARDED'
+        ? 'Congratulations 😊'
+        : 'Sorry 😞'
+      } Your store has been ${statusRequest.profileStatus === 'ONBOARDED'
+        ? 'onboarded'
+        : `rejected due to this reason: ${statusRequest.rejectionReason}`
       }`,
       phoneNumber,
       'STORE_OWNER',
@@ -907,8 +909,8 @@ export class StoreService {
               documentType === 'GST'
                 ? String(verifyResult?.address)
                 : String(
-                    `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
-                  ),
+                  `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
+                ),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
@@ -1134,7 +1136,8 @@ export class StoreService {
     userName?: string,
     role?: string,
     oemId?: string,
-    filterOemUser?: string
+    filterOemUser?: string,
+    userType?: string
   ): Promise<any> {
     Logger.info('<Route>:<StoreService>: <StoreService : store get initiated>');
     let query: any = {};
@@ -1160,6 +1163,11 @@ export class StoreService {
 
     if (role === AdminRole.EMPLOYEE) {
       query.oemUserName = oemId;
+    }
+    const userRoleType = userType === 'OEM' ? true : false;
+
+    if (userType && !filterOemUser) {
+      query.oemUserName = { $exists: userRoleType };
     }
 
     if (oemId === 'SERVICEPLUG') {
@@ -1244,11 +1252,11 @@ export class StoreService {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
         };
-        if(!isEmpty(employeeDetails?.city)){
-        query['contactInfo.city'] = {
-          $in: employeeDetails.city.map((cityObj) => cityObj.name)
-        };
-      }
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
       }
     }
 
@@ -1341,14 +1349,14 @@ export class StoreService {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
         };
-        if(!isEmpty(employeeDetails?.city)){
-        query['contactInfo.city'] = {
-          $in: employeeDetails.city.map((cityObj) => cityObj.name)
-        };
-      }
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
       }
     }
-    
+
     const total = await Store.count({ ...overallStatus, ...query });
     if (status === 'ONBOARDED' || !status) {
       onboarded = await Store.count({

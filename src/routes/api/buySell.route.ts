@@ -63,6 +63,17 @@ router.post(
 router.post('/updateStatus', buySellController.updateBuySellVehicleStatus);
 
 router.post('/all', roleAuth(ACL.ADD_VEHICLE), buySellController.getAll);
+router.post(
+  '/paginated/all',
+  roleAuth(ACL.ADD_VEHICLE),
+  buySellController.getPaginatedAll
+);
+
+router.post(
+  '/countAll',
+  roleAuth(ACL.ADD_VEHICLE),
+  buySellController.getTotalBuySellCount
+);
 
 router.get(
   '/getBuySellDetailsByVehicleId',
@@ -76,7 +87,10 @@ router.delete(
   buySellController.deleteVehicle
 );
 
-router.post('/updateCustomerDetails', buySellController.updateBuySellVehicleCustomerDetails);
+router.post(
+  '/updateCustomerDetails',
+  buySellController.updateBuySellVehicleCustomerDetails
+);
 
 router.post(
   '/uploadPanAadharImage',
