@@ -298,6 +298,70 @@ export class BuySellService {
     ]);
     return result;
   }
+
+  async getAllBuyVehiclePaginated(query: any): Promise<any> {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
+    );
+  
+    const filterParams = { ...query, status: 'ACTIVE' };
+    // Conditionally add the nested state field if query.state is not empty
+    if (query.state) {
+      filterParams['$or'] = [
+        { 'storeDetails.contactInfo.state': query.state },
+        { 'sellerDetails.contactInfo.state': query.state }
+      ];
+    }
+    delete filterParams.state;
+    delete filterParams.coordinates;
+    delete filterParams.pageNo;
+    delete filterParams.pageSize;
+    Logger.debug(query);
+    console.log(filterParams, query, 'dfmkl');
+  
+    const result = await buySellVehicleInfo.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: query.coordinates
+          },
+          key: 'location',
+          spherical: true,
+          query: filterParams,
+          distanceField: 'distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      // Ensure sorting before applying pagination
+      {
+        $sort: { distance: 1 } // Sort by distance in ascending order
+      },
+      {
+        $skip: query.pageNo * query.pageSize
+      },
+      {
+        $limit: query.pageSize
+      },
+      { 
+        $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } 
+      },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      { 
+        $unwind: { path: '$vehicleInfo' } 
+      }
+    ]);
+  
+    return result;
+  }
+
   async getOwnStoreDetails(req: any) {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy Sell aggregation service initiated>'

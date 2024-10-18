@@ -48,6 +48,12 @@ router.post(
   buySellController.getAllBuyVehicle
 );
 
+router.post(
+  '/getAllBuyVehiclePaginated',
+  // roleAuth(ACL.STORE_GET_ALL),
+  buySellController.getAllBuyVehiclePaginated
+);
+
 router.post('/getBuyVehicle', buySellController.getBuyVehicle);
 router.post(
   '/vehicleExistanceCheckApi',
