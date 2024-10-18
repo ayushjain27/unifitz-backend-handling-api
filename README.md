@@ -1,11 +1,6 @@
-Do docker build : 
-docker  build --platform linux/amd64 -t serviceplug/serviceplug-dev-api .
-
 
 <!-- Docker enable -->
 sudo usermod -aG docker ec2-user
-
-docker run -p 8000:3005 --platform linux/amd64 
 
 # Build and upload your docker build to ECS
 
