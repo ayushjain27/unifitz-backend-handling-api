@@ -60,6 +60,25 @@ export class BuySellController {
     }
   };
 
+  getAllBuyVehiclePaginated = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
+      );
+      const result = await this.buySellService.getAllBuyVehiclePaginated(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   addBuySellVehicleImageList = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<BuySellController>:<Upload Store Customer Vehicle request initiated>'
