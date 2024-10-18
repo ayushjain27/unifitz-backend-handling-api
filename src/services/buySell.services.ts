@@ -551,6 +551,8 @@ export class BuySellService {
     let start;
     let end;
     const userResult: any = {};
+    const filterState = [req?.state];
+    const filterCity = [req?.city];
 
     const query: any = {
       'vehicleInfo.vehicleType': req.vehicleType,
@@ -560,6 +562,28 @@ export class BuySellService {
       brandName: req?.brandName,
       status: req?.status
     };
+
+    let queryTwo: any = {};
+
+    if (req.searchQuery !== '') {
+      query.$or = [
+        {
+          employeePhoneNumber: req.searchQuery
+        },
+        { 'vehicleInfo.vehicleNumber': req.searchQuery }
+      ];
+    }
+    if (req.state) {
+      queryTwo = {
+        'vehicleAnalytic.userInformation.state': { $in: filterState }
+      };
+    }
+    if (req.city) {
+      queryTwo = {
+        'vehicleAnalytic.userInformation.state': { $in: filterState },
+        'vehicleAnalytic.userInformation.city': { $in: filterCity }
+      };
+    }
 
     if (!req.status) {
       delete query['status'];
@@ -632,9 +656,6 @@ export class BuySellService {
       delete query['oemUserName'];
     }
     let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
-      {
-        $match: query
-      },
       { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
       {
         $lookup: {
@@ -644,7 +665,71 @@ export class BuySellService {
           as: 'vehicleInfo'
         }
       },
-      { $unwind: { path: '$vehicleInfo' } }
+      { $unwind: { path: '$vehicleInfo' } },
+      {
+        $match: query
+      },
+      { $set: { VehicleId: { $toString: '$_id' } } },
+      {
+        $lookup: {
+          from: 'vehicleanalytics',
+          localField: 'VehicleId',
+          foreignField: 'moduleInformation',
+          as: 'vehicleAnalytic'
+        }
+      },
+      {
+        $set: {
+          impressionCount: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
+              }
+            }
+          },
+          vehicleDetailClick: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'VEHICLE_DETAIL_CLICK'] }
+              }
+            }
+          },
+          executivePhoneNo: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'EXECUTIVE_PHONE_NUMBER_CLICK'] }
+              }
+            }
+          },
+          storePhoneNo: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'STORE_PHONE_NUMBER_CLICK'] }
+              }
+            }
+          },
+          locationClickCount: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'LOCATION_CLICK'] }
+              }
+            }
+          }
+        }
+      },
+      {
+        $match: queryTwo
+      }
       // {
       //   $project: { vehicleAnalytic: 0 }
       // }
@@ -699,10 +784,10 @@ export class BuySellService {
       'storeDetails.storeId': req?.storeId,
       oemUserName: req?.userName,
       brandName: req?.brandName,
-      status: req?.status,
-      'vehicleAnalytic.userInformation.state': { $in: filterState },
-      'vehicleAnalytic.userInformation.city': { $in: filterCity }
+      status: req?.status
     };
+
+    let queryTwo: any = {};
 
     if (req.searchQuery !== '') {
       query.$or = [
@@ -712,11 +797,16 @@ export class BuySellService {
         { 'vehicleInfo.vehicleNumber': req.searchQuery }
       ];
     }
-    if (!req.state) {
-      delete query['vehicleAnalytic.userInformation.state'];
+    if (req.state) {
+      queryTwo = {
+        'vehicleAnalytic.userInformation.state': { $in: filterState }
+      };
     }
-    if (!req.city) {
-      delete query['vehicleAnalytic.userInformation.city'];
+    if (req.city) {
+      queryTwo = {
+        'vehicleAnalytic.userInformation.state': { $in: filterState },
+        'vehicleAnalytic.userInformation.city': { $in: filterCity }
+      };
     }
 
     if (!req.storeId) {
@@ -790,15 +880,6 @@ export class BuySellService {
       delete query['oemUserName'];
     }
     let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
-      { $set: { VehicleId: { $toString: '$_id' } } },
-      {
-        $lookup: {
-          from: 'vehicleanalytics',
-          localField: 'VehicleId',
-          foreignField: 'moduleInformation',
-          as: 'vehicleAnalytic'
-        }
-      },
       { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
       {
         $lookup: {
@@ -806,6 +887,25 @@ export class BuySellService {
           localField: 'VehicleInfo',
           foreignField: '_id',
           as: 'vehicleInfo'
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } },
+      {
+        $match: query
+      },
+      {
+        $skip: req?.pageNo * req?.pageSize
+      },
+      {
+        $limit: req?.pageSize
+      },
+      { $set: { VehicleId: { $toString: '$_id' } } },
+      {
+        $lookup: {
+          from: 'vehicleanalytics',
+          localField: 'VehicleId',
+          foreignField: 'moduleInformation',
+          as: 'vehicleAnalytic'
         }
       },
       {
@@ -857,16 +957,12 @@ export class BuySellService {
           }
         }
       },
-      { $unwind: { path: '$vehicleInfo' } },
       {
-        $match: query
-      },
-      {
-        $skip: req?.pageNo * req?.pageSize
-      },
-      {
-        $limit: req?.pageSize
+        $match: queryTwo
       }
+      // {
+      //   $project: { vehicleAnalytic: 0 }
+      // }
     ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {

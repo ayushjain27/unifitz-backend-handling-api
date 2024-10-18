@@ -13,3 +13,4 @@ export * from './buySell.route';
 export * from './report';
 export * from './event.route';
 export * from './business.route';
+export * from './storeLead';

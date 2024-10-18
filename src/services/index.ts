@@ -27,3 +27,4 @@ export * from './newVehicle.service';
 export * from './spEmployee.service';
 export * from './deleteAccount.service';
 export * from './user.service';
+export * from './storeLead.service';

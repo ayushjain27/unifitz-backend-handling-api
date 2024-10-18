@@ -15,6 +15,7 @@ import business from './routes/api/business.route';
 import schoolofAuto from './routes/api/schoolOfAuto.route';
 import offer from './routes/api/offer';
 import store from './routes/api/store';
+import storeLead from './routes/api/storeLead';
 import user from './routes/api/user';
 import customer from './routes/api/customer';
 import notification from './routes/api/notification';
@@ -95,6 +96,8 @@ app.use(`/user`, user);
 app.use(`/admin`, admin);
 
 app.use('/store', store);
+
+app.use('/storeLead', storeLead);
 
 app.use('/file', file);
 

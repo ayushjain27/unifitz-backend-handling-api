@@ -12,6 +12,5 @@ export enum ACL {
   ADVERTISEMENT_CREATE = 'advertisement:write',
   ADVERTISEMENT_GET_CUSTOMER = 'advertisement:customer',
   ADD_VEHICLE = 'vehicle:create',
-  ADMIN_USER_CREATE = 'Admin:Create',
-  
+  ADMIN_USER_CREATE = 'Admin:Create'
 }
