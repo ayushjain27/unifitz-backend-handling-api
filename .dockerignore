@@ -1,6 +1,6 @@
 node_modules/
 npm-debug.log
 keys/
-src
+src/
 .git
 .gitignore
