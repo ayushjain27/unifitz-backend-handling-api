@@ -92,8 +92,7 @@ const customerSchema: Schema = new Schema(
       type: String
     },
     fullName: {
-      type: String,
-      required: true
+      type: String
     },
     phoneNumber: {
       type: String
