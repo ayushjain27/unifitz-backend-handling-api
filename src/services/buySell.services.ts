@@ -312,10 +312,18 @@ export class BuySellService {
         { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
+    if(query.userId){
+      filterParams['sellerDetails._id'] != query.userId;
+    }
+    if(query.storeId){
+      filterParams['storeDetails.storeId'] != query.storeId;
+    }
     delete filterParams.state;
     delete filterParams.coordinates;
     delete filterParams.pageNo;
     delete filterParams.pageSize;
+    delete filterParams.userId;
+    delete filterParams.storeId;
     Logger.debug(query);
     console.log(filterParams, query, 'dfmkl');
   
