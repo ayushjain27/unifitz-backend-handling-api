@@ -1,3 +1,4 @@
+import { IStoreLead } from './StoreLead';
 import { model, ObjectId, Schema, Types } from 'mongoose';
 import { DocType } from '../enum/docType.enum';
 export interface ICatalogMap {
@@ -206,9 +207,8 @@ export const storeLeadDocumentsSchema: Schema = new Schema<IDocuments>(
  * @param storeId:string
  * @param profileStatus:string
  */
-export interface IStoreLead {
+export interface IStore {
   _id?: Types.ObjectId;
-  userId: Types.ObjectId;
   employeeId?: string;
   storeId: string;
   profileStatus: string;
@@ -226,47 +226,101 @@ export interface IStoreLead {
   verificationDetails?: IVerificationDetails;
 }
 
-const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
+
+const storeSchema: Schema = new Schema<IStore>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      required: true
-    },
+   
     storeId: {
       type: String,
       required: true,
       unique: true
     },
-    employeeId: {
+    oemUserName: {
       type: String
     },
     profileStatus: {
       type: String,
       required: true,
-      enum: StoreLeadProfileStatus,
-      default: StoreLeadProfileStatus.PENDING_FOR_VERIFICATION
+      enum: StoreProfileStatus,
+      default: StoreProfileStatus.DRAFT
     },
     rejectionReason: {
       type: String,
       default: ''
     },
     basicInfo: {
-      type: storeLeadSchema
+      type: storeBasicInfoSchema
     },
     contactInfo: {
-      type: storeLeadContactSchema
+      type: storeContactSchema
     },
     storeTiming: {
-      type: storeLeadTimingSchema
+      type: storeTimingSchema
     },
     documents: {
-      type: storeLeadDocumentsSchema
+      type: storeDocumentsSchema
     },
     missingItem: {
       type: String
     },
     slug: {
       type: String
+    }
+  },
+  { timestamps: true, strict: false }
+);
+
+
+export interface INotes {
+  message: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IStoreLead {
+  store: IStore;
+  notes: INotes[];
+  status: StoreLeadProfileStatus;
+  rejectionReason: string;
+  followUpDate: Date;
+}
+
+export const notesSchema: Schema = new Schema<INotes>(
+  {
+    message: {
+      type: String,
+      required: true
+    },
+    createdBy: {
+      type: String
+    }
+  },
+  { timestamps: true }
+);
+
+const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
+  {
+    store: {
+      type: storeLeadSchema,
+      required: true
+    },
+
+    notes: {
+      type: [notesSchema]
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: StoreLeadProfileStatus,
+      default: StoreLeadProfileStatus.CREATED
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
+    },
+    followUpDate: {
+      type: Date
     }
   },
   { timestamps: true, strict: false }
