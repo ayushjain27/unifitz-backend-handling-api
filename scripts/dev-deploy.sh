@@ -3,7 +3,7 @@
 # Variables
 REGION="ap-south-1"
 PROFILE="jitin-serviceplug"
-REPOSITORY_URL="771470636147.dkr.ecr.${REGION}.amazonaws.com/serviceplug/serviceplug-dev-api"
+REPOSITORY_URL="771470636147.dkr.ecr.${REGION}.amazonaws.com"
 IMAGE_NAME="serviceplug/serviceplug-dev-api:latest"
 KEY_PATH="keys/serviceplug-dev-api.pem"
 EC2_USER="ec2-user"
@@ -21,11 +21,11 @@ aws ecr get-login-password --region ${REGION} --profile ${PROFILE} | docker logi
 
 # Step 3: Tag the Docker image
 echo "Tagging the Docker image..."
-docker tag ${IMAGE_NAME} ${REPOSITORY_URL}
+docker tag ${IMAGE_NAME} ${REPOSITORY_URL}/serviceplug/serviceplug-dev-api:latest
 
 # Step 4: Push the Docker image to ECR
 echo "Pushing the Docker image to ECR..."
-docker push ${REPOSITORY_URL}
+docker push ${REPOSITORY_URL}/serviceplug/serviceplug-dev-api:latest
 
 # Step 5: SSH into the EC2 instance
 echo "Connecting to the EC2 instance..."
@@ -41,17 +41,17 @@ ssh -i "${KEY_PATH}" ${EC2_USER}@${EC2_HOST} << EOF
 
     # Step 8: Pull the Docker image from ECR
     echo "Pulling the Docker image from ECR..."
-    docker pull ${REPOSITORY_URL}
+    docker pull ${REPOSITORY_URL}/serviceplug/serviceplug-dev-api:latest
 
     # Step 9: Stop the previous version and clean up (if required)
     echo "Stopping the current Docker container if running..."
-    docker stop \$(docker ps -q --filter ancestor=${REPOSITORY_URL})
+    docker stop \$(docker ps -q --filter ancestor=${REPOSITORY_URL}/serviceplug/serviceplug-dev-api)
     echo "Removing the old Docker container..."
-    docker rm \$(docker ps -a -q --filter ancestor=${REPOSITORY_URL})
+    docker rm \$(docker ps -a -q --filter ancestor=${REPOSITORY_URL}/serviceplug/serviceplug-dev-api)
 
     # Step 9 (cont): Start a new container with the updated image
     echo "Running the new Docker container..."
-    docker run -p ${LOCAL_PORT}:${CONTAINER_PORT} -d ${REPOSITORY_URL}
+    docker run -p ${LOCAL_PORT}:${CONTAINER_PORT} -d ${REPOSITORY_URL}/serviceplug/serviceplug-dev-api:latest
 
 EOF
 
