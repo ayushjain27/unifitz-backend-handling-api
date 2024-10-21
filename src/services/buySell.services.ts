@@ -729,10 +729,10 @@ export class BuySellService {
       },
       {
         $match: queryTwo
+      },
+      {
+        $project: { vehicleAnalytic: 0 }
       }
-      // {
-      //   $project: { vehicleAnalytic: 0 }
-      // }
     ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
@@ -959,10 +959,10 @@ export class BuySellService {
       },
       {
         $match: queryTwo
+      },
+      {
+        $project: { vehicleAnalytic: 0 }
       }
-      // {
-      //   $project: { vehicleAnalytic: 0 }
-      // }
     ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {

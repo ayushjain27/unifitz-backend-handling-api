@@ -1,4 +1,4 @@
-import { ICatalogMap, StoreProfileStatus } from './../models/Store';
+import { ICatalogMap, StoreLeadProfileStatus } from './../models/StoreLead';
 import { AdminRole } from './../models/Admin';
 
 import { injectable } from 'inversify';
@@ -83,7 +83,7 @@ export class StoreLeadService {
     );
 
     storePayload.storeId = newStoreId;
-    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    storePayload.profileStatus = StoreLeadProfileStatus.CREATED;
     const businessName = storeRequest.storePayload.basicInfo.businessName;
     const baseSlug = slugify(businessName, { lower: true, strict: true });
 
@@ -132,7 +132,7 @@ export class StoreLeadService {
     const { storePayload } = storeRequest;
 
     Logger.info('<Service>:<StoreLeadService>: <Store: updating new store>');
-    // storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    // storePayload.profileStatus = StoreLeadProfileStatus.DRAFT;
     const query: any = {};
     query.storeId = storePayload.storeId;
     if (role === AdminRole.OEM) {
@@ -1029,7 +1029,7 @@ export class StoreLeadService {
       );
 
       storePayload.storeId = newStoreId;
-      storePayload.profileStatus = StoreProfileStatus.DRAFT;
+      storePayload.profileStatus = StoreLeadProfileStatus.CREATED;
     }
     if (_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)) {
       storePayload.missingItem = 'Contact Info';
@@ -1241,11 +1241,13 @@ export class StoreLeadService {
     );
     let query: any = {};
     const userRoleType = userType === 'OEM' ? true : false;
-    let onboarded: any = 0;
+    let pendingForVerification: any = 0;
     let rejected: any = 0;
-    let draft: any = 0;
-    let pending: any = 0;
-    let partnerdraft: any = 0;
+    let created: any = 0;
+    let verified: any = 0;
+    let followUp: any = 0;
+    let deleted: any = 0;
+    let approved: any = 0;
 
     query = {
       isVerified: Boolean(verifiedStore)
@@ -1306,9 +1308,9 @@ export class StoreLeadService {
     }
 
     const total = await StoreLead.count({ ...overallStatus, ...query });
-    if (status === 'ONBOARDED' || !status) {
-      onboarded = await StoreLead.count({
-        profileStatus: 'ONBOARDED',
+    if (status === 'PENDING_FOR_VERIFICATION' || !status) {
+      pendingForVerification = await StoreLead.count({
+        profileStatus: 'PENDING_FOR_VERIFICATION',
         ...query
       });
     }
@@ -1318,45 +1320,65 @@ export class StoreLeadService {
         ...query
       });
     }
-    if (status === 'DRAFT' || !status) {
-      draft = await StoreLead.count({
-        profileStatus: 'DRAFT',
+    if (status === 'CREATED' || !status) {
+      created = await StoreLead.count({
+        profileStatus: 'CREATED',
         ...query
       });
     }
-    if (status === 'PENDING' || !status) {
-      pending = await StoreLead.count({
-        profileStatus: 'PENDING',
+    if (status === 'VERIFIED' || !status) {
+      verified = await StoreLead.count({
+        profileStatus: 'VERIFIED',
         ...query
       });
     }
-    if (status === 'PARTNERDRAFT' || !status) {
-      query.oemUserName = { $exists: true };
-      if (role === AdminRole.OEM) {
-        query.oemUserName = userName;
-      }
-
-      if (role === AdminRole.EMPLOYEE) {
-        query.oemUserName = oemId;
-      }
-
-      if (oemId === 'SERVICEPLUG') {
-        delete query['oemUserName'];
-      }
-
-      partnerdraft = await StoreLead.count({
-        profileStatus: 'DRAFT',
+    if (status === 'FOLLOWUP' || !status) {
+      followUp = await StoreLead.count({
+        profileStatus: 'FOLLOWUP',
         ...query
       });
     }
+    if (status === 'DELETED' || !status) {
+      deleted = await StoreLead.count({
+        profileStatus: 'DELETED',
+        ...query
+      });
+    }
+    if (status === 'APPROVED' || !status) {
+      approved = await StoreLead.count({
+        profileStatus: 'APPROVED',
+        ...query
+      });
+    }
+    // if (status === 'PARTNERDRAFT' || !status) {
+    //   query.oemUserName = { $exists: true };
+    //   if (role === AdminRole.OEM) {
+    //     query.oemUserName = userName;
+    //   }
+
+    //   if (role === AdminRole.EMPLOYEE) {
+    //     query.oemUserName = oemId;
+    //   }
+
+    //   if (oemId === 'SERVICEPLUG') {
+    //     delete query['oemUserName'];
+    //   }
+
+    //   partnerdraft = await StoreLead.count({
+    //     profileStatus: 'DRAFT',
+    //     ...query
+    //   });
+    // }
 
     let totalCounts = {
       total,
-      onboarded,
+      pendingForVerification,
       rejected,
-      draft,
-      pending,
-      partnerdraft
+      created,
+      verified,
+      followUp,
+      deleted,
+      approved
     };
 
     return totalCounts;
