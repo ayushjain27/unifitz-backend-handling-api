@@ -1,4 +1,3 @@
-import { IStoreLead } from './StoreLead';
 import { model, ObjectId, Schema, Types } from 'mongoose';
 import { DocType } from '../enum/docType.enum';
 export interface ICatalogMap {
@@ -49,7 +48,7 @@ export interface IBasicInfo {
   language: ILanguage[];
 }
 
-export const storeLeadSchema: Schema = new Schema(
+export const storeBasicInfoSchema: Schema = new Schema(
   {
     nameSalutation: {
       type: String,
@@ -104,7 +103,7 @@ export interface IContactInfo {
   pincode: string;
 }
 
-export const storeLeadContactSchema: Schema = new Schema(
+export const storeContactSchema: Schema = new Schema(
   {
     country: {
       type: {
@@ -141,7 +140,7 @@ export const storeLeadContactSchema: Schema = new Schema(
   }
 );
 
-storeLeadContactSchema.index({ geoLocation: '2dsphere' });
+storeContactSchema.index({ geoLocation: '2dsphere' });
 
 export interface IStoreTiming {
   openTime: Date; //<TIME>,
@@ -149,7 +148,7 @@ export interface IStoreTiming {
   holiday: [string];
 }
 
-export const storeLeadTimingSchema: Schema = new Schema(
+export const storeTimingSchema: Schema = new Schema(
   {
     openTime: {
       type: Date
@@ -181,7 +180,7 @@ export interface IVerificationDetails {
   verifyAddress: string;
 }
 
-export const storeLeadDocumentsSchema: Schema = new Schema<IDocuments>(
+export const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
     profile: {
       key: String,
@@ -211,8 +210,6 @@ export interface IStore {
   _id?: Types.ObjectId;
   employeeId?: string;
   storeId: string;
-  profileStatus: string;
-  rejectionReason: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
   storeTiming: IStoreTiming;
@@ -226,27 +223,15 @@ export interface IStore {
   verificationDetails?: IVerificationDetails;
 }
 
-
 const storeSchema: Schema = new Schema<IStore>(
   {
-   
     storeId: {
       type: String,
       required: true,
       unique: true
     },
-    oemUserName: {
+    employeeId: {
       type: String
-    },
-    profileStatus: {
-      type: String,
-      required: true,
-      enum: StoreProfileStatus,
-      default: StoreProfileStatus.DRAFT
-    },
-    rejectionReason: {
-      type: String,
-      default: ''
     },
     basicInfo: {
       type: storeBasicInfoSchema
@@ -269,7 +254,6 @@ const storeSchema: Schema = new Schema<IStore>(
   },
   { timestamps: true, strict: false }
 );
-
 
 export interface INotes {
   message: string;
@@ -302,7 +286,7 @@ export const notesSchema: Schema = new Schema<INotes>(
 const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
   {
     store: {
-      type: storeLeadSchema,
+      type: storeSchema,
       required: true
     },
 
@@ -327,7 +311,7 @@ const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
 );
 
 storeLeadGenerationSchema.index(
-  { 'contactInfo.geoLocation': '2dsphere' },
+  { 'store.contactInfo.geoLocation': '2dsphere' },
   { sparse: true }
 );
 
