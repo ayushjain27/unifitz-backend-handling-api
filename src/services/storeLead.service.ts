@@ -46,29 +46,9 @@ export class StoreLeadService {
     TYPES.SPEmployeeService
   );
 
-  async create(
-    storeRequest: StoreRequest,
-    userName?: string,
-    role?: string,
-    oemId?: string
-  ): Promise<IStoreLead> {
-    const { storePayload, phoneNumber } = storeRequest;
+  async create(storeRequest: StoreRequest): Promise<IStoreLead> {
+    const storeRes: any = storeRequest;
     Logger.info('<Service>:<StoreLeadService>:<Onboarding service initiated>');
-    let ownerDetails: IUser = await User.findOne({
-      phoneNumber,
-      role
-    });
-
-    if (_.isEmpty(ownerDetails)) {
-      ownerDetails = await User.findOne({
-        phoneNumber
-      });
-    }
-    if (_.isEmpty(ownerDetails)) {
-      throw new Error('User not found');
-    }
-
-    storePayload.userId = ownerDetails._id;
 
     const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
 
@@ -76,42 +56,22 @@ export class StoreLeadService {
 
     await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
 
-    //   ? new Date().getFullYear() * 100
-    //   : +lastCreatedStoreId[0].storeId + 1;
     Logger.info(
       '<Route>:<StoreLeadService>: <Store onboarding: creating new store>'
     );
 
-    storePayload.storeId = newStoreId;
-    storePayload.profileStatus = StoreLeadProfileStatus.CREATED;
-    const businessName = storeRequest.storePayload.basicInfo.businessName;
-    const baseSlug = slugify(businessName, { lower: true, strict: true });
-
-    const slug = `${baseSlug}-${newStoreId}`;
-    storePayload.slug = slug;
-
-    if (role === AdminRole.OEM) {
-      storePayload.oemUserName = userName;
-    }
-
-    if (role === AdminRole.EMPLOYEE) {
-      storePayload.oemUserName = oemId;
-    }
-
-    if (oemId === 'SERVICEPLUG') {
-      delete storePayload['oemUserName'];
-    }
-    // const newStore = new Store(storePayload);
+    storeRes.store.storeId = newStoreId;
+    storeRes.status = StoreLeadProfileStatus.CREATED;
     let newStore;
     try {
-      newStore = await StoreLead.create(storePayload);
+      newStore = await StoreLead.create(storeRes);
     } catch (err) {
       throw new Error(err);
     }
     await sendNotification(
       'Store Created',
       'Your store has created. It is under review',
-      phoneNumber,
+      storeRes?.store?.contactInfo?.phoneNumber?.primary,
       'STORE_OWNER',
       ''
     );
@@ -129,23 +89,20 @@ export class StoreLeadService {
     Logger.info(
       '<Service>:<StoreLeadService>:<Update store service initiated>'
     );
-    const { storePayload } = storeRequest;
+    const storePayload: any = storeRequest;
 
     Logger.info('<Service>:<StoreLeadService>: <Store: updating new store>');
     // storePayload.profileStatus = StoreLeadProfileStatus.DRAFT;
     const query: any = {};
-    query.storeId = storePayload.storeId;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+    query.store.storeId = storePayload?.store?.storeId;
     const updatedStore = await StoreLead.findOneAndUpdate(query, storePayload, {
       returnDocument: 'after',
-      projection: { 'verificationDetails.verifyObj': 0 }
+      projection: { 'store.verificationDetails.verifyObj': 0 }
     });
     await sendNotification(
       'Store Updated',
       'Your store has updated. It is under review',
-      storePayload?.contactInfo?.phoneNumber?.primary,
+      storePayload?.store?.contactInfo?.phoneNumber?.primary,
       'STORE_OWNER',
       ''
     );
@@ -157,16 +114,16 @@ export class StoreLeadService {
 
   async updateStoreImages(storeId: string, req: Request | any): Promise<any> {
     Logger.info('<Service>:<StoreLeadService>:<Upload Vehicles initiated>');
-    const store = await StoreLead.findOne(
-      { storeId },
-      { verificationDetails: 0 }
+    const storeRes = await StoreLead.findOne(
+      { 'store.storeId': storeId },
+      { 'store.verificationDetails': 0 }
     );
-    if (_.isEmpty(store)) {
+    if (_.isEmpty(storeRes)) {
       throw new Error('Store does not exist');
     }
 
     const files: Array<any> = req.files;
-    const documents: Partial<IDocuments> | any = store.documents || {
+    const documents: Partial<IDocuments> | any = storeRes?.store?.documents || {
       profile: {},
       storeImageList: {}
     };
@@ -188,11 +145,11 @@ export class StoreLeadService {
       }
     }
     const res = await StoreLead.findOneAndUpdate(
-      { storeId: storeId },
-      { $set: { documents } },
+      { 'store.storeId': storeId },
+      { $set: { 'store.documents': documents } },
       {
         returnDocument: 'after',
-        projection: { 'verificationDetails.verifyObj': 0 }
+        projection: { 'store.verificationDetails.verifyObj': 0 }
       }
     );
     return res;
@@ -206,14 +163,14 @@ export class StoreLeadService {
     Logger.info('<Service>:<StoreLeadService>:<Update store status>');
     const query: any = {};
     query.storeId = statusRequest.storeId;
-    let store: IStoreLead;
-    store = await StoreLead.findOne(
+    let storeRes: IStoreLead;
+    storeRes = await StoreLead.findOne(
       { storeId: statusRequest?.storeId },
       { verificationDetails: 0 }
     );
     const phoneNumber =
-      store?.basicInfo?.userPhoneNumber ||
-      store?.contactInfo?.phoneNumber?.primary;
+      storeRes?.store?.basicInfo?.userPhoneNumber ||
+      storeRes?.store?.contactInfo?.phoneNumber?.primary;
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
@@ -267,7 +224,7 @@ export class StoreLeadService {
     //   }).lean();
     // }
     const deviceFcmRecord = await User.aggregate([
-      { $match: { _id: store.userId } },
+      // { $match: { _id: store.userId } },
       {
         $lookup: {
           from: 'device_fcms',
@@ -293,21 +250,21 @@ export class StoreLeadService {
     if (Array.isArray(deviceFcmRecord) && deviceFcmRecord.length > 0) {
       const selectedUserRecord = deviceFcmRecord[0];
       const fcmToken: string = selectedUserRecord.deviceFcm.fcmToken;
-      const title =
-        store.profileStatus === 'ONBOARDED'
-          ? 'Congratulations! You are Onboarded successfully.'
-          : 'Sorry, you have been Rejected';
-      const body =
-        store.profileStatus === 'ONBOARDED'
-          ? 'Party hard. Use Service plug to checkout more features'
-          : store.rejectionReason;
+      // const title =
+      //   store.profileStatus === 'ONBOARDED'
+      //     ? 'Congratulations! You are Onboarded successfully.'
+      //     : 'Sorry, you have been Rejected';
+      // const body =
+      //   store.profileStatus === 'ONBOARDED'
+      //     ? 'Party hard. Use Service plug to checkout more features'
+      //     : store.rejectionReason;
       const notificationParams = {
         fcmToken,
         payload: {
-          notification: {
-            title,
-            body
-          }
+          // notification: {
+          //   title,
+          //   body
+          // }
         }
       };
       return await this.notificationService.sendNotification(
@@ -582,9 +539,9 @@ export class StoreLeadService {
     Logger.info(
       '<Service>:<StoreLeadService>:<Get stores by owner service initiated>'
     );
-    const objId = new Types.ObjectId(userId);
-    const stores = await StoreLead.find(
-      { userId: objId },
+    // const objId = new Types.ObjectId(userId);
+    const stores: any = await StoreLead.find(
+      // { userId: objId },
       { 'verificationDetails.verifyObj': 0 }
     );
     return stores;
@@ -600,14 +557,14 @@ export class StoreLeadService {
         _id: new Types.ObjectId(storeReview?.userId)
       })?.lean();
     }
-    let store: IStoreLead;
-    store = await StoreLead.findOne(
+    let storeRes: IStoreLead;
+    storeRes = await StoreLead.findOne(
       { storeId: storeReview?.storeId },
       { verificationDetails: 0 }
     );
     const phoneNumber =
-      store?.basicInfo?.userPhoneNumber ||
-      store?.contactInfo?.phoneNumber?.primary;
+      storeRes?.store?.basicInfo?.userPhoneNumber ||
+      storeRes?.store?.contactInfo?.phoneNumber?.primary;
     if (!storeReview?.userId) {
       throw new Error('Customer not found');
     }
@@ -739,12 +696,12 @@ export class StoreLeadService {
         }
 
         // Check if role is store owner and user id matches with store user id
-        if (
-          role === 'STORE_OWNER' &&
-          String(storeDetails?.userId) !== String(userDetails._id)
-        ) {
-          throw new Error('Invalid and unauthenticated request');
-        }
+        // if (
+        //   role === 'STORE_OWNER' &&
+        //   String(storeDetails?.userId) !== String(userDetails._id)
+        // ) {
+        //   throw new Error('Invalid and unauthenticated request');
+        // }
       }
       // integrate surephass api based on doc type
       switch (payload.documentType) {
@@ -793,29 +750,11 @@ export class StoreLeadService {
     try {
       const storeDetails = await StoreLead.findOne(
         {
-          storeId: payload.storeId
+          'store.storeId': payload.storeId
         },
-        { verificationDetails: 0 }
+        { 'store.verificationDetails': 0 }
       ).lean();
 
-      if (role !== 'ADMIN' && role !== 'OEM') {
-        const userDetails = await User.findOne({ phoneNumber, role }).lean();
-        if (_.isEmpty(storeDetails)) {
-          throw new Error('Store does not exist');
-        }
-
-        if (_.isEmpty(userDetails)) {
-          throw new Error('User does not exist');
-        }
-
-        // Check if role is store owner and user id matches with store user id
-        if (
-          role === 'STORE_OWNER' &&
-          String(storeDetails?.userId) !== String(userDetails._id)
-        ) {
-          throw new Error('Invalid and unauthenticated request');
-        }
-      }
       const updatedStore = await this.updateStoreDetails(
         payload.verificationDetails,
         payload.documentType,
@@ -836,7 +775,7 @@ export class StoreLeadService {
     verifyResult: any,
     documentType: string,
     gstAdhaarNumber: string,
-    storeDetails: IStoreLead
+    storeDetails: any
   ) {
     let isVerified = false;
 
@@ -1008,14 +947,14 @@ export class StoreLeadService {
     }
 
     const { storeId } = storePayload;
-    let store: IStoreLead;
+    let storeRes: IStoreLead;
     if (storeId) {
-      store = await StoreLead.findOne({ storeId }, { verificationDetails: 0 });
+      storeRes = await StoreLead.findOne({ storeId }, { verificationDetails: 0 });
     }
 
     storePayload.userId = ownerDetails._id;
 
-    if (!store) {
+    if (!storeRes) {
       const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
 
       const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
@@ -1031,11 +970,11 @@ export class StoreLeadService {
       storePayload.storeId = newStoreId;
       storePayload.profileStatus = StoreLeadProfileStatus.CREATED;
     }
-    if (_.isEmpty(storePayload?.contactInfo) && _.isEmpty(store?.contactInfo)) {
+    if (_.isEmpty(storePayload?.contactInfo) && _.isEmpty(storeRes?.store?.contactInfo)) {
       storePayload.missingItem = 'Contact Info';
     } else if (
       _.isEmpty(storePayload?.storeTiming) &&
-      _.isEmpty(store?.storeTiming)
+      _.isEmpty(storeRes?.store?.storeTiming)
     ) {
       storePayload.missingItem = 'Store Timing';
     } else {
@@ -1046,7 +985,7 @@ export class StoreLeadService {
     }
 
     // const newStore = new Store(storePayload);
-    if (store) {
+    if (storeRes) {
       const res = await StoreLead.findOneAndUpdate(
         { storeId: storeId },
         { $set: storePayload },
@@ -1149,13 +1088,13 @@ export class StoreLeadService {
     const userRoleType = userType === 'OEM' ? true : false;
 
     query = {
-      isVerified: Boolean(verifiedStore),
-      profileStatus: status === 'PARTNERDRAFT' ? 'DRAFT' : status
+      // isVerified: Boolean(verifiedStore),
+      status: status
     };
     if (searchQuery) {
       query.$or = [
-        { storeId: new RegExp(searchQuery, 'i') },
-        { 'contactInfo.phoneNumber.primary': new RegExp(searchQuery, 'i') }
+        { 'store.storeId': new RegExp(searchQuery, 'i') },
+        { 'store.contactInfo.phoneNumber.primary': new RegExp(searchQuery, 'i') }
       ];
     }
     if (role === AdminRole.ADMIN) {
@@ -1163,9 +1102,6 @@ export class StoreLeadService {
     }
     if (!userType) {
       delete query['oemUserName'];
-    }
-    if (status === 'PARTNERDRAFT') {
-      query.oemUserName = { $exists: true };
     }
     if (status === 'DRAFT') {
       query.oemUserName = { $exists: userRoleType };
@@ -1188,25 +1124,25 @@ export class StoreLeadService {
     if (!status) {
       delete query['profileStatus'];
     }
-    if (role === 'EMPLOYEE') {
-      const userName = oemId;
-      const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          userName
-        );
-      console.log(employeeDetails, 'dfwklm');
-      if (employeeDetails) {
-        query['contactInfo.state'] = {
-          $in: employeeDetails.state.map((stateObj) => stateObj.name)
-        };
-        if (!isEmpty(employeeDetails?.city)) {
-          query['contactInfo.city'] = {
-            $in: employeeDetails.city.map((cityObj) => cityObj.name)
-          };
-        }
-      }
-    }
+    // if (role === 'EMPLOYEE') {
+    //   const userName = oemId;
+    //   const employeeDetails =
+    //     await this.spEmployeeService.getEmployeeByEmployeeId(
+    //       employeeId,
+    //       userName
+    //     );
+    //   console.log(employeeDetails, 'dfwklm');
+    //   if (employeeDetails) {
+    //     query['contactInfo.state'] = {
+    //       $in: employeeDetails.state.map((stateObj) => stateObj.name)
+    //     };
+    //     if (!isEmpty(employeeDetails?.city)) {
+    //       query['contactInfo.city'] = {
+    //         $in: employeeDetails.city.map((cityObj) => cityObj.name)
+    //       };
+    //     }
+    //   }
+    // }
 
     console.log(query, 'FEWFm');
 
@@ -1246,7 +1182,6 @@ export class StoreLeadService {
     let created: any = 0;
     let verified: any = 0;
     let followUp: any = 0;
-    let deleted: any = 0;
     let approved: any = 0;
 
     query = {
@@ -1287,66 +1222,60 @@ export class StoreLeadService {
       delete overallStatus['profileStatus'];
     }
 
-    if (role === 'EMPLOYEE') {
-      const userName = oemId;
-      const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          userName
-        );
-      console.log(employeeDetails, 'dfwklm');
-      if (employeeDetails) {
-        query['contactInfo.state'] = {
-          $in: employeeDetails.state.map((stateObj) => stateObj.name)
-        };
-        if (!isEmpty(employeeDetails?.city)) {
-          query['contactInfo.city'] = {
-            $in: employeeDetails.city.map((cityObj) => cityObj.name)
-          };
-        }
-      }
-    }
+    // if (role === 'EMPLOYEE') {
+    //   const userName = oemId;
+    //   const employeeDetails =
+    //     await this.spEmployeeService.getEmployeeByEmployeeId(
+    //       employeeId,
+    //       userName
+    //     );
+    //   console.log(employeeDetails, 'dfwklm');
+    //   if (employeeDetails) {
+    //     query['contactInfo.state'] = {
+    //       $in: employeeDetails.state.map((stateObj) => stateObj.name)
+    //     };
+    //     if (!isEmpty(employeeDetails?.city)) {
+    //       query['contactInfo.city'] = {
+    //         $in: employeeDetails.city.map((cityObj) => cityObj.name)
+    //       };
+    //     }
+    //   }
+    // }
 
     const total = await StoreLead.count({ ...overallStatus, ...query });
     if (status === 'PENDING_FOR_VERIFICATION' || !status) {
       pendingForVerification = await StoreLead.count({
-        profileStatus: 'PENDING_FOR_VERIFICATION',
+        status: 'PENDING_FOR_VERIFICATION',
         ...query
       });
     }
     if (status === 'REJECTED' || !status) {
       rejected = await StoreLead.count({
-        profileStatus: 'REJECTED',
+        status: 'REJECTED',
         ...query
       });
     }
     if (status === 'CREATED' || !status) {
       created = await StoreLead.count({
-        profileStatus: 'CREATED',
+        status: 'CREATED',
         ...query
       });
     }
     if (status === 'VERIFIED' || !status) {
       verified = await StoreLead.count({
-        profileStatus: 'VERIFIED',
+        status: 'VERIFIED',
         ...query
       });
     }
     if (status === 'FOLLOWUP' || !status) {
       followUp = await StoreLead.count({
-        profileStatus: 'FOLLOWUP',
-        ...query
-      });
-    }
-    if (status === 'DELETED' || !status) {
-      deleted = await StoreLead.count({
-        profileStatus: 'DELETED',
+        status: 'FOLLOWUP',
         ...query
       });
     }
     if (status === 'APPROVED' || !status) {
       approved = await StoreLead.count({
-        profileStatus: 'APPROVED',
+        status: 'APPROVED',
         ...query
       });
     }
@@ -1377,7 +1306,6 @@ export class StoreLeadService {
       created,
       verified,
       followUp,
-      deleted,
       approved
     };
 

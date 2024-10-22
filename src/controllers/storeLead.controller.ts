@@ -28,32 +28,12 @@ export class StoreLeadController {
     this.storeLeadService = storeLeadService;
   }
   createStore = async (req: Request, res: Response) => {
-    const storeRequest: StoreRequest = req.body;
-    const { oemId } = req.body;
+    const storeRequest = req.body;
     Logger.info(
       '<Controller>:<StoreLeadController>:<Onboarding request controller initiated>'
     );
     try {
-      if (
-        req?.role === AdminRole.ADMIN ||
-        req?.role === AdminRole.OEM ||
-        req?.role === AdminRole.EMPLOYEE
-      ) {
-        const { phoneNumber } = storeRequest;
-        await User.findOneAndUpdate(
-          { phoneNumber, role: 'STORE_OWNER' },
-          { phoneNumber, role: 'STORE_OWNER' },
-          { upsert: true, new: true }
-        );
-      }
-      const userName = req?.userId;
-      const role = req?.role;
-      const result = await this.storeLeadService.create(
-        storeRequest,
-        userName,
-        role,
-        oemId
-      );
+      const result = await this.storeLeadService.create(storeRequest);
       res.send({
         message: 'Store Onboarding Successful',
         result
@@ -91,13 +71,6 @@ export class StoreLeadController {
     }
   };
   uploadStoreImages = async (req: Request, res: Response) => {
-    // Validate the request body
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res
-    //     .status(HttpStatusCodes.BAD_REQUEST)
-    //     .json({ errors: errors.array() });
-    // }
     const { storeId } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'

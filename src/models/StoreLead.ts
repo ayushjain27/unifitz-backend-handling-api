@@ -48,7 +48,7 @@ export interface IBasicInfo {
   language: ILanguage[];
 }
 
-export const storeLeadSchema: Schema = new Schema(
+export const storeBasicInfoSchema: Schema = new Schema(
   {
     nameSalutation: {
       type: String,
@@ -103,7 +103,7 @@ export interface IContactInfo {
   pincode: string;
 }
 
-export const storeLeadContactSchema: Schema = new Schema(
+export const storeContactSchema: Schema = new Schema(
   {
     country: {
       type: {
@@ -140,7 +140,7 @@ export const storeLeadContactSchema: Schema = new Schema(
   }
 );
 
-storeLeadContactSchema.index({ geoLocation: '2dsphere' });
+storeContactSchema.index({ geoLocation: '2dsphere' });
 
 export interface IStoreTiming {
   openTime: Date; //<TIME>,
@@ -148,7 +148,7 @@ export interface IStoreTiming {
   holiday: [string];
 }
 
-export const storeLeadTimingSchema: Schema = new Schema(
+export const storeTimingSchema: Schema = new Schema(
   {
     openTime: {
       type: Date
@@ -180,7 +180,7 @@ export interface IVerificationDetails {
   verifyAddress: string;
 }
 
-export const storeLeadDocumentsSchema: Schema = new Schema<IDocuments>(
+export const storeDocumentsSchema: Schema = new Schema<IDocuments>(
   {
     profile: {
       key: String,
@@ -206,13 +206,10 @@ export const storeLeadDocumentsSchema: Schema = new Schema<IDocuments>(
  * @param storeId:string
  * @param profileStatus:string
  */
-export interface IStoreLead {
+export interface IStore {
   _id?: Types.ObjectId;
-  userId: Types.ObjectId;
   employeeId?: string;
   storeId: string;
-  profileStatus: string;
-  rejectionReason: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
   storeTiming: IStoreTiming;
@@ -226,12 +223,8 @@ export interface IStoreLead {
   verificationDetails?: IVerificationDetails;
 }
 
-const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
+const storeSchema: Schema = new Schema<IStore>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      required: true
-    },
     storeId: {
       type: String,
       required: true,
@@ -240,27 +233,17 @@ const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
     employeeId: {
       type: String
     },
-    profileStatus: {
-      type: String,
-      required: true,
-      enum: StoreLeadProfileStatus,
-      default: StoreLeadProfileStatus.PENDING_FOR_VERIFICATION
-    },
-    rejectionReason: {
-      type: String,
-      default: ''
-    },
     basicInfo: {
-      type: storeLeadSchema
+      type: storeBasicInfoSchema
     },
     contactInfo: {
-      type: storeLeadContactSchema
+      type: storeContactSchema
     },
     storeTiming: {
-      type: storeLeadTimingSchema
+      type: storeTimingSchema
     },
     documents: {
-      type: storeLeadDocumentsSchema
+      type: storeDocumentsSchema
     },
     missingItem: {
       type: String
@@ -272,8 +255,63 @@ const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
   { timestamps: true, strict: false }
 );
 
+export interface INotes {
+  message: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IStoreLead {
+  store: IStore;
+  notes: INotes[];
+  status: StoreLeadProfileStatus;
+  rejectionReason: string;
+  followUpDate: Date;
+}
+
+export const notesSchema: Schema = new Schema<INotes>(
+  {
+    message: {
+      type: String,
+      required: true
+    },
+    createdBy: {
+      type: String
+    }
+  },
+  { timestamps: true }
+);
+
+const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
+  {
+    store: {
+      type: storeSchema,
+      required: true
+    },
+
+    notes: {
+      type: [notesSchema]
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: StoreLeadProfileStatus,
+      default: StoreLeadProfileStatus.CREATED
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
+    },
+    followUpDate: {
+      type: Date
+    }
+  },
+  { timestamps: true, strict: false }
+);
+
 storeLeadGenerationSchema.index(
-  { 'contactInfo.geoLocation': '2dsphere' },
+  { 'store.contactInfo.geoLocation': '2dsphere' },
   { sparse: true }
 );
 
