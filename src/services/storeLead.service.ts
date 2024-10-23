@@ -54,16 +54,6 @@ export class StoreLeadService {
     let storeRes: any = {};
     Logger.info('<Service>:<StoreLeadService>:<Onboarding service initiated>');
 
-    console.log('storeRessssssss 1111111111111');
-
-    const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
-    console.log('storeRessssssss 2222222222222');
-
-    const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
-
-    await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
-    console.log('storeRessssssss 33333333333333333', newStoreId);
-
     Logger.info(
       '<Route>:<StoreLeadService>: <Store onboarding: creating new store>'
     );
@@ -71,12 +61,7 @@ export class StoreLeadService {
       ...storeRequest,
       status: StoreLeadProfileStatus.CREATED
     };
-
-    storeRes.store.storeId = newStoreId;
     storeRes.store.userName = oemId;
-
-    console.log('storeRessssssss 444444444444444', storeRes);
-
     let newStore;
     try {
       newStore = await StoreLead.create(storeRes);
