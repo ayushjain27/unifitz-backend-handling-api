@@ -84,6 +84,45 @@ docker system prune -a --volumes
 df -h
 ```
 
+# To login into production server
+
+### SP- PROD SOUTH1 A
+```
+ssh -i "keys/serviceplug-prod-ec2.pem" ec2-user@ec2-13-201-84-147.ap-south-1.compute.amazonaws.com
+```
+### SP- PROD SOUTH1 B
+```
+ssh -i "keys/serviceplug-prod-ec2.pem" ec2-user@ec2-43-204-235-179.ap-south-1.compute.amazonaws.com
+```
+
+
+# Deploy the application in ec2 instance production
+
+1. Check if docker image running status:
+```
+docker ps
+```
+2. Login to ECS
+```
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 771470636147.dkr.ecr.ap-south-1.amazonaws.com
+```
+3. Pull the docker image from aws ecr
+```
+docker pull 771470636147.dkr.ecr.ap-south-1.amazonaws.com/serviceplug/prod-api:latest
+```
+4. Check the docker process
+```
+docker ps
+```
+5. Stop the container and delete it to release some space
+```
+docker stop <container_id>
+docker image prune
+```
+4. Run the docker instance if not running
+```
+docker run -p 8000:3005 -d <image url>
+```
 
 //Catalog migration script, Dont remove
 app.get('/catalog', (req, res) => {

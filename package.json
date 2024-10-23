@@ -21,7 +21,8 @@
     "local": "NODE_ENV=development nodemon",
     "docker:build:dev": "docker build --build-arg ENV=development --platform linux/amd64 -t serviceplug/serviceplug-dev-api .",
     "docker:build:prod": "docker build --build-arg ENV=production --platform linux/amd64 -t serviceplug/prod-api .",
-    "deploy:dev": "./scripts/dev-deploy.sh"
+    "deploy:dev": "./scripts/dev-deploy.sh",
+    "deploy:prod": "./scripts/prod-deploy.sh"
 
   },
   "dependencies": {
