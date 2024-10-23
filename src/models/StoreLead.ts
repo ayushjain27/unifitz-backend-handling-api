@@ -221,39 +221,40 @@ export interface IStore {
   isVerified?: boolean;
   missingItem?: string;
   verificationDetails?: IVerificationDetails;
+  userName: string;
 }
 
-const storeSchema: Schema = new Schema<IStore>(
-  {
-    storeId: {
-      type: String,
-      required: true,
-      unique: true
-    },
-    employeeId: {
-      type: String
-    },
-    basicInfo: {
-      type: storeBasicInfoSchema
-    },
-    contactInfo: {
-      type: storeContactSchema
-    },
-    storeTiming: {
-      type: storeTimingSchema
-    },
-    documents: {
-      type: storeDocumentsSchema
-    },
-    missingItem: {
-      type: String
-    },
-    slug: {
-      type: String
-    }
+const storeSchema: Schema = new Schema<IStore>({
+  storeId: {
+    type: String
+    // required: true,
+    // unique: true
   },
-  { timestamps: true, strict: false }
-);
+  employeeId: {
+    type: String
+  },
+  basicInfo: {
+    type: storeBasicInfoSchema
+  },
+  contactInfo: {
+    type: storeContactSchema
+  },
+  storeTiming: {
+    type: storeTimingSchema
+  },
+  documents: {
+    type: storeDocumentsSchema
+  },
+  missingItem: {
+    type: String
+  },
+  slug: {
+    type: String
+  },
+  userName: {
+    type: String
+  }
+});
 
 export interface INotes {
   message: string;

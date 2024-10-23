@@ -46,22 +46,37 @@ export class StoreLeadService {
     TYPES.SPEmployeeService
   );
 
-  async create(storeRequest: StoreRequest): Promise<IStoreLead> {
-    const storeRes: any = storeRequest;
+  async create(
+    storeRequest: StoreRequest,
+    oemId: string,
+    role: string
+  ): Promise<IStoreLead> {
+    let storeRes: any = {};
     Logger.info('<Service>:<StoreLeadService>:<Onboarding service initiated>');
 
+    console.log('storeRessssssss 1111111111111');
+
     const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
+    console.log('storeRessssssss 2222222222222');
 
     const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
 
     await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
+    console.log('storeRessssssss 33333333333333333', newStoreId);
 
     Logger.info(
       '<Route>:<StoreLeadService>: <Store onboarding: creating new store>'
     );
+    storeRes = {
+      ...storeRequest,
+      status: StoreLeadProfileStatus.CREATED
+    };
 
     storeRes.store.storeId = newStoreId;
-    storeRes.status = StoreLeadProfileStatus.CREATED;
+    storeRes.store.userName = oemId;
+
+    console.log('storeRessssssss 444444444444444', storeRes);
+
     let newStore;
     try {
       newStore = await StoreLead.create(storeRes);
@@ -93,8 +108,9 @@ export class StoreLeadService {
 
     Logger.info('<Service>:<StoreLeadService>: <Store: updating new store>');
     // storePayload.profileStatus = StoreLeadProfileStatus.DRAFT;
-    const query: any = {};
-    query.store.storeId = storePayload?.store?.storeId;
+    const query: any = {
+      'store.storeId': storePayload?.store?.storeId
+    };
     const updatedStore = await StoreLead.findOneAndUpdate(query, storePayload, {
       returnDocument: 'after',
       projection: { 'store.verificationDetails.verifyObj': 0 }
@@ -161,22 +177,20 @@ export class StoreLeadService {
     role?: string
   ): Promise<IStoreLead> {
     Logger.info('<Service>:<StoreLeadService>:<Update store status>');
-    const query: any = {};
-    query.storeId = statusRequest.storeId;
-    let storeRes: IStoreLead;
-    storeRes = await StoreLead.findOne(
-      { storeId: statusRequest?.storeId },
-      { verificationDetails: 0 }
+    const query: any = {
+      'store.storeId': statusRequest.storeId
+    };
+    const storeRes: IStoreLead = await StoreLead.findOne(
+      { 'store.storeId': statusRequest?.storeId },
+      { 'store.verificationDetails': 0 }
     );
     const phoneNumber =
       storeRes?.store?.basicInfo?.userPhoneNumber ||
       storeRes?.store?.contactInfo?.phoneNumber?.primary;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+
     await StoreLead.findOneAndUpdate(query, {
       $set: {
-        profileStatus: statusRequest.profileStatus,
+        status: statusRequest.status,
         rejectionReason: statusRequest.rejectionReason
       }
     });
@@ -185,29 +199,29 @@ export class StoreLeadService {
     );
     const updatedStore = await StoreLead.findOne(
       {
-        storeId: statusRequest.storeId
+        'store.storeId': statusRequest.storeId
       },
-      { 'verificationDetails.verifyObj': 0 }
+      { 'store.verificationDetails.verifyObj': 0 }
     );
-    await sendNotification(
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Store Onboarded'
-          : 'Store Rejected'
-      }`,
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Congratulations 😊'
-          : 'Sorry 😞'
-      } Your store has been ${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'onboarded'
-          : `rejected due to this reason: ${statusRequest.rejectionReason}`
-      }`,
-      phoneNumber,
-      'STORE_OWNER',
-      ''
-    );
+    // await sendNotification(
+    //   `${
+    //     statusRequest.profileStatus === 'ONBOARDED'
+    //       ? 'Store Onboarded'
+    //       : 'Store Rejected'
+    //   }`,
+    //   `${
+    //     statusRequest.profileStatus === 'ONBOARDED'
+    //       ? 'Congratulations 😊'
+    //       : 'Sorry 😞'
+    //   } Your store has been ${
+    //     statusRequest.profileStatus === 'ONBOARDED'
+    //       ? 'onboarded'
+    //       : `rejected due to this reason: ${statusRequest.rejectionReason}`
+    //   }`,
+    //   phoneNumber,
+    //   'STORE_OWNER',
+    //   ''
+    // );
     return updatedStore;
   }
 
@@ -274,23 +288,21 @@ export class StoreLeadService {
     return null;
   }
 
-  async getById(
-    req: { storeId: string; lat: string; long: string },
-    userName?: string,
-    role?: string
-  ): Promise<StoreResponse[]> {
+  async getById(req: {
+    storeId: string;
+    lat: string;
+    long: string;
+  }): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Get stores by Id service initiated>'
     );
-    const query: any = {};
-    query.storeId = req.storeId;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+    const query: any = {
+      'store.storeId': req.storeId
+    };
     let storeResponse: any;
     if (_.isEmpty(req.lat) && _.isEmpty(req.long)) {
       storeResponse = await StoreLead.find(query, {
-        'verificationDetails.verifyObj': 0
+        'store.verificationDetails.verifyObj': 0
       });
     } else {
       storeResponse = StoreLead.aggregate([
@@ -315,19 +327,13 @@ export class StoreLeadService {
     return storeResponse;
   }
 
-  async deleteStore(
-    storeId: string,
-    userName?: string,
-    role?: string
-  ): Promise<any> {
+  async deleteStore(storeId: string): Promise<any> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Delete stores by Id service initiated>'
     );
-    const query: any = {};
-    query.storeId = storeId;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+    const query: any = {
+      'store.storeId': storeId
+    };
     const res = await StoreLead.findOneAndDelete(query);
     return res;
   }
@@ -680,9 +686,9 @@ export class StoreLeadService {
       // get the store data
       const storeDetails = await StoreLead.findOne(
         {
-          storeId: payload.storeId
+          'store.storeId': payload.storeId
         },
-        { verificationDetails: 0 }
+        { 'store.verificationDetails': 0 }
       ).lean();
       Logger.debug(`${phoneNumber} ${role} user resulttttttttt`);
       if (role !== 'ADMIN' && role !== 'OEM') {
@@ -694,14 +700,6 @@ export class StoreLeadService {
         if (_.isEmpty(userDetails)) {
           throw new Error('User does not exist');
         }
-
-        // Check if role is store owner and user id matches with store user id
-        // if (
-        //   role === 'STORE_OWNER' &&
-        //   String(storeDetails?.userId) !== String(userDetails._id)
-        // ) {
-        //   throw new Error('Invalid and unauthenticated request');
-        // }
       }
       // integrate surephass api based on doc type
       switch (payload.documentType) {

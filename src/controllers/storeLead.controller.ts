@@ -29,11 +29,17 @@ export class StoreLeadController {
   }
   createStore = async (req: Request, res: Response) => {
     const storeRequest = req.body;
+    const { oemId } = storeRequest.store;
     Logger.info(
       '<Controller>:<StoreLeadController>:<Onboarding request controller initiated>'
     );
     try {
-      const result = await this.storeLeadService.create(storeRequest);
+      const role = req?.role;
+      const result = await this.storeLeadService.create(
+        storeRequest,
+        oemId,
+        role
+      );
       res.send({
         message: 'Store Onboarding Successful',
         result
@@ -205,8 +211,6 @@ export class StoreLeadController {
     const storeId = req.query.storeId;
     const lat = req.query.lat;
     const long = req.query.long;
-    const userName = req?.userId;
-    const role = req?.role;
 
     Logger.info(
       '<Controller>:<StoreLeadController>:<Get stores by storeID request controller initiated>'
@@ -216,15 +220,11 @@ export class StoreLeadController {
       if (!storeId) {
         throw new Error('storeId required');
       } else {
-        result = await this.storeLeadService.getById(
-          { storeId, lat, long } as {
-            storeId: string;
-            lat: string;
-            long: string;
-          },
-          userName,
-          role
-        );
+        result = await this.storeLeadService.getById({ storeId, lat, long } as {
+          storeId: string;
+          lat: string;
+          long: string;
+        });
       }
       res.send({
         result
@@ -249,11 +249,7 @@ export class StoreLeadController {
       if (!storeId) {
         throw new Error('storeId required');
       } else {
-        result = await this.storeLeadService.deleteStore(
-          storeId as string,
-          userName,
-          role
-        );
+        result = await this.storeLeadService.deleteStore(storeId as string);
       }
       res.send({
         result
