@@ -112,7 +112,10 @@ export const storeContactSchema: Schema = new Schema(
       }
     },
     phoneNumber: {
-      type: { primary: String, secondary: String }
+      type: new Schema({
+        primary: { type: String, required: true },
+        secondary: { type: String }
+      })
     },
     email: {
       type: String
@@ -203,13 +206,11 @@ export const storeDocumentsSchema: Schema = new Schema<IDocuments>(
 /**
  * Interface to model the Admin Schema for TypeScript.
  * @param userId:ObjectId
- * @param storeId:string
  * @param profileStatus:string
  */
 export interface IStore {
   _id?: Types.ObjectId;
   employeeId?: string;
-  storeId: string;
   basicInfo: IBasicInfo;
   contactInfo: IContactInfo;
   storeTiming: IStoreTiming;
@@ -225,11 +226,6 @@ export interface IStore {
 }
 
 const storeSchema: Schema = new Schema<IStore>({
-  storeId: {
-    type: String
-    // required: true,
-    // unique: true
-  },
   employeeId: {
     type: String
   },
@@ -309,11 +305,6 @@ const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
     }
   },
   { timestamps: true, strict: false }
-);
-
-storeLeadGenerationSchema.index(
-  { 'store.contactInfo.geoLocation': '2dsphere' },
-  { sparse: true }
 );
 
 const StoreLead = model<IStoreLead>('storeleads', storeLeadGenerationSchema);
