@@ -41,41 +41,7 @@ router.post(
   roleAuth(ACL.STORE_GET_ALL),
   storeLeadController.getAllStores
 );
-router.get(
-  '/search',
-  roleAuth(ACL.STORE_GET_ALL),
-  storeLeadController.searchStores
-);
 
-router.post(
-  '/search_paginated',
-  // roleAuth(ACL.STORE_GET_ALL),
-  storeLeadController.searchStoresPaginated
-);
-
-router.get(
-  '/owner/:userId',
-  roleAuth(ACL.STORE_GET_OWNER),
-  storeLeadController.getStoresByOwner
-);
-// router.post(
-//   '/uploadFile',
-//   uploadFile.single('file'),
-//   roleAuth(ACL.STORE_CREATE),
-//   storeLeadController.uploadFile
-// );
-router.post(
-  '/review',
-  roleAuth(ACL.STORE_REVIEW_CREATE),
-  storeLeadController.addStoreReview
-);
-router.put(
-  '/:reviewId',
-  roleAuth(ACL.STORE_CREATE),
-  storeLeadController.updateStoreReview
-);
-router.get('/:storeId/ratings', storeLeadController.getOverallStoreRatings);
-router.get('/:storeId/reviews', storeLeadController.getStoreReviews);
 router.post(
   '/updateStatus',
   roleAuth(ACL.STORE_CREATE),
@@ -106,24 +72,6 @@ router.post(
   storeLeadController.verifyAadhar
 );
 
-router.get(
-  '/allReviews',
-  roleAuth(ACL.STORE_CREATE),
-  storeLeadController.getAllReviews
-);
-
-router.post(
-  '/fastestOnboarding',
-  roleAuth(ACL.STORE_CREATE),
-  storeLeadController.createStoreFastestOnboarding
-);
-
-router.post(
-  '/getStoresByCity',
-  roleAuth(ACL.STORE_CREATE),
-  storeLeadController.getStoresByCity
-);
-
 router.post(
   '/admin-store-paginated',
   roleAuth(ACL.STORE_CREATE),
@@ -136,31 +84,4 @@ router.get(
   storeLeadController.getTotalStoresCount
 );
 
-router.post(
-  '/getNearestStore',
-  // roleAuth(ACL.STORE_GET_ALL),
-  storeLeadController.getNearestStore
-);
-router.post(
-  '/getNearestDealer',
-  // roleAuth(ACL.STORE_GET_ALL),
-  storeLeadController.getNearestDealer
-);
-
-router.post(
-  '/createHistory',
-  roleAuth(ACL.STORE_CREATE),
-  storeLeadController.createHistory
-);
-router.post(
-  '/getHistory',
-  // roleAuth(ACL.STORE_GET_ALL),
-  storeLeadController.getHistory
-);
-
-// router.get(
-//   '/getStoreByUserId',
-//   // roleAuth(ACL.STORE_GET_SINGLE),
-//   storeLeadController.getStoreByUserId
-// );
 export default router;

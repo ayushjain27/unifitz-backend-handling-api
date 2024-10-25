@@ -303,7 +303,7 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
     );
-  
+
     const filterParams = { ...query, status: 'ACTIVE' };
     // Conditionally add the nested state field if query.state is not empty
     if (query.state) {
@@ -312,10 +312,10 @@ export class BuySellService {
         { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
-    if(query.userId){
+    if (query.userId) {
       filterParams['sellerDetails._id'] != query.userId;
     }
-    if(query.storeId){
+    if (query.storeId) {
       filterParams['storeDetails.storeId'] != query.storeId;
     }
     delete filterParams.state;
@@ -326,7 +326,7 @@ export class BuySellService {
     delete filterParams.storeId;
     Logger.debug(query);
     console.log(filterParams, query, 'dfmkl');
-  
+
     const result = await buySellVehicleInfo.aggregate([
       {
         $geoNear: {
@@ -351,8 +351,8 @@ export class BuySellService {
       {
         $limit: query.pageSize
       },
-      { 
-        $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } 
+      {
+        $set: { VehicleInfo: { $toObjectId: '$vehicleId' } }
       },
       {
         $lookup: {
@@ -362,11 +362,11 @@ export class BuySellService {
           as: 'vehicleInfo'
         }
       },
-      { 
-        $unwind: { path: '$vehicleInfo' } 
+      {
+        $unwind: { path: '$vehicleInfo' }
       }
     ]);
-  
+
     return result;
   }
 

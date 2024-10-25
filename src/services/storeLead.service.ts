@@ -9,29 +9,21 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import {
   ApproveBusinessVerifyRequest,
-  OverallStoreRatingResponse,
   StoreRequest,
   StoreResponse,
-  StoreReviewRequest,
   VerifyAadharRequest,
   VerifyBusinessRequest
 } from '../interfaces';
 // import Store, { IDocuments, IStore } from '../models/Store';
 import StoreLead, { IDocuments, IStoreLead } from '../models/StoreLead';
-import StoreHistory from '../models/StoreHistory';
-import StoreReview, { IStoreReview } from '../models/Store-Review';
 import User, { IUser } from '../models/User';
-import DeviceFcm, { IDeviceFcm } from '../models/DeviceFcm';
 import Request from '../types/request';
 import { S3Service } from './s3.service';
 import { NotificationService } from './notification.service';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
-import Customer, { ICustomer } from './../models/Customer';
-import { StaticIds } from './../models/StaticId';
-import { sendNotification } from '../utils/common';
-import slugify from 'slugify';
 import { SPEmployeeService } from './spEmployee.service';
+import { StoreService } from './store.service';
 
 @injectable()
 export class StoreLeadService {
@@ -45,36 +37,48 @@ export class StoreLeadService {
   private spEmployeeService = container.get<SPEmployeeService>(
     TYPES.SPEmployeeService
   );
+  private storeService = container.get<StoreService>(TYPES.StoreService);
 
-  async create(storeRequest: StoreRequest): Promise<IStoreLead> {
-    const storeRes: any = storeRequest;
+  async create(
+    storeRequest: StoreRequest,
+    oemId: string,
+    role: string,
+    userName: string
+  ): Promise<IStoreLead> {
+    let storeRes: any = {};
     Logger.info('<Service>:<StoreLeadService>:<Onboarding service initiated>');
-
-    const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
-
-    const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
-
-    await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
 
     Logger.info(
       '<Route>:<StoreLeadService>: <Store onboarding: creating new store>'
     );
-
-    storeRes.store.storeId = newStoreId;
-    storeRes.status = StoreLeadProfileStatus.CREATED;
+    const storeNumber: any = storeRequest;
+    const storeData = await StoreLead.findOne({
+      'store.contactInfo.phoneNumber.primary':
+        storeNumber?.store?.contactInfo?.phoneNumber?.primary
+    });
+    if (storeData) {
+      throw new Error('Store Primary PhoneNumber Already exist');
+    }
+    storeRes = {
+      ...storeRequest,
+      status: StoreLeadProfileStatus.CREATED
+    };
+    // storeRes.store.userName = oemId;
+    if (role === AdminRole.OEM) {
+      storeRes.store.userName = userName;
+    }
+    if (role === AdminRole.EMPLOYEE) {
+      storeRes.store.userName = oemId;
+    }
+    if (oemId === 'SERVICEPLUG') {
+      delete storeRes['store.userName'];
+    }
     let newStore;
     try {
       newStore = await StoreLead.create(storeRes);
     } catch (err) {
       throw new Error(err);
     }
-    await sendNotification(
-      'Store Created',
-      'Your store has created. It is under review',
-      storeRes?.store?.contactInfo?.phoneNumber?.primary,
-      'STORE_OWNER',
-      ''
-    );
     Logger.info(
       '<Service>:<StoreLeadService>: <Store onboarding: created new store successfully>'
     );
@@ -93,19 +97,13 @@ export class StoreLeadService {
 
     Logger.info('<Service>:<StoreLeadService>: <Store: updating new store>');
     // storePayload.profileStatus = StoreLeadProfileStatus.DRAFT;
-    const query: any = {};
-    query.store.storeId = storePayload?.store?.storeId;
+    const query: any = {
+      _id: storePayload?._id
+    };
     const updatedStore = await StoreLead.findOneAndUpdate(query, storePayload, {
       returnDocument: 'after',
       projection: { 'store.verificationDetails.verifyObj': 0 }
     });
-    await sendNotification(
-      'Store Updated',
-      'Your store has updated. It is under review',
-      storePayload?.store?.contactInfo?.phoneNumber?.primary,
-      'STORE_OWNER',
-      ''
-    );
     Logger.info(
       '<Service>:<StoreLeadService>: <Store: update store successfully>'
     );
@@ -115,7 +113,7 @@ export class StoreLeadService {
   async updateStoreImages(storeId: string, req: Request | any): Promise<any> {
     Logger.info('<Service>:<StoreLeadService>:<Upload Vehicles initiated>');
     const storeRes = await StoreLead.findOne(
-      { 'store.storeId': storeId },
+      { _id: storeId },
       { 'store.verificationDetails': 0 }
     );
     if (_.isEmpty(storeRes)) {
@@ -145,7 +143,7 @@ export class StoreLeadService {
       }
     }
     const res = await StoreLead.findOneAndUpdate(
-      { 'store.storeId': storeId },
+      { _id: storeId },
       { $set: { 'store.documents': documents } },
       {
         returnDocument: 'after',
@@ -161,22 +159,20 @@ export class StoreLeadService {
     role?: string
   ): Promise<IStoreLead> {
     Logger.info('<Service>:<StoreLeadService>:<Update store status>');
-    const query: any = {};
-    query.storeId = statusRequest.storeId;
-    let storeRes: IStoreLead;
-    storeRes = await StoreLead.findOne(
-      { storeId: statusRequest?.storeId },
-      { verificationDetails: 0 }
+    const query: any = {
+      _id: statusRequest.storeId
+    };
+    const storeRes: IStoreLead = await StoreLead.findOne(
+      { _id: statusRequest?.storeId },
+      { 'store.verificationDetails': 0 }
     );
     const phoneNumber =
       storeRes?.store?.basicInfo?.userPhoneNumber ||
       storeRes?.store?.contactInfo?.phoneNumber?.primary;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+
     await StoreLead.findOneAndUpdate(query, {
       $set: {
-        profileStatus: statusRequest.profileStatus,
+        status: statusRequest.status,
         rejectionReason: statusRequest.rejectionReason
       }
     });
@@ -185,112 +181,61 @@ export class StoreLeadService {
     );
     const updatedStore = await StoreLead.findOne(
       {
-        storeId: statusRequest.storeId
+        _id: statusRequest.storeId
       },
-      { 'verificationDetails.verifyObj': 0 }
+      { 'store.verificationDetails.verifyObj': 0 }
     );
-    await sendNotification(
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Store Onboarded'
-          : 'Store Rejected'
-      }`,
-      `${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'Congratulations 😊'
-          : 'Sorry 😞'
-      } Your store has been ${
-        statusRequest.profileStatus === 'ONBOARDED'
-          ? 'onboarded'
-          : `rejected due to this reason: ${statusRequest.rejectionReason}`
-      }`,
-      phoneNumber,
-      'STORE_OWNER',
-      ''
-    );
+    if (statusRequest.status === 'APPROVED') {
+      const newStore = await this.createNewStore(updatedStore);
+    }
     return updatedStore;
   }
 
-  async sendNotificationToStore(store: IStoreLead) {
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Sending notification to store owner>'
-    );
-    // const ownerDetails: IUser = await User.findOne({
-    //   _id: store.userId
-    // }).lean();
-    // if (ownerDetails) {
-    //   const deviceFcmDetails: IDeviceFcm = await DeviceFcm.findOne({
-    //     deviceId: ownerDetails.deviceId
-    //   }).lean();
-    // }
-    const deviceFcmRecord = await User.aggregate([
-      // { $match: { _id: store.userId } },
-      {
-        $lookup: {
-          from: 'device_fcms',
-          let: { deviceId: '$deviceId', role: 'STORE_OWNER' },
-          // localField: 'deviceId',
-          // foreignField: 'deviceId',
-          pipeline: [
-            {
-              $match: {
-                role: 'STORE_OWNER',
-                $expr: { $eq: ['$deviceId', '$$deviceId'] }
-              }
-            }
-          ],
-          as: 'deviceFcm'
-        }
+  async createNewStore(jsonResult: any) {
+    const storeRequest: any = {
+      storePayload: {
+        basicInfo: jsonResult?.store?.basicInfo,
+        contactInfo: jsonResult?.store?.contactInfo,
+        documents: jsonResult?.store?.documents,
+        storeTiming: jsonResult?.store?.storeTiming,
+        verificationDetails: jsonResult?.verificationDetails,
+        isVerified: jsonResult?.isVerified
       },
-      {
-        $unwind: '$deviceFcm'
-      }
-    ]);
-    Logger.info(JSON.stringify(deviceFcmRecord));
-    if (Array.isArray(deviceFcmRecord) && deviceFcmRecord.length > 0) {
-      const selectedUserRecord = deviceFcmRecord[0];
-      const fcmToken: string = selectedUserRecord.deviceFcm.fcmToken;
-      // const title =
-      //   store.profileStatus === 'ONBOARDED'
-      //     ? 'Congratulations! You are Onboarded successfully.'
-      //     : 'Sorry, you have been Rejected';
-      // const body =
-      //   store.profileStatus === 'ONBOARDED'
-      //     ? 'Party hard. Use Service plug to checkout more features'
-      //     : store.rejectionReason;
-      const notificationParams = {
-        fcmToken,
-        payload: {
-          // notification: {
-          //   title,
-          //   body
-          // }
-        }
-      };
-      return await this.notificationService.sendNotification(
-        notificationParams
-      );
-    }
-    return null;
+      phoneNumber: jsonResult?.store?.contactInfo?.phoneNumber?.primary
+    };
+    const userName = '';
+    const role = 'EMPLOYEE';
+    const oemId =
+      jsonResult?.store?.userName === 'SERVICEPLUG'
+        ? ''
+        : jsonResult?.store?.userName;
+    const storeStatus = 'ONBOARDED';
+    const createStore = await this.storeService.create(
+      storeRequest,
+      userName,
+      role,
+      oemId,
+      storeStatus
+    );
+
+    return createStore;
   }
 
-  async getById(
-    req: { storeId: string; lat: string; long: string },
-    userName?: string,
-    role?: string
-  ): Promise<StoreResponse[]> {
+  async getById(req: {
+    storeId: string;
+    lat: string;
+    long: string;
+  }): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Get stores by Id service initiated>'
     );
-    const query: any = {};
-    query.storeId = req.storeId;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+    const query: any = {
+      _id: req.storeId
+    };
     let storeResponse: any;
     if (_.isEmpty(req.lat) && _.isEmpty(req.long)) {
       storeResponse = await StoreLead.find(query, {
-        'verificationDetails.verifyObj': 0
+        'store.verificationDetails.verifyObj': 0
       });
     } else {
       storeResponse = StoreLead.aggregate([
@@ -315,19 +260,13 @@ export class StoreLeadService {
     return storeResponse;
   }
 
-  async deleteStore(
-    storeId: string,
-    userName?: string,
-    role?: string
-  ): Promise<any> {
+  async deleteStore(storeId: string): Promise<any> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Delete stores by Id service initiated>'
     );
-    const query: any = {};
-    query.storeId = storeId;
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
+    const query: any = {
+      _id: storeId
+    };
     const res = await StoreLead.findOneAndDelete(query);
     return res;
   }
@@ -399,310 +338,19 @@ export class StoreLeadService {
     return stores;
   }
 
-  async searchAndFilter(
-    storeName: string,
-    category: string,
-    subCategory: string[],
-    brand: string
-  ): Promise<StoreResponse[]> {
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Search and Filter stores service initiated>'
-    );
-    const query = {
-      'basicInfo.businessName': new RegExp(storeName, 'i'),
-      'basicInfo.brand.name': brand,
-      'basicInfo.category.name': category,
-      'basicInfo.subCategory.name': { $in: subCategory },
-      profileStatus: 'ONBOARDED'
-    };
-    if (!brand) {
-      delete query['basicInfo.brand.name'];
-    }
-    if (!category) {
-      delete query['basicInfo.category.name'];
-    }
-    if (!subCategory || subCategory.length === 0) {
-      delete query['basicInfo.subCategory.name'];
-    }
-    if (!storeName) {
-      delete query['basicInfo.businessName'];
-    }
-    Logger.debug(query);
-    let stores: any = await StoreLead.find(query, {
-      'verificationDetails.verifyObj': 0
-    }).lean();
-    if (stores && Array.isArray(stores)) {
-      stores = await Promise.all(
-        stores.map(async (store) => {
-          const updatedStore = { ...store };
-          updatedStore.overAllRating = await this.getOverallRatings(
-            updatedStore.storeId
-          );
-          return updatedStore;
-        })
-      );
-    }
-    return stores;
-  }
-
-  async searchAndFilterPaginated(searchReqBody: {
-    storeName: string;
-    brand: string;
-    subCategory: string[];
-    category: string;
-    pageNo: number;
-    pageSize: number;
-    coordinates: number[];
-    oemUserName: string;
-  }): Promise<StoreResponse[]> {
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
-    );
-    const query = {
-      // 'contactInfo.geoLocation': {
-      //   $near: {
-      //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
-      //   }
-      // },
-      'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
-      'basicInfo.brand.name': searchReqBody.brand,
-      'basicInfo.category.name': searchReqBody.category,
-      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
-      oemUserName: searchReqBody.oemUserName,
-      profileStatus: 'ONBOARDED'
-    };
-    if (!searchReqBody.brand) {
-      delete query['basicInfo.brand.name'];
-    }
-    if (!searchReqBody.category) {
-      delete query['basicInfo.category.name'];
-    }
-    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
-      delete query['basicInfo.subCategory.name'];
-    }
-    if (!searchReqBody.storeName) {
-      delete query['basicInfo.businessName'];
-    }
-    if (!searchReqBody.oemUserName) {
-      delete query.oemUserName;
-    }
-    Logger.debug(query);
-
-    let stores: any = await StoreLead.aggregate([
-      {
-        $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: searchReqBody.coordinates as [number, number]
-          },
-          // key: 'contactInfo.geoLocation',
-          spherical: true,
-          query: query,
-          distanceField: 'contactInfo.distance',
-          distanceMultiplier: 0.001
-        }
-      },
-      {
-        $skip: searchReqBody.pageNo * searchReqBody.pageSize
-      },
-      {
-        $limit: searchReqBody.pageSize
-      },
-      {
-        $project: { 'verificationDetails.verifyObj': 0 }
-      }
-    ]);
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Search and Filter stores service 2222222222>'
-    );
-    if (stores && Array.isArray(stores)) {
-      stores = await Promise.all(
-        stores.map(async (store) => {
-          const updatedStore = { ...store };
-          Logger.info(
-            '<Service>:<StoreLeadService>:<Search and Filter stores service 3333333333333>'
-          );
-          updatedStore.overAllRating = await this.getOverallRatings(
-            updatedStore.storeId
-          );
-          return updatedStore;
-        })
-      );
-    }
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Search and Filter stores service 4444444444444>'
-    );
-    return stores;
-  }
-
-  async getByOwner(userId: string): Promise<StoreResponse[]> {
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Get stores by owner service initiated>'
-    );
-    // const objId = new Types.ObjectId(userId);
-    const stores: any = await StoreLead.find(
-      // { userId: objId },
-      { 'verificationDetails.verifyObj': 0 }
-    );
-    return stores;
-  }
-
-  async addReview(
-    storeReview: StoreReviewRequest
-  ): Promise<StoreReviewRequest> {
-    Logger.info('<Service>:<StoreLeadService>:<Add Store Ratings initiate>');
-    let customer: ICustomer;
-    if (storeReview?.userId) {
-      customer = await Customer.findOne({
-        _id: new Types.ObjectId(storeReview?.userId)
-      })?.lean();
-    }
-    let storeRes: IStoreLead;
-    storeRes = await StoreLead.findOne(
-      { storeId: storeReview?.storeId },
-      { verificationDetails: 0 }
-    );
-    const phoneNumber =
-      storeRes?.store?.basicInfo?.userPhoneNumber ||
-      storeRes?.store?.contactInfo?.phoneNumber?.primary;
-    if (!storeReview?.userId) {
-      throw new Error('Customer not found');
-    }
-    const newStoreReview = new StoreReview(storeReview);
-    newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
-    await newStoreReview.save();
-    await sendNotification(
-      'Store Review',
-      'Hey 👋 you got a feedback',
-      phoneNumber,
-      'STORE_OWNER',
-      'RATING_REVIEW'
-    );
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Store Ratings added successfully>'
-    );
-    return newStoreReview;
-  }
-
-  async getOverallRatings(
-    storeId: string
-  ): Promise<OverallStoreRatingResponse> {
-    Logger.info('<Service>:<StoreLeadService>:<Get Overall Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId });
-    if (storeReviews.length === 0) {
-      return {
-        allRatings: {
-          5: 100
-        },
-        averageRating: '-',
-        totalRatings: 0,
-        totalReviews: 1
-      };
-    }
-    let ratingsCount = 0;
-    let totalRatings = 0;
-    let totalReviews = 0;
-    const allRatings: { [key: number]: number } = {};
-
-    storeReviews.forEach(({ rating, review }) => {
-      if (rating) totalRatings++;
-      if (review) totalReviews++;
-      ratingsCount = ratingsCount + rating;
-      if (!allRatings[rating]) {
-        allRatings[rating] = 1;
-      } else {
-        allRatings[rating]++;
-      }
-    });
-
-    for (const key in allRatings) {
-      allRatings[key] = Math.trunc(
-        (allRatings[key] * 100) / storeReviews.length
-      );
-    }
-
-    const averageRating = Number(
-      ratingsCount / storeReviews.length
-    ).toPrecision(2);
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Get Overall Ratings performed successfully>'
-    );
-    return {
-      allRatings,
-      averageRating,
-      totalRatings,
-      totalReviews
-    };
-  }
-  /* eslint-disable */
-  async getReviews(
-    storeId: string,
-    pageNo?: number,
-    pageSize?: number
-  ): Promise<any[]> {
-    Logger.info('<Service>:<StoreLeadService>:<Get Store Ratings initiate>');
-    const storeReviews = await StoreReview.find({ storeId })
-      .skip(pageNo * pageSize)
-      .limit(pageSize)
-      .lean();
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Get Ratings performed successfully>'
-    );
-    if (storeReviews.length === 0 && !pageNo) {
-      return [
-        {
-          user: {
-            name: 'Service Plug',
-            profilePhoto: ''
-          },
-          storeId,
-          rating: 5,
-          review:
-            'Thank you for onboarding with us. May you have a wonderful experience.'
-        }
-      ];
-    } else {
-      return storeReviews;
-    }
-  }
-
   async initiateBusinessVerification(
     payload: VerifyBusinessRequest,
     phoneNumber: string,
     role?: string
   ) {
-    Logger.info('<Service>:<StoreLeadService>:<Initiate Verifying user business>');
+    Logger.info(
+      '<Service>:<StoreLeadService>:<Initiate Verifying user business>'
+    );
     // validate the store from user phone number and user id
     let verifyResult: any = {};
     const displayFields: any = {};
 
     try {
-      // get the store data
-      const storeDetails = await StoreLead.findOne(
-        {
-          storeId: payload.storeId
-        },
-        { verificationDetails: 0 }
-      ).lean();
-      Logger.debug(`${phoneNumber} ${role} user resulttttttttt`);
-      if (role !== 'ADMIN' && role !== 'OEM') {
-        const userDetails = await User.findOne({ phoneNumber, role }).lean();
-        if (_.isEmpty(storeDetails)) {
-          throw new Error('Store does not exist');
-        }
-
-        if (_.isEmpty(userDetails)) {
-          throw new Error('User does not exist');
-        }
-
-        // Check if role is store owner and user id matches with store user id
-        // if (
-        //   role === 'STORE_OWNER' &&
-        //   String(storeDetails?.userId) !== String(userDetails._id)
-        // ) {
-        //   throw new Error('Invalid and unauthenticated request');
-        // }
-      }
       // integrate surephass api based on doc type
       switch (payload.documentType) {
         case DocType.GST:
@@ -744,13 +392,15 @@ export class StoreLeadService {
     phoneNumber: string,
     role?: string
   ) {
-    Logger.info('<Service>:<StoreLeadService>:<Approve Verifying user business>');
+    Logger.info(
+      '<Service>:<StoreLeadService>:<Approve Verifying user business>'
+    );
     // validate the store from user phone number and user id
 
     try {
       const storeDetails = await StoreLead.findOne(
         {
-          'store.storeId': payload.storeId
+          _id: payload.storeId
         },
         { 'store.verificationDetails': 0 }
       ).lean();
@@ -788,7 +438,7 @@ export class StoreLeadService {
       { _id: storeDetails._id },
       {
         $set: {
-          isVerified,
+          isVerified: isVerified,
           verificationDetails: {
             documentType,
             verifyName: verifyResult?.business_name || verifyResult?.full_name,
@@ -796,8 +446,8 @@ export class StoreLeadService {
               documentType === 'GST'
                 ? String(verifyResult?.address)
                 : String(
-                  `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
-                ),
+                    `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
+                  ),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
@@ -805,7 +455,7 @@ export class StoreLeadService {
       },
       {
         returnDocument: 'after',
-        projection: { 'verificationDetails.verifyObj': 0 }
+        projection: { 'store.verificationDetails.verifyObj': 0 }
       }
     );
 
@@ -817,9 +467,11 @@ export class StoreLeadService {
     phoneNumber: string,
     role?: string
   ) {
-    Logger.info('<Service>:<StoreLeadService>:<Initiate Verifying user business>');
+    Logger.info(
+      '<Service>:<StoreLeadService>:<Initiate Verifying user business>'
+    );
     // validate the store from user phone number and user id
-    let verifyResult: any = {};
+    const verifyResult: any = {};
     const gstAdhaarNumber = payload?.gstAdhaarNumber
       ? payload?.gstAdhaarNumber
       : '';
@@ -862,213 +514,6 @@ export class StoreLeadService {
     }
   }
 
-  async getAllReviews(
-    userName: string,
-    role: string,
-    oemId: string
-  ): Promise<IStoreReview[]> {
-    Logger.info('<Service>:<StoreLeadService>:<Get all stores reviews>');
-    let reviewResponse: any = [];
-    console.log(userName, role, oemId);
-
-    if (role === 'ADMIN' || oemId === 'SERVICEPLUG') {
-      reviewResponse = await StoreReview.find({});
-    } else {
-      reviewResponse = await StoreReview.aggregate([
-        {
-          $lookup: {
-            from: 'stores',
-            localField: 'storeId',
-            foreignField: 'storeId',
-            as: 'storeInfo'
-          }
-        },
-        { $unwind: { path: '$storeInfo' } },
-        {
-          $match: {
-            $expr: {
-              $and: [{ $eq: ['$storeInfo.oemUserName', userName] }]
-            }
-          }
-        }
-      ]);
-    }
-    return reviewResponse;
-  }
-
-  async updateStoreReviewStatus(
-    statusRequest: any,
-    reviewId: string
-  ): Promise<StoreReviewRequest> {
-    Logger.info('<Service>:<StoreLeadService>:<Update store review status>');
-    let review: StoreReviewRequest;
-    if (reviewId) {
-      review = await StoreReview.findOne({
-        _id: new Types.ObjectId(reviewId)
-      });
-    }
-    if (!review) {
-      Logger.error(
-        '<Service>:<updatedStoreReview>:<Review not found with that review Id>'
-      );
-    }
-    Logger.info(
-      '<Service>:<StoreLeadService>: <Store: store review status updated successfully>'
-    );
-
-    let updatedReview: StoreReviewRequest = statusRequest;
-    updatedReview = await StoreReview.findOneAndUpdate(
-      { _id: new Types.ObjectId(reviewId) },
-      updatedReview,
-      { returnDocument: 'after' }
-    );
-    return updatedReview;
-  }
-
-  async createStoreFastestOnboarding(
-    storeRequest: StoreRequest,
-    userName?: string,
-    role?: string
-  ): Promise<IStoreLead> {
-    const { storePayload, phoneNumber } = storeRequest;
-    Logger.info('<Service>:<StoreLeadService>:<Onboarding service initiated>');
-    let ownerDetails: IUser = await User.findOne({
-      phoneNumber,
-      role
-    });
-
-    if (_.isEmpty(ownerDetails)) {
-      ownerDetails = await User.findOne({
-        phoneNumber
-      });
-    }
-    if (_.isEmpty(ownerDetails)) {
-      throw new Error('User not found');
-    }
-
-    const { storeId } = storePayload;
-    let storeRes: IStoreLead;
-    if (storeId) {
-      storeRes = await StoreLead.findOne({ storeId }, { verificationDetails: 0 });
-    }
-
-    storePayload.userId = ownerDetails._id;
-
-    if (!storeRes) {
-      const lastCreatedStoreId = await StaticIds.find({}).limit(1).exec();
-
-      const newStoreId = String(parseInt(lastCreatedStoreId[0].storeId) + 1);
-
-      await StaticIds.findOneAndUpdate({}, { storeId: newStoreId });
-
-      //   ? new Date().getFullYear() * 100
-      //   : +lastCreatedStoreId[0].storeId + 1;
-      Logger.info(
-        '<Route>:<StoreLeadService>: <Store onboarding: creating new store>'
-      );
-
-      storePayload.storeId = newStoreId;
-      storePayload.profileStatus = StoreLeadProfileStatus.CREATED;
-    }
-    if (_.isEmpty(storePayload?.contactInfo) && _.isEmpty(storeRes?.store?.contactInfo)) {
-      storePayload.missingItem = 'Contact Info';
-    } else if (
-      _.isEmpty(storePayload?.storeTiming) &&
-      _.isEmpty(storeRes?.store?.storeTiming)
-    ) {
-      storePayload.missingItem = 'Store Timing';
-    } else {
-      storePayload.missingItem = '';
-    }
-    if (role === AdminRole.OEM) {
-      storePayload.oemUserName = userName;
-    }
-
-    // const newStore = new Store(storePayload);
-    if (storeRes) {
-      const res = await StoreLead.findOneAndUpdate(
-        { storeId: storeId },
-        { $set: storePayload },
-        { returnDocument: 'after' }
-      );
-      await sendNotification(
-        'Store Updated',
-        'Your store has updated. It is under review',
-        phoneNumber,
-        role,
-        ''
-      );
-      Logger.info(
-        '<Service>:<StoreLeadService>: <Store onboarding: updated store successfully>'
-      );
-      return res;
-    }
-    const newStore = await StoreLead.create(storePayload);
-    await sendNotification(
-      'Store Created',
-      'Your store has created. It is under review',
-      phoneNumber,
-      role,
-      ''
-    );
-    Logger.info(
-      '<Service>:<StoreLeadService>: <Store onboarding: created new store successfully>'
-    );
-    return newStore;
-  }
-
-  async getStoresByCity(
-    state: string,
-    city: string,
-    userName?: string,
-    role?: string,
-    oemId?: string,
-    filterOemUser?: string,
-    userType?: string
-  ): Promise<any> {
-    Logger.info('<Route>:<StoreLeadService>: <StoreLeadService : store get initiated>');
-    let query: any = {};
-
-    query = {
-      'contactInfo.state': state,
-      'contactInfo.city': city,
-      profileStatus: 'ONBOARDED',
-      oemUserName: filterOemUser
-    };
-    if (!filterOemUser) {
-      delete query['oemUserName'];
-    }
-    if (!state) {
-      delete query['contactInfo.state'];
-    }
-    if (!city) {
-      delete query['contactInfo.city'];
-    }
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
-
-    if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = oemId;
-    }
-    const userRoleType = userType === 'OEM' ? true : false;
-
-    if (userType && !filterOemUser) {
-      query.oemUserName = { $exists: userRoleType };
-    }
-
-    if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-    Logger.debug(`${JSON.stringify(query)} queryyyyyyy`);
-    const newStore = await StoreLead.aggregate([
-      {
-        $match: query
-      }
-    ]);
-    return newStore;
-  }
-
   async getAllStorePaginaed(
     userName?: string,
     role?: string,
@@ -1089,64 +534,39 @@ export class StoreLeadService {
 
     query = {
       // isVerified: Boolean(verifiedStore),
-      status: status
+      status: status,
+      'store.employeeId': employeeId
     };
     if (searchQuery) {
       query.$or = [
-        { 'store.storeId': new RegExp(searchQuery, 'i') },
-        { 'store.contactInfo.phoneNumber.primary': new RegExp(searchQuery, 'i') }
+        { 'store.employeeId': searchQuery },
+        { 'store.contactInfo.phoneNumber.primary': searchQuery }
       ];
     }
-    if (role === AdminRole.ADMIN) {
-      query.oemUserName = { $exists: userRoleType };
-    }
-    if (!userType) {
-      delete query['oemUserName'];
-    }
-    if (status === 'DRAFT') {
-      query.oemUserName = { $exists: userRoleType };
-    }
 
+    if (!employeeId) {
+      delete query['store.employeeId'];
+    }
     if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+      query = {
+        ...query,
+        'store.userName': userName
+      };
     }
-
     if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = oemId;
+      query = {
+        ...query,
+        'store.userName': oemId
+      };
     }
 
     if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
+      delete query['store.userName'];
     }
-    if (!verifiedStore) {
-      delete query['isVerified'];
-    }
-    if (!status) {
-      delete query['profileStatus'];
-    }
-    // if (role === 'EMPLOYEE') {
-    //   const userName = oemId;
-    //   const employeeDetails =
-    //     await this.spEmployeeService.getEmployeeByEmployeeId(
-    //       employeeId,
-    //       userName
-    //     );
-    //   console.log(employeeDetails, 'dfwklm');
-    //   if (employeeDetails) {
-    //     query['contactInfo.state'] = {
-    //       $in: employeeDetails.state.map((stateObj) => stateObj.name)
-    //     };
-    //     if (!isEmpty(employeeDetails?.city)) {
-    //       query['contactInfo.city'] = {
-    //         $in: employeeDetails.city.map((cityObj) => cityObj.name)
-    //       };
-    //     }
-    //   }
-    // }
 
     console.log(query, 'FEWFm');
 
-    let stores: any = await StoreLead.aggregate([
+    const stores: any = await StoreLead.aggregate([
       {
         $match: query
       },
@@ -1157,7 +577,7 @@ export class StoreLeadService {
         $limit: pageSize
       },
       {
-        $project: { 'verificationDetails.verifyObj': 0 }
+        $project: { 'store.verificationDetails.verifyObj': 0 }
       }
     ]);
     return stores;
@@ -1170,13 +590,13 @@ export class StoreLeadService {
     userType?: string,
     status?: string,
     verifiedStore?: string,
-    employeeId?: string
+    employeeId?: string,
+    searchQuery?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
     );
     let query: any = {};
-    const userRoleType = userType === 'OEM' ? true : false;
     let pendingForVerification: any = 0;
     let rejected: any = 0;
     let created: any = 0;
@@ -1185,64 +605,43 @@ export class StoreLeadService {
     let approved: any = 0;
 
     query = {
-      isVerified: Boolean(verifiedStore)
-      // profileStatus: status === 'PARTNERDRAFT' ? 'DRAFT' : status
+      'store.employeeId': employeeId
+      // 'store.userName': oemId
     };
-    if (role === AdminRole.ADMIN) {
-      query.oemUserName = { $exists: userRoleType };
-    }
-    if (!userType) {
-      delete query['oemUserName'];
-    }
-    // if (status === 'PARTNERDRAFT') {
-    //   query.oemUserName = { $exists: true };
-    // }
-    if (status === 'DRAFT') {
-      query.oemUserName = { $exists: userRoleType };
-    }
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+
+    if (searchQuery && role === AdminRole.ADMIN) {
+      query.$or = [
+        { 'store.employeeId': searchQuery },
+        { 'store.contactInfo.phoneNumber.primary': searchQuery }
+      ];
     }
 
+    if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 10) {
+      query.$or = [{ 'store.contactInfo.phoneNumber.primary': searchQuery }];
+    }
+
+    if (!employeeId) {
+      delete query['store.employeeId'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query = {
+        ...query,
+        'store.userName': userName
+      };
+    }
     if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = oemId;
+      query = {
+        ...query,
+        'store.userName': oemId
+      };
     }
 
     if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-    if (!verifiedStore) {
-      delete query['isVerified'];
-    }
-    const overallStatus = {
-      profileStatus: status
-    };
-    if (!status) {
-      delete query['profileStatus'];
-      delete overallStatus['profileStatus'];
+      delete query['store.userName'];
     }
 
-    // if (role === 'EMPLOYEE') {
-    //   const userName = oemId;
-    //   const employeeDetails =
-    //     await this.spEmployeeService.getEmployeeByEmployeeId(
-    //       employeeId,
-    //       userName
-    //     );
-    //   console.log(employeeDetails, 'dfwklm');
-    //   if (employeeDetails) {
-    //     query['contactInfo.state'] = {
-    //       $in: employeeDetails.state.map((stateObj) => stateObj.name)
-    //     };
-    //     if (!isEmpty(employeeDetails?.city)) {
-    //       query['contactInfo.city'] = {
-    //         $in: employeeDetails.city.map((cityObj) => cityObj.name)
-    //       };
-    //     }
-    //   }
-    // }
-
-    const total = await StoreLead.count({ ...overallStatus, ...query });
+    const total = await StoreLead.count({ ...query });
     if (status === 'PENDING_FOR_VERIFICATION' || !status) {
       pendingForVerification = await StoreLead.count({
         status: 'PENDING_FOR_VERIFICATION',
@@ -1299,7 +698,7 @@ export class StoreLeadService {
     //   });
     // }
 
-    let totalCounts = {
+    const totalCounts = {
       total,
       pendingForVerification,
       rejected,
@@ -1310,182 +709,5 @@ export class StoreLeadService {
     };
 
     return totalCounts;
-  }
-
-  async getNearestStore(searchReqBody: {
-    storeName: string;
-    brand: string;
-    subCategory: string[];
-    category: string;
-    pageNo: number;
-    pageSize: number;
-    coordinates: number[];
-    oemUserName: string;
-  }): Promise<StoreResponse[]> {
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
-    );
-    const query = {
-      'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
-      'basicInfo.brand.name': searchReqBody.brand,
-      'basicInfo.category.name': searchReqBody.category,
-      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
-      oemUserName: searchReqBody.oemUserName,
-      profileStatus: 'ONBOARDED'
-    };
-    if (!searchReqBody.brand) {
-      delete query['basicInfo.brand.name'];
-    }
-    if (!searchReqBody.category) {
-      delete query['basicInfo.category.name'];
-    }
-    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
-      delete query['basicInfo.subCategory.name'];
-    }
-    if (!searchReqBody.storeName) {
-      delete query['basicInfo.businessName'];
-    }
-    if (!searchReqBody.oemUserName) {
-      delete query.oemUserName;
-    }
-    Logger.debug(query);
-
-    let stores: any = await StoreLead.aggregate([
-      {
-        $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: searchReqBody.coordinates as [number, number]
-          },
-          spherical: true,
-          query: query,
-          distanceField: 'contactInfo.distance',
-          distanceMultiplier: 0.001
-        }
-      },
-      {
-        $match: {
-          'contactInfo.distance': { $lte: 10 }
-        }
-      },
-      { $limit: 15 },
-      {
-        $project: { 'verificationDetails.verifyObj': 0 }
-      }
-    ]);
-    if (stores && Array.isArray(stores)) {
-      stores = await Promise.all(
-        stores.map(async (store) => {
-          const updatedStore = { ...store };
-          updatedStore.overAllRating = await this.getOverallRatings(
-            updatedStore.storeId
-          );
-          return updatedStore;
-        })
-      );
-    }
-    return stores;
-  }
-
-  async getNearestDealer(searchReqBody: {
-    coordinates: number[];
-    oemUserName: string;
-    stores: any;
-    selectAllStores: any;
-  }): Promise<StoreResponse[]> {
-    Logger.info(
-      '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111> '
-    );
-    const query: any = {
-      profileStatus: 'ONBOARDED',
-      oemUserName: searchReqBody?.oemUserName
-    };
-
-    const storeList: any =
-      searchReqBody?.stores?.map((val: any) => val?.storeId) || [];
-    if (!_.isEmpty(searchReqBody?.stores)) {
-      query.storeId = { $in: storeList };
-    }
-
-    if (_.isEmpty(searchReqBody?.stores)) {
-      delete query['storeId'];
-    }
-    Logger.debug(query);
-
-    let stores: any = await StoreLead.aggregate([
-      {
-        $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: searchReqBody.coordinates as [number, number]
-          },
-          spherical: true,
-          query: query,
-          distanceField: 'contactInfo.distance',
-          distanceMultiplier: 0.001
-        }
-      },
-      {
-        $lookup: {
-          from: 'admin_users',
-          localField: 'oemUserName',
-          foreignField: 'userName',
-          as: 'partnerDetail'
-        }
-      },
-      { $unwind: { path: '$partnerDetail' } },
-      {
-        $set: {
-          partnerEmail: '$partnerDetail.contactInfo.email',
-          dealerName: '$partnerDetail.businessName'
-        }
-      },
-      {
-        $project: { verificationDetails: 0, partnerDetail: 0 }
-      }
-    ]);
-
-    if (stores && Array.isArray(stores)) {
-      stores = await Promise.all(
-        stores.map(async (store) => {
-          const updatedStore = { ...store };
-          updatedStore.overAllRating = await this.getOverallRatings(
-            updatedStore.storeId
-          );
-          return updatedStore;
-        })
-      );
-    }
-    return stores;
-  }
-
-  async getStoreByUserId(userId: Types.ObjectId): Promise<IStoreLead> {
-    Logger.info('<Service>:<StoreLeadService>:<Get store by storeId>');
-    const storeResponse: IStoreLead = await StoreLead.findOne({ userId }).lean();
-    return storeResponse;
-  }
-
-  async createHistory(storeRequest: any) {
-    Logger.info('<Service>:<StoreLeadService>: <Adding history intiiated>');
-
-    const historyInfo = storeRequest;
-
-    const historyDetails = await StoreHistory.create(historyInfo);
-
-    Logger.info('<Service>:<StoreLeadService>:<history created successfully>');
-    return historyDetails;
-  }
-
-  async getHistory(searchReqBody: { storeId: any }): Promise<StoreResponse[]> {
-    Logger.info('<Service>:<StoreLeadService>:<StoreHistory service initiated> ');
-    const query: any = {
-      storeId: searchReqBody?.storeId
-    };
-
-    let stores: any = await StoreHistory.aggregate([
-      { $match: query },
-      { $sort: { createdAt: -1 } }
-    ]);
-    return stores;
   }
 }

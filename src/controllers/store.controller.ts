@@ -46,11 +46,13 @@ export class StoreController {
       }
       const userName = req?.userId;
       const role = req?.role;
+      const storeStatus = 'DRAFT';
       const result = await this.storeService.create(
         storeRequest,
         userName,
         role,
-        oemId
+        oemId,
+        storeStatus
       );
       res.send({
         message: 'Store Onboarding Successful',

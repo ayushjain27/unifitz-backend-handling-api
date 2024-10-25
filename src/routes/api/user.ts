@@ -14,9 +14,10 @@ import { generateToken } from '../../utils';
 import { TwilioService } from '../../services/twilio.service';
 import { TwoFactorService } from '../../services/twoFactor.service';
 import { testUsers } from '../../config/constants';
-import { UserService } from '../../services';
+import { StoreLeadService, UserService } from '../../services';
 import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
+import StoreLead from '../../models/StoreLead';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -24,8 +25,10 @@ const twoFactorService = container.get<TwoFactorService>(
   TYPES.TwoFactorService
 );
 
-const userService = container.get<UserService>(
-  TYPES.UserService
+const userService = container.get<UserService>(TYPES.UserService);
+
+const storeLeadService = container.get<StoreLeadService>(
+  TYPES.StoreLeadService
 );
 // @route   GET user/auth
 // @desc    Get authenticated user given the token
@@ -107,7 +110,8 @@ router.post('/otp/login', async (req: Request, res: Response) => {
 
       // Check if the phone number starts with 3, 4, or 5 and the OTP is 6543
       const startsWith = ['3', '4', '5'];
-      const isMatchingCondition = startsWith.includes(phoneNumber.charAt(3)) && code === '6543';
+      const isMatchingCondition =
+        startsWith.includes(phoneNumber.charAt(3)) && code === '6543';
 
       if (isMatchingCondition) {
         // Phone number starts with 3, 4, or 5, and OTP is 6543, proceed with login
@@ -135,7 +139,7 @@ router.post('/otp/login', async (req: Request, res: Response) => {
           token,
           userId
         });
-      } 
+      }
 
       // Check for test users
       const testUser = getTestUser(phoneNumber);
@@ -159,6 +163,20 @@ router.post('/otp/login', async (req: Request, res: Response) => {
             phoneNumber
           });
         }
+      }
+
+      const query = {
+        'store.contactInfo.phoneNumber.primary': phoneNumber
+      };
+      const store = await StoreLead.findOne({ query })?.lean();
+
+      if (!_.isEmpty(store) && store?.status === 'VERIFIED') {
+        const jsonQuery = {
+          storeId: store?._id,
+          status: 'APPROVED'
+        };
+        const jsonResult = await storeLeadService.updateStoreStatus(jsonQuery);
+        const createStore = await storeLeadService.createNewStore(jsonResult);
       }
 
       // Proceed with user creation if OTP is valid
@@ -203,7 +221,6 @@ router.post('/otp/login', async (req: Request, res: Response) => {
   }
 });
 
-
 /**
  * @route   POST /user/fcmToken
  * @desc    Store FCM Token
@@ -247,7 +264,6 @@ router.get(
   '/getUserByPhoneNumber',
   roleAuth(ACL.CUSTOMER_CREATE),
   async (req, res) => {
- 
     try {
       const userPayload = req.body;
       Logger.info('<Router>:<UserService>:<User creation initiated>');
