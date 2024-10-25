@@ -1545,7 +1545,7 @@ export class StoreService {
       },
       {
         $project: { verificationDetails: 0, partnerDetail: 0 }
-      }
+      },
       { $limit: 5 }
     ]);
 
