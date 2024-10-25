@@ -61,8 +61,14 @@ docker ps
 5. Stop the container and delete it to release some space
 ```
 docker stop <container_id>
-docker image prune
+
+docker rm  <container_id>
 ```
+5. Delete the docker image too
+```
+docker rmi <image_id>
+```
+
 4. Run the docker instance if not running
 ```
 docker run -p 8000:3005 -d <image url>
