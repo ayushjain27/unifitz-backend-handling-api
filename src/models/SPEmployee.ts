@@ -42,8 +42,8 @@ export interface ISPEmployee {
   userName: string;
   profileImageUrl: string;
   loginDate?: Date;
-  state?: IState[]; 
-  city?: ICity[]; 
+  state?: IState[];
+  city?: ICity[];
 }
 
 const spEmployeeSchema: Schema = new Schema(

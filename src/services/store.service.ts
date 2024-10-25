@@ -49,7 +49,8 @@ export class StoreService {
     storeRequest: StoreRequest,
     userName?: string,
     role?: string,
-    oemId?: string
+    oemId?: string,
+    storeStatus?: string
   ): Promise<IStore> {
     const { storePayload, phoneNumber } = storeRequest;
     Logger.info('<Service>:<StoreService>:<Onboarding service initiated>');
@@ -82,7 +83,7 @@ export class StoreService {
     );
 
     storePayload.storeId = newStoreId;
-    storePayload.profileStatus = StoreProfileStatus.DRAFT;
+    storePayload.profileStatus = storeStatus;
     const businessName = storeRequest.storePayload.basicInfo.businessName;
     const baseSlug = slugify(businessName, { lower: true, strict: true });
     console.log(baseSlug, 'dsklk');

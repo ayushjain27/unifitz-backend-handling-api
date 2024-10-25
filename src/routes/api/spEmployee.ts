@@ -42,14 +42,10 @@ router.get(
 
 router.put('/', spEmployeeController.updateEmployee);
 
-router.delete(
-  '/',
-  spEmployeeController.deleteEmployee
-);
+router.delete('/', spEmployeeController.deleteEmployee);
 
-router.get(
-  '/resetPassword',
-  spEmployeeController.resetPassword
-);
+router.get('/resetPassword', spEmployeeController.resetPassword);
+
+router.put('/updatePermission', spEmployeeController.updatePermission);
 
 export default router;
