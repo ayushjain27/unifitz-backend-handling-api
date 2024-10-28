@@ -186,6 +186,11 @@ export class StoreLeadService {
       { 'store.verificationDetails.verifyObj': 0 }
     );
     if (statusRequest.status === 'APPROVED') {
+      const userData = {
+        role: 'STORE_OWNER',
+        phoneNumber: updatedStore?.store?.contactInfo?.phoneNumber?.primary
+      };
+      const newUser = await User.findOneAndUpdate({}, userData);
       const newStore = await this.createNewStore(updatedStore);
     }
     return updatedStore;
@@ -204,7 +209,7 @@ export class StoreLeadService {
       phoneNumber: jsonResult?.store?.contactInfo?.phoneNumber?.primary
     };
     const userName = '';
-    const role = 'EMPLOYEE';
+    const role = 'STORE_OWNER';
     const oemId =
       jsonResult?.store?.userName === 'SERVICEPLUG'
         ? ''
