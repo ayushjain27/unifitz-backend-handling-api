@@ -647,13 +647,13 @@ export class BuySellService {
     }
     if (req.state) {
       queryTwo = {
-        'vehicleAnalytic.userInformation.state': { $in: filterState }
+        'storeDetails.contactInfo.state': { $in: filterState }
       };
     }
     if (req.city) {
       queryTwo = {
-        'vehicleAnalytic.userInformation.state': { $in: filterState },
-        'vehicleAnalytic.userInformation.city': { $in: filterCity }
+        'storeDetails.contactInfo.state': { $in: filterState },
+        'storeDetails.contactInfo.city': { $in: filterCity }
       };
     }
 
@@ -742,69 +742,69 @@ export class BuySellService {
         $match: query
       },
       { $set: { VehicleId: { $toString: '$_id' } } },
-      {
-        $lookup: {
-          from: 'vehicleanalytics',
-          localField: 'VehicleId',
-          foreignField: 'moduleInformation',
-          as: 'vehicleAnalytic'
-        }
-      },
-      {
-        $set: {
-          impressionCount: {
-            $size: {
-              $filter: {
-                input: '$vehicleAnalytic',
-                as: 'item',
-                cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
-              }
-            }
-          },
-          vehicleDetailClick: {
-            $size: {
-              $filter: {
-                input: '$vehicleAnalytic',
-                as: 'item',
-                cond: { $eq: ['$$item.event', 'VEHICLE_DETAIL_CLICK'] }
-              }
-            }
-          },
-          executivePhoneNo: {
-            $size: {
-              $filter: {
-                input: '$vehicleAnalytic',
-                as: 'item',
-                cond: { $eq: ['$$item.event', 'EXECUTIVE_PHONE_NUMBER_CLICK'] }
-              }
-            }
-          },
-          storePhoneNo: {
-            $size: {
-              $filter: {
-                input: '$vehicleAnalytic',
-                as: 'item',
-                cond: { $eq: ['$$item.event', 'STORE_PHONE_NUMBER_CLICK'] }
-              }
-            }
-          },
-          locationClickCount: {
-            $size: {
-              $filter: {
-                input: '$vehicleAnalytic',
-                as: 'item',
-                cond: { $eq: ['$$item.event', 'LOCATION_CLICK'] }
-              }
-            }
-          }
-        }
-      },
+      // {
+      //   $lookup: {
+      //     from: 'vehicleanalytics',
+      //     localField: 'VehicleId',
+      //     foreignField: 'moduleInformation',
+      //     as: 'vehicleAnalytic'
+      //   }
+      // },
+      // {
+      //   $set: {
+      //     impressionCount: {
+      //       $size: {
+      //         $filter: {
+      //           input: '$vehicleAnalytic',
+      //           as: 'item',
+      //           cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
+      //         }
+      //       }
+      //     },
+      //     vehicleDetailClick: {
+      //       $size: {
+      //         $filter: {
+      //           input: '$vehicleAnalytic',
+      //           as: 'item',
+      //           cond: { $eq: ['$$item.event', 'VEHICLE_DETAIL_CLICK'] }
+      //         }
+      //       }
+      //     },
+      //     executivePhoneNo: {
+      //       $size: {
+      //         $filter: {
+      //           input: '$vehicleAnalytic',
+      //           as: 'item',
+      //           cond: { $eq: ['$$item.event', 'EXECUTIVE_PHONE_NUMBER_CLICK'] }
+      //         }
+      //       }
+      //     },
+      //     storePhoneNo: {
+      //       $size: {
+      //         $filter: {
+      //           input: '$vehicleAnalytic',
+      //           as: 'item',
+      //           cond: { $eq: ['$$item.event', 'STORE_PHONE_NUMBER_CLICK'] }
+      //         }
+      //       }
+      //     },
+      //     locationClickCount: {
+      //       $size: {
+      //         $filter: {
+      //           input: '$vehicleAnalytic',
+      //           as: 'item',
+      //           cond: { $eq: ['$$item.event', 'LOCATION_CLICK'] }
+      //         }
+      //       }
+      //     }
+      //   }
+      // },
       {
         $match: queryTwo
-      },
-      {
-        $project: { vehicleAnalytic: 0 }
       }
+      // {
+      //   $project: { vehicleAnalytic: 0 }
+      // }
     ]);
     vehicleResponse = vehicleResponse.filter((item: any) => {
       if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
@@ -871,13 +871,13 @@ export class BuySellService {
     }
     if (req.state) {
       queryTwo = {
-        'vehicleAnalytic.userInformation.state': { $in: filterState }
+        'storeDetails.contactInfo.state': { $in: filterState }
       };
     }
     if (req.city) {
       queryTwo = {
-        'vehicleAnalytic.userInformation.state': { $in: filterState },
-        'vehicleAnalytic.userInformation.city': { $in: filterCity }
+        'storeDetails.contactInfo.state': { $in: filterState },
+        'storeDetails.contactInfo.city': { $in: filterCity }
       };
     }
 
