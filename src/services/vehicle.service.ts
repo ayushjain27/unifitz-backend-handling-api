@@ -396,4 +396,73 @@ export class VehicleInfoService {
     const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.find(query);
     return vehicleResponse;
   }
+
+  async getAllCount(
+    req: any,
+    userName?: any,
+    role?: any
+  ): Promise<IVehiclesInfo[]> {
+    Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
+    const query: any = {
+      purpose: 'OWNED'
+    };
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = req?.oemId;
+    }
+
+    if (req?.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.find(query);
+    return vehicleResponse;
+  }
+
+  async getVehiclePaginated(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string
+  ): Promise<IVehiclesInfo[]> {
+    Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
+
+    const query: any = {
+      purpose: 'OWNED'
+    };
+    if (searchQuery !== '') {
+      query.$or = [
+        {
+          vehicleNumber: searchQuery
+        }
+      ];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const vehicleResponse: IVehiclesInfo[] = await VehicleInfo.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return vehicleResponse;
+  }
 }

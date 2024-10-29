@@ -219,6 +219,63 @@ export class VehicleInfoController {
     }
   };
 
+  getAllCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get all vehicles request controller initiated>'
+    );
+    const userName = req?.userId;
+    const role = req?.role;
+    try {
+      const result = await this.vehicleInfoService.getAllCount(
+        req.body,
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getVehiclePaginated = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<VehicleController>:<Vehicle controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query.oemId;
+    const searchQuery = req?.query?.searchQuery;
+
+    try {
+      const result = await this.vehicleInfoService.getVehiclePaginated(
+        userName,
+        role,
+        oemId as string,
+        pageNo,
+        pageSize,
+        searchQuery as string
+      );
+      res.send({
+        message: 'New Vehicles Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':
