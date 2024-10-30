@@ -38,6 +38,7 @@ import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
+import orderManagement from './routes/api/orderManagement';
 import AWS from 'aws-sdk';
 import { s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
@@ -125,6 +126,7 @@ app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer);
 app.use('/spEmployee', spEmployee);
 app.use('/account', deleteAccount);
+app.use('/orderManagement', orderManagement);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({

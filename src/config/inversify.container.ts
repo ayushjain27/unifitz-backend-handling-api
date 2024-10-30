@@ -29,7 +29,8 @@ import {
   NewVehicleInfoController,
   SPEmployeeController,
   DeleteAccountController,
-  StoreLeadController
+  StoreLeadController,
+  OrderManagementController
 } from '../controllers';
 import {
   StoreService,
@@ -61,7 +62,8 @@ import {
   SPEmployeeService,
   DeleteAccountService,
   UserService,
-  StoreLeadService
+  StoreLeadService,
+  OrderManagementService
 } from '../services';
 
 const container = new Container();
@@ -237,5 +239,10 @@ container.bind<StoreLeadService>(TYPES.StoreLeadService).to(StoreLeadService);
 container
   .bind<StoreLeadController>(TYPES.StoreLeadController)
   .to(StoreLeadController);
+
+container.bind<OrderManagementService>(TYPES.OrderManagementService).to(OrderManagementService);
+container
+  .bind<OrderManagementController>(TYPES.OrderManagementController)
+  .to(OrderManagementController);
 
 export default container;

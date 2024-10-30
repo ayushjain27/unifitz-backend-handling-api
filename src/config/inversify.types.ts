@@ -78,5 +78,8 @@ export const TYPES = {
   UserService: Symbol('UserService'),
 
   StoreLeadController: Symbol('StoreLeadController'),
-  StoreLeadService: Symbol('StoreLeadService')
+  StoreLeadService: Symbol('StoreLeadService'),
+
+  OrderManagementController: Symbol('OrderManagementController'),
+  OrderManagementService: Symbol('OrderManagementService')
 };
