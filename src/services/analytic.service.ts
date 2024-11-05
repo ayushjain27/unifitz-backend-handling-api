@@ -528,14 +528,15 @@ export class AnalyticService {
     let query: any = {};
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
-    // const currentDate = new Date(lastDay);
+    const startDate = new Date(firstDay);
     const nextDate = new Date(lastDay);
+    startDate.setDate(firstDay.getDate() + 1);
     nextDate.setDate(lastDay.getDate() + 1);
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
       createdAt: {
-        $gte: firstDay,
+        $gte: startDate,
         $lte: nextDate
       },
       platform: platform,
