@@ -198,12 +198,28 @@ export class NewVehicleInfoService {
     userName?: string,
     role?: string,
     oemId?: string,
-    vehicleType?: string
+    vehicleType?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
   ) {
+    const storeKey = [storeId];
     const query: any = {
-      vehicle: vehicleType
+      vehicle: vehicleType,
+      brand: brandName,
+      oemUserName: adminFilterOemId,
+      'stores.storeId': { $in: storeKey }
     };
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+    if (!brandName) {
+      delete query['brand'];
+    }
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+    if (!storeId) {
+      delete query['stores.storeId'];
+    }
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
@@ -373,12 +389,12 @@ export class NewVehicleInfoService {
           'STORE_OWNER',
           ''
         );
-        if(!_.isEmpty(storeDetails?.oemUserName)){
+        if (!_.isEmpty(storeDetails?.oemUserName)) {
           const adminDetails = await Admin.findOne({
             userName: storeDetails?.oemUserName
-          })
-          if(!_.isEmpty(adminDetails?.contactInfo)){
-            if(!_.isEmpty(adminDetails?.contactInfo?.email)){
+          });
+          if (!_.isEmpty(adminDetails?.contactInfo)) {
+            if (!_.isEmpty(adminDetails?.contactInfo?.email)) {
               const templateData = {
                 userName: reqBody?.userName,
                 phoneNumber: reqBody?.phoneNumber,
@@ -392,7 +408,7 @@ export class NewVehicleInfoService {
                 storeId: reqBody?.storeDetails?.storeId,
                 storeState: reqBody?.storeDetails?.state,
                 storeCity: reqBody?.storeDetails?.city
-              }
+              };
               await sendEmail(
                 templateData,
                 adminDetails?.contactInfo?.email,
@@ -401,7 +417,7 @@ export class NewVehicleInfoService {
               );
             }
           }
-          if(!_.isEmpty(storeDetails?.contactInfo?.email)){
+          if (!_.isEmpty(storeDetails?.contactInfo?.email)) {
             const templateDataToStore = {
               userName: reqBody?.userName,
               phoneNumber: reqBody?.phoneNumber,
@@ -411,7 +427,7 @@ export class NewVehicleInfoService {
               vehicleName: vehicleResult?.vehicleNameSuggest,
               brand: vehicleResult?.brand,
               model: vehicleResult?.model
-            }
+            };
             await sendEmail(
               templateDataToStore,
               storeDetails?.contactInfo?.email,
@@ -550,13 +566,17 @@ export class NewVehicleInfoService {
       // Create the start of day in IST (UTC+5:30)
       const startOfDay = new Date(followUpdate);
       startOfDay.setHours(0, 0, 0, 0); // Set to start of the day in local time
-      startOfDay.setMinutes(startOfDay.getMinutes() - startOfDay.getTimezoneOffset() - 330); // Adjust to IST (330 minutes ahead of UTC)
-    
+      startOfDay.setMinutes(
+        startOfDay.getMinutes() - startOfDay.getTimezoneOffset() - 330
+      ); // Adjust to IST (330 minutes ahead of UTC)
+
       // Create the end of day in IST (UTC+5:30)
       const endOfDay = new Date(followUpdate);
       endOfDay.setHours(23, 59, 59, 999); // Set to end of the day in local time
-      endOfDay.setMinutes(endOfDay.getMinutes() - endOfDay.getTimezoneOffset() - 330); // Adjust to IST (330 minutes ahead of UTC)
-    
+      endOfDay.setMinutes(
+        endOfDay.getMinutes() - endOfDay.getTimezoneOffset() - 330
+      ); // Adjust to IST (330 minutes ahead of UTC)
+
       query.followUpdate = {
         $gte: startOfDay,
         $lte: endOfDay

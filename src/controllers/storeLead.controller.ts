@@ -308,7 +308,9 @@ export class StoreLeadController {
       pageSize,
       oemId,
       employeeId,
-      searchQuery
+      searchQuery,
+      startDate,
+      endDate
     } = req.body;
     Logger.info(
       '<Controller>:<StoreLeadController>:<Search and Filter Stores pagination request controller initiated>'
@@ -328,7 +330,9 @@ export class StoreLeadController {
           pageNo,
           pageSize,
           employeeId,
-          searchQuery
+          searchQuery,
+          startDate,
+          endDate
         );
       res.send({
         result
@@ -350,6 +354,8 @@ export class StoreLeadController {
     const verifiedStore = req?.query?.verifiedStore;
     const employeeId = req?.query?.employeeId;
     const searchQuery = req?.query?.searchQuery;
+    const startDate = req?.query?.startDate;
+    const endDate = req?.query?.endDate;
 
     Logger.info(
       '<Controller>:<StoreLeadController>:<Search and Filter Stores pagination request controller initiated>'
@@ -367,7 +373,9 @@ export class StoreLeadController {
           status as string,
           verifiedStore as string,
           employeeId as string,
-          searchQuery as string
+          searchQuery as string,
+          startDate as string,
+          endDate as string
         );
       res.send({
         result

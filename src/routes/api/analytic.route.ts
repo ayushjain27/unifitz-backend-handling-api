@@ -48,6 +48,12 @@ router.post(
 );
 
 router.post(
+  '/getCustomerEventAnalytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getCustomerEventAnalytic
+);
+
+router.post(
   '/getActiveUser',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getActiveUser

@@ -16,6 +16,7 @@ import {
 } from '../interfaces';
 // import Store, { IDocuments, IStore } from '../models/Store';
 import StoreLead, { IDocuments, IStoreLead } from '../models/StoreLead';
+import Store from '../models/Store';
 import User, { IUser } from '../models/User';
 import Request from '../types/request';
 import { S3Service } from './s3.service';
@@ -52,7 +53,7 @@ export class StoreLeadService {
       '<Route>:<StoreLeadService>: <Store onboarding: creating new store>'
     );
     const storeNumber: any = storeRequest;
-    const storeData = await StoreLead.findOne({
+    const storeData = await Store.findOne({
       'store.contactInfo.phoneNumber.primary':
         storeNumber?.store?.contactInfo?.phoneNumber?.primary
     });
@@ -529,16 +530,25 @@ export class StoreLeadService {
     pageNo?: number,
     pageSize?: number,
     employeeId?: string,
-    searchQuery?: string
+    searchQuery?: string,
+    startDate?: string,
+    endDate?: string
   ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
     );
     let query: any = {};
     const userRoleType = userType === 'OEM' ? true : false;
-
+    const firstDay = new Date(startDate);
+    const lastDay = new Date(endDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
     query = {
       // isVerified: Boolean(verifiedStore),
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
       status: status,
       'store.employeeId': employeeId
     };
@@ -548,7 +558,9 @@ export class StoreLeadService {
         { 'store.contactInfo.phoneNumber.primary': searchQuery }
       ];
     }
-
+    if (startDate === null || endDate === null) {
+      delete query['createdAt'];
+    }
     if (!employeeId) {
       delete query['store.employeeId'];
     }
@@ -571,7 +583,7 @@ export class StoreLeadService {
 
     console.log(query, 'FEWFm');
 
-    const stores: any = await StoreLead.aggregate([
+    const basePipeline: any = [
       {
         $match: query
       },
@@ -580,11 +592,61 @@ export class StoreLeadService {
       },
       {
         $limit: pageSize
-      },
-      {
-        $project: { 'store.verificationDetails.verifyObj': 0 }
       }
-    ]);
+    ];
+
+    if (status === 'APPROVED') {
+      const lookupStage: any = {
+        $lookup: {
+          from: 'stores',
+          let: {
+            primaryPhone: '$store.contactInfo.phoneNumber.primary',
+            secondaryPhone: '$store.contactInfo.phoneNumber.secondary'
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: [
+                        '$contactInfo.phoneNumber.primary',
+                        '$$primaryPhone'
+                      ]
+                    },
+                    {
+                      $eq: [
+                        '$contactInfo.phoneNumber.secondary',
+                        '$$secondaryPhone'
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'matchedContacts'
+        }
+      };
+
+      basePipeline.splice(1, 0, lookupStage, {
+        $unwind: { path: '$matchedContacts' }
+      });
+
+      basePipeline.push({
+        $set: {
+          storeId: '$matchedContacts.storeId'
+        }
+      });
+    }
+    basePipeline.push({
+      $project: {
+        'store.verificationDetails.verifyObj': 0,
+        matchedContacts: 0
+      }
+    });
+
+    const stores: any = await StoreLead.aggregate(basePipeline);
     return stores;
   }
 
@@ -596,7 +658,9 @@ export class StoreLeadService {
     status?: string,
     verifiedStore?: string,
     employeeId?: string,
-    searchQuery?: string
+    searchQuery?: string,
+    startDate?: string,
+    endDate?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
@@ -609,7 +673,16 @@ export class StoreLeadService {
     let followUp: any = 0;
     let approved: any = 0;
 
+    const firstDay = new Date(startDate);
+    const lastDay = new Date(endDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
     query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
       'store.employeeId': employeeId
       // 'store.userName': oemId
     };
@@ -624,10 +697,13 @@ export class StoreLeadService {
     if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 10) {
       query.$or = [{ 'store.contactInfo.phoneNumber.primary': searchQuery }];
     }
-
+    if (!startDate || !endDate) {
+      delete query['createdAt'];
+    }
     if (!employeeId) {
       delete query['store.employeeId'];
     }
+    console.log(query, 'FEWFmssss');
 
     if (role === AdminRole.OEM) {
       query = {
