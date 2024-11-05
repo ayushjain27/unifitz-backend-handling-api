@@ -71,7 +71,7 @@ docker rmi <image_id>
 
 4. Run the docker instance if not running
 ```
-docker run -p 8000:3005 -d <image url>
+docker run -p 8000:3005 --restart always -d <image url>
 ```
 
 ### To check the logs in docker file
