@@ -547,7 +547,7 @@ cron.schedule('0 0 * * *', async () => {
   console.log('Running cron job to update vehicle status');
 
   const now = new Date();
-  const cutoffDate = new Date(now.setDate(now.getDate() - 45));
+  const cutoffDate = new Date(now.setDate(now.getDate() - 90));
 
   // const currentTime = new Date();
   // const oneMinuteAgo = new Date(currentTime.getTime() - 60000);
@@ -556,7 +556,27 @@ cron.schedule('0 0 * * *', async () => {
 
   try {
     const result = await buySellVehicleInfo.updateMany(
-      { activeDate: { $lt: cutoffDate }, status: 'ACTIVE' },
+      {
+        status: 'ACTIVE',
+        $or: [
+          { 
+            activeDate: { 
+              $lt: cutoffDate, 
+              $type: "date" // Check if `activeDate` is a date type
+            } 
+          },
+          { 
+            createdAt: { 
+              $lt: cutoffDate 
+            } 
+          },
+          { 
+            activeDate: { 
+              $exists: false // Check if `activeDate` is missing
+            } 
+          }
+        ]
+      },
       { $set: { status: 'INACTIVE', activeDate: null } }
     );
     console.log(result,'dflkml')
