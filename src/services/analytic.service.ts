@@ -509,6 +509,147 @@ export class AnalyticService {
     return queryFilter;
   }
 
+  async getCustomerEventAnalytic(
+    role: string,
+    userName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const startDate = new Date(firstDay);
+    const nextDate = new Date(lastDay);
+    startDate.setDate(firstDay.getDate() + 1);
+    nextDate.setDate(lastDay.getDate() + 1);
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: startDate,
+        $lte: nextDate
+      },
+      platform: platform,
+      event: 'IMPRESSION_COUNT',
+      moduleInformation: storeId,
+      oemUserName: adminFilterOemId
+    };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${userName} datateee`);
+
+    const queryFilter = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $addFields: {
+          month: { $month: '$createdAt' },
+          day: { $dayOfMonth: '$createdAt' }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            day: '$day',
+            month: '$month'
+          },
+          views: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.day',
+          viewsByMonth: {
+            $push: {
+              month: '$_id.month',
+              views: '$views'
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          date: '$_id',
+          views: {
+            $arrayToObject: {
+              $map: {
+                input: '$viewsByMonth',
+                as: 'item',
+                in: {
+                  k: {
+                    $switch: {
+                      branches: [
+                        { case: { $eq: ['$$item.month', 1] }, then: 'Jan' },
+                        { case: { $eq: ['$$item.month', 2] }, then: 'Feb' },
+                        { case: { $eq: ['$$item.month', 3] }, then: 'Mar' },
+                        { case: { $eq: ['$$item.month', 4] }, then: 'Apr' },
+                        { case: { $eq: ['$$item.month', 5] }, then: 'May' },
+                        { case: { $eq: ['$$item.month', 6] }, then: 'Jun' },
+                        { case: { $eq: ['$$item.month', 7] }, then: 'Jul' },
+                        { case: { $eq: ['$$item.month', 8] }, then: 'Aug' },
+                        { case: { $eq: ['$$item.month', 9] }, then: 'Sep' },
+                        { case: { $eq: ['$$item.month', 10] }, then: 'Oct' },
+                        { case: { $eq: ['$$item.month', 11] }, then: 'Nov' },
+                        { case: { $eq: ['$$item.month', 12] }, then: 'Dec' }
+                      ],
+                      default: 'Unknown'
+                    }
+                  },
+                  v: '$$item.views'
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $sort: { date: 1 }
+      }
+    ]);
+
+    const formattedResults = queryFilter.map((item) => ({
+      ...item.views,
+      date: item.date
+    }));
+
+    return formattedResults;
+  }
+
   async getActiveUser(
     role: string,
     userName: string,
@@ -580,31 +721,15 @@ export class AnalyticService {
       },
       {
         $group: {
-          _id: {
-            createdAt: '$createdAt',
-            platform: '$platform',
-            phoneNumber: '$userInformation.phoneNumber'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.platform',
-          activeUsers: {
-            $push: {
-              createdAt: '$_id.createdAt',
-              phoneNumber: '$_id.phoneNumber'
-            }
-          },
+          _id: '$platform',
           count: { $sum: 1 }
         }
       },
       {
         $project: {
           name: '$_id',
-          _id: 0,
           count: 1,
-          activeUsers: 1
+          _id: 0
         }
       }
     ]);
@@ -681,22 +806,14 @@ export class AnalyticService {
       {
         $group: {
           _id: '$userInformation.city',
-          users: {
-            $sum: 1
-          },
-          state: {
-            $first: '$userInformation.state'
-          },
-          geoLocation: {
-            $first: '$userInformation.geoLocation'
-          }
+          users: { $sum: 1 },
+          state: { $first: '$userInformation.state' },
+          geoLocation: { $first: '$userInformation.geoLocation' }
         }
       },
       {
         $project: {
-          city: {
-            $toString: '$_id'
-          },
+          city: { $toString: '$_id' },
           users: 1,
           state: 1,
           geoLocation: 1,
@@ -704,9 +821,7 @@ export class AnalyticService {
         }
       },
       { $sort: { users: -1 } },
-      {
-        $limit: 15
-      }
+      { $limit: 15 }
     ]);
     return queryFilter;
   }
@@ -804,7 +919,8 @@ export class AnalyticService {
           _id: 0
         }
       },
-      { $sort: { users: -1 } }
+      { $sort: { users: -1 } },
+      { $limit: 1000 }
     ]);
     return queryFilter;
   }
@@ -837,10 +953,10 @@ export class AnalyticService {
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
-      createdAt: {
-        $gte: firstDay,
-        $lte: nextDate
-      },
+      // createdAt: {
+      //   $gte: firstDay,
+      //   $lte: nextDate
+      // },
       event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
       platform: platform,
@@ -875,72 +991,41 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
 
-    const queryFilter: any = await EventAnalyticModel.aggregate([
+    const combinedResult = await EventAnalyticModel.aggregate([
       {
         $match: query
       },
       {
         $group: {
-          _id: {
-            createdAt: '$createdAt',
-            moduleInformation: '$moduleInformation',
-            event: '$event'
+          _id: '$event',
+          initialCount: { $sum: 1 },
+          queryCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$createdAt', firstDay] },
+                    { $lte: ['$createdAt', nextDate] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
           }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.event',
-          count: { $sum: 1 }
         }
       },
       {
         $project: {
           name: '$_id',
-          _id: 0,
-          count: 1
+          count: '$queryCount',
+          total: '$initialCount',
+          _id: 0
         }
       }
     ]);
 
-    delete query['createdAt'];
-    const AllEventResult: any = await EventAnalyticModel.aggregate([
-      {
-        $match: query
-      },
-      {
-        $group: {
-          _id: {
-            createdAt: '$createdAt',
-            moduleInformation: '$moduleInformation',
-            event: '$event'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.event',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          name: '$_id',
-          _id: 0,
-          count: 1
-        }
-      }
-    ]);
-
-    const finalResult = AllEventResult.map((val: any) => {
-      const objectData = queryFilter.find((res: any) => res.name === val?.name);
-      return {
-        name: val?.name,
-        count: objectData?.count,
-        total: val?.count
-      };
-    });
-    return finalResult;
+    return combinedResult;
   }
 
   async createPlusFeatures(requestData: any): Promise<any> {
@@ -1455,27 +1540,18 @@ export class AnalyticService {
       {
         $group: {
           _id: {
-            createdAt: '$createdAt',
             moduleInformation: '$moduleInformation',
             event: '$event'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.moduleInformation',
-          count: { $sum: 1 },
-          event: {
-            $first: '$_id.event'
-          }
+          },
+          count: { $sum: 1 }
         }
       },
       {
         $project: {
-          name: '$_id',
-          event: 1,
-          _id: 0,
-          count: 1
+          name: '$_id.moduleInformation',
+          event: '$_id.event',
+          count: 1,
+          _id: 0
         }
       },
       { $sort: { count: -1 } }

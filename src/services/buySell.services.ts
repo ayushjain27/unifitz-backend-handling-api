@@ -438,7 +438,7 @@ export class BuySellService {
         const arr = [...draftVeh, { ...list?._doc }];
         draftVeh = arr;
         return draftVehCount;
-      } else if (Difference_In_Days <= 45 && list?.status === 'ACTIVE') {
+      } else if (Difference_In_Days <= 90 && list?.status === 'ACTIVE') {
         totalAmount += Number(list?.expectedPrice);
         activeVehCount += 1;
         const arr = [...activeVeh, { ...list?._doc }];

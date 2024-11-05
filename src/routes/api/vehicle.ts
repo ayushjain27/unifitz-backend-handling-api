@@ -67,4 +67,16 @@ router.post(
 
 router.post('/all', roleAuth(ACL.ADD_VEHICLE), vehicleInfoController.getAll);
 
+router.get(
+  '/paginated',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.getVehiclePaginated
+);
+
+router.post(
+  '/count',
+  roleAuth(ACL.ADD_VEHICLE),
+  vehicleInfoController.getAllCount
+);
+
 export default router;

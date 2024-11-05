@@ -120,7 +120,8 @@ export class NewVehicleInfoController {
     }
     const userName = req?.userId;
     const role = req?.role;
-    const { oemId, vehicleType } = req.body;
+    const { oemId, vehicleType, storeId, adminFilterOemId, brandName } =
+      req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -129,7 +130,10 @@ export class NewVehicleInfoController {
         userName,
         role,
         oemId,
-        vehicleType
+        vehicleType,
+        storeId,
+        adminFilterOemId,
+        brandName
       );
       res.send({
         result
@@ -279,9 +283,10 @@ export class NewVehicleInfoController {
       '<Controller>:<VehicleController>:<Add vehicle request initiated>'
     );
     try {
-      const result = await this.vehicleInfoService.checkAvailabilityUserTestDrive(
-        interestRequest
-      );
+      const result =
+        await this.vehicleInfoService.checkAvailabilityUserTestDrive(
+          interestRequest
+        );
       res.send({
         message: 'Vehicle Test Drive checked successfully',
         result
@@ -358,7 +363,9 @@ export class NewVehicleInfoController {
     Logger.info('<Controller>:<VehicleController>:<Getting ID>');
     try {
       const id = req.query.id;
-      const result = await this.vehicleInfoService.getTestDriveDetailsById(id as string);
+      const result = await this.vehicleInfoService.getTestDriveDetailsById(
+        id as string
+      );
       Logger.info('<Controller>:<VehicleController>:<get successfully>');
       res.send({
         message: 'Enquiry obtained successfully',
