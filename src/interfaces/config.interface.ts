@@ -8,6 +8,13 @@ export interface S3Config {
   ACCESS_KEY: string;
   BUCKET_NAME: string;
   VIDEO_BUCKET_NAME: string;
+  AWS_REGION: string;
+}
+export interface SQSConfig {
+  AWS_KEY_ID: string;
+  ACCESS_KEY: string;
+  AWS_REGION: string;
+  QUEUE_URL: string;
 }
 
 export interface TwoFactorConfig {

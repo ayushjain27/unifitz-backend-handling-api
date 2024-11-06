@@ -8,6 +8,7 @@
     "ISS": "Service_Plug",
     "AWS_KEY_ID": "AKIA3HHZ3WRZ5CBDGFRW",
     "ACCESS_KEY": "E2p4+ErfZZ4QGSuDipP3Cp0R132Lldd6zjnZKLCq",
+    "AWS_REGION": "ap-south-1",
     "BUCKET_NAME": "serviceplug-dev",
     "VIDEO_BUCKET_NAME": "sp-entity-video",
     "2FACTOR_API_KEY": "072aa3d3-31b9-11ed-9c12-0200cd936042",

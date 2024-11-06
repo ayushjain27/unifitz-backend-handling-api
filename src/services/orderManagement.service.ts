@@ -11,7 +11,7 @@ import { StoreService } from './store.service';
 import { CustomerService } from './customer.service';
 import { OrderRequest } from '../interfaces/orderRequest.interface';
 import UserOrder, { IUserOrderManagement } from '../models/UserOrderManagement';
-import { isEmpty } from 'lodash';
+import { groupBy, isEmpty } from 'lodash';
 import DistributorOrder from '../models/DistributorOrderManagement';
 
 @injectable()
@@ -83,21 +83,23 @@ export class OrderManagementService {
     const userOrderRequest = await UserOrder.create(params);
 
     if (!isEmpty(userOrderRequest)) {
-      const groupedData = requestBody.items.reduce((result, currentItem) => {
-        const userGroup = result.find(
-          (group) => group[0]?.oemUserName === currentItem.oemUserName
-        );
 
-        if (userGroup) {
-          // If a group already exists for this user, add the item to that group
-          userGroup.push(currentItem);
-        } else {
-          // If no group exists for this user, create a new group with the item
-          result.push([currentItem]);
-        }
+      const groupedData = groupBy(requestBody.items, 'oemUserName');
+      // const groupedData = requestBody.items.reduce((result, currentItem) => {
+      //   const userGroup = result.find(
+      //     (group) => group[0]?.oemUserName === currentItem.oemUserName
+      //   );
 
-        return result;
-      }, []);
+      //   if (userGroup) {
+      //     // If a group already exists for this user, add the item to that group
+      //     userGroup.push(currentItem);
+      //   } else {
+      //     // If no group exists for this user, create a new group with the item
+      //     result.push([currentItem]);
+      //   }
+
+      //   return result;
+      // }, []);
 
       await groupedData.map(async (itemGroup) => {
         const totalAmount = itemGroup.reduce(

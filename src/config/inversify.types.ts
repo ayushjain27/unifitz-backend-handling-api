@@ -39,6 +39,8 @@ export const TYPES = {
   Twilio: Symbol('Twilio'),
   S3Client: Symbol('S3Client'),
   S3Service: Symbol('S3Service'),
+  SQSClient: Symbol('SQSClient'),
+  SQSService: Symbol('SqsService'),
   TwoFactorService: Symbol('TwoFactorService'),
   SurepassService: Symbol('SurepassService'),
 
