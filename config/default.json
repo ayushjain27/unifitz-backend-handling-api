@@ -11,6 +11,7 @@
   "AWS_REGION": "ap-south-1",
   "BUCKET_NAME": "serviceplug-prod",
   "VIDEO_BUCKET_NAME": "sp-entity-video",
+  "QUEUE_URL": "https://sqs.ap-south-1.amazonaws.com/771470636147/ServicePlugTaskQueue",
   "2FACTOR_API_KEY": "072aa3d3-31b9-11ed-9c12-0200cd936042",
   "2FACTOR_API_URL": "https://2factor.in/API/V1",
   "2FACTOR_TEMPLATE_NAME": "ServiceplugLOGINOTP",

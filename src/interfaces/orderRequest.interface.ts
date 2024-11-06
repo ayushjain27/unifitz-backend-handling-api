@@ -5,5 +5,6 @@ export interface OrderRequest {
     userRole: string;
     items: ICartInfo[];
     shippingAddress: string;
+    totalAmount: number;
   }
   

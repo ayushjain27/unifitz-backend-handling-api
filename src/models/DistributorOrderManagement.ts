@@ -50,7 +50,7 @@ export const cartSchema: Schema = new Schema(
 
 export interface IDistributorOrderManagement {
   _id?: string;
-  orderId?: Types.ObjectId;
+  customerOrderId?: Types.ObjectId;
   orders?: ICartInfo[];
   totalAmount: string;
   oemUserName?: string;
@@ -66,7 +66,7 @@ const orderSchema: Schema = new Schema(
     items: {
       type: [cartSchema]
     },
-    orderId: {
+    customerOrderId: {
       type: Types.ObjectId
     },
     status: {

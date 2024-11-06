@@ -13,6 +13,9 @@ import { OrderRequest } from '../interfaces/orderRequest.interface';
 import UserOrder, { IUserOrderManagement } from '../models/UserOrderManagement';
 import { groupBy, isEmpty } from 'lodash';
 import DistributorOrder from '../models/DistributorOrderManagement';
+import ProductCartModel from '../models/ProductCart';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
 export class OrderManagementService {
@@ -21,6 +24,9 @@ export class OrderManagementService {
   private storeService = container.get<StoreService>(TYPES.StoreService);
   private customerService = container.get<CustomerService>(
     TYPES.CustomerService
+  );
+  private sqsService = container.get<SQSService>(
+    TYPES.SQSService
   );
 
   async create(requestBody: OrderRequest): Promise<IUserOrderManagement> {
@@ -32,8 +38,7 @@ export class OrderManagementService {
       ...requestBody,
       userId: new Types.ObjectId(),
       userDetail: undefined,
-      totalAmount: 0,
-      status: '',
+      status: 'PENDING',
       storeId: '',
       customerId: ''
     };
@@ -81,10 +86,20 @@ export class OrderManagementService {
     }
 
     const userOrderRequest = await UserOrder.create(params);
+    requestBody.items.forEach(async (item) => {
+      await ProductCartModel.findOneAndUpdate(
+        { _id: new Types.ObjectId(item.cartId) },
+        { $set: { status: 'INACTIVE' } }
+      );
+    });
 
-    if (!isEmpty(userOrderRequest)) {
+    const sqsMessage = await this.sqsService.createMessage(SQSEvent.CREATE_DISTRIBUTOR_ORDER, userOrderRequest?._id);
+    console.log(sqsMessage,"Message")
+    
 
-      const groupedData = groupBy(requestBody.items, 'oemUserName');
+    // if (!isEmpty(userOrderRequest)) {
+
+      // const groupedData = groupBy(requestBody.items, 'oemUserName');
       // const groupedData = requestBody.items.reduce((result, currentItem) => {
       //   const userGroup = result.find(
       //     (group) => group[0]?.oemUserName === currentItem.oemUserName
@@ -101,22 +116,23 @@ export class OrderManagementService {
       //   return result;
       // }, []);
 
-      await groupedData.map(async (itemGroup) => {
-        const totalAmount = itemGroup.reduce(
-          (sum: any, item: { price: any }) => sum + item.price,
-          0
-        );
+      // await groupedData.map(async (itemGroup) => {
+      //   const totalAmount = itemGroup.reduce(
+      //     (sum: any, item: { price: any }) => sum + item.price,
+      //     0
+      //   );
 
-        const distributorOrderData = {
-          orderId: userOrderRequest._id,
-          orders: itemGroup,
-          oemUserName: itemGroup[0]?.username, // Assuming username is the grouping field
-          totalAmount // Include totalAmount here
-        };
+      //   const distributorOrderData = {
+      //     orderId: userOrderRequest._id,
+      //     orders: itemGroup,
+      //     oemUserName: itemGroup[0]?.username, // Assuming username is the grouping field
+      //     totalAmount // Include totalAmount here
+      //   };
 
-        await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
-      });
-    }
+      //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
+      // });
+    // }
+
 
     return userOrderRequest;
   }

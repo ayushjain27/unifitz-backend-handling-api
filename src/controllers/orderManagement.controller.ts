@@ -5,7 +5,7 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Request from '../types/request';
-import { OrderManagementService } from './../services';
+import { OrderManagementService } from '../services';
 import { OrderRequest } from '../interfaces/orderRequest.interface';
 
 @injectable()
@@ -28,12 +28,13 @@ export class OrderManagementController {
       const reqBody: OrderRequest = {
         items: req.body.items,
         shippingAddress: req.body?.shippingAddress as string,
+        totalAmount: req.body?.totalAmount as number,
         phoneNumber,
         userRole
       };
       const result = await this.orderManagementService.create(reqBody);
       res.send({
-        message: 'Deletion Request Successful',
+        message: 'Create Order Request Successful',
         result
       });
     } catch (err) {
@@ -49,10 +50,10 @@ export class OrderManagementController {
       '<Controller>:<OrderManagementController>:<Request Order By Id controller initiated>'
     );
     try {
-      const orderId = req.query.orderId;
+      const orderId = req.params.orderId;
       const result = await this.orderManagementService.getOrderById(orderId);
       res.send({
-        message: 'Deletion Request Successful',
+        message: 'Get Order Request Successful',
         result
       });
     } catch (err) {
@@ -75,7 +76,7 @@ export class OrderManagementController {
         userRole
       );
       res.send({
-        message: 'Deletion Request Successful',
+        message: 'Get All Orders Request Successful',
         result
       });
     } catch (err) {
