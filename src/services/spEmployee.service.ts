@@ -67,7 +67,14 @@ export class SPEmployeeService {
 
     await StaticIds.findOneAndUpdate({}, { employeeId: employeeIdUser });
 
-    const password = secureRandomPassword.randomPassword();
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
 
     upAdminFields.password = await this.encryptPassword(password);
 
@@ -270,7 +277,15 @@ export class SPEmployeeService {
       employeeId
     });
 
-    const password = secureRandomPassword.randomPassword();
+    // const password = secureRandomPassword.randomPassword();
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
     const updatedPassword = await this.encryptPassword(password);
     const res = await Admin.findOneAndUpdate(
       { employeeId: employeeId, oemId: oemId },

@@ -694,7 +694,7 @@ export class StoreLeadService {
       ];
     }
 
-    if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 10) {
+    if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 9) {
       query.$or = [{ 'store.contactInfo.phoneNumber.primary': searchQuery }];
     }
     if (!startDate || !endDate) {
