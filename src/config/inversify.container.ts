@@ -2,8 +2,10 @@ import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import AWS from 'aws-sdk';
+import { SQSClient } from '@aws-sdk/client-sqs';
+
 import { TYPES } from './inversify.types';
-import { s3Config, twilioConfig } from './constants';
+import { s3Config, sqsConfig, twilioConfig } from './constants';
 import {
   StoreController,
   AdminController,
@@ -29,7 +31,8 @@ import {
   NewVehicleInfoController,
   SPEmployeeController,
   DeleteAccountController,
-  StoreLeadController
+  StoreLeadController,
+  OrderManagementController
 } from '../controllers';
 import {
   StoreService,
@@ -48,6 +51,7 @@ import {
   EmployeeService,
   TwilioService,
   S3Service,
+  SQSService,
   BuySellService,
   AnalyticService,
   ReportService,
@@ -61,7 +65,8 @@ import {
   SPEmployeeService,
   DeleteAccountService,
   UserService,
-  StoreLeadService
+  StoreLeadService,
+  OrderManagementService
 } from '../services';
 
 const container = new Container();
@@ -80,6 +85,16 @@ container.bind<AWS.S3>(TYPES.S3Client).toConstantValue(
     credentials: {
       accessKeyId: s3Config.AWS_KEY_ID,
       secretAccessKey: s3Config.ACCESS_KEY
+    }
+  })
+);
+container.bind<SQSService>(TYPES.SQSService).to(SQSService).inSingletonScope();
+container.bind<SQSClient>(TYPES.SQSClient).toConstantValue(
+  new SQSClient({
+    region: sqsConfig.AWS_REGION,
+    credentials: {
+      accessKeyId: sqsConfig.AWS_KEY_ID,
+      secretAccessKey: sqsConfig.ACCESS_KEY
     }
   })
 );
@@ -237,5 +252,12 @@ container.bind<StoreLeadService>(TYPES.StoreLeadService).to(StoreLeadService);
 container
   .bind<StoreLeadController>(TYPES.StoreLeadController)
   .to(StoreLeadController);
+
+container
+  .bind<OrderManagementService>(TYPES.OrderManagementService)
+  .to(OrderManagementService);
+container
+  .bind<OrderManagementController>(TYPES.OrderManagementController)
+  .to(OrderManagementController);
 
 export default container;
