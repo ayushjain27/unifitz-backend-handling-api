@@ -76,6 +76,9 @@ export class OrderManagementService {
     } else {
       const phoneNumber = requestBody.phoneNumber.slice(-10);
       const customer = await this.customerService.getByPhoneNumber(phoneNumber);
+      if (isEmpty(customer)) {
+        throw new Error('Customer not found');
+      }
       params.customerId = customer?._id;
       params.userDetail = {
         userId: customer?._id,
@@ -88,7 +91,7 @@ export class OrderManagementService {
     const userOrderRequest = await UserOrder.create(params);
     requestBody.items.forEach(async (item) => {
       await ProductCartModel.findOneAndUpdate(
-        { _id: new Types.ObjectId(item.cartId) },
+        { _id: item.cartId },
         { $set: { status: 'INACTIVE' } }
       );
     });
@@ -141,19 +144,102 @@ export class OrderManagementService {
     Logger.info('<Service>:<OrderManagementService>:<Get order by id>');
     const orderResponse: IUserOrderManagement = await UserOrder.findOne({
       _id: new Types.ObjectId(orderId)
-    }).lean();
+    }).lean().populate('items.cartId')     // Populate cartId in each item
+    .populate('items.productId'); // Populate productId in each item
     return orderResponse;
   }
 
   async getUserAllOrders(
     phoneNumber: string,
-    userRole: string
+    userRole: string,
+    pageNo: number,
+    pageSize: number
   ): Promise<IUserOrderManagement[]> {
+    let query: { storeId?: string; customerId?: string } = {};
+  
+    const userPayload = {
+      phoneNumber: `+91${phoneNumber.slice(-10)}`,
+      role: userRole
+    };
+  
+    // Get the user details
+    const user = await this.userService.getUserByPhoneNumber(userPayload);
+  
+    if (!user) {
+      throw new Error('User not found');
+    }
+  
+    // Define query for either storeId or customerId based on user role
+    if (userRole === 'STORE_OWNER') {
+      const store = await this.storeService.getStoreByUserId(user._id);
+      if (!store) {
+        throw new Error('Store not found');
+      }
+      query.storeId = store.storeId;
+    } else {
+      const customer = await this.customerService.getByPhoneNumber(`+91${phoneNumber.slice(-10)}`);
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+      query.customerId = customer._id;
+    }
+  
+    console.log(query);
     Logger.info('<Service>:<OrderManagementService>:<Get user all orders by id>');
-    const orderResponse: IUserOrderManagement[] = await UserOrder.find({
-      phoneNumber: `+91${phoneNumber?.slice(-10)}`,
-      userRole
-    }).lean();
+  
+    const orderResponse: any = await UserOrder.aggregate([
+      {
+        $match: query
+      },
+      {
+        $unwind: "$items"  // Unwind the items array to populate each individually
+      },
+      {
+        $lookup: {
+          from: "productcarts",
+          localField: "items.cartId",
+          foreignField: "_id",
+          as: "items.cartDetails"
+        }
+      },
+      {
+        $lookup: {
+          from: "partnersproducts",
+          localField: "items.productId",
+          foreignField: "_id",
+          as: "items.productDetails"
+        }
+      },
+      {
+        $unwind: "$items.cartDetails"  // Unwind single cartDetail (since it’s a 1-to-1 relationship)
+      },
+      {
+        $unwind: "$items.productDetails"  // Unwind single productDetail (since it’s a 1-to-1 relationship)
+      },
+      {
+        $group: {
+          _id: "$_id",
+          userDetail: { $first: "$userDetail" },
+          status: { $first: "$status" },
+          totalAmount: { $first: "$totalAmount" },
+          shippingAddress: { $first: "$shippingAddress" },
+          storeId: { $first: "$storeId" },
+          customerId: { $first: "$customerId" },
+          userId: { $first: "$userId" },
+          createdAt: { $first: "$createdAt" },
+          updatedAt: { $first: "$updatedAt" },
+          items: { $push: "$items" }  // Re-assemble items as an array after lookups
+        }
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+  
     return orderResponse;
   }
+  
 }

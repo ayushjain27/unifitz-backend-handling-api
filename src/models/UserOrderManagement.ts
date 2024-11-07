@@ -18,29 +18,17 @@ export const userSchema: Schema = new Schema(
 );
 
 export interface ICartInfo {
-  cartId: string;
-  quantity: number;
-  price: number;
+  cartId: ObjectId;
+  productId: ObjectId;
   status: string;
   oemUserName: string;
 }
 
 export const cartSchema: Schema = new Schema(
   {
-    cartId: { type: String, required: true },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1
-    },
-    price: {
-      type: Number,
-      required: true
-    },
-    status: {
-      type: String,
-      enum: ['AVAILABLE', 'UNAVAILABLE']
-    },
+    cartId: { type: Types.ObjectId, ref: 'productcarts' },
+    productId: { type: Types.ObjectId, ref: 'partnersproducts' },
+    status: { type: String },
     oemUserName: {
       type: String
     }

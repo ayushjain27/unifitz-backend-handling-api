@@ -64,7 +64,7 @@ export class OrderManagementController {
     }
   };
 
-  getUserAllOrders = async (req: any, res: Response) => {
+  getUserAllOrdersPaginated = async (req: any, res: Response) => {
     Logger.info(
       '<Controller>:<OrderManagementController>:<Request User Orders controller initiated>'
     );
@@ -73,7 +73,9 @@ export class OrderManagementController {
       const userRole = req.role as string;
       const result = await this.orderManagementService.getUserAllOrders(
         phoneNumber,
-        userRole
+        userRole,
+        req.body.pageNo,
+        req.body.pageSize,
       );
       res.send({
         message: 'Get All Orders Request Successful',

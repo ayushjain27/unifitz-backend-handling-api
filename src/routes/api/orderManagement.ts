@@ -30,11 +30,11 @@ router.get(
   orderManagementController.getOrderById
 );
 
-router.get(
+router.post(
   '/get-all-orders',
   roleAuth(ACL.STORE_GET_ALL),
   validationHandler(),
-  orderManagementController.getUserAllOrders
+  orderManagementController.getUserAllOrdersPaginated
 );
 
 
