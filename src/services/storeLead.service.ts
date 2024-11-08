@@ -546,7 +546,7 @@ export class StoreLeadService {
     nextDate.setDate(lastDay.getDate() + 1);
     query = {
       // isVerified: Boolean(verifiedStore),
-      createdAt: {
+      updatedAt: {
         $gte: firstDay,
         $lte: nextDate
       },
@@ -563,7 +563,7 @@ export class StoreLeadService {
       ];
     }
     if (startDate === null || endDate === null) {
-      delete query['createdAt'];
+      delete query['updatedAt'];
     }
     if (!employeeId) {
       delete query['store.employeeId'];
@@ -684,7 +684,7 @@ export class StoreLeadService {
     nextDate.setDate(lastDay.getDate() + 1);
 
     query = {
-      createdAt: {
+      updatedAt: {
         $gte: firstDay,
         $lte: nextDate
       },
@@ -707,7 +707,7 @@ export class StoreLeadService {
       query.$or = [{ 'store.contactInfo.phoneNumber.primary': searchQuery }];
     }
     if (!startDate || !endDate) {
-      delete query['createdAt'];
+      delete query['updatedAt'];
     }
     if (!employeeId) {
       delete query['store.employeeId'];
