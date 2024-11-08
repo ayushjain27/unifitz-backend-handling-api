@@ -54,7 +54,7 @@ export class StoreLeadService {
     );
     const storeNumber: any = storeRequest;
     const storeData = await Store.findOne({
-      'store.contactInfo.phoneNumber.primary':
+      'contactInfo.phoneNumber.primary':
         storeNumber?.store?.contactInfo?.phoneNumber?.primary
     });
     if (storeData) {
@@ -62,7 +62,7 @@ export class StoreLeadService {
     }
     storeRes = {
       ...storeRequest,
-      status: StoreLeadProfileStatus.CREATED
+      status: StoreLeadProfileStatus.PENDING_FOR_VERIFICATION
     };
     // storeRes.store.userName = oemId;
     if (role === AdminRole.OEM) {
@@ -532,7 +532,8 @@ export class StoreLeadService {
     employeeId?: string,
     searchQuery?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    accessPolicy?: string
   ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
@@ -552,6 +553,9 @@ export class StoreLeadService {
       status: status,
       'store.employeeId': employeeId
     };
+    if (accessPolicy === 'ENABLED') {
+      delete query['store.employeeId'];
+    }
     if (searchQuery) {
       query.$or = [
         { 'store.employeeId': searchQuery },
@@ -660,7 +664,8 @@ export class StoreLeadService {
     employeeId?: string,
     searchQuery?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    accessPolicy?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<StoreLeadService>:<Search and Filter stores service initiated 111111>'
@@ -668,7 +673,7 @@ export class StoreLeadService {
     let query: any = {};
     let pendingForVerification: any = 0;
     let rejected: any = 0;
-    let created: any = 0;
+    // let created: any = 0;
     let verified: any = 0;
     let followUp: any = 0;
     let approved: any = 0;
@@ -687,6 +692,10 @@ export class StoreLeadService {
       // 'store.userName': oemId
     };
 
+    if (accessPolicy === 'ENABLED') {
+      delete query['store.employeeId'];
+    }
+
     if (searchQuery && role === AdminRole.ADMIN) {
       query.$or = [
         { 'store.employeeId': searchQuery },
@@ -694,7 +703,7 @@ export class StoreLeadService {
       ];
     }
 
-    if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 10) {
+    if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 9) {
       query.$or = [{ 'store.contactInfo.phoneNumber.primary': searchQuery }];
     }
     if (!startDate || !endDate) {
@@ -735,12 +744,12 @@ export class StoreLeadService {
         ...query
       });
     }
-    if (status === 'CREATED' || !status) {
-      created = await StoreLead.count({
-        status: 'CREATED',
-        ...query
-      });
-    }
+    // if (status === 'CREATED' || !status) {
+    //   created = await StoreLead.count({
+    //     status: 'CREATED',
+    //     ...query
+    //   });
+    // }
     if (status === 'VERIFIED' || !status) {
       verified = await StoreLead.count({
         status: 'VERIFIED',
@@ -783,7 +792,7 @@ export class StoreLeadService {
       total,
       pendingForVerification,
       rejected,
-      created,
+      // created,
       verified,
       followUp,
       approved
