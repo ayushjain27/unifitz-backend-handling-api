@@ -28,3 +28,5 @@ export * from './spEmployee.service';
 export * from './deleteAccount.service';
 export * from './user.service';
 export * from './storeLead.service';
+export * from './orderManagement.service';
+export * from './sqs.service';

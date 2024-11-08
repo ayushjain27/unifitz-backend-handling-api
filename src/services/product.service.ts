@@ -1449,7 +1449,8 @@ export class ProductService {
   async getCartList(oemId?: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
-      userId: oemId
+      userId: oemId,
+      status: 'ACTIVE'
     };
     const product = await ProductCartModel.aggregate([
       { $match: query },

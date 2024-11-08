@@ -23,3 +23,4 @@ export * from './newVehicle.controller';
 export * from './spEmployee.controller';
 export * from './deleteAccount.controller';
 export * from './storeLead.controller';
+export * from './orderManagement.controller';

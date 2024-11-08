@@ -1,6 +1,7 @@
 import config from 'config';
 import {
   S3Config,
+  SQSConfig,
   SurepassConfig,
   TwilioConfig,
   TwoFactorConfig
@@ -18,7 +19,15 @@ export const s3Config: S3Config = {
   AWS_KEY_ID: config.get('AWS_KEY_ID'),
   ACCESS_KEY: config.get('ACCESS_KEY'),
   BUCKET_NAME: config.get('BUCKET_NAME'),
-  VIDEO_BUCKET_NAME: config.get('VIDEO_BUCKET_NAME')
+  VIDEO_BUCKET_NAME: config.get('VIDEO_BUCKET_NAME'),
+  AWS_REGION: config.get('AWS_REGION')
+};
+
+export const sqsConfig: SQSConfig = {
+  AWS_KEY_ID: config.get('AWS_KEY_ID'),
+  ACCESS_KEY: config.get('ACCESS_KEY'),
+  AWS_REGION: config.get('AWS_REGION'),
+  QUEUE_URL: config.get('QUEUE_URL')
 };
 
 export const twoFactorConfig: TwoFactorConfig = {
