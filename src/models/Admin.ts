@@ -127,6 +127,7 @@ export interface IAdmin {
   oemId?: string;
   employeeId?: string;
   accessList: object;
+  accessPolicy: object;
   loginDate?: Date;
 }
 
@@ -342,6 +343,15 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     accessList: {
       type: Object
+    },
+    accessPolicy: {
+      STORE_LEAD_GENERATION: {
+        APPROVE: {
+          type: String,
+          enum: ['ENABLED', 'DISABLED'],
+          default: 'DISABLED'
+        }
+      }
     },
     loginDate: {
       type: Date

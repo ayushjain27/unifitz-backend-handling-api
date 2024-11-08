@@ -322,16 +322,13 @@ export class SPEmployeeService {
     const query: any = {};
     query.userName = userName;
     query.employeeId = employeeId;
+
     const updatedAdmin: any = await Admin.findOneAndUpdate(
       { oemId: userName, employeeId: employeeId },
       {
         $set: {
-          'accessList.STORE_LEAD_GENERATION': {
-            STATUS: 'ADMIN & EMPLOYEE',
-            CREATE: false,
-            READ: false,
-            UPDATE: false,
-            DELETE: false
+          'accessPolicy.STORE_LEAD_GENERATION': {
+            APPROVE: 'ENABLED'
           }
         }
       },
