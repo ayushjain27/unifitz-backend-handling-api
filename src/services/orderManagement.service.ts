@@ -153,9 +153,15 @@ export class OrderManagementService {
     phoneNumber: string,
     userRole: string,
     pageNo: number,
-    pageSize: number
+    pageSize: number,
+    status: string
   ): Promise<IUserOrderManagement[]> {
-    let query: { storeId?: string; customerId?: string } = {};
+    let query: { storeId?: string; customerId?: string; status?: string } = {};
+
+    // Add status to the query object
+    if (!isEmpty(status)) {
+      query.status = status;
+    }
   
     const userPayload = {
       phoneNumber: `+91${phoneNumber.slice(-10)}`,
@@ -184,7 +190,6 @@ export class OrderManagementService {
       query.customerId = customer._id;
     }
   
-    console.log(query);
     Logger.info('<Service>:<OrderManagementService>:<Get user all orders by id>');
   
     const orderResponse: any = await UserOrder.aggregate([
