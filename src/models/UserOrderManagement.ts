@@ -11,7 +11,7 @@ export const userSchema: Schema = new Schema(
   {
     userId: { type: Types.ObjectId, required: true },
     name: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String },
     phoneNumber: { type: String, required: true }
   },
   { _id: false }
