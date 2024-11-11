@@ -1,6 +1,6 @@
 import { Response, Router } from 'express';
 import HttpStatusCodes from 'http-status-codes';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Request from '../../types/request';
 import { defaultCodeLength } from '../../config/constants';
 import Logger from '../../config/winston';
@@ -18,6 +18,7 @@ import { StoreLeadService, UserService } from '../../services';
 import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 import StoreLead from '../../models/StoreLead';
+import UserOtp from '../../models/UserOtp'
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -48,7 +49,8 @@ router.get('/', auth, async (req: Request, res: Response) => {
 // @access  Public
 router.post('/otp/send', async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, channel } = req.body;
+    console.log(req.body,"e;lrm")
+    const { phoneNumber, channel, role } = req.body;
     const loginPayload: TwilioLoginPayload = {
       phoneNumber,
       channel
@@ -61,18 +63,66 @@ router.post('/otp/send', async (req: Request, res: Response) => {
           phoneNumber
         });
       } else {
-        // const result = await twilioCLient.sendVerificationCode(
-        //   loginPayload.phoneNumber,
-        //   loginPayload.channel
-        // );
-        const result = await twoFactorService.sendVerificationCode(
-          loginPayload.phoneNumber
-        );
-        res.status(HttpStatusCodes.OK).send({
-          message: 'Verification is sent!!',
-          phoneNumber,
-          result
-        });
+        const userOtpDetail = await UserOtp.findOne({
+          phoneNumber: phoneNumber,
+          role
+        })
+        if(isEmpty(userOtpDetail)){
+          const data = {
+            phoneNumber,
+            role,
+            count: 1,
+            lastCountReset: new Date()
+          }
+          await UserOtp.create(data);
+          const result = await twoFactorService.sendVerificationCode(
+            loginPayload.phoneNumber
+          );
+          res.status(HttpStatusCodes.OK).send({
+            message: 'Verification is sent!!',
+            phoneNumber,
+            result
+          });
+        }else{
+          const oneMonthAgo = new Date();
+          oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+          if (userOtpDetail.lastCountReset < oneMonthAgo) {
+            const userDetailOtpUpdate = await UserOtp.findOneAndUpdate(
+              { phoneNumber, role },
+              { $set: { count: 1, lastCountReset: new Date() } },
+            );// Reset last reset date to now
+            const result = await twoFactorService.sendVerificationCode(
+              loginPayload.phoneNumber
+            );
+            res.status(HttpStatusCodes.OK).send({
+              message: 'Verification is sent!!',
+              phoneNumber,
+              result
+            });
+          } else {
+            // Check if count is 3 or more, indicating monthly limit is reached
+            if (userOtpDetail.count >= 3) {
+                // Send 429 status code for rate-limiting error
+                res.send({
+                  message: 'You have reached the maximum OTP requests allowed for this month.',
+                  phoneNumber
+                });
+            }else{
+              const userDetailOtpUpdate = await UserOtp.findOneAndUpdate(
+                { phoneNumber, role },
+                { $set: { count: (userOtpDetail?.count) + 1 } },
+              );// Reset last reset date to now
+              const result = await twoFactorService.sendVerificationCode(
+                loginPayload.phoneNumber
+              );
+              res.status(HttpStatusCodes.OK).send({
+                message: 'Verification is sent!!',
+                phoneNumber,
+                result
+              });
+            }
+          }
+        }
       }
       Logger.debug(`Twilio verification sent to ${loginPayload.phoneNumber}`);
     } else {
