@@ -38,7 +38,14 @@ export class AdminService {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
 
     // Update the password
-    const password = secureRandomPassword.randomPassword();
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
 
     upAdminFields.password = await this.encryptPassword(password);
     // Build user object based on IAdmin

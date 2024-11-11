@@ -67,7 +67,14 @@ export class SPEmployeeService {
 
     await StaticIds.findOneAndUpdate({}, { employeeId: employeeIdUser });
 
-    const password = secureRandomPassword.randomPassword();
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
 
     upAdminFields.password = await this.encryptPassword(password);
 
@@ -270,7 +277,15 @@ export class SPEmployeeService {
       employeeId
     });
 
-    const password = secureRandomPassword.randomPassword();
+    // const password = secureRandomPassword.randomPassword();
+    const password = secureRandomPassword.randomPassword({
+      characters: [
+        { characters: secureRandomPassword.upper, exactly: 3 },
+        { characters: secureRandomPassword.symbols, exactly: 3 },
+        { characters: secureRandomPassword.lower, exactly: 4 },
+        { characters: secureRandomPassword.digits, exactly: 2 }
+      ]
+    });
     const updatedPassword = await this.encryptPassword(password);
     const res = await Admin.findOneAndUpdate(
       { employeeId: employeeId, oemId: oemId },
@@ -307,16 +322,13 @@ export class SPEmployeeService {
     const query: any = {};
     query.userName = userName;
     query.employeeId = employeeId;
+
     const updatedAdmin: any = await Admin.findOneAndUpdate(
       { oemId: userName, employeeId: employeeId },
       {
         $set: {
-          'accessList.STORE_LEAD_GENERATION': {
-            STATUS: 'ADMIN & EMPLOYEE',
-            CREATE: false,
-            READ: false,
-            UPDATE: false,
-            DELETE: false
+          'accessPolicy.STORE_LEAD_GENERATION': {
+            APPROVE: 'ENABLED'
           }
         }
       },

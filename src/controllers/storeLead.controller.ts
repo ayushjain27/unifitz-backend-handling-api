@@ -310,7 +310,8 @@ export class StoreLeadController {
       employeeId,
       searchQuery,
       startDate,
-      endDate
+      endDate,
+      accessPolicy
     } = req.body;
     Logger.info(
       '<Controller>:<StoreLeadController>:<Search and Filter Stores pagination request controller initiated>'
@@ -332,7 +333,8 @@ export class StoreLeadController {
           employeeId,
           searchQuery,
           startDate,
-          endDate
+          endDate,
+          accessPolicy
         );
       res.send({
         result
@@ -356,6 +358,7 @@ export class StoreLeadController {
     const searchQuery = req?.query?.searchQuery;
     const startDate = req?.query?.startDate;
     const endDate = req?.query?.endDate;
+    const accessPolicy = req?.query?.accessPolicy;
 
     Logger.info(
       '<Controller>:<StoreLeadController>:<Search and Filter Stores pagination request controller initiated>'
@@ -375,7 +378,8 @@ export class StoreLeadController {
           employeeId as string,
           searchQuery as string,
           startDate as string,
-          endDate as string
+          endDate as string,
+          accessPolicy as string
         );
       res.send({
         result
