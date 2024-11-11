@@ -76,6 +76,7 @@ export class OrderManagementController {
         userRole,
         req.body.pageNo,
         req.body.pageSize,
+        req.body.status
       );
       res.send({
         message: 'Get All Orders Request Successful',

@@ -696,15 +696,11 @@ export class StoreLeadService {
       delete query['store.employeeId'];
     }
 
-    if (searchQuery && role === AdminRole.ADMIN) {
+    if (searchQuery) {
       query.$or = [
         { 'store.employeeId': searchQuery },
         { 'store.contactInfo.phoneNumber.primary': searchQuery }
       ];
-    }
-
-    if (searchQuery && role !== AdminRole.ADMIN && searchQuery?.length > 9) {
-      query.$or = [{ 'store.contactInfo.phoneNumber.primary': searchQuery }];
     }
     if (!startDate || !endDate) {
       delete query['updatedAt'];
