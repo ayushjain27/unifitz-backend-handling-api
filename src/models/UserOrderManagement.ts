@@ -9,10 +9,10 @@ export interface IUserInfo {
 
 export const userSchema: Schema = new Schema(
   {
-    userId: { type: Types.ObjectId, required: true },
-    name: { type: String, required: true },
+    userId: { type: Types.ObjectId },
+    name: { type: String },
     email: { type: String },
-    phoneNumber: { type: String, required: true }
+    phoneNumber: { type: String }
   },
   { _id: false }
 );
