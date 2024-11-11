@@ -306,17 +306,17 @@ export class BuySellService {
 
     const filterParams = { ...query, status: 'ACTIVE' };
     // Conditionally add the nested state field if query.state is not empty
-    if (query.state) {
+    if (query?.state) {
       filterParams['$or'] = [
         { 'storeDetails.contactInfo.state': query.state },
         { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
-    if (query.userId) {
-      filterParams['sellerDetails._id'] != query.userId;
+    if (query?.userId) {
+      filterParams['sellerDetails._id'] = { $ne: query.userId };
     }
-    if (query.storeId) {
-      filterParams['storeDetails.storeId'] != query.storeId;
+    if (query?.storeId) {
+      filterParams['storeDetails.storeId'] = { $ne: query.storeId };
     }
     delete filterParams.state;
     delete filterParams.coordinates;
@@ -325,7 +325,7 @@ export class BuySellService {
     delete filterParams.userId;
     delete filterParams.storeId;
     Logger.debug(query);
-    console.log(filterParams, query, 'dfmkl');
+    console.log(filterParams, 'dfmkl');
 
     const result = await buySellVehicleInfo.aggregate([
       {
