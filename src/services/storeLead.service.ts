@@ -57,7 +57,14 @@ export class StoreLeadService {
       'contactInfo.phoneNumber.primary':
         storeNumber?.store?.contactInfo?.phoneNumber?.primary
     });
+    const storeVal = await StoreLead.findOne({
+      'store.contactInfo.phoneNumber.primary':
+        storeNumber?.store?.contactInfo?.phoneNumber?.primary
+    });
     if (storeData) {
+      throw new Error('Store Primary PhoneNumber Already exist');
+    }
+    if (storeVal) {
       throw new Error('Store Primary PhoneNumber Already exist');
     }
     storeRes = {
