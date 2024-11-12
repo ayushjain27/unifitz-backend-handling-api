@@ -33,7 +33,7 @@ router.post(
 
 router.post(
   '/customerByPhoneNo',
-  roleAuth(ACL.CUSTOMER_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   customerController.getCustomerByPhoneNo
 );
 
