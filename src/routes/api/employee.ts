@@ -48,4 +48,8 @@ router.get(
   employeeController.getEmployeesByEmployeeId
 );
 
+router.post('/otp/send', employeeController.sendOtpWithEmployee);
+
+router.post('/otp/login', employeeController.verifyEmployeeOtp);
+
 export default router;
