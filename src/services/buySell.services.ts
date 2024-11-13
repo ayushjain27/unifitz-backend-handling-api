@@ -82,8 +82,6 @@ export class BuySellService {
       }
     }
 
-    console.log(role, 'dkmelf');
-
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
