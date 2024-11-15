@@ -137,6 +137,9 @@ export class StoreService {
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
+    if (storePayload.profileStatus === StoreProfileStatus.ONBOARDED) {
+      storePayload.profileStatus = StoreProfileStatus.PENDING;
+    }
     const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
