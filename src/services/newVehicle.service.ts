@@ -240,6 +240,68 @@ export class NewVehicleInfoService {
     return vehicle;
   }
 
+  async getAllVehiclePaginated(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    vehicle?: string,
+    brand?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    searchQuery?: string
+  ) {
+    const storeKey = [storeId];
+    const query: any = {
+      oemUserName: adminFilterOemId,
+      'stores.storeId': { $in: storeKey }
+    };
+    if (searchQuery) {
+      query.$or = [
+        { oemUserName: searchQuery },
+        { productSuggest: searchQuery }
+      ];
+    }
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+    if (!storeId) {
+      delete query['stores.storeId'];
+    }
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (vehicle) {
+      query.vehicle = vehicle;
+    }
+    if (brand) {
+      query.brand = brand;
+    }
+    const productReviews = await NewVehicle.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return productReviews;
+  }
+
   async getVehiclePaginated(
     userName?: string,
     role?: string,

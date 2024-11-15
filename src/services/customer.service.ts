@@ -100,6 +100,31 @@ export class CustomerService {
     return customerResponse;
   }
 
+  async getPaginatedAll(
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string
+  ): Promise<ICustomer[]> {
+    Logger.info('<Service>:<CustomerService>:<Get all customers>');
+    const query: any = {};
+    if (searchQuery) {
+      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+    }
+    const customerResponse = await Customer.aggregate([
+      {
+        $match: query
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return customerResponse;
+  }
+
   async initiateUserVerification(payload: VerifyCustomerRequest) {
     Logger.info('<Service>:<CustomerService>:<Initiate Verifying user>');
     // validate the store from user phone number and user id
@@ -232,8 +257,11 @@ export class CustomerService {
             documentType,
             verifyName: verifyResult?.business_name || verifyResult?.full_name,
             verifyAddress:
-              documentType === 'GST' ? String(verifyResult?.address) :
-              String(`${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`),
+              documentType === 'GST'
+                ? String(verifyResult?.address)
+                : String(
+                    `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
+                  ),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }

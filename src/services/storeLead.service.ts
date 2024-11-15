@@ -174,15 +174,28 @@ export class StoreLeadService {
       { _id: statusRequest?.storeId },
       { 'store.verificationDetails': 0 }
     );
+
+    const setStatusResult = {
+      status: statusRequest.status,
+      rejectionReason: statusRequest.rejectionReason,
+      approveId: statusRequest?.approveId,
+      approveDate: statusRequest?.approveDate
+    };
+    if (!statusRequest.rejectionReason) {
+      delete setStatusResult['rejectionReason'];
+    }
+    if (!statusRequest.approveId) {
+      delete setStatusResult['approveId'];
+    }
+    if (!statusRequest.approveDate) {
+      delete setStatusResult['approveDate'];
+    }
     const phoneNumber =
       storeRes?.store?.basicInfo?.userPhoneNumber ||
       storeRes?.store?.contactInfo?.phoneNumber?.primary;
 
     await StoreLead.findOneAndUpdate(query, {
-      $set: {
-        status: statusRequest.status,
-        rejectionReason: statusRequest.rejectionReason
-      }
+      $set: setStatusResult
     });
     Logger.info(
       '<Service>:<StoreLeadService>: <Store: store status updated successfully>'

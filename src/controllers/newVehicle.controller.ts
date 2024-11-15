@@ -144,6 +144,50 @@ export class NewVehicleInfoController {
     }
   };
 
+  getAllVehiclePaginated = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<VehicleController>:<Vehicle controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query.oemId;
+    const vehicle = req?.query?.vehicleType;
+    const brand = req?.query?.brand;
+    const storeId = req?.query?.storeId;
+    const adminFilterOemId = req?.query?.adminFilterOemId;
+    const searchQuery = req.query.searchQuery;
+
+    try {
+      const result = await this.vehicleInfoService.getAllVehiclePaginated(
+        userName,
+        role,
+        oemId as string,
+        pageNo,
+        pageSize,
+        vehicle as string,
+        brand as string,
+        storeId as string,
+        adminFilterOemId as string,
+        searchQuery as string
+      );
+      res.send({
+        message: 'New Vehicles Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getVehiclePaginated = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

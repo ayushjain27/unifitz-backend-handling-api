@@ -39,6 +39,11 @@ router.post(
 );
 
 router.get('/getAll', roleAuth(ACL.STORE_GET_ALL), productController.getAll);
+router.get(
+  '/paginated/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.paginatedProductAll
+);
 
 router.get(
   '/store/:storeId',
@@ -161,6 +166,12 @@ router.get(
   '/partner/getAll',
   roleAuth(ACL.STORE_GET_ALL),
   productController.partnerProductGetAll
+);
+
+router.get(
+  '/partner/paginated/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getAllProductByPaginated
 );
 
 router.post(

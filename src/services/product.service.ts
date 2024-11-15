@@ -145,6 +145,45 @@ export class ProductService {
     return product;
   }
 
+  async paginatedProductAll(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string
+  ): Promise<IProduct[]> {
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (searchQuery) {
+      query.$or = [{ itemName: searchQuery }, { storeId: searchQuery }];
+    }
+    const product = await Product.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return product;
+  }
+
   async searchAndFilterPrelistProductPaginated(searchReqBody: {
     productCategory: string;
     productSubCategory: string;
@@ -836,6 +875,49 @@ export class ProductService {
     const product: IB2BPartnersProduct[] = await PartnersPoduct.find(
       query
     ).lean();
+
+    return product;
+  }
+
+  async getAllProductByPaginated(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (searchQuery) {
+      query.$or = [
+        { oemUserName: searchQuery },
+        { productSuggest: searchQuery }
+      ];
+    }
+    const product = await PartnersPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
 
     return product;
   }

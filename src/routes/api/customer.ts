@@ -44,7 +44,6 @@ router.post(
   customerController.initiateUserVerification
 );
 
-
 router.post(
   '/approve-user-verify',
   customerController.validate('approveUserVerification'),
@@ -60,5 +59,7 @@ router.post(
 );
 
 router.get('/all', customerController.getAll);
+
+router.get('/paginated/all', customerController.getPaginatedAll);
 
 export default router;

@@ -25,6 +25,32 @@ export class CategoryService {
     return result;
   }
 
+  async getAllPaginatedCategories(
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all Category service initiated>'
+    );
+    const query: any = {};
+    if (searchQuery) {
+      query.$or = [{ catalogName: searchQuery }, { catalogType: searchQuery }];
+    }
+    const result = await Catalog.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return result;
+  }
+
   async getAllRootCategories() {
     Logger.info(
       '<Service>:<CategoryService>:<Get all root Category service initiated>'
