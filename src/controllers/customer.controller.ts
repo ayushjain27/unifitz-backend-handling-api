@@ -135,11 +135,37 @@ export class CustomerController {
     const pageNo = Number(req.query.pageNo);
     const pageSize = Number(req.query.pageSize || 10);
     const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
     try {
       const result = await this.customerService.getPaginatedAll(
         pageNo,
         pageSize,
-        searchQuery as string
+        searchQuery as string,
+        state as string,
+        city as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all customers request controller initiated>'
+    );
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    try {
+      const result = await this.customerService.getAllCount(
+        searchQuery as string,
+        state as string,
+        city as string
       );
       res.send({
         result

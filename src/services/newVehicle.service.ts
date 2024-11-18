@@ -201,17 +201,27 @@ export class NewVehicleInfoService {
     vehicleType?: string,
     storeId?: string,
     adminFilterOemId?: string,
-    brandName?: string
+    brandName?: any,
+    firstDate?: string,
+    lastDate?: string
   ) {
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const nextDay = lastDate
+      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
+      : undefined;
     const storeKey = [storeId];
     const query: any = {
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
       vehicle: vehicleType,
-      brand: brandName,
+      brand: brandName?.catalogName,
       oemUserName: adminFilterOemId,
       'stores.storeId': { $in: storeKey }
     };
+    if (!query.updatedAt) delete query['updatedAt'];
+
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
-    if (!brandName) {
+    if (!brandName?.catalogName) {
       delete query['brand'];
     }
     if (!adminFilterOemId) {
@@ -247,13 +257,21 @@ export class NewVehicleInfoService {
     pageNo?: number,
     pageSize?: number,
     vehicle?: string,
-    brand?: string,
+    brand?: any,
     storeId?: string,
     adminFilterOemId?: string,
-    searchQuery?: string
+    searchQuery?: string,
+    firstDate?: string,
+    lastDate?: string
   ) {
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const nextDay = lastDate
+      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
+      : undefined;
     const storeKey = [storeId];
     const query: any = {
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
       oemUserName: adminFilterOemId,
       'stores.storeId': { $in: storeKey }
     };
@@ -263,6 +281,8 @@ export class NewVehicleInfoService {
         { productSuggest: searchQuery }
       ];
     }
+    if (!query.updatedAt) delete query['updatedAt'];
+
     if (!adminFilterOemId) {
       delete query['oemUserName'];
     }
@@ -286,7 +306,7 @@ export class NewVehicleInfoService {
       query.vehicle = vehicle;
     }
     if (brand) {
-      query.brand = brand;
+      query.brand = JSON.parse(brand?.catalogName);
     }
     const productReviews = await NewVehicle.aggregate([
       {

@@ -51,6 +51,21 @@ export class CategoryService {
     return result;
   }
 
+  async getCategoriesCount(searchQuery?: string) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all Category service initiated>'
+    );
+    const query: any = {};
+    if (searchQuery) {
+      query.$or = [{ catalogName: searchQuery }, { catalogType: searchQuery }];
+    }
+    const result = await Catalog.count(query);
+    const jsonRes = {
+      total: result
+    };
+    return jsonRes;
+  }
+
   async getAllRootCategories() {
     Logger.info(
       '<Service>:<CategoryService>:<Get all root Category service initiated>'

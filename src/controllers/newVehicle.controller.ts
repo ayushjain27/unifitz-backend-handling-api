@@ -120,8 +120,15 @@ export class NewVehicleInfoController {
     }
     const userName = req?.userId;
     const role = req?.role;
-    const { oemId, vehicleType, storeId, adminFilterOemId, brandName } =
-      req.body;
+    const {
+      oemId,
+      vehicleType,
+      storeId,
+      adminFilterOemId,
+      brandName,
+      firstDate,
+      lastDate
+    } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -133,7 +140,9 @@ export class NewVehicleInfoController {
         vehicleType,
         storeId,
         adminFilterOemId,
-        brandName
+        brandName,
+        firstDate,
+        lastDate
       );
       res.send({
         result
@@ -160,10 +169,12 @@ export class NewVehicleInfoController {
     const role = req?.role;
     const oemId = req.query.oemId;
     const vehicle = req?.query?.vehicleType;
-    const brand = req?.query?.brand;
+    const brand: any = req?.query?.brandName;
     const storeId = req?.query?.storeId;
     const adminFilterOemId = req?.query?.adminFilterOemId;
     const searchQuery = req.query.searchQuery;
+    const firstDate = req.query.firstDate;
+    const lastDate = req.query.lastDate;
 
     try {
       const result = await this.vehicleInfoService.getAllVehiclePaginated(
@@ -173,10 +184,12 @@ export class NewVehicleInfoController {
         pageNo,
         pageSize,
         vehicle as string,
-        brand as string,
+        brand,
         storeId as string,
         adminFilterOemId as string,
-        searchQuery as string
+        searchQuery as string,
+        firstDate as string,
+        lastDate as string
       );
       res.send({
         message: 'New Vehicles Fetched Successful',

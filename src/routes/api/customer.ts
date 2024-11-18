@@ -61,5 +61,6 @@ router.post(
 router.get('/all', customerController.getAll);
 
 router.get('/paginated/all', customerController.getPaginatedAll);
+router.get('/count', customerController.getAllCount);
 
 export default router;

@@ -18,6 +18,7 @@ const categoryController = container.get<CategoryController>(
 
 router.get('/getAll', categoryController.getAllCategories);
 router.get('/paginated/getAll', categoryController.getAllPaginatedCategories);
+router.get('/count', categoryController.getCategoriesCount);
 router.get('/getAllRootCategory', categoryController.getAllRootCategories);
 router.delete('/delete/:categoryId', categoryController.deleteCategory);
 router.post('/create', categoryController.createCategories);

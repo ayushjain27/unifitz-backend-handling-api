@@ -100,13 +100,48 @@ export class CustomerService {
     return customerResponse;
   }
 
+  async getAllCount(searchQuery?: string, state?: string, city?: string) {
+    Logger.info('<Service>:<CustomerService>:<Get all customers>');
+    const query: any = {
+      'contactInfo.state': state,
+      'contactInfo.city': city
+    };
+
+    if (!state) {
+      delete query['contactInfo.state'];
+    }
+    if (!city) {
+      delete query['contactInfo.city'];
+    }
+    if (searchQuery) {
+      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+    }
+    const customerResponse: any = await Customer.count(query);
+    const result = {
+      count: customerResponse
+    };
+    return result;
+  }
+
   async getPaginatedAll(
     pageNo?: number,
     pageSize?: number,
-    searchQuery?: string
+    searchQuery?: string,
+    state?: string,
+    city?: string
   ): Promise<ICustomer[]> {
     Logger.info('<Service>:<CustomerService>:<Get all customers>');
-    const query: any = {};
+    const query: any = {
+      'contactInfo.state': state,
+      'contactInfo.city': city
+    };
+
+    if (!state) {
+      delete query['contactInfo.state'];
+    }
+    if (!city) {
+      delete query['contactInfo.city'];
+    }
     if (searchQuery) {
       query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
     }
