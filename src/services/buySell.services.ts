@@ -645,7 +645,7 @@ export class BuySellService {
       userType,
       'storeDetails.storeId': storeId,
       oemUserName: req?.userName,
-      brandName
+      brandName: brandName?.catalogName
     };
 
     if (!query.updatedAt) delete query['updatedAt'];
@@ -658,8 +658,14 @@ export class BuySellService {
     });
 
     if (searchQuery) {
+      const formattedPhoneNumber =
+        searchQuery.length === 10 ? `+91${searchQuery}` : searchQuery;
+
       query.$or = [
-        { employeePhoneNumber: searchQuery },
+        { 'sellerDetails.phoneNumber': formattedPhoneNumber },
+        {
+          'storeDetails.contactInfo.phoneNumber.primary': formattedPhoneNumber
+        },
         { 'vehicleInfo.vehicleNumber': searchQuery }
       ];
     }
@@ -730,7 +736,7 @@ export class BuySellService {
       userType,
       'storeDetails.storeId': storeId,
       oemUserName: req?.userName,
-      brandName
+      brandName: brandName?.catalogName
     };
 
     if (!query.updatedAt) delete query['updatedAt'];
@@ -739,8 +745,14 @@ export class BuySellService {
     if (!storeId) delete query['storeDetails.storeId'];
 
     if (searchQuery) {
+      const formattedPhoneNumber =
+        searchQuery.length === 10 ? `+91${searchQuery}` : searchQuery;
+
       query.$or = [
-        { employeePhoneNumber: searchQuery },
+        { 'sellerDetails.phoneNumber': formattedPhoneNumber },
+        {
+          'storeDetails.contactInfo.phoneNumber.primary': formattedPhoneNumber
+        },
         { 'vehicleInfo.vehicleNumber': searchQuery }
       ];
     }
