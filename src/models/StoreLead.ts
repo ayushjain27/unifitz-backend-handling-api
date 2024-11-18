@@ -296,7 +296,7 @@ const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
       type: String,
       required: true,
       enum: StoreLeadProfileStatus,
-      default: StoreLeadProfileStatus.CREATED
+      default: StoreLeadProfileStatus.PENDING_FOR_VERIFICATION
     },
     rejectionReason: {
       type: String,

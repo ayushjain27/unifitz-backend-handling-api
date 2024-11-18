@@ -830,6 +830,48 @@ export class AnalyticController {
     }
   };
 
+  getVehicleAnalyticByYear = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      brandName,
+      userName
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getVehicleAnalyticByYear(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        brandName,
+        userName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   getBuyVehicleAll = async (req: Request, res: Response) => {
     const role = req?.role;
     const oemUserName = req?.userId;
