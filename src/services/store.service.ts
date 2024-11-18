@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable no-console */
 import { ICatalogMap, StoreProfileStatus } from './../models/Store';
 import { AdminRole } from './../models/Admin';
 
@@ -137,6 +139,9 @@ export class StoreService {
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
+    if (storePayload.profileStatus === StoreProfileStatus.ONBOARDED) {
+      storePayload.profileStatus = StoreProfileStatus.PENDING;
+    }
     const updatedStore = await Store.findOneAndUpdate(query, storePayload, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
@@ -209,7 +214,6 @@ export class StoreService {
     const phoneNumber =
       store?.basicInfo?.userPhoneNumber ||
       store?.contactInfo?.phoneNumber?.primary;
-    console.log(phoneNumber, 'dfwl;k');
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
@@ -229,16 +233,19 @@ export class StoreService {
       { 'verificationDetails.verifyObj': 0 }
     );
     await sendNotification(
-      `${statusRequest.profileStatus === 'ONBOARDED'
-        ? 'Store Onboarded'
-        : 'Store Rejected'
+      `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Store Onboarded'
+          : 'Store Rejected'
       }`,
-      `${statusRequest.profileStatus === 'ONBOARDED'
-        ? 'Congratulations 😊'
-        : 'Sorry 😞'
-      } Your store has been ${statusRequest.profileStatus === 'ONBOARDED'
-        ? 'onboarded'
-        : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Congratulations 😊'
+          : 'Sorry 😞'
+      } Your store has been ${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'onboarded'
+          : `rejected due to this reason: ${statusRequest.rejectionReason}`
       }`,
       phoneNumber,
       'STORE_OWNER',

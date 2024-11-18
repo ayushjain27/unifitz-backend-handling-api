@@ -265,6 +265,8 @@ export interface IStoreLead {
   status: StoreLeadProfileStatus;
   rejectionReason: string;
   followUpDate: Date;
+  approveId: string;
+  approveDate: Date;
 }
 
 export const notesSchema: Schema = new Schema<INotes>(
@@ -301,6 +303,12 @@ const storeLeadGenerationSchema: Schema = new Schema<IStoreLead>(
       default: ''
     },
     followUpDate: {
+      type: Date
+    },
+    approveId: {
+      type: String
+    },
+    approveDate: {
       type: Date
     }
   },

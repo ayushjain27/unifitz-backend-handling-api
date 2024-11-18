@@ -82,8 +82,6 @@ export class BuySellService {
       }
     }
 
-    console.log(role, 'dkmelf');
-
     delete buySellVehicle['vehicleInfo'];
     const query = buySellVehicle;
     query.vehicleId = vehicleResult?._id.toString();
@@ -306,17 +304,17 @@ export class BuySellService {
 
     const filterParams = { ...query, status: 'ACTIVE' };
     // Conditionally add the nested state field if query.state is not empty
-    if (query.state) {
+    if (query?.state) {
       filterParams['$or'] = [
         { 'storeDetails.contactInfo.state': query.state },
         { 'sellerDetails.contactInfo.state': query.state }
       ];
     }
-    if (query.userId) {
-      filterParams['sellerDetails._id'] != query.userId;
+    if (query?.userId) {
+      filterParams['sellerDetails._id'] = { $ne: query.userId };
     }
-    if (query.storeId) {
-      filterParams['storeDetails.storeId'] != query.storeId;
+    if (query?.storeId) {
+      filterParams['storeDetails.storeId'] = { $ne: query.storeId };
     }
     delete filterParams.state;
     delete filterParams.coordinates;
@@ -325,7 +323,7 @@ export class BuySellService {
     delete filterParams.userId;
     delete filterParams.storeId;
     Logger.debug(query);
-    console.log(filterParams, query, 'dfmkl');
+    console.log(filterParams, 'dfmkl');
 
     const result = await buySellVehicleInfo.aggregate([
       {
@@ -620,114 +618,70 @@ export class BuySellService {
   ): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
-    let start;
-    let end;
-    const userResult: any = {};
-    const filterState = [req?.state];
-    const filterCity = [req?.city];
+    const {
+      state,
+      city,
+      firstDate,
+      lastDate,
+      searchQuery,
+      storeId,
+      brandName,
+      status,
+      vehicleType,
+      userType,
+      oemId
+    } = req || {};
 
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const nextDay = lastDate
+      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
+      : undefined;
+
+    const statusQuery = { status };
     const query: any = {
-      'vehicleInfo.vehicleType': req.vehicleType,
-      userType: req.userType,
-      'storeDetails.storeId': req?.storeId,
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
+      'vehicleInfo.vehicleType': vehicleType,
+      userType,
+      'storeDetails.storeId': storeId,
       oemUserName: req?.userName,
-      brandName: req?.brandName,
-      status: req?.status
+      brandName: brandName?.catalogName
     };
 
-    let queryTwo: any = {};
+    if (!query.updatedAt) delete query['updatedAt'];
+    if (!req.userName) delete query['oemUserName'];
+    if (!vehicleType) delete query['vehicleInfo.vehicleType'];
+    if (!storeId) delete query['storeDetails.storeId'];
 
-    if (req.searchQuery !== '') {
+    ['brandName', 'userType'].forEach((key) => {
+      if (!req[key]) delete query[key];
+    });
+
+    if (searchQuery) {
+      const formattedPhoneNumber =
+        searchQuery.length === 10 ? `+91${searchQuery}` : searchQuery;
+
       query.$or = [
+        { 'sellerDetails.phoneNumber': formattedPhoneNumber },
         {
-          employeePhoneNumber: req.searchQuery
+          'storeDetails.contactInfo.phoneNumber.primary': formattedPhoneNumber
         },
-        { 'vehicleInfo.vehicleNumber': req.searchQuery }
+        { 'vehicleInfo.vehicleNumber': searchQuery }
       ];
     }
-    if (req.state) {
-      queryTwo = {
-        'storeDetails.contactInfo.state': { $in: filterState }
-      };
-    }
-    if (req.city) {
-      queryTwo = {
-        'storeDetails.contactInfo.state': { $in: filterState },
-        'storeDetails.contactInfo.city': { $in: filterCity }
-      };
-    }
 
-    if (!req.status) {
-      delete query['status'];
-    }
-    if (!req.storeId) {
-      delete query['storeDetails.storeId'];
-    }
-    if (!req.userName) {
-      delete query['oemUserName'];
-    }
-    if (!req.brandName) {
-      delete query['brandName'];
-    }
+    const queryTwo: any = {};
+    if (state) queryTwo['storeDetails.contactInfo.state'] = { $in: [state] };
+    if (city) queryTwo['storeDetails.contactInfo.city'] = { $in: [city] };
 
-    if (req?.date) {
-      // Create start time in UTC at the beginning of the day (00:00:00)
-      start = new Date(req.date);
-      start.setDate(start.getDate() + 1);
-      start.setUTCHours(0, 0, 0, 0);
-
-      // Create end time in UTC at the end of the day (23:59:59)
-      end = new Date(req.date);
-      end.setDate(end.getDate() + 1);
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    } else if (
-      !_.isEmpty(req.year) &&
-      !_.isEmpty(req.month) &&
-      _.isEmpty(req.date)
-    ) {
-      start = new Date(Date.UTC(req.year, req.month - 1, 1));
-      start.setUTCHours(0, 0, 0, 0);
-
-      end = new Date(Date.UTC(req.year, req.month, 0));
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    } else if (
-      !_.isEmpty(req.year) &&
-      _.isEmpty(req.month) &&
-      _.isEmpty(req.date)
-    ) {
-      start = new Date(Date.UTC(req.year, 0, 1));
-      start.setUTCHours(0, 0, 0, 0);
-
-      end = new Date(Date.UTC(req.year, 12, 0));
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    }
-    if (!req.vehicleType) {
-      delete query['vehicleInfo.vehicleType'];
-    }
-
-    if (!req.userType) {
-      delete query['userType'];
-    }
+    if (role === AdminRole.OEM) query.oemUserName = userName;
+    if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
+    if (oemId === 'SERVICEPLUG') delete query.oemUserName;
 
     Logger.debug(query);
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
 
-    if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = req?.oemId;
-    }
-
-    if (req?.oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-    let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+      { $match: statusQuery },
       { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
       {
         $lookup: {
@@ -738,101 +692,10 @@ export class BuySellService {
         }
       },
       { $unwind: { path: '$vehicleInfo' } },
-      {
-        $match: query
-      },
+      { $match: query },
       { $set: { VehicleId: { $toString: '$_id' } } },
-      // {
-      //   $lookup: {
-      //     from: 'vehicleanalytics',
-      //     localField: 'VehicleId',
-      //     foreignField: 'moduleInformation',
-      //     as: 'vehicleAnalytic'
-      //   }
-      // },
-      // {
-      //   $set: {
-      //     impressionCount: {
-      //       $size: {
-      //         $filter: {
-      //           input: '$vehicleAnalytic',
-      //           as: 'item',
-      //           cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
-      //         }
-      //       }
-      //     },
-      //     vehicleDetailClick: {
-      //       $size: {
-      //         $filter: {
-      //           input: '$vehicleAnalytic',
-      //           as: 'item',
-      //           cond: { $eq: ['$$item.event', 'VEHICLE_DETAIL_CLICK'] }
-      //         }
-      //       }
-      //     },
-      //     executivePhoneNo: {
-      //       $size: {
-      //         $filter: {
-      //           input: '$vehicleAnalytic',
-      //           as: 'item',
-      //           cond: { $eq: ['$$item.event', 'EXECUTIVE_PHONE_NUMBER_CLICK'] }
-      //         }
-      //       }
-      //     },
-      //     storePhoneNo: {
-      //       $size: {
-      //         $filter: {
-      //           input: '$vehicleAnalytic',
-      //           as: 'item',
-      //           cond: { $eq: ['$$item.event', 'STORE_PHONE_NUMBER_CLICK'] }
-      //         }
-      //       }
-      //     },
-      //     locationClickCount: {
-      //       $size: {
-      //         $filter: {
-      //           input: '$vehicleAnalytic',
-      //           as: 'item',
-      //           cond: { $eq: ['$$item.event', 'LOCATION_CLICK'] }
-      //         }
-      //       }
-      //     }
-      //   }
-      // },
-      {
-        $match: queryTwo
-      }
-      // {
-      //   $project: { vehicleAnalytic: 0 }
-      // }
+      { $match: queryTwo }
     ]);
-    vehicleResponse = vehicleResponse.filter((item: any) => {
-      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
-        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
-          return false;
-        }
-      }
-
-      if (!_.isEmpty(query.userType)) {
-        if (item.userType !== query.userType) {
-          return false;
-        }
-      }
-
-      if (!_.isEmpty(query.createdAt)) {
-        const createdAt = new Date(item.createdAt);
-        if (
-          !(
-            createdAt >= query.createdAt['$gte'] &&
-            createdAt <= query.createdAt['$lte']
-          )
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    });
 
     return vehicleResponse;
   }
@@ -844,114 +707,72 @@ export class BuySellService {
   ): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
-    let start;
-    let end;
-    const userResult: any = {};
-    const filterState = [req?.state];
-    const filterCity = [req?.city];
+    const {
+      state,
+      city,
+      firstDate,
+      lastDate,
+      searchQuery,
+      storeId,
+      brandName,
+      status,
+      vehicleType,
+      userType,
+      pageNo = 0,
+      pageSize = 10,
+      oemId
+    } = req || {};
 
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const nextDay = lastDate
+      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
+      : undefined;
+
+    const statusQuery = { status };
     const query: any = {
-      'vehicleInfo.vehicleType': req.vehicleType,
-      userType: req.userType,
-      'storeDetails.storeId': req?.storeId,
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
+      'vehicleInfo.vehicleType': vehicleType,
+      userType,
+      'storeDetails.storeId': storeId,
       oemUserName: req?.userName,
-      brandName: req?.brandName,
-      status: req?.status
+      brandName: brandName?.catalogName
     };
 
-    let queryTwo: any = {};
+    if (!query.updatedAt) delete query['updatedAt'];
+    if (!req.userName) delete query['oemUserName'];
+    if (!vehicleType) delete query['vehicleInfo.vehicleType'];
+    if (!storeId) delete query['storeDetails.storeId'];
 
-    if (req.searchQuery !== '') {
+    if (searchQuery) {
+      const formattedPhoneNumber =
+        searchQuery.length === 10 ? `+91${searchQuery}` : searchQuery;
+
       query.$or = [
+        { 'sellerDetails.phoneNumber': formattedPhoneNumber },
         {
-          employeePhoneNumber: req.searchQuery
+          'storeDetails.contactInfo.phoneNumber.primary': formattedPhoneNumber
         },
-        { 'vehicleInfo.vehicleNumber': req.searchQuery }
+        { 'vehicleInfo.vehicleNumber': searchQuery }
       ];
     }
-    if (req.state) {
-      queryTwo = {
-        'storeDetails.contactInfo.state': { $in: filterState }
-      };
-    }
-    if (req.city) {
-      queryTwo = {
-        'storeDetails.contactInfo.state': { $in: filterState },
-        'storeDetails.contactInfo.city': { $in: filterCity }
-      };
-    }
 
-    if (!req.storeId) {
-      delete query['storeDetails.storeId'];
-    }
-    if (!req.userName) {
-      delete query['oemUserName'];
-    }
-    if (!req.brandName) {
-      delete query['brandName'];
-    }
-    if (!req.status) {
-      delete query['status'];
-    }
+    const queryTwo: any = {};
+    if (state) queryTwo['storeDetails.contactInfo.state'] = { $in: [state] };
+    if (city) queryTwo['storeDetails.contactInfo.city'] = { $in: [city] };
 
-    if (req?.date) {
-      // Create start time in UTC at the beginning of the day (00:00:00)
-      start = new Date(req.date);
-      start.setDate(start.getDate() + 1);
-      start.setUTCHours(0, 0, 0, 0);
+    if (role === AdminRole.OEM) query.oemUserName = userName;
+    if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
+    if (oemId === 'SERVICEPLUG') delete query.oemUserName;
 
-      // Create end time in UTC at the end of the day (23:59:59)
-      end = new Date(req.date);
-      end.setDate(end.getDate() + 1);
-      end.setUTCHours(23, 59, 59, 999);
+    ['brandName', 'userType'].forEach((key) => {
+      if (!req[key]) delete query[key];
+    });
 
-      query.createdAt = { $gte: start, $lte: end };
-    } else if (
-      !_.isEmpty(req.year) &&
-      !_.isEmpty(req.month) &&
-      _.isEmpty(req.date)
-    ) {
-      start = new Date(Date.UTC(req.year, req.month - 1, 1));
-      start.setUTCHours(0, 0, 0, 0);
+    console.log(query, queryTwo, 'querryryryryryryry');
 
-      end = new Date(Date.UTC(req.year, req.month, 0));
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    } else if (
-      !_.isEmpty(req.year) &&
-      _.isEmpty(req.month) &&
-      _.isEmpty(req.date)
-    ) {
-      start = new Date(Date.UTC(req.year, 0, 1));
-      start.setUTCHours(0, 0, 0, 0);
-
-      end = new Date(Date.UTC(req.year, 12, 0));
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    }
-    if (!req.vehicleType) {
-      delete query['vehicleInfo.vehicleType'];
-    }
-
-    if (!req.userType) {
-      delete query['userType'];
-    }
-
-    Logger.debug(query);
-    if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
-    }
-
-    if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = req?.oemId;
-    }
-
-    if (req?.oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-    let vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+      { $match: statusQuery },
       { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
       {
         $lookup: {
@@ -962,15 +783,9 @@ export class BuySellService {
         }
       },
       { $unwind: { path: '$vehicleInfo' } },
-      {
-        $match: query
-      },
-      {
-        $skip: req?.pageNo * req?.pageSize
-      },
-      {
-        $limit: req?.pageSize
-      },
+      { $match: query },
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
       { $set: { VehicleId: { $toString: '$_id' } } },
       {
         $lookup: {
@@ -1029,40 +844,9 @@ export class BuySellService {
           }
         }
       },
-      {
-        $match: queryTwo
-      },
-      {
-        $project: { vehicleAnalytic: 0 }
-      }
+      { $match: queryTwo },
+      { $project: { vehicleAnalytic: 0 } }
     ]);
-    vehicleResponse = vehicleResponse.filter((item: any) => {
-      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
-        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
-          return false;
-        }
-      }
-
-      if (!_.isEmpty(query.userType)) {
-        if (item.userType !== query.userType) {
-          return false;
-        }
-      }
-
-      if (!_.isEmpty(query.createdAt)) {
-        const createdAt = new Date(item.createdAt);
-        if (
-          !(
-            createdAt >= query.createdAt['$gte'] &&
-            createdAt <= query.createdAt['$lte']
-          )
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    });
 
     return vehicleResponse;
   }
@@ -1074,11 +858,16 @@ export class BuySellService {
   ): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
-    let start;
-    let end;
-    const userResult: any = {};
+    const firstDay = new Date(req?.firstDate);
+    const lastDay = new Date(req?.lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
 
     const query: any = {
+      updatedAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
       'vehicleInfo.vehicleType': req.vehicleType,
       userType: req.userType,
       'storeDetails.storeId': req?.storeId,
@@ -1086,6 +875,10 @@ export class BuySellService {
       brandName: req?.brandName,
       status: req?.status
     };
+
+    if (!req?.firstDate || !req?.lastDate) {
+      delete query['updatedAt'];
+    }
 
     if (req.searchQuery !== '') {
       query.$or = [
@@ -1108,44 +901,6 @@ export class BuySellService {
     if (!req.status) {
       delete query['status'];
     }
-
-    if (req?.date) {
-      // Create start time in UTC at the beginning of the day (00:00:00)
-      start = new Date(req.date);
-      start.setDate(start.getDate() + 1);
-      start.setUTCHours(0, 0, 0, 0);
-
-      // Create end time in UTC at the end of the day (23:59:59)
-      end = new Date(req.date);
-      end.setDate(end.getDate() + 1);
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    } else if (
-      !_.isEmpty(req.year) &&
-      !_.isEmpty(req.month) &&
-      _.isEmpty(req.date)
-    ) {
-      start = new Date(Date.UTC(req.year, req.month - 1, 1));
-      start.setUTCHours(0, 0, 0, 0);
-
-      end = new Date(Date.UTC(req.year, req.month, 0));
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    } else if (
-      !_.isEmpty(req.year) &&
-      _.isEmpty(req.month) &&
-      _.isEmpty(req.date)
-    ) {
-      start = new Date(Date.UTC(req.year, 0, 1));
-      start.setUTCHours(0, 0, 0, 0);
-
-      end = new Date(Date.UTC(req.year, 12, 0));
-      end.setUTCHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    }
     if (!req.vehicleType) {
       delete query['vehicleInfo.vehicleType'];
     }
@@ -1166,38 +921,9 @@ export class BuySellService {
     if (req?.oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    let vehicleResponse: IBuySell[] = await buySellVehicleInfo
-      .find(query)
-      .populate('vehicleInfo');
-    vehicleResponse = vehicleResponse.filter((item: any) => {
-      if (!_.isEmpty(query['vehicleInfo.vehicleType'])) {
-        if (item.vehicleInfo.vehicleType !== query['vehicleInfo.vehicleType']) {
-          return false;
-        }
-      }
-
-      if (!_.isEmpty(query.userType)) {
-        if (item.userType !== query.userType) {
-          return false;
-        }
-      }
-
-      if (!_.isEmpty(query.createdAt)) {
-        const createdAt = new Date(item.createdAt);
-        if (
-          !(
-            createdAt >= query.createdAt['$gte'] &&
-            createdAt <= query.createdAt['$lte']
-          )
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+    const vehicleResponse: any = await buySellVehicleInfo.count(query);
     const vehicleResult: any = {
-      total: vehicleResponse.length
+      total: vehicleResponse
     };
     return vehicleResult;
   }

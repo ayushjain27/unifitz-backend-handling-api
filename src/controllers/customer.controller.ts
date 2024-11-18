@@ -8,7 +8,11 @@ import Logger from '../config/winston';
 import { ICustomer } from '../models/Customer';
 import Request from '../types/request';
 import { CustomerService } from './../services/customer.service';
-import { ApproveUserVerifyRequest, VerifyAadharUserRequest, VerifyCustomerRequest } from '../interfaces';
+import {
+  ApproveUserVerifyRequest,
+  VerifyAadharUserRequest,
+  VerifyCustomerRequest
+} from '../interfaces';
 
 @injectable()
 export class CustomerController {
@@ -124,6 +128,54 @@ export class CustomerController {
     }
   };
 
+  getPaginatedAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all customers request controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    try {
+      const result = await this.customerService.getPaginatedAll(
+        pageNo,
+        pageSize,
+        searchQuery as string,
+        state as string,
+        city as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all customers request controller initiated>'
+    );
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    try {
+      const result = await this.customerService.getAllCount(
+        searchQuery as string,
+        state as string,
+        city as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   initiateUserVerification = async (req: Request, res: Response) => {
     const payload = req.body as VerifyCustomerRequest;
     Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');
@@ -182,9 +234,7 @@ export class CustomerController {
     const payload: VerifyAadharUserRequest = req.body;
     Logger.info('<Controller>:<CustomerController>:<Verify Aadhar OTP>');
     try {
-      const result = await this.customerService.verifyAadhar(
-        payload
-      );
+      const result = await this.customerService.verifyAadhar(payload);
       res.send({
         message: 'Aadhar Verification Successful',
         result
@@ -212,7 +262,9 @@ export class CustomerController {
 
       case 'approveUserVerification':
         return [
-          body('phoneNumber', 'Phone Number does not exist').exists().isString(),
+          body('phoneNumber', 'Phone Number does not exist')
+            .exists()
+            .isString(),
           body('verificationDetails', 'Details does not exist')
             .exists()
             .isObject(),
@@ -223,7 +275,9 @@ export class CustomerController {
 
       case 'verifyAadhar':
         return [
-          body('phoneNumber', 'Phone Number does not exist').exists().isString(),
+          body('phoneNumber', 'Phone Number does not exist')
+            .exists()
+            .isString(),
           body('clientId', 'Cliend Id does not exist').exists().isString(),
           body('otp', 'OTP does not exist').exists().isString()
         ];

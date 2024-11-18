@@ -2069,12 +2069,20 @@ export class AnalyticService {
         $gte: firstDay,
         $lte: nextDate
       },
-      platform: platform,
+      // platform: platform,
       event: 'IMPRESSION_COUNT',
       moduleInformation: storeId,
       oemUserName: userName
     };
 
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
     if (!userName) {
       delete query['oemUserName'];
     }
@@ -2212,15 +2220,24 @@ export class AnalyticService {
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
-      createdAt: {
-        $gte: firstDay,
-        $lte: nextDate
-      },
+      // createdAt: {
+      //   $gte: firstDay,
+      //   $lte: nextDate
+      // },
       // event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
-      platform: platform,
+      // platform: platform,
       oemUserName: userName
     };
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
 
     if (!userName) {
       delete query['oemUserName'];
@@ -2250,72 +2267,40 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
 
-    const queryFilter: any = await VehicleAnalyticModel.aggregate([
+    const combinedResult = await VehicleAnalyticModel.aggregate([
       {
         $match: query
       },
       {
         $group: {
-          _id: {
-            createdAt: '$createdAt',
-            moduleInformation: '$moduleInformation',
-            event: '$event'
+          _id: '$event',
+          initialCount: { $sum: 1 },
+          queryCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$createdAt', firstDay] },
+                    { $lte: ['$createdAt', nextDate] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
           }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.event',
-          count: { $sum: 1 }
         }
       },
       {
         $project: {
           name: '$_id',
-          _id: 0,
-          count: 1
+          count: '$queryCount',
+          total: '$initialCount',
+          _id: 0
         }
       }
     ]);
-
-    delete query['createdAt'];
-    const AllEventResult: any = await VehicleAnalyticModel.aggregate([
-      {
-        $match: query
-      },
-      {
-        $group: {
-          _id: {
-            createdAt: '$createdAt',
-            moduleInformation: '$moduleInformation',
-            event: '$event'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.event',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          name: '$_id',
-          _id: 0,
-          count: 1
-        }
-      }
-    ]);
-
-    const finalResult = AllEventResult.map((val: any) => {
-      const objectData = queryFilter.find((res: any) => res.name === val?.name);
-      return {
-        name: val?.name,
-        count: objectData?.count,
-        total: val?.count
-      };
-    });
-    return finalResult;
+    return combinedResult;
   }
 
   /// buysell vehicle analytic creation api end ===========================
@@ -2521,10 +2506,10 @@ export class AnalyticService {
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
-      createdAt: {
-        $gte: firstDay,
-        $lte: nextDate
-      },
+      // createdAt: {
+      //   $gte: firstDay,
+      //   $lte: nextDate
+      // },
       // event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
       platform: platform,
@@ -2559,72 +2544,40 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
 
-    const queryFilter: any = await NewVehicleAnalyticModel.aggregate([
+    const combinedResult = await NewVehicleAnalyticModel.aggregate([
       {
         $match: query
       },
       {
         $group: {
-          _id: {
-            createdAt: '$createdAt',
-            moduleInformation: '$moduleInformation',
-            event: '$event'
+          _id: '$event',
+          initialCount: { $sum: 1 },
+          queryCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$createdAt', firstDay] },
+                    { $lte: ['$createdAt', nextDate] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
           }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.event',
-          count: { $sum: 1 }
         }
       },
       {
         $project: {
           name: '$_id',
-          _id: 0,
-          count: 1
+          count: '$queryCount',
+          total: '$initialCount',
+          _id: 0
         }
       }
     ]);
-
-    delete query['createdAt'];
-    const AllEventResult: any = await NewVehicleAnalyticModel.aggregate([
-      {
-        $match: query
-      },
-      {
-        $group: {
-          _id: {
-            createdAt: '$createdAt',
-            moduleInformation: '$moduleInformation',
-            event: '$event'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.event',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          name: '$_id',
-          _id: 0,
-          count: 1
-        }
-      }
-    ]);
-
-    const finalResult = AllEventResult.map((val: any) => {
-      const objectData = queryFilter.find((res: any) => res.name === val?.name);
-      return {
-        name: val?.name,
-        count: objectData?.count,
-        total: val?.count
-      };
-    });
-    return finalResult;
+    return combinedResult;
   }
 
   /// New vehicle analytic creation api end ===========================

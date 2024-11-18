@@ -120,8 +120,15 @@ export class NewVehicleInfoController {
     }
     const userName = req?.userId;
     const role = req?.role;
-    const { oemId, vehicleType, storeId, adminFilterOemId, brandName } =
-      req.body;
+    const {
+      oemId,
+      vehicleType,
+      storeId,
+      adminFilterOemId,
+      brandName,
+      firstDate,
+      lastDate
+    } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
     );
@@ -133,9 +140,59 @@ export class NewVehicleInfoController {
         vehicleType,
         storeId,
         adminFilterOemId,
-        brandName
+        brandName,
+        firstDate,
+        lastDate
       );
       res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllVehiclePaginated = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<VehicleController>:<Vehicle controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query.oemId;
+    const vehicle = req?.query?.vehicleType;
+    const brand: any = req?.query?.brandName;
+    const storeId = req?.query?.storeId;
+    const adminFilterOemId = req?.query?.adminFilterOemId;
+    const searchQuery = req.query.searchQuery;
+    const firstDate = req.query.firstDate;
+    const lastDate = req.query.lastDate;
+
+    try {
+      const result = await this.vehicleInfoService.getAllVehiclePaginated(
+        userName,
+        role,
+        oemId as string,
+        pageNo,
+        pageSize,
+        vehicle as string,
+        brand,
+        storeId as string,
+        adminFilterOemId as string,
+        searchQuery as string,
+        firstDate as string,
+        lastDate as string
+      );
+      res.send({
+        message: 'New Vehicles Fetched Successful',
         result
       });
     } catch (err) {

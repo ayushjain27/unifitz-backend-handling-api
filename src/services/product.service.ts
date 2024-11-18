@@ -145,6 +145,112 @@ export class ProductService {
     return product;
   }
 
+  async getAllCount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    searchQuery?: string,
+    category?: string,
+    subCategory?: string
+  ): Promise<IProduct[]> {
+    const query: any = {
+      'productCategory.catalogName': { $in: [category] },
+      'productSubCategory.catalogName': { $in: [subCategory] }
+    };
+    if (searchQuery) {
+      query.$or = [{ storeId: searchQuery }, { itemName: searchQuery }];
+    }
+    if (!category) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!subCategory) {
+      delete query['productSubCategory.catalogName'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    console.log(userName, role, oemId);
+    const product: IProduct[] = await Product.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$offerType',
+          initialCount: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          total: '$initialCount',
+          _id: 0
+        }
+      }
+    ]);
+
+    return product;
+  }
+
+  async paginatedProductAll(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string,
+    category?: string,
+    subCategory?: string
+  ): Promise<IProduct[]> {
+    const query: any = {
+      'productCategory.catalogName': { $in: [category] },
+      'productSubCategory.catalogName': { $in: [subCategory] }
+    };
+    if (!category) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!subCategory) {
+      delete query['productSubCategory.catalogName'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (searchQuery) {
+      query.$or = [{ itemName: searchQuery }, { storeId: searchQuery }];
+    }
+    const product = await Product.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return product;
+  }
+
   async searchAndFilterPrelistProductPaginated(searchReqBody: {
     productCategory: string;
     productSubCategory: string;
@@ -155,6 +261,9 @@ export class ProductService {
     userName?: string;
     role?: string;
     oemId?: string;
+    category: string;
+    subCategory: string;
+    searchQuery: string;
   }): Promise<IPrelistProduct[]> {
     Logger.info(
       '<Service>:<ProductService>:<Search and Filter prelist product service initiated>'
@@ -164,11 +273,17 @@ export class ProductService {
       // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
       itemName: new RegExp(searchReqBody.itemName, 'i'),
       offerType: searchReqBody.offerType,
-      'productCategory.catalogName': searchReqBody.productCategory,
-      'productSubCategory.catalogName': searchReqBody.productSubCategory
+      'productCategory.catalogName': { $in: [searchReqBody.category] },
+      'productSubCategory.catalogName': { $in: [searchReqBody.subCategory] }
       // oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
+    if (searchReqBody?.searchQuery) {
+      query.$or = [
+        { itemName: searchReqBody?.searchQuery },
+        { offerType: searchReqBody?.searchQuery }
+      ];
+    }
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
     }
@@ -186,10 +301,10 @@ export class ProductService {
     if (!searchReqBody.offerType) {
       delete query['offerType'];
     }
-    if (!searchReqBody.productCategory) {
+    if (!searchReqBody.category) {
       delete query['productCategory.catalogName'];
     }
-    if (!searchReqBody.productSubCategory) {
+    if (!searchReqBody.subCategory) {
       delete query['productSubCategory.catalogName'];
     }
     Logger.debug(query);
@@ -203,6 +318,84 @@ export class ProductService {
       },
       {
         $limit: searchReqBody.pageSize
+      }
+    ]);
+
+    return prelistProduct;
+  }
+
+  async getTotalPrelistCount(searchReqBody: {
+    productCategory: string;
+    productSubCategory: string;
+    itemName: string;
+    offerType: string;
+    userName?: string;
+    role?: string;
+    oemId?: string;
+    category: string;
+    subCategory: string;
+    searchQuery: string;
+  }): Promise<IPrelistProduct[]> {
+    Logger.info(
+      '<Service>:<ProductService>:<Search and Filter prelist product service initiated>'
+    );
+    let query: any = {};
+    query = {
+      // 'basicInfo.businessName': new RegExp(searchReqBody.storeName, 'i'),
+      itemName: new RegExp(searchReqBody.itemName, 'i'),
+      offerType: searchReqBody.offerType,
+      'productCategory.catalogName': { $in: [searchReqBody.category] },
+      'productSubCategory.catalogName': { $in: [searchReqBody.subCategory] }
+      // oemUserName: searchReqBody?.userName
+      // profileStatus: 'ONBOARDED'
+    };
+    if (searchReqBody?.searchQuery) {
+      query.$or = [
+        { itemName: searchReqBody?.searchQuery },
+        { offerType: searchReqBody?.searchQuery }
+      ];
+    }
+    if (searchReqBody.role === AdminRole.OEM) {
+      query.oemUserName = searchReqBody.userName;
+    }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE) {
+      query.oemUserName = searchReqBody.oemId;
+    }
+
+    if (searchReqBody.oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (!searchReqBody.itemName) {
+      delete query['itemName'];
+    }
+    if (!searchReqBody.offerType) {
+      delete query['offerType'];
+    }
+    if (!searchReqBody.category) {
+      delete query['productCategory.catalogName'];
+    }
+    if (!searchReqBody.subCategory) {
+      delete query['productSubCategory.catalogName'];
+    }
+    Logger.debug(query);
+
+    const prelistProduct: any = await PrelistPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$offerType',
+          initialCount: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          total: '$initialCount',
+          _id: 0
+        }
       }
     ]);
 
@@ -836,6 +1029,107 @@ export class ProductService {
     const product: IB2BPartnersProduct[] = await PartnersPoduct.find(
       query
     ).lean();
+
+    return product;
+  }
+
+  async getAllProductByPaginated(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string,
+    category?: string,
+    subCategory?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {
+      'productCategory.catalogName': { $in: [category] },
+      'productSubCategory.catalogName': { $in: [subCategory] }
+    };
+
+    if (!category) delete query['productCategory.catalogName'];
+    if (!subCategory) delete query['productSubCategory.catalogName'];
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (searchQuery) {
+      query.$or = [{ oemUserName: searchQuery }];
+    }
+    const product = await PartnersPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return product;
+  }
+
+  async getAllPartnerProductCount(
+    userName: string,
+    role?: string,
+    oemId?: string,
+    searchQuery?: string,
+    category?: string,
+    subCategory?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {
+      'productCategory.catalogName': { $in: [category] },
+      'productSubCategory.catalogName': { $in: [subCategory] }
+    };
+
+    if (!category) delete query['productCategory.catalogName'];
+    if (!subCategory) delete query['productSubCategory.catalogName'];
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (searchQuery) {
+      query.$or = [{ oemUserName: searchQuery }];
+    }
+    const product = await PartnersPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$status',
+          initialCount: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          total: '$initialCount',
+          _id: 0
+        }
+      }
+    ]);
 
     return product;
   }

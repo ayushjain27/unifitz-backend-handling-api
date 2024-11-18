@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Response, Router } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import _, { isEmpty } from 'lodash';
@@ -18,7 +19,7 @@ import { StoreLeadService, UserService } from '../../services';
 import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 import StoreLead from '../../models/StoreLead';
-import UserOtp from '../../models/UserOtp'
+import UserOtp from '../../models/UserOtp';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -49,15 +50,14 @@ router.get('/', auth, async (req: Request, res: Response) => {
 // @access  Public
 router.post('/otp/send', async (req: Request, res: Response) => {
   try {
-    console.log(req.body,"e;lrm")
     const { phoneNumber, channel, role } = req.body;
     const loginPayload: TwilioLoginPayload = {
       phoneNumber,
       channel
     };
+    console.log(phoneNumber, 'Del');
     const startsWith = ['3', '4', '5'];
-    const isMatchingCondition =
-    startsWith.includes(phoneNumber.charAt(3));
+    const isMatchingCondition = startsWith.includes(phoneNumber.charAt(3));
 
     if (loginPayload.phoneNumber) {
       const testUser = getTestUser(loginPayload.phoneNumber);
@@ -70,14 +70,14 @@ router.post('/otp/send', async (req: Request, res: Response) => {
         const userOtpDetail = await UserOtp.findOne({
           phoneNumber: phoneNumber,
           role
-        })
-        if(isEmpty(userOtpDetail)){
+        });
+        if (isEmpty(userOtpDetail)) {
           const data = {
             phoneNumber,
             role,
             count: 1,
             lastCountReset: new Date()
-          }
+          };
           await UserOtp.create(data);
           const result = await twoFactorService.sendVerificationCode(
             loginPayload.phoneNumber
@@ -87,14 +87,14 @@ router.post('/otp/send', async (req: Request, res: Response) => {
             phoneNumber,
             result
           });
-        }else{
-          const oneMonthAgo = new Date();
-          oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-          if (userOtpDetail.lastCountReset < oneMonthAgo) {
+        } else {
+          const oneDayAgo = new Date();
+          oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+          if (userOtpDetail.lastCountReset < oneDayAgo) {
             const userDetailOtpUpdate = await UserOtp.findOneAndUpdate(
               { phoneNumber, role },
-              { $set: { count: 1, lastCountReset: new Date() } },
-            );// Reset last reset date to now
+              { $set: { count: 1, lastCountReset: new Date() } }
+            ); // Reset last reset date to now
             const result = await twoFactorService.sendVerificationCode(
               loginPayload.phoneNumber
             );
@@ -106,16 +106,17 @@ router.post('/otp/send', async (req: Request, res: Response) => {
           } else {
             // Check if count is 3 or more, indicating monthly limit is reached
             if (userOtpDetail.count >= 3) {
-                // Send 429 status code for rate-limiting error
-                res.send({
-                  message: 'You have reached the maximum OTP requests allowed for this month.',
-                  phoneNumber
-                });
-            }else{
+              // Send 429 status code for rate-limiting error
+              res.send({
+                message:
+                  'You have reached the maximum OTP requests allowed for this day.',
+                phoneNumber
+              });
+            } else {
               const userDetailOtpUpdate = await UserOtp.findOneAndUpdate(
                 { phoneNumber, role },
-                { $set: { count: (userOtpDetail?.count) + 1 } },
-              );// Reset last reset date to now
+                { $set: { count: userOtpDetail?.count + 1 } }
+              ); // Reset last reset date to now
               const result = await twoFactorService.sendVerificationCode(
                 loginPayload.phoneNumber
               );

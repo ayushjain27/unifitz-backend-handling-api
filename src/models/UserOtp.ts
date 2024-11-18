@@ -16,15 +16,15 @@ const userOtpSchema: Schema = new Schema(
     },
     role: {
       type: String,
-      required: true,
+      required: true
     },
     count: {
       type: Number
     },
     lastCountReset: {
-        type: Date,
-        default: Date.now
-      }
+      type: Date,
+      default: Date.now
+    }
   },
   { timestamps: true }
 );

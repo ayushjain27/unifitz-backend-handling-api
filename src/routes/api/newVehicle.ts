@@ -46,6 +46,12 @@ router.post(
 );
 
 router.get(
+  '/paginated/all',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.getAllVehiclePaginated
+);
+
+router.get(
   '/paginated',
   roleAuth(ACL.STORE_GET_ALL),
   newVehicleController.getVehiclePaginated
