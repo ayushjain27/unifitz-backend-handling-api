@@ -163,6 +163,45 @@ export class AdvertisementService {
     return createdBanner;
   }
 
+  async getAllPaginatedBanner(
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<AdvertisementService>:<get Banner initiated>');
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (searchQuery) {
+      query.$or = [{ title: searchQuery }];
+    }
+    const result = await Banner.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return result;
+  }
+
   async getBannerById(bannerId: string): Promise<any> {
     Logger.info('<Service>:<AdvertisementService>:<get Banner initiated>');
 

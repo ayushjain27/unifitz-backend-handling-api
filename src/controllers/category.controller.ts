@@ -28,6 +28,45 @@ export class CategoryController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+  getAllPaginatedCategories = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CategoryController>:<Get All categories request controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const searchQuery = req.query.searchQuery;
+    try {
+      const result: CategoryResponse[] =
+        await this.categoryService.getAllPaginatedCategories(
+          pageNo,
+          pageSize,
+          searchQuery as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  getCategoriesCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CategoryController>:<Get All categories request controller initiated>'
+    );
+    const searchQuery = req.query.searchQuery;
+    try {
+      const result = await this.categoryService.getCategoriesCount(
+        searchQuery as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   getAllRootCategories = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<CategoryController>:<Get All root categories request controller initiated>'

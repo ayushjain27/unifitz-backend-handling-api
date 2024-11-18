@@ -38,6 +38,8 @@ router.post(
   adController.getAllBanner
 );
 
+router.get('/paginated/getBanner', adController.getAllPaginatedBanner);
+
 router.get(
   '/getBannerById',
   // roleAuth(ACL.ADVERTISEMENT_CREATE),

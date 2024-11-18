@@ -107,6 +107,74 @@ export class ProductController {
     }
   };
 
+  getAllCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const searchQuery = req.query.searchQuery;
+      const category = req.query.category;
+      const subCategory = req.query.subCategory;
+      // const role = req?.role;
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.productService.getAllCount(
+        userName,
+        role,
+        oemId as string,
+        searchQuery as string,
+        category as string,
+        subCategory as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  paginatedProductAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const pageNo = Number(req.query.pageNo);
+      const pageSize = Number(req.query.pageSize || 10);
+      const searchQuery = req.query.searchQuery;
+      const category = req.query.category;
+      const subCategory = req.query.subCategory;
+      // const role = req?.role;
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.productService.paginatedProductAll(
+        userName,
+        role,
+        oemId as string,
+        pageNo,
+        pageSize,
+        searchQuery as string,
+        category as string,
+        subCategory as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   searchPrelistProductPaginated = async (req: Request, res: Response) => {
     const {
       productCategory,
@@ -115,7 +183,10 @@ export class ProductController {
       pageNo,
       pageSize,
       offerType,
-      oemId
+      oemId,
+      category,
+      subCategory,
+      searchQuery
     } = req.body;
     const userName = req?.userId;
     const role = req?.role;
@@ -142,7 +213,48 @@ export class ProductController {
           offerType,
           userName,
           role,
-          oemId
+          oemId,
+          category,
+          subCategory,
+          searchQuery
+        });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getTotalPrelistCount = async (req: Request, res: Response) => {
+    const {
+      productCategory,
+      productSubCategory,
+      itemName,
+      offerType,
+      oemId,
+      category,
+      subCategory,
+      searchQuery
+    } = req.body;
+    const userName = req?.userId;
+    const role = req?.role;
+    try {
+      const result: IPrelistProduct[] =
+        await this.productService.getTotalPrelistCount({
+          productCategory,
+          productSubCategory,
+          itemName,
+          offerType,
+          userName,
+          role,
+          oemId,
+          category,
+          subCategory,
+          searchQuery
         });
       res.send({
         result
@@ -611,6 +723,68 @@ export class ProductController {
     }
   };
 
+  getAllProductByPaginated = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const pageNo = Number(req.query.pageNo);
+      const pageSize = Number(req.query.pageSize || 10);
+      const searchQuery = req.query.searchQuery;
+      const category = req?.query?.category;
+      const subCategory = req?.query?.subCategory;
+      const result = await this.productService.getAllProductByPaginated(
+        userName,
+        role,
+        oemId as string,
+        pageNo,
+        pageSize,
+        searchQuery as string,
+        category as string,
+        subCategory as string
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllPartnerProductCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const searchQuery = req.query.searchQuery;
+      const category = req?.query?.category;
+      const subCategory = req?.query?.subCategory;
+      const result = await this.productService.getAllPartnerProductCount(
+        userName,
+        role,
+        oemId as string,
+        searchQuery as string,
+        category as string,
+        subCategory as string
+      );
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   partnerProductFilter = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<ProductController>:<Get All request controller initiated>'
@@ -1013,7 +1187,7 @@ export class ProductController {
       const reqBody = {
         ...req.body,
         phoneNumber,
-        userRole,
+        userRole
       };
       const result = await this.productService.createNewAddress(reqBody);
       res.send({
@@ -1124,7 +1298,7 @@ export class ProductController {
       return;
     }
     const phoneNumber = req.userId as string;
-      const userRole = req.role as string;
+    const userRole = req.role as string;
     const addressId = req.params.addressId;
     if (!addressId) {
       res
@@ -1135,14 +1309,17 @@ export class ProductController {
     const addressRequest = {
       ...req.body,
       phoneNumber,
-      userRole,
+      userRole
     };
     Logger.info(
       '<Controller>:<ProductController>:<Update product address controller initiated>'
     );
 
     try {
-      const result = await this.productService.updateAddress(addressRequest, addressId);
+      const result = await this.productService.updateAddress(
+        addressRequest,
+        addressId
+      );
       res.send({
         message: 'Address Update Successful',
         result

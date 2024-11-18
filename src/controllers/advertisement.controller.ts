@@ -122,6 +122,34 @@ export class AdvertisementController {
     }
   };
 
+  getAllPaginatedBanner = async (req: Request, res: Response) => {
+    try {
+      const userName = req?.query?.userId;
+      const role = req?.query?.role;
+      const oemId = req?.query?.oemId;
+      const pageNo = Number(req.query.pageNo);
+      const pageSize = Number(req.query.pageSize || 10);
+      const searchQuery = req.query.searchQuery;
+
+      const result = await this.adService.getAllPaginatedBanner(
+        pageNo,
+        pageSize,
+        searchQuery as string,
+        userName as string,
+        role as string,
+        oemId as string
+      );
+      Logger.info('<Controller>:<AdvertisementController>:<get successfully>');
+      res.send({
+        message: 'banner obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getBannerById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<AdvertisementController>:<Getting banner ID>');
     try {

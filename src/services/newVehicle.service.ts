@@ -201,17 +201,27 @@ export class NewVehicleInfoService {
     vehicleType?: string,
     storeId?: string,
     adminFilterOemId?: string,
-    brandName?: string
+    brandName?: any,
+    firstDate?: string,
+    lastDate?: string
   ) {
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const nextDay = lastDate
+      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
+      : undefined;
     const storeKey = [storeId];
     const query: any = {
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
       vehicle: vehicleType,
-      brand: brandName,
+      brand: brandName?.catalogName,
       oemUserName: adminFilterOemId,
       'stores.storeId': { $in: storeKey }
     };
+    if (!query.updatedAt) delete query['updatedAt'];
+
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
-    if (!brandName) {
+    if (!brandName?.catalogName) {
       delete query['brand'];
     }
     if (!adminFilterOemId) {
@@ -238,6 +248,78 @@ export class NewVehicleInfoService {
 
     const vehicle = await NewVehicle.aggregate([{ $match: query }]);
     return vehicle;
+  }
+
+  async getAllVehiclePaginated(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    vehicle?: string,
+    brand?: any,
+    storeId?: string,
+    adminFilterOemId?: string,
+    searchQuery?: string,
+    firstDate?: string,
+    lastDate?: string
+  ) {
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const nextDay = lastDate
+      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
+      : undefined;
+    const storeKey = [storeId];
+    const query: any = {
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
+      oemUserName: adminFilterOemId,
+      'stores.storeId': { $in: storeKey }
+    };
+    if (searchQuery) {
+      query.$or = [
+        { oemUserName: searchQuery },
+        { productSuggest: searchQuery }
+      ];
+    }
+    if (!query.updatedAt) delete query['updatedAt'];
+
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+    if (!storeId) {
+      delete query['stores.storeId'];
+    }
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (vehicle) {
+      query.vehicle = vehicle;
+    }
+    if (brand) {
+      query.brand = JSON.parse(brand?.catalogName);
+    }
+    const productReviews = await NewVehicle.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return productReviews;
   }
 
   async getVehiclePaginated(

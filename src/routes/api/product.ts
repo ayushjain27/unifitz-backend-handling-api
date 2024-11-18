@@ -39,6 +39,17 @@ router.post(
 );
 
 router.get('/getAll', roleAuth(ACL.STORE_GET_ALL), productController.getAll);
+router.get(
+  '/getAllCount',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getAllCount
+);
+
+router.get(
+  '/paginated/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.paginatedProductAll
+);
 
 router.get(
   '/store/:storeId',
@@ -103,6 +114,11 @@ router.post(
   roleAuth(ACL.STORE_GET_ALL),
   productController.searchPrelistProductPaginated
 );
+router.post(
+  '/prelistCount',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getTotalPrelistCount
+);
 
 router.get(
   '/prelistProduct-detail/:productId',
@@ -161,6 +177,17 @@ router.get(
   '/partner/getAll',
   roleAuth(ACL.STORE_GET_ALL),
   productController.partnerProductGetAll
+);
+
+router.get(
+  '/partner/paginated/getAll',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getAllProductByPaginated
+);
+router.get(
+  '/partner/getAllCount',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getAllPartnerProductCount
 );
 
 router.post(
