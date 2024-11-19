@@ -1,7 +1,7 @@
 import { Document, model, Schema, ObjectId, Types } from 'mongoose';
 
 export interface IUserInfo {
-  userId?:  Types.ObjectId;
+  userId?: Types.ObjectId;
   name: string;
   email?: string;
   phoneNumber: string;
@@ -69,7 +69,7 @@ const orderSchema: Schema = new Schema(
       required: true
     },
     storeId: {
-      type: String,
+      type: String
     },
     customerId: {
       type: String
@@ -77,7 +77,7 @@ const orderSchema: Schema = new Schema(
     userId: {
       type: Types.ObjectId,
       required: true
-    },
+    }
   },
   { timestamps: true }
 );

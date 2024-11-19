@@ -1223,7 +1223,8 @@ export class ProductService {
     productSubCategory?: string,
     pageNo?: number,
     pageSize?: number,
-    discount?: string
+    discount?: string,
+    storeId?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     let query: any = {};
@@ -1259,9 +1260,19 @@ export class ProductService {
         { 'targetedAudience.dealer': true }
       ];
     }
-    if (!vehicleType) {
-      delete query['vehicleType'];
+    if (!isEmpty(storeId) && isEmpty(vehicleType)) {
+      const store = await this.storeService.getById({
+        storeId: storeId,
+        lat: '',
+        long: ''
+      });
+      const subCategory = store[0]?.basicInfo?.subCategory;
+      const subCategoryNames = subCategory.map((sub) => sub.name);
+      query.vehicleType = { $in: subCategoryNames };
     }
+    // if (!vehicleType) {
+    //   delete query['vehicleType'];
+    // }
     if (!vehicleModel) {
       delete query['vehicleModel'];
     }

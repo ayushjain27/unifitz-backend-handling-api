@@ -37,6 +37,4 @@ router.post(
   orderManagementController.getUserAllOrdersPaginated
 );
 
-
-
 export default router;

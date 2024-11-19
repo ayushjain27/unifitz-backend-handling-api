@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { injectable } from 'inversify';
 import Logger from '../config/winston';
 import buySellVehicleInfo, { ICustomerDetails } from './../models/BuySell';
@@ -14,6 +15,7 @@ import { TYPES } from '../config/inversify.types';
 import container from '../config/inversify.container';
 import { SurepassService } from './surepass.service';
 import SPEmployee from '../models/SPEmployee';
+import { StoreProfileStatus } from '../models/Store';
 
 @injectable()
 export class BuySellService {
@@ -268,7 +270,6 @@ export class BuySellService {
     delete filterParams.state;
     delete filterParams.coordinates;
 
-    console.log(filterParams, query, 'dfmkl');
     const result = await buySellVehicleInfo.aggregate([
       {
         $geoNear: {
@@ -323,7 +324,6 @@ export class BuySellService {
     delete filterParams.userId;
     delete filterParams.storeId;
     Logger.debug(query);
-    console.log(filterParams, 'dfmkl');
 
     const result = await buySellVehicleInfo.aggregate([
       {
@@ -362,6 +362,30 @@ export class BuySellService {
       },
       {
         $unwind: { path: '$vehicleInfo' }
+      },
+      // Lookup to fetch store details
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeInfo',
+          preserveNullAndEmptyArrays: true // Allow slerData without storeData
+        }
+      },
+      // Filter onboarded vehicles and stores
+      {
+        $match: {
+          $or: [
+            { 'storeInfo.profileStatus': StoreProfileStatus.ONBOARDED }, // Check store status if storeInfo exists
+            { sellerDetails: { $exists: true } } // Allow sellerData without storeData
+          ]
+        }
       }
     ]);
 
@@ -781,8 +805,6 @@ export class BuySellService {
     ['brandName', 'userType'].forEach((key) => {
       if (!req[key]) delete query[key];
     });
-
-    console.log(query, queryTwo, 'querryryryryryryry');
 
     const vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
       { $match: statusQuery },
