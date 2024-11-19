@@ -671,8 +671,10 @@ export class BuySellService {
     }
 
     const queryTwo: any = {};
-    if (state) queryTwo['storeDetails.contactInfo.state'] = { $in: [state] };
-    if (city) queryTwo['storeDetails.contactInfo.city'] = { $in: [city] };
+    if (state)
+      queryTwo['vehicleAnalytic.userInformation.state'] = { $in: [state] };
+    if (city)
+      queryTwo['vehicleAnalytic.userInformation.city'] = { $in: [city] };
 
     if (role === AdminRole.OEM) query.oemUserName = userName;
     if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
@@ -694,7 +696,16 @@ export class BuySellService {
       { $unwind: { path: '$vehicleInfo' } },
       { $match: query },
       { $set: { VehicleId: { $toString: '$_id' } } },
-      { $match: queryTwo }
+      {
+        $lookup: {
+          from: 'vehicleanalytics',
+          localField: 'VehicleId',
+          foreignField: 'moduleInformation',
+          as: 'vehicleAnalytic'
+        }
+      },
+      { $match: queryTwo },
+      { $project: { vehicleAnalytic: 0 } }
     ]);
 
     return vehicleResponse;
@@ -758,8 +769,10 @@ export class BuySellService {
     }
 
     const queryTwo: any = {};
-    if (state) queryTwo['storeDetails.contactInfo.state'] = { $in: [state] };
-    if (city) queryTwo['storeDetails.contactInfo.city'] = { $in: [city] };
+    if (state)
+      queryTwo['vehicleAnalytic.userInformation.state'] = { $in: [state] };
+    if (city)
+      queryTwo['vehicleAnalytic.userInformation.city'] = { $in: [city] };
 
     if (role === AdminRole.OEM) query.oemUserName = userName;
     if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
