@@ -2071,7 +2071,7 @@ export class AnalyticService {
       },
       // platform: platform,
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId,
+      // moduleInformation: storeId,
       oemUserName: userName
     };
 
@@ -2095,9 +2095,6 @@ export class AnalyticService {
     if (!platform) {
       delete query['platform'];
     }
-    if (!storeId) {
-      delete query['moduleInformation'];
-    }
     if (role === AdminRole.OEM) {
       query.oemUserName = oemUserName;
     }
@@ -2109,13 +2106,31 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    Logger.debug(`${JSON.stringify(query)} ${role} ${oemUserName} datateee`);
-    // const c_Date = new Date();
+    let statusQuery = {};
+
+    if (storeId) {
+      statusQuery = {
+        'vehicleDetails.storeDetails.storeId': { $in: [storeId] }
+      };
+    }
+
+    console.log(statusQuery, query, 'statusQuerystatusQuery');
 
     const queryFilter: any = await VehicleAnalyticModel.aggregate([
       {
         $match: query
       },
+      { $set: { vehicle: { $toObjectId: '$moduleInformation' } } },
+      {
+        $lookup: {
+          from: 'buysells',
+          localField: 'vehicle',
+          foreignField: '_id',
+          as: 'vehicleDetails'
+        }
+      },
+      { $match: statusQuery },
+      { $project: { vehicleDetails: 0 } },
       {
         $project: {
           createdAt: 1,
@@ -2224,7 +2239,7 @@ export class AnalyticService {
       },
       // platform: platform,
       event: 'IMPRESSION_COUNT',
-      moduleInformation: storeId,
+      // moduleInformation: storeId,
       oemUserName: userName
     };
 
@@ -2247,9 +2262,6 @@ export class AnalyticService {
     }
     if (!platform) {
       delete query['platform'];
-    }
-    if (!storeId) {
-      delete query['moduleInformation'];
     }
     if (role === AdminRole.OEM) {
       query.oemUserName = oemUserName;
@@ -2279,11 +2291,29 @@ export class AnalyticService {
       'Nov',
       'Dec'
     ];
+    let statusQuery = {};
+
+    if (storeId) {
+      statusQuery = {
+        'vehicleDetails.storeDetails.storeId': { $in: [storeId] }
+      };
+    }
 
     const queryFilter: any = await VehicleAnalyticModel.aggregate([
       {
         $match: query
       },
+      { $set: { vehicle: { $toObjectId: '$moduleInformation' } } },
+      {
+        $lookup: {
+          from: 'buysells',
+          localField: 'vehicle',
+          foreignField: '_id',
+          as: 'vehicleDetails'
+        }
+      },
+      { $match: statusQuery },
+      { $project: { vehicleDetails: 0 } },
       {
         $project: {
           createdAt: 1,
@@ -2386,7 +2416,7 @@ export class AnalyticService {
       //   $lte: nextDate
       // },
       // event: { $ne: 'IMPRESSION_COUNT' },
-      moduleInformation: storeId,
+      // moduleInformation: storeId,
       // platform: platform,
       oemUserName: userName
     };
@@ -2412,9 +2442,6 @@ export class AnalyticService {
     if (!platform) {
       delete query['platform'];
     }
-    if (!storeId) {
-      delete query['moduleInformation'];
-    }
 
     if (role === AdminRole.OEM) {
       query.oemUserName = oemUserName;
@@ -2428,10 +2455,29 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
 
+    let statusQuery = {};
+
+    if (storeId) {
+      statusQuery = {
+        'vehicleDetails.storeDetails.storeId': { $in: [storeId] }
+      };
+    }
+
     const combinedResult = await VehicleAnalyticModel.aggregate([
       {
         $match: query
       },
+      { $set: { vehicle: { $toObjectId: '$moduleInformation' } } },
+      {
+        $lookup: {
+          from: 'buysells',
+          localField: 'vehicle',
+          foreignField: '_id',
+          as: 'vehicleDetails'
+        }
+      },
+      { $match: statusQuery },
+      { $project: { vehicleDetails: 0 } },
       {
         $group: {
           _id: '$event',

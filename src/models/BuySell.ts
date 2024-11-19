@@ -85,7 +85,7 @@ export interface IBuySell extends Document {
     type: string;
     coordinates: number[];
   };
-  activeDate?: Date
+  activeDate?: Date;
 }
 
 export const buySellSchema: Schema = new Schema(
@@ -119,13 +119,16 @@ export const buySellSchema: Schema = new Schema(
     },
     activeDate: {
       type: Date
-    },
+    }
   },
   { timestamps: true, strict: false }
 );
 
 buySellSchema.index({ location: '2dsphere' }, { sparse: true });
 
-const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
+const buySellVehicleInfo = model<IBuySell & Document>(
+  'buysells',
+  buySellSchema
+);
 
 export default buySellVehicleInfo;
