@@ -1270,9 +1270,9 @@ export class ProductService {
       const subCategoryNames = subCategory.map((sub) => sub.name);
       query.vehicleType = { $in: subCategoryNames };
     }
-    // if (!vehicleType) {
-    //   delete query['vehicleType'];
-    // }
+    if (!vehicleType && !storeId) {
+      delete query['vehicleType'];
+    }
     if (!vehicleModel) {
       delete query['vehicleModel'];
     }
