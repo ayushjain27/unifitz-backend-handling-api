@@ -6,7 +6,7 @@ import Store, { IStore } from '../models/Store';
 import SPEmployee from '../models/SPEmployee';
 import User from '../models/User';
 import { S3Service } from './s3.service';
-import { Employee, IEmployee } from '../models/Employee';
+import { Employee, EmployeeStatus, IEmployee } from '../models/Employee';
 import { TwilioLoginPayload, TwilioVerifyPayload } from '../interfaces';
 import { defaultCodeLength } from '../config/constants';
 import { generateToken } from '../utils';
@@ -91,7 +91,8 @@ export class EmployeeService {
       '<Service>:<EmployeeService>: <Employee Fetch: getting the employee by phone number>'
     );
     const employee: IEmployee = await Employee.findOne({
-      phoneNumber: phoneNumber?.slice(-10)
+      phoneNumber: phoneNumber?.slice(-10),
+      status: EmployeeStatus.ACTIVE
     }).lean();
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employee;
