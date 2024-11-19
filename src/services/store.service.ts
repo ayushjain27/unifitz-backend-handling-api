@@ -1145,7 +1145,8 @@ export class StoreService {
     role?: string,
     oemId?: string,
     filterOemUser?: string,
-    userType?: string
+    userType?: string,
+    category?: string,
   ): Promise<any> {
     Logger.info('<Route>:<StoreService>: <StoreService : store get initiated>');
     let query: any = {};
@@ -1154,8 +1155,12 @@ export class StoreService {
       'contactInfo.state': state,
       'contactInfo.city': city,
       profileStatus: 'ONBOARDED',
-      oemUserName: filterOemUser
+      oemUserName: filterOemUser,
+      'basicInfo.category.name': { $in: [category]}
     };
+    if (!category) {
+      delete query['basicInfo.category.name'];
+    }
     if (!filterOemUser) {
       delete query['oemUserName'];
     }

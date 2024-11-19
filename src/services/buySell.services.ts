@@ -633,14 +633,14 @@ export class BuySellService {
     } = req || {};
 
     const firstDay = firstDate ? new Date(firstDate) : undefined;
-    const nextDay = lastDate
-      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
-      : undefined;
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
 
     const statusQuery = { status };
     const query: any = {
       updatedAt:
-        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDate } : undefined,
       'vehicleInfo.vehicleType': vehicleType,
       userType,
       'storeDetails.storeId': storeId,
@@ -724,14 +724,14 @@ export class BuySellService {
     } = req || {};
 
     const firstDay = firstDate ? new Date(firstDate) : undefined;
-    const nextDay = lastDate
-      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
-      : undefined;
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
 
     const statusQuery = { status };
     const query: any = {
       updatedAt:
-        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDate } : undefined,
       'vehicleInfo.vehicleType': vehicleType,
       userType,
       'storeDetails.storeId': storeId,

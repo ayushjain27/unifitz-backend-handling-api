@@ -2192,6 +2192,167 @@ export class AnalyticService {
     return queryFilter;
   }
 
+  async getVehicleAnalyticByYear(
+    role: string,
+    oemUserName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    brandName?: string,
+    userName?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const startDate = new Date(firstDay);
+    const nextDate = new Date(lastDay);
+    startDate.setDate(firstDay.getDate() + 1);
+    nextDate.setDate(lastDay.getDate() + 1);
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      createdAt: {
+        $gte: startDate,
+        $lte: nextDate
+      },
+      // platform: platform,
+      event: 'IMPRESSION_COUNT',
+      moduleInformation: storeId,
+      oemUserName: userName
+    };
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
+    if (!userName) {
+      delete query['oemUserName'];
+    }
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = oemUserName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${oemUserName} datateee`);
+    // const c_Date = new Date();
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+
+    const queryFilter: any = await VehicleAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $project: {
+          createdAt: 1,
+          month: { $month: '$createdAt' },
+          year: { $year: '$createdAt' },
+          moduleInformation: 1
+        }
+      },
+      {
+        $group: {
+          _id: { month: '$month', year: '$year' },
+          views: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $let: {
+              vars: {
+                monthNames: monthNames
+              },
+              in: {
+                $concat: [
+                  {
+                    $arrayElemAt: [
+                      '$$monthNames',
+                      { $subtract: ['$_id.month', 1] }
+                    ]
+                  },
+                  ' ',
+                  { $toString: '$_id.year' }
+                ]
+              }
+            }
+          },
+          views: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    const allMonths = monthNames.map((month) => ({
+      [`${month}`]: 0,
+      date: month
+    }));
+
+    const resultWithAllMonths = allMonths.map((month) => {
+      const monthName = Object.keys(month)[0];
+      const aggregatedData = queryFilter.find(
+        (item: any) => item.date === `${monthName} ${new Date().getFullYear()}`
+      );
+
+      if (aggregatedData) {
+        return { [`${monthName}`]: aggregatedData.views, date: month.date };
+      }
+
+      return { [`${monthName}`]: 0, date: month.date };
+    });
+
+    resultWithAllMonths.sort((a, b) => {
+      const monthIndexA = monthNames.indexOf(a.date);
+      const monthIndexB = monthNames.indexOf(b.date);
+
+      return monthIndexA - monthIndexB;
+    });
+
+    return resultWithAllMonths;
+  }
+
   async getBuyVehicleAll(
     role: string,
     oemUserName: string,

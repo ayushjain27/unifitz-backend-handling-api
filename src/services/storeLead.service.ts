@@ -175,12 +175,14 @@ export class StoreLeadService {
       { 'store.verificationDetails': 0 }
     );
 
-    const setStatusResult = {
+    const setStatusResult: any = {
       status: statusRequest.status,
-      rejectionReason: statusRequest.rejectionReason,
-      approveId: statusRequest?.approveId,
-      approveDate: statusRequest?.approveDate
+      rejectionReason: statusRequest.rejectionReason
     };
+    if (statusRequest.status == 'APPROVED') {
+      setStatusResult.approveId = statusRequest?.approveId;
+      setStatusResult.approveDate = statusRequest?.approveDate;
+    }
     if (!statusRequest.rejectionReason) {
       delete setStatusResult['rejectionReason'];
     }

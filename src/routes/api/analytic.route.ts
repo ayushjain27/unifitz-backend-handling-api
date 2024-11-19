@@ -162,6 +162,12 @@ router.post(
 );
 
 router.post(
+  '/getVehicleImpressionByYear',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getVehicleAnalyticByYear
+);
+
+router.post(
   '/getBuyVehicleAll',
   roleAuth(ACL.STORE_CREATE),
   analyticController.getBuyVehicleAll
