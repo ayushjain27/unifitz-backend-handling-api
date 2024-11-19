@@ -13,7 +13,7 @@ import { generateToken } from '../utils';
 import { testUsers } from '../config/constants';
 import { TwoFactorService } from './twoFactor.service';
 import { Types } from 'mongoose';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 
 @injectable()
 export class EmployeeService {
@@ -39,6 +39,12 @@ export class EmployeeService {
     }
     let newEmp: IEmployee = employeePayload;
     newEmp.storeId = store?.storeId;
+    if (
+      !isEmpty(employeePayload?.leavingDate) &&
+      new Date(employeePayload?.leavingDate) <= new Date()
+    ) {
+      newEmp.status = 'INACTIVE'; // Set status to INACTIVE
+    }
     newEmp = await Employee.create(newEmp);
     Logger.info('<Service>:<EmployeeService>:<Employee created successfully>');
     return newEmp;
@@ -105,6 +111,12 @@ export class EmployeeService {
     Logger.info(
       '<Service>:<EmployeeService>: <Employee onboarding: creating new employee>'
     );
+    if (
+      !isEmpty(employeePayload?.leavingDate) &&
+      new Date(employeePayload?.leavingDate) <= new Date()
+    ) {
+      employeePayload.status = 'INACTIVE'; // Set status to INACTIVE
+    }
     await Employee.findOneAndUpdate(
       {
         _id: new Types.ObjectId(employeeId)
