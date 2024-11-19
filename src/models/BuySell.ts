@@ -126,6 +126,9 @@ export const buySellSchema: Schema = new Schema(
 
 buySellSchema.index({ location: '2dsphere' }, { sparse: true });
 
-const buySellVehicleInfo = model<IBuySell & Document>('buySell', buySellSchema);
+const buySellVehicleInfo = model<IBuySell & Document>(
+  'buysells',
+  buySellSchema
+);
 
 export default buySellVehicleInfo;

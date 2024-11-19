@@ -694,6 +694,23 @@ export class BuySellService {
       ];
     }
 
+    if (state) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.state': state },
+        {
+          'storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.city': city },
+        {
+          'storeDetails.contactInfo.city': city
+        }
+      ];
+    }
+
     const queryTwo: any = {};
     if (state)
       queryTwo['vehicleAnalytic.userInformation.state'] = { $in: [state] };
@@ -789,6 +806,22 @@ export class BuySellService {
           'storeDetails.contactInfo.phoneNumber.primary': formattedPhoneNumber
         },
         { 'vehicleInfo.vehicleNumber': searchQuery }
+      ];
+    }
+    if (state) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.state': state },
+        {
+          'storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.city': city },
+        {
+          'storeDetails.contactInfo.city': city
+        }
       ];
     }
 
