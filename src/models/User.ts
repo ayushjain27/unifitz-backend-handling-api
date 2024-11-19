@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
+import { UserRole } from '../enum/user-role.enum';
 
 /**
  * Interface to model the User Schema for TypeScript.
@@ -23,8 +24,8 @@ const userSchema: Schema = new Schema(
     role: {
       type: String,
       required: true,
-      enum: ['STORE_OWNER', 'USER'],
-      default: 'STORE_OWNER'
+      enum: UserRole,
+      default: UserRole.STORE_OWNER
     },
     deviceId: {
       type: String

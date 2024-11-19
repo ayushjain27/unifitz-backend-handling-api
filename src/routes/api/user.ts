@@ -15,11 +15,13 @@ import { generateToken } from '../../utils';
 import { TwilioService } from '../../services/twilio.service';
 import { TwoFactorService } from '../../services/twoFactor.service';
 import { testUsers } from '../../config/constants';
-import { StoreLeadService, UserService } from '../../services';
+import { EmployeeService, StoreLeadService, UserService } from '../../services';
 import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 import StoreLead from '../../models/StoreLead';
 import UserOtp from '../../models/UserOtp';
+import { UserRole } from '../../enum/user-role.enum';
+import { ErrorCode } from '../../enum/error-code.enum';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -28,6 +30,8 @@ const twoFactorService = container.get<TwoFactorService>(
 );
 
 const userService = container.get<UserService>(TYPES.UserService);
+
+const employeeService = container.get<EmployeeService>(TYPES.EmployeeService);
 
 const storeLeadService = container.get<StoreLeadService>(
   TYPES.StoreLeadService
@@ -60,6 +64,20 @@ router.post('/otp/send', async (req: Request, res: Response) => {
     const isMatchingCondition = startsWith.includes(phoneNumber.charAt(3));
 
     if (loginPayload.phoneNumber) {
+      // Check if role is partner employee and return user not found
+      if (role === UserRole.PARTNER_EMPLOYEE) {
+        const user = await employeeService.getEmployeeByPhoneNumber(
+          phoneNumber
+        );
+        if (isEmpty(user)) {
+          return res.status(HttpStatusCodes.NOT_FOUND).send({
+            message: 'User not found',
+            phoneNumber,
+            errCode: ErrorCode.USER_NOT_FOUND
+          });
+        }
+      }
+
       const testUser = getTestUser(loginPayload.phoneNumber);
       if (testUser || isMatchingCondition) {
         res.status(HttpStatusCodes.OK).send({
@@ -133,7 +151,8 @@ router.post('/otp/send', async (req: Request, res: Response) => {
     } else {
       res.status(HttpStatusCodes.BAD_REQUEST).send({
         message: 'Invalid phone number :(',
-        phoneNumber
+        phoneNumber,
+        errCode: ErrorCode.INVALID_PHONE_NUMBER
       });
     }
   } catch (err) {

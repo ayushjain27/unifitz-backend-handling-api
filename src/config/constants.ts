@@ -6,6 +6,7 @@ import {
   TwilioConfig,
   TwoFactorConfig
 } from '../interfaces/config.interface';
+import { UserRole } from '../enum/user-role.enum';
 
 export const defaultCodeLength = 4;
 
@@ -42,10 +43,11 @@ export const surepassConfig: SurepassConfig = {
 };
 
 export const testUsers = [
-  { phoneNo: '7777777777', role: 'STORE_OWNER', otp: '7777' },
-  { phoneNo: '9999999999', role: 'USER', otp: '9999' },
-  { phoneNo: '3344553455', role: 'STORE_OWNER', otp: '654321' },
-  { phoneNo: '3344553455', role: 'USER', otp: '654321' },
+  { phoneNo: '7777777777', role: UserRole.STORE_OWNER, otp: '7777' },
+  { phoneNo: '9999999999', role: UserRole.USER, otp: '9999' },
+  { phoneNo: '3344553455', role: UserRole.STORE_OWNER, otp: '654321' },
+  { phoneNo: '3344553455', role: UserRole.USER, otp: '654321' }
 ];
 
-export const serverkey = "AAAAw_xRwT0:APA91bHRGVoe2i4Mnu-2D6ixCDXm9E68WNmYu9SFhx_tsmhgZkOSLr7GWKTOnLnw4pbRAgWLkyaoRLs2dD6LBVI2PvVCHTEkKWl3PQnOFrXkh1DE0ihwcalXx2K9-bm64oINV5xVA2Fz"
+export const serverkey =
+  'AAAAw_xRwT0:APA91bHRGVoe2i4Mnu-2D6ixCDXm9E68WNmYu9SFhx_tsmhgZkOSLr7GWKTOnLnw4pbRAgWLkyaoRLs2dD6LBVI2PvVCHTEkKWl3PQnOFrXkh1DE0ihwcalXx2K9-bm64oINV5xVA2Fz';

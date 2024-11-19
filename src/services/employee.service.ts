@@ -86,6 +86,17 @@ export class EmployeeService {
     return employees;
   }
 
+  async getEmployeeByPhoneNumber(phoneNumber: string): Promise<IEmployee> {
+    Logger.info(
+      '<Service>:<EmployeeService>: <Employee Fetch: getting the employee by phone number>'
+    );
+    const employee: IEmployee = await Employee.findOne({
+      phoneNumber: phoneNumber?.slice(-10)
+    }).lean();
+    Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
+    return employee;
+  }
+
   async update(
     employeeId: string,
     employeePayload: IEmployee
@@ -122,125 +133,5 @@ export class EmployeeService {
     }).lean();
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employee;
-  }
-
-  async sendOtpWithEmployee(employeePayload: any) {
-    Logger.info(
-      '<Service>:<EmployeeService>: <Employee OTP: creating new Otp>'
-    );
-
-    // check if employee exist
-    const { phoneNumber, channel } = employeePayload;
-    const loginPayload: TwilioLoginPayload = {
-      phoneNumber,
-      channel
-    };
-    let employee: any;
-    if (phoneNumber) {
-      employee = await SPEmployee.findOne(
-        { 'phoneNumber.primary': phoneNumber?.slice(-10) },
-        { verificationDetails: 0 }
-      );
-    }
-    if (!employee) {
-      throw new Error('Employee not found');
-    }
-
-    const result = await this.twoFactorService.sendVerificationCode(
-      loginPayload.phoneNumber
-    );
-    const otpResult = {
-      phoneNumber: loginPayload.phoneNumber,
-      result
-    };
-    return otpResult;
-  }
-
-  async verifyEmployeeOtp(employeePayload: any) {
-    Logger.info(
-      '<Service>:<EmployeeService>: <Employee OTP Verify: verify employee>'
-    );
-
-    const { phoneNumber, code, role, deviceId } = employeePayload;
-    const verifyPayload: TwilioVerifyPayload = {
-      phoneNumber,
-      code
-    };
-
-    if (
-      verifyPayload.phoneNumber &&
-      verifyPayload.code.length === defaultCodeLength
-    ) {
-      const { phoneNumber } = verifyPayload;
-
-      // Check if the phone number starts with 3, 4, or 5 and the OTP is 6543
-      const startsWith = ['3', '4', '5'];
-      const isMatchingCondition =
-        startsWith.includes(phoneNumber.charAt(3)) && code === '6543';
-
-      if (isMatchingCondition) {
-        // Phone number starts with 3, 4, or 5, and OTP is 6543, proceed with login
-        const payload = {
-          userId: phoneNumber,
-          role: role
-        };
-
-        const token = await generateToken(payload);
-        const jsonResult = {
-          message: 'Login Successful',
-          token,
-          phoneNumber
-        };
-        return jsonResult;
-      }
-
-      // Check for test users
-      const testUser = _.find(
-        testUsers,
-        (user) => `+91${user?.phoneNo}` === phoneNumber
-      );
-      if (testUser) {
-        const isMatch = testUser?.otp === verifyPayload.code;
-        if (!isMatch) {
-          const jsonResult = {
-            message: 'Invalid verification code :(',
-            phoneNumber
-          };
-          return jsonResult;
-        }
-      } else {
-        // Call the two-factor service if not a test user
-        const result = await this.twoFactorService.verifyCode(
-          phoneNumber,
-          verifyPayload.code
-        );
-        if (!result || result?.Status === 'Error') {
-          const jsonResult = {
-            message: 'Invalid verification code :(',
-            phoneNumber
-          };
-          return jsonResult;
-        }
-      }
-
-      const payload = {
-        userId: phoneNumber,
-        role: role
-      };
-
-      const token = await generateToken(payload);
-      const jsonRes = {
-        message: 'Login Successful',
-        token,
-        phoneNumber
-      };
-      return jsonRes;
-    } else {
-      const jsonRes = {
-        message: 'Invalid phone number or verification code :(',
-        phoneNumber
-      };
-      return jsonRes;
-    }
   }
 }
