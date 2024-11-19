@@ -131,53 +131,6 @@ export class EmployeeController {
     }
   };
 
-  sendOtpWithEmployee = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
-      return;
-    }
-    const employeeRequest = req.body;
-    Logger.info(
-      '<Controller>:<EmployeeController>:<Send Otp employee controller initiated>'
-    );
-    try {
-      const result = await this.employeeService.sendOtpWithEmployee(
-        employeeRequest
-      );
-      res.send({
-        message: 'Verification is sent!!',
-        ...result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
-  verifyEmployeeOtp = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
-      return;
-    }
-    const employeeRequest = req.body;
-    Logger.info(
-      '<Controller>:<EmployeeController>:< Verify Otp employee controller initiated>'
-    );
-    try {
-      const result = await this.employeeService.verifyEmployeeOtp(
-        employeeRequest
-      );
-      res.send({
-        ...result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
   validate = (method: string) => {
     switch (method) {
       case 'createEmployee':

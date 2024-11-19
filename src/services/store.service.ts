@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable no-console */
 import { ICatalogMap, StoreProfileStatus } from './../models/Store';
 import { AdminRole } from './../models/Admin';
 
@@ -212,7 +214,6 @@ export class StoreService {
     const phoneNumber =
       store?.basicInfo?.userPhoneNumber ||
       store?.contactInfo?.phoneNumber?.primary;
-    console.log(phoneNumber, 'dfwl;k');
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }

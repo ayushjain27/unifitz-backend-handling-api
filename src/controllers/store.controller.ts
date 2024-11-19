@@ -636,7 +636,7 @@ export class StoreController {
     const status = req?.query?.status;
     const userType = req?.query?.userType;
     const verifiedStore = req?.query?.verifiedStore;
-    const employeeId = req?.query?.employeeId
+    const employeeId = req?.query?.employeeId;
 
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'

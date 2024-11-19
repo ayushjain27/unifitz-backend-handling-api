@@ -21,7 +21,7 @@ aws ecr get-login-password --region ${REGION} --profile ${PROFILE} | docker logi
 
 # Step 3: Tag the Docker image
 echo "Tagging the Docker image..."
-docker tag ${IMAGE_NAME} ${REPOSITORY_URL}/serviceplug/serviceplug-dev-api:latest
+docker tag ${IMAGE_NAME} ${REPOSITORY_URL}/servidceplug/serviceplug-dev-api:latest
 
 # Step 4: Push the Docker image to ECR
 echo "Pushing the Docker image to ECR..."

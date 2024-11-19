@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 import { Response, Router } from 'express';
 import HttpStatusCodes from 'http-status-codes';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Request from '../../types/request';
 import { defaultCodeLength } from '../../config/constants';
 import Logger from '../../config/winston';
@@ -14,10 +15,13 @@ import { generateToken } from '../../utils';
 import { TwilioService } from '../../services/twilio.service';
 import { TwoFactorService } from '../../services/twoFactor.service';
 import { testUsers } from '../../config/constants';
-import { StoreLeadService, UserService } from '../../services';
+import { EmployeeService, StoreLeadService, UserService } from '../../services';
 import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 import StoreLead from '../../models/StoreLead';
+import UserOtp from '../../models/UserOtp';
+import { UserRole } from '../../enum/user-role.enum';
+import { ErrorCode } from '../../enum/error-code.enum';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -26,6 +30,8 @@ const twoFactorService = container.get<TwoFactorService>(
 );
 
 const userService = container.get<UserService>(TYPES.UserService);
+
+const employeeService = container.get<EmployeeService>(TYPES.EmployeeService);
 
 const storeLeadService = container.get<StoreLeadService>(
   TYPES.StoreLeadService
@@ -48,37 +54,105 @@ router.get('/', auth, async (req: Request, res: Response) => {
 // @access  Public
 router.post('/otp/send', async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, channel } = req.body;
+    const { phoneNumber, channel, role } = req.body;
     const loginPayload: TwilioLoginPayload = {
       phoneNumber,
       channel
     };
+    console.log(phoneNumber, 'Del');
+    const startsWith = ['3', '4', '5'];
+    const isMatchingCondition = startsWith.includes(phoneNumber.charAt(3));
+
     if (loginPayload.phoneNumber) {
+      // Check if role is partner employee and return user not found
+      if (role === UserRole.PARTNER_EMPLOYEE) {
+        const user = await employeeService.getEmployeeByPhoneNumber(
+          phoneNumber
+        );
+        if (isEmpty(user)) {
+          return res.status(HttpStatusCodes.NOT_FOUND).send({
+            message: 'User not found',
+            phoneNumber,
+            errCode: ErrorCode.USER_NOT_FOUND
+          });
+        }
+      }
+
       const testUser = getTestUser(loginPayload.phoneNumber);
-      if (testUser) {
+      if (testUser || isMatchingCondition) {
         res.status(HttpStatusCodes.OK).send({
           message: 'Verification is sent!!',
           phoneNumber
         });
       } else {
-        // const result = await twilioCLient.sendVerificationCode(
-        //   loginPayload.phoneNumber,
-        //   loginPayload.channel
-        // );
-        const result = await twoFactorService.sendVerificationCode(
-          loginPayload.phoneNumber
-        );
-        res.status(HttpStatusCodes.OK).send({
-          message: 'Verification is sent!!',
-          phoneNumber,
-          result
+        const userOtpDetail = await UserOtp.findOne({
+          phoneNumber: phoneNumber,
+          role
         });
+        if (isEmpty(userOtpDetail)) {
+          const data = {
+            phoneNumber,
+            role,
+            count: 1,
+            lastCountReset: new Date()
+          };
+          await UserOtp.create(data);
+          const result = await twoFactorService.sendVerificationCode(
+            loginPayload.phoneNumber
+          );
+          res.status(HttpStatusCodes.OK).send({
+            message: 'Verification is sent!!',
+            phoneNumber,
+            result
+          });
+        } else {
+          const oneDayAgo = new Date();
+          oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+          if (userOtpDetail.lastCountReset < oneDayAgo) {
+            const userDetailOtpUpdate = await UserOtp.findOneAndUpdate(
+              { phoneNumber, role },
+              { $set: { count: 1, lastCountReset: new Date() } }
+            ); // Reset last reset date to now
+            const result = await twoFactorService.sendVerificationCode(
+              loginPayload.phoneNumber
+            );
+            res.status(HttpStatusCodes.OK).send({
+              message: 'Verification is sent!!',
+              phoneNumber,
+              result
+            });
+          } else {
+            // Check if count is 3 or more, indicating monthly limit is reached
+            if (userOtpDetail.count >= 3) {
+              // Send 429 status code for rate-limiting error
+              res.send({
+                message:
+                  'You have reached the maximum OTP requests allowed for this day.',
+                phoneNumber
+              });
+            } else {
+              const userDetailOtpUpdate = await UserOtp.findOneAndUpdate(
+                { phoneNumber, role },
+                { $set: { count: userOtpDetail?.count + 1 } }
+              ); // Reset last reset date to now
+              const result = await twoFactorService.sendVerificationCode(
+                loginPayload.phoneNumber
+              );
+              res.status(HttpStatusCodes.OK).send({
+                message: 'Verification is sent!!',
+                phoneNumber,
+                result
+              });
+            }
+          }
+        }
       }
       Logger.debug(`Twilio verification sent to ${loginPayload.phoneNumber}`);
     } else {
       res.status(HttpStatusCodes.BAD_REQUEST).send({
         message: 'Invalid phone number :(',
-        phoneNumber
+        phoneNumber,
+        errCode: ErrorCode.INVALID_PHONE_NUMBER
       });
     }
   } catch (err) {
