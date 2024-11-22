@@ -2050,8 +2050,9 @@ export class AnalyticService {
     storeId: string,
     platform: string,
     oemId?: string,
-    brandName?: string,
-    userName?: string
+    brandName?: any,
+    userName?: string,
+    vehicleType?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -2063,8 +2064,8 @@ export class AnalyticService {
     const nextDate = new Date(lastDay);
     nextDate.setDate(lastDay.getDate() + 1);
     query = {
-      'userInformation.state': state,
-      'userInformation.city': city,
+      // 'userInformation.state': state,
+      // 'userInformation.city': city,
       createdAt: {
         $gte: firstDay,
         $lte: nextDate
@@ -2106,12 +2107,30 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    let statusQuery = {};
+    const statusQuery: any = {};
 
-    if (storeId) {
-      statusQuery = {
-        'vehicleDetails.storeDetails.storeId': { $in: [storeId] }
-      };
+    if (storeId)
+      statusQuery['vehicleDetails.storeDetails.storeId'] = { $in: [storeId] };
+    if (vehicleType) statusQuery['vehicleDetails.vehType'] = vehicleType;
+    if (brandName?.catalogName)
+      statusQuery['vehicleDetails.brandName'] = brandName?.catalogName;
+    if (state) {
+      statusQuery.$or = [
+        // { 'userInformation.state': state },
+        { 'vehicleDetails.sellerDetails.contactInfo.state': state },
+        {
+          'vehicleDetails.storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      statusQuery.$or = [
+        // { 'userInformation.city': city },
+        { 'vehicleDetails.sellerDetails.contactInfo.city': city },
+        {
+          'vehicleDetails.storeDetails.contactInfo.city': city
+        }
+      ];
     }
 
     console.log(statusQuery, query, 'statusQuerystatusQuery');
@@ -2217,8 +2236,9 @@ export class AnalyticService {
     storeId: string,
     platform: string,
     oemId?: string,
-    brandName?: string,
-    userName?: string
+    brandName?: any,
+    userName?: string,
+    vehicleType?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -2231,8 +2251,8 @@ export class AnalyticService {
     startDate.setDate(firstDay.getDate() + 1);
     nextDate.setDate(lastDay.getDate() + 1);
     query = {
-      'userInformation.state': state,
-      'userInformation.city': city,
+      // 'userInformation.state': state,
+      // 'userInformation.city': city,
       createdAt: {
         $gte: startDate,
         $lte: nextDate
@@ -2291,12 +2311,30 @@ export class AnalyticService {
       'Nov',
       'Dec'
     ];
-    let statusQuery = {};
+    const statusQuery: any = {};
 
-    if (storeId) {
-      statusQuery = {
-        'vehicleDetails.storeDetails.storeId': { $in: [storeId] }
-      };
+    if (storeId)
+      statusQuery['vehicleDetails.storeDetails.storeId'] = { $in: [storeId] };
+    if (vehicleType) statusQuery['vehicleDetails.vehType'] = vehicleType;
+    if (brandName?.catalogName)
+      statusQuery['vehicleDetails.brandName'] = brandName?.catalogName;
+    if (state) {
+      statusQuery.$or = [
+        // { 'userInformation.state': state },
+        { 'vehicleDetails.sellerDetails.contactInfo.state': state },
+        {
+          'vehicleDetails.storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      statusQuery.$or = [
+        // { 'userInformation.city': city },
+        { 'vehicleDetails.sellerDetails.contactInfo.city': city },
+        {
+          'vehicleDetails.storeDetails.contactInfo.city': city
+        }
+      ];
     }
 
     const queryFilter: any = await VehicleAnalyticModel.aggregate([
@@ -2393,8 +2431,9 @@ export class AnalyticService {
     storeId: string,
     platform: string,
     oemId?: string,
-    brandName?: string,
-    userName?: string
+    brandName?: any,
+    userName?: string,
+    vehicleType?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -2409,8 +2448,8 @@ export class AnalyticService {
     const tday = new Date();
 
     query = {
-      'userInformation.state': state,
-      'userInformation.city': city,
+      // 'userInformation.state': state,
+      // 'userInformation.city': city,
       // createdAt: {
       //   $gte: firstDay,
       //   $lte: nextDate
@@ -2455,12 +2494,30 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
 
-    let statusQuery = {};
+    const statusQuery: any = {};
 
-    if (storeId) {
-      statusQuery = {
-        'vehicleDetails.storeDetails.storeId': { $in: [storeId] }
-      };
+    if (storeId)
+      statusQuery['vehicleDetails.storeDetails.storeId'] = { $in: [storeId] };
+    if (vehicleType) statusQuery['vehicleDetails.vehType'] = vehicleType;
+    if (brandName?.catalogName)
+      statusQuery['vehicleDetails.brandName'] = brandName?.catalogName;
+    if (state) {
+      statusQuery.$or = [
+        // { 'userInformation.state': state },
+        { 'vehicleDetails.sellerDetails.contactInfo.state': state },
+        {
+          'vehicleDetails.storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      statusQuery.$or = [
+        // { 'userInformation.city': city },
+        { 'vehicleDetails.sellerDetails.contactInfo.city': city },
+        {
+          'vehicleDetails.storeDetails.contactInfo.city': city
+        }
+      ];
     }
 
     const combinedResult = await VehicleAnalyticModel.aggregate([
@@ -2508,6 +2565,135 @@ export class AnalyticService {
       }
     ]);
     return combinedResult;
+  }
+
+  async getBuyVehicleStore(
+    role: string,
+    oemUserName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    brandName?: any,
+    userName?: string,
+    vehicleType?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    let query2: any = {};
+    Logger.debug(`${role} ${oemUserName} getTrafficAnalaytic`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    const tday = new Date();
+
+    query = {
+      category: 'Buy/Sell',
+      module: 'STORE',
+      oemUserName: userName
+    };
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
+
+    if (!userName) {
+      delete query['oemUserName'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = oemUserName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const statusQuery: any = {};
+
+    if (storeId) statusQuery['moduleInformation'] = storeId;
+    if (vehicleType) statusQuery['vehicleDetails.vehType'] = vehicleType;
+    if (brandName?.catalogName)
+      statusQuery['vehicleDetails.brandName'] = brandName?.catalogName;
+    if (state) {
+      statusQuery.$or = [{ 'userInformation.state': state }];
+    }
+    if (city) {
+      statusQuery.$or = [{ 'userInformation.city': city }];
+    }
+
+    const combinedResult = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$event',
+          initialCount: { $sum: 1 },
+          queryCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ['$createdAt', firstDay] },
+                    { $lte: ['$createdAt', nextDate] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          count: '$queryCount',
+          total: '$initialCount',
+          _id: 0
+        }
+      }
+    ]);
+
+    delete query['module'];
+    delete query['category'];
+
+    query2 = {
+      ...query,
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      module: 'CATEGORIES',
+      event: 'CATEGORY_CLICK',
+      moduleInformation: 'Buy/Sell'
+    };
+    const combinedResult2 = await EventAnalyticModel.count(query2);
+    const finalVal = [
+      ...combinedResult,
+      { name: 'Buy/Sell', total: combinedResult2 }
+    ];
+    return finalVal;
   }
 
   /// buysell vehicle analytic creation api end ===========================

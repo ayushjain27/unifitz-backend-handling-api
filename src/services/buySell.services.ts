@@ -912,8 +912,8 @@ export class BuySellService {
           }
         }
       },
-      { $match: queryTwo },
-      { $project: { vehicleAnalytic: 0 } }
+      { $match: queryTwo }
+      // { $project: { vehicleAnalytic: 0 } }
     ]);
 
     return vehicleResponse;

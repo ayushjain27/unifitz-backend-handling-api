@@ -173,6 +173,12 @@ router.post(
   analyticController.getBuyVehicleAll
 );
 
+router.post(
+  '/getBuyVehicleStore',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getBuyVehicleStore
+);
+
 // ====================Vehicle analytic api lists end=====================
 // =======================================================================
 

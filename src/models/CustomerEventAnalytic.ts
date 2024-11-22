@@ -102,6 +102,7 @@ export interface IEventAnalytic {
   message: string;
   createdAt?: Date;
   updatedAt?: Date;
+  category?: string;
 }
 
 const eventAnalyticSchema: Schema = new Schema(
@@ -128,6 +129,9 @@ const eventAnalyticSchema: Schema = new Schema(
       type: String
     },
     message: {
+      type: String
+    },
+    category: {
       type: String
     }
   },
