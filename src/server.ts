@@ -40,7 +40,7 @@ import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
 import AWS from 'aws-sdk';
-import { s3Config } from './config/constants';
+import { API_VERSION, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
@@ -86,7 +86,7 @@ app.use(limiter);
 // @desc    Liveliness base API
 // @access  Public
 app.get('/', async (_req, res) => {
-  res.send('ok');
+  res.send(`ok ${API_VERSION}`);
 });
 
 app.get('/health', async (req, res) => {
