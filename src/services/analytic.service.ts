@@ -2597,7 +2597,9 @@ export class AnalyticService {
     query = {
       category: 'Buy/Sell',
       module: 'STORE',
-      oemUserName: userName
+      oemUserName: userName,
+      'userInformation.state': state,
+      'userInformation.city': city
     };
 
     if (platform === 'PARTNER' || platform === 'CUSTOMER') {
@@ -2628,18 +2630,17 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
 
-    const statusQuery: any = {};
-
-    if (storeId) statusQuery['moduleInformation'] = storeId;
-    if (vehicleType) statusQuery['vehicleDetails.vehType'] = vehicleType;
-    if (brandName?.catalogName)
-      statusQuery['vehicleDetails.brandName'] = brandName?.catalogName;
-    if (state) {
-      statusQuery.$or = [{ 'userInformation.state': state }];
+    if (storeId) query['moduleInformation'] = storeId;
+    // if (vehicleType) query['vehicleDetails.vehType'] = vehicleType;
+    // if (brandName?.catalogName)
+    //   query['vehicleDetails.brandName'] = brandName?.catalogName;
+    if (!state) {
+      delete query['userInformation.state'];
     }
-    if (city) {
-      statusQuery.$or = [{ 'userInformation.city': city }];
+    if (!city) {
+      delete query['userInformation.city'];
     }
+console.log(query, 'queryquery');
 
     const combinedResult = await EventAnalyticModel.aggregate([
       {
@@ -2689,9 +2690,12 @@ export class AnalyticService {
       moduleInformation: 'Buy/Sell'
     };
     const combinedResult2 = await EventAnalyticModel.count(query2);
+    delete query['createdAt'];
+    const combinedResult3 = await EventAnalyticModel.count(query2);
+
     const finalVal = [
       ...combinedResult,
-      { name: 'Buy/Sell', total: combinedResult2 }
+      { name: 'Buy/Sell', count: combinedResult2, total: combinedResult3 }
     ];
     return finalVal;
   }
