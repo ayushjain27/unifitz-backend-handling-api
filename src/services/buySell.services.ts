@@ -711,6 +711,10 @@ export class BuySellService {
       ];
     }
 
+    if (storeId && userType) {
+      delete query['userType'];
+    }
+
     const queryTwo: any = {};
     if (state)
       queryTwo['vehicleAnalytic.userInformation.state'] = { $in: [state] };
@@ -823,6 +827,10 @@ export class BuySellService {
           'storeDetails.contactInfo.city': city
         }
       ];
+    }
+
+    if (storeId && userType) {
+      delete query['userType'];
     }
 
     const queryTwo: any = {};
@@ -988,6 +996,9 @@ export class BuySellService {
 
     if (req?.oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
+    }
+    if (req?.storeId && req?.userType) {
+      delete query['userType'];
     }
     const vehicleResponse: any = await buySellVehicleInfo.count(query);
     const vehicleResult: any = {
