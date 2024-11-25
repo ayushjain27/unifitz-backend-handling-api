@@ -9,13 +9,18 @@ import { S3Service } from './s3.service';
 import { UserService } from './user.service';
 import { StoreService } from './store.service';
 import { CustomerService } from './customer.service';
-import { OrderRequest } from '../interfaces/orderRequest.interface';
+import {
+  OrderRequest,
+  OrderStatusRequest
+} from '../interfaces/orderRequest.interface';
 import UserOrder, { IUserOrderManagement } from '../models/UserOrderManagement';
 import { groupBy, isEmpty } from 'lodash';
 import DistributorOrder from '../models/DistributorOrderManagement';
 import ProductCartModel from '../models/ProductCart';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
+import { AdminRole } from './../models/Admin';
+import { SPEmployeeService } from './spEmployee.service';
 
 @injectable()
 export class OrderManagementService {
@@ -25,9 +30,10 @@ export class OrderManagementService {
   private customerService = container.get<CustomerService>(
     TYPES.CustomerService
   );
-  private sqsService = container.get<SQSService>(
-    TYPES.SQSService
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
   );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(requestBody: OrderRequest): Promise<IUserOrderManagement> {
     Logger.info('<Service>:<OrderManagementService>: <Order Request created>');
@@ -96,46 +102,47 @@ export class OrderManagementService {
       );
     });
 
-    const sqsMessage = await this.sqsService.createMessage(SQSEvent.CREATE_DISTRIBUTOR_ORDER, userOrderRequest?._id);
-    console.log(sqsMessage,"Message")
-    
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.CREATE_DISTRIBUTOR_ORDER,
+      userOrderRequest?._id
+    );
+    console.log(sqsMessage, 'Message');
 
     // if (!isEmpty(userOrderRequest)) {
 
-      // const groupedData = groupBy(requestBody.items, 'oemUserName');
-      // const groupedData = requestBody.items.reduce((result, currentItem) => {
-      //   const userGroup = result.find(
-      //     (group) => group[0]?.oemUserName === currentItem.oemUserName
-      //   );
+    // const groupedData = groupBy(requestBody.items, 'oemUserName');
+    // const groupedData = requestBody.items.reduce((result, currentItem) => {
+    //   const userGroup = result.find(
+    //     (group) => group[0]?.oemUserName === currentItem.oemUserName
+    //   );
 
-      //   if (userGroup) {
-      //     // If a group already exists for this user, add the item to that group
-      //     userGroup.push(currentItem);
-      //   } else {
-      //     // If no group exists for this user, create a new group with the item
-      //     result.push([currentItem]);
-      //   }
+    //   if (userGroup) {
+    //     // If a group already exists for this user, add the item to that group
+    //     userGroup.push(currentItem);
+    //   } else {
+    //     // If no group exists for this user, create a new group with the item
+    //     result.push([currentItem]);
+    //   }
 
-      //   return result;
-      // }, []);
+    //   return result;
+    // }, []);
 
-      // await groupedData.map(async (itemGroup) => {
-      //   const totalAmount = itemGroup.reduce(
-      //     (sum: any, item: { price: any }) => sum + item.price,
-      //     0
-      //   );
+    // await groupedData.map(async (itemGroup) => {
+    //   const totalAmount = itemGroup.reduce(
+    //     (sum: any, item: { price: any }) => sum + item.price,
+    //     0
+    //   );
 
-      //   const distributorOrderData = {
-      //     orderId: userOrderRequest._id,
-      //     orders: itemGroup,
-      //     oemUserName: itemGroup[0]?.username, // Assuming username is the grouping field
-      //     totalAmount // Include totalAmount here
-      //   };
+    //   const distributorOrderData = {
+    //     orderId: userOrderRequest._id,
+    //     orders: itemGroup,
+    //     oemUserName: itemGroup[0]?.username, // Assuming username is the grouping field
+    //     totalAmount // Include totalAmount here
+    //   };
 
-      //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
-      // });
+    //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
+    // });
     // }
-
 
     return userOrderRequest;
   }
@@ -144,8 +151,10 @@ export class OrderManagementService {
     Logger.info('<Service>:<OrderManagementService>:<Get order by id>');
     const orderResponse: IUserOrderManagement = await UserOrder.findOne({
       _id: new Types.ObjectId(orderId)
-    }).lean().populate('items.cartId')     // Populate cartId in each item
-    .populate('items.productId'); // Populate productId in each item
+    })
+      .lean()
+      .populate('items.cartId') // Populate cartId in each item
+      .populate('items.productId'); // Populate productId in each item
     return orderResponse;
   }
 
@@ -156,25 +165,26 @@ export class OrderManagementService {
     pageSize: number,
     status: string
   ): Promise<IUserOrderManagement[]> {
-    let query: { storeId?: string; customerId?: string; status?: string } = {};
+    const query: { storeId?: string; customerId?: string; status?: string } =
+      {};
 
     // Add status to the query object
     if (!isEmpty(status)) {
       query.status = status;
     }
-  
+
     const userPayload = {
       phoneNumber: `+91${phoneNumber.slice(-10)}`,
       role: userRole
     };
-  
+
     // Get the user details
     const user = await this.userService.getUserByPhoneNumber(userPayload);
-  
+
     if (!user) {
       throw new Error('User not found');
     }
-  
+
     // Define query for either storeId or customerId based on user role
     if (userRole === 'STORE_OWNER') {
       const store = await this.storeService.getStoreByUserId(user._id);
@@ -183,57 +193,61 @@ export class OrderManagementService {
       }
       query.storeId = store.storeId;
     } else {
-      const customer = await this.customerService.getByPhoneNumber(`+91${phoneNumber.slice(-10)}`);
+      const customer = await this.customerService.getByPhoneNumber(
+        `+91${phoneNumber.slice(-10)}`
+      );
       if (!customer) {
         throw new Error('Customer not found');
       }
       query.customerId = customer._id;
     }
-  
-    Logger.info('<Service>:<OrderManagementService>:<Get user all orders by id>');
-  
+
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Get user all orders by id>'
+    );
+
     const orderResponse: any = await UserOrder.aggregate([
       {
         $match: query
       },
       {
-        $unwind: "$items"  // Unwind the items array to populate each individually
+        $unwind: '$items' // Unwind the items array to populate each individually
       },
       {
         $lookup: {
-          from: "productcarts",
-          localField: "items.cartId",
-          foreignField: "_id",
-          as: "items.cartDetails"
+          from: 'productcarts',
+          localField: 'items.cartId',
+          foreignField: '_id',
+          as: 'items.cartDetails'
         }
       },
       {
         $lookup: {
-          from: "partnersproducts",
-          localField: "items.productId",
-          foreignField: "_id",
-          as: "items.productDetails"
+          from: 'partnersproducts',
+          localField: 'items.productId',
+          foreignField: '_id',
+          as: 'items.productDetails'
         }
       },
       {
-        $unwind: "$items.cartDetails"  // Unwind single cartDetail (since it’s a 1-to-1 relationship)
+        $unwind: '$items.cartDetails' // Unwind single cartDetail (since it’s a 1-to-1 relationship)
       },
       {
-        $unwind: "$items.productDetails"  // Unwind single productDetail (since it’s a 1-to-1 relationship)
+        $unwind: '$items.productDetails' // Unwind single productDetail (since it’s a 1-to-1 relationship)
       },
       {
         $group: {
-          _id: "$_id",
-          userDetail: { $first: "$userDetail" },
-          status: { $first: "$status" },
-          totalAmount: { $first: "$totalAmount" },
-          shippingAddress: { $first: "$shippingAddress" },
-          storeId: { $first: "$storeId" },
-          customerId: { $first: "$customerId" },
-          userId: { $first: "$userId" },
-          createdAt: { $first: "$createdAt" },
-          updatedAt: { $first: "$updatedAt" },
-          items: { $push: "$items" }  // Re-assemble items as an array after lookups
+          _id: '$_id',
+          userDetail: { $first: '$userDetail' },
+          status: { $first: '$status' },
+          totalAmount: { $first: '$totalAmount' },
+          shippingAddress: { $first: '$shippingAddress' },
+          storeId: { $first: '$storeId' },
+          customerId: { $first: '$customerId' },
+          userId: { $first: '$userId' },
+          createdAt: { $first: '$createdAt' },
+          updatedAt: { $first: '$updatedAt' },
+          items: { $push: '$items' } // Re-assemble items as an array after lookups
         }
       },
       {
@@ -243,8 +257,124 @@ export class OrderManagementService {
         $limit: pageSize
       }
     ]);
-  
+
     return orderResponse;
   }
-  
+
+  async updateCartStatus(requestBody: OrderStatusRequest): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>: <Order Request Cart Status initiated>'
+    );
+
+    const order = await UserOrder.findOne({
+      _id: new Types.ObjectId(requestBody.orderId)
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    console.log(requestBody, 'fl');
+    const updatedOrder = await UserOrder.updateOne(
+      { _id: new Types.ObjectId(requestBody.orderId) }, // Match the order
+      {
+        $set: {
+          'items.$[item].status': requestBody.status, // Update the status
+          'items.$[item].deliveryDate': requestBody.deliveryDate // Add deliveryDate
+        }
+      },
+      {
+        arrayFilters: [
+          { 'item.cartId': new Types.ObjectId(requestBody.cartId) } // Match the specific cartId
+        ]
+      }
+    );
+
+    if (updatedOrder.modifiedCount > 0) {
+      console.log('Item updated successfully');
+    } else {
+      console.log('No matching item found for the given cartId');
+    }
+
+    return updatedOrder;
+  }
+
+  async getAllDistributorsOrdersPaginated(
+    userName?: string,
+    role?: string,
+    userType?: string,
+    status?: string,
+    oemId?: string,
+    pageNo?: number,
+    pageSize?: number,
+    employeeId?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Search and Filter distributors orders service initiated>'
+    );
+    const query: any = {};
+    const userRoleType = userType === 'OEM' ? true : false;
+
+    if (role === AdminRole.ADMIN) {
+      query.oemUserName = { $exists: userRoleType };
+    }
+    if (!userType) {
+      delete query['oemUserName'];
+    }
+    if (status === 'PARTNERDRAFT') {
+      query.oemUserName = { $exists: true };
+    }
+    if (status === 'DRAFT') {
+      query.oemUserName = { $exists: userRoleType };
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (!status) {
+      delete query['status'];
+    }
+    if (role === 'EMPLOYEE') {
+      const userName = oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      console.log(employeeDetails, 'dfwklm');
+      // if (employeeDetails) {
+      //   query['contactInfo.state'] = {
+      //     $in: employeeDetails.state.map((stateObj) => stateObj.name)
+      //   };
+      //   if (!isEmpty(employeeDetails?.city)) {
+      //     query['contactInfo.city'] = {
+      //       $in: employeeDetails.city.map((cityObj) => cityObj.name)
+      //     };
+      //   }
+      // }
+    }
+
+    console.log(query, 'FEWFm');
+
+    const orders: any = await DistributorOrder.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return orders;
+  }
 }

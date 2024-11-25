@@ -22,6 +22,7 @@ export interface ICartInfo {
   productId: ObjectId;
   status: string;
   oemUserName: string;
+  deliveryDate: Date;
 }
 
 export const cartSchema: Schema = new Schema(
@@ -31,6 +32,9 @@ export const cartSchema: Schema = new Schema(
     status: { type: String },
     oemUserName: {
       type: String
+    },
+    deliveryDate: {
+      type: Date
     }
   },
   { _id: false }

@@ -6,7 +6,10 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Request from '../types/request';
 import { OrderManagementService } from '../services';
-import { OrderRequest } from '../interfaces/orderRequest.interface';
+import {
+  OrderRequest,
+  OrderStatusRequest
+} from '../interfaces/orderRequest.interface';
 
 @injectable()
 export class OrderManagementController {
@@ -90,7 +93,61 @@ export class OrderManagementController {
     }
   };
 
-  
+  updateCartStatus = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Request Order controller initiated>'
+    );
+    try {
+      const reqBody: OrderStatusRequest = {
+        orderId: req.body.orderId,
+        cartId: req.body?.cartId,
+        deliveryDate: req.body?.deliveryDate,
+        status: req.body.status
+      };
+      const result = await this.orderManagementService.updateCartStatus(
+        reqBody
+      );
+      res.send({
+        message: 'Create Order Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllDistributorsOrdersPaginated = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const { userType, status, pageNo, pageSize, oemId, employeeId } = req.body;
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Search and Filter Distributors stores pagination request controller initiated>'
+    );
+    try {
+      const result =
+        await this.orderManagementService.getAllDistributorsOrdersPaginated(
+          userName,
+          role,
+          userType,
+          status,
+          oemId,
+          pageNo,
+          pageSize,
+          employeeId
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 
   validate = (method: string) => {
     switch (method) {

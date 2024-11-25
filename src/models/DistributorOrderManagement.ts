@@ -88,6 +88,9 @@ const orderSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const DistributorOrder = model<IDistributorOrderManagement & Document>('distributors-orders', orderSchema);
+const DistributorOrder = model<IDistributorOrderManagement & Document>(
+  'distributors-orders',
+  orderSchema
+);
 
 export default DistributorOrder;
