@@ -749,6 +749,55 @@ export class BuySellService {
           as: 'vehicleAnalytic'
         }
       },
+      {
+        $addFields: {
+          impressionCount: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
+              }
+            }
+          },
+          vehicleDetailClick: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'VEHICLE_DETAIL_CLICK'] }
+              }
+            }
+          },
+          executivePhoneNo: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'EXECUTIVE_PHONE_NUMBER_CLICK'] }
+              }
+            }
+          },
+          storePhoneNo: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'STORE_PHONE_NUMBER_CLICK'] }
+              }
+            }
+          },
+          locationClickCount: {
+            $size: {
+              $filter: {
+                input: '$vehicleAnalytic',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'LOCATION_CLICK'] }
+              }
+            }
+          }
+        }
+      },
       { $match: queryTwo },
       { $project: { vehicleAnalytic: 0 } }
     ]);
