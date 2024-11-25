@@ -70,6 +70,11 @@ router.post('/updateStatus', buySellController.updateBuySellVehicleStatus);
 
 router.post('/all', roleAuth(ACL.ADD_VEHICLE), buySellController.getAll);
 router.post(
+  '/priceCount',
+  roleAuth(ACL.ADD_VEHICLE),
+  buySellController.getAllBuySellVehilceCount
+);
+router.post(
   '/paginated/all',
   roleAuth(ACL.ADD_VEHICLE),
   buySellController.getPaginatedAll

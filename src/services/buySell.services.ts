@@ -755,6 +755,143 @@ export class BuySellService {
 
     return vehicleResponse;
   }
+  async getAllBuySellVehilceCount(
+    req: any,
+    userName?: string,
+    role?: string
+  ): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    const {
+      state,
+      city,
+      firstDate,
+      lastDate,
+      searchQuery,
+      storeId,
+      brandName,
+      status,
+      vehicleType,
+      userType,
+      oemId
+    } = req || {};
+
+    const firstDay = firstDate ? new Date(firstDate) : undefined;
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const statusQuery = { status };
+    const query: any = {
+      updatedAt:
+        firstDate && lastDate ? { $gte: firstDay, $lte: nextDate } : undefined,
+      'vehicleInfo.vehicleType': vehicleType,
+      userType,
+      'storeDetails.storeId': storeId,
+      oemUserName: req?.userName,
+      brandName: brandName?.catalogName
+    };
+
+    if (!query.updatedAt) delete query['updatedAt'];
+    if (!req.userName) delete query['oemUserName'];
+    if (!vehicleType) delete query['vehicleInfo.vehicleType'];
+    if (!storeId) delete query['storeDetails.storeId'];
+
+    ['brandName', 'userType'].forEach((key) => {
+      if (!req[key]) delete query[key];
+    });
+
+    if (searchQuery) {
+      const formattedPhoneNumber =
+        searchQuery.length === 10 ? `+91${searchQuery}` : searchQuery;
+
+      query.$or = [
+        { 'sellerDetails.phoneNumber': formattedPhoneNumber },
+        {
+          'storeDetails.contactInfo.phoneNumber.primary': formattedPhoneNumber
+        },
+        { 'vehicleInfo.vehicleNumber': searchQuery }
+      ];
+    }
+
+    if (state) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.state': state },
+        {
+          'storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.city': city },
+        {
+          'storeDetails.contactInfo.city': city
+        }
+      ];
+    }
+
+    if (storeId && userType) {
+      delete query['userType'];
+    }
+
+    const queryTwo: any = {};
+    if (state)
+      queryTwo['vehicleAnalytic.userInformation.state'] = { $in: [state] };
+    if (city)
+      queryTwo['vehicleAnalytic.userInformation.city'] = { $in: [city] };
+
+    if (role === AdminRole.OEM) query.oemUserName = userName;
+    if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
+    if (oemId === 'SERVICEPLUG') delete query.oemUserName;
+
+    Logger.debug(query);
+
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+      { $match: statusQuery },
+      { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } },
+      { $match: query },
+      { $set: { VehicleId: { $toString: '$_id' } } },
+      {
+        $lookup: {
+          from: 'vehicleanalytics',
+          localField: 'VehicleId',
+          foreignField: 'moduleInformation',
+          as: 'vehicleAnalytic'
+        }
+      },
+      { $match: queryTwo },
+      { $project: { vehicleAnalytic: 0 } },
+      {
+        $group: {
+          _id: '$vehType',
+          initialCount: { $sum: 1 },
+          totalExpectedPrice: {
+            $sum: { $toDouble: '$vehicleInfo.expectedPrice' }
+          }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          count: '$initialCount',
+          totalPrice: '$totalExpectedPrice',
+          _id: 0
+        }
+      }
+    ]);
+
+    return vehicleResponse;
+  }
 
   async getPaginatedAll(
     req: any,
