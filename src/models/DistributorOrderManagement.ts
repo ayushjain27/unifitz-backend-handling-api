@@ -1,21 +1,4 @@
-import { Document, model, Schema, ObjectId, Types } from 'mongoose';
-
-export interface IUserInfo {
-  userId?: string;
-  name: string;
-  email?: string;
-  phoneNumber: string;
-}
-
-export const userSchema: Schema = new Schema(
-  {
-    userId: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true }
-  },
-  { _id: false }
-);
+import { Document, model, Schema, Types } from 'mongoose';
 
 export interface ICartInfo {
   cartId: string;
@@ -31,7 +14,6 @@ export const cartSchema: Schema = new Schema(
     quantity: {
       type: Number,
       required: true,
-      min: 1
     },
     price: {
       type: Number,
@@ -39,7 +21,8 @@ export const cartSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['AVAILABLE', 'UNAVAILABLE']
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING'
     },
     oemUserName: {
       type: String
@@ -60,9 +43,6 @@ export interface IDistributorOrderManagement {
 
 const orderSchema: Schema = new Schema(
   {
-    userDetail: {
-      type: userSchema
-    },
     items: {
       type: [cartSchema]
     },
@@ -73,10 +53,6 @@ const orderSchema: Schema = new Schema(
       type: String,
       enum: ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
       default: 'PENDING'
-    },
-    shippingAddress: {
-      type: String,
-      required: true
     },
     totalAmount: {
       type: String
