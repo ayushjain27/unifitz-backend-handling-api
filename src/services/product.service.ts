@@ -1045,11 +1045,11 @@ export class ProductService {
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
-      'productCategory.catalogName': { $in: [category] },
+      productCategory: category,
       'productSubCategory.catalogName': { $in: [subCategory] }
     };
 
-    if (!category) delete query['productCategory.catalogName'];
+    if (!category) delete query['productCategory'];
     if (!subCategory) delete query['productSubCategory.catalogName'];
 
     if (role === AdminRole.OEM) {
@@ -1091,11 +1091,11 @@ export class ProductService {
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
-      'productCategory.catalogName': { $in: [category] },
+      productCategory: category,
       'productSubCategory.catalogName': { $in: [subCategory] }
     };
 
-    if (!category) delete query['productCategory.catalogName'];
+    if (!category) delete query['productCategory'];
     if (!subCategory) delete query['productSubCategory.catalogName'];
 
     if (role === AdminRole.OEM) {
@@ -1599,68 +1599,85 @@ export class ProductService {
 
   async updatePartnerProductImages(
     partnerProductId: string,
+    dataList: any,
     req: Request | any
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
-    const partnerProduct = await PartnersPoduct.findOne({
-      _id: new Types.ObjectId(partnerProductId)
+    const partnerProduct: any = await PartnersPoduct.findOne({
+      _id: partnerProductId
     })?.lean();
+
     if (_.isEmpty(partnerProduct)) {
       throw new Error('Product does not exist');
     }
 
-    const files: Array<any> = req.files;
-    const imgKeys: Array<any> = req.body.keys;
-
-    if (!files) {
-      throw new Error('Files not found');
+    const files = req.files;
+    const imageIndexes = req.body.imageIndex;
+    if (!files || !imageIndexes) {
+      // return res.status(400).send('Files or image indexes are missing');
+      throw new Error('Files or keys not found');
     }
     const ImageList: any = [];
-    for (const file of files) {
-      const fileName = file.originalname?.split('.')[0];
+    const imageIndexArray = Array.isArray(imageIndexes)
+      ? imageIndexes
+      : imageIndexes.split('-');
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      let colorCodeIndex, imageFieldIndex;
+
+      if (files.length === 1) {
+        [colorCodeIndex, imageFieldIndex] = imageIndexArray;
+      } else {
+        [colorCodeIndex, imageFieldIndex] = imageIndexArray[index].split('-');
+      }
+
+      const fileName = file.originalname.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         partnerProductId,
         fileName,
         file.buffer
       );
-      ImageList.push({ key, docURL: url });
+      ImageList.push({ colorCodeIndex, imageFieldIndex, key, docURL: url });
     }
+    console.log(ImageList, 'ImageListImageList');
+    console.log(
+      imageIndexes?.length,
+      imageIndexes,
+      imageIndexes[0],
+      imageIndexes[0].split('-'),
+      'imageIndex.splitsplitsplitsplit'
+    );
 
-    const colorList: any = ImageList?.map((val: any, key: number) => {
-      const jsonData = {
-        image: val,
-        imgKey: Number(imgKeys[key])
-      };
-      return jsonData;
-    });
-    const vehicleImages = partnerProduct?.colorCode
-      .map((val, key) =>
-        val?.image ? { image: val?.image, imgKey: key } : undefined
-      )
-      .filter((res) => res !== undefined);
-    const colorImages: any = [...vehicleImages, ...colorList].sort(
-      (a, b) => a.imgKey - b.imgKey
-    );
-    const colorCode: any = partnerProduct?.colorCode?.map(
-      (val: any, key: number) => {
-        const jsonData = {
-          color: val?.color,
-          colorName: val?.colorName,
-          oemPartNumber: val?.oemPartNumber,
-          skuNumber: val?.skuNumber,
-          manufacturerPartNumber: val?.manufacturerPartNumber,
-          image: colorImages[key]?.image
-        };
-        return jsonData;
-      }
-    );
+    const colorList: any = [];
+    for (let index = 0; index < partnerProduct?.colorCodeList.length; index++) {
+      const colorCode = partnerProduct?.colorCodeList[index];
+
+      ImageList.forEach((image: any) => {
+        if (parseInt(image.colorCodeIndex) === index) {
+          switch (image.imageFieldIndex) {
+            case '0':
+              colorCode.image1 = { key: image.key, docURL: image.docURL };
+              break;
+            case '1':
+              colorCode.image2 = { key: image.key, docURL: image.docURL };
+              break;
+            case '2':
+              colorCode.image3 = { key: image.key, docURL: image.docURL };
+              break;
+          }
+        }
+      });
+      colorList.push(colorCode);
+    }
+    console.log(dataList, colorList, 'colorListcolorList');
 
     const producttDetails = {
       ...partnerProduct,
-      colorCode,
+      colorCodeList: colorList,
       status: 'ACTIVE',
       _id: new Types.ObjectId(partnerProductId)
     };
+    console.log(dataList, producttDetails, 'dataListdataListdataListdataList');
 
     const res = await PartnersPoduct.findOneAndUpdate(
       { _id: partnerProductId },

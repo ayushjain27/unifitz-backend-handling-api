@@ -1051,13 +1051,14 @@ export class ProductController {
   };
 
   updatePartnerProductImages = async (req: Request, res: Response) => {
-    const { partnerProductId } = req.body;
+    const { partnerProductId, dataList } = req.body;
     Logger.info(
       '<Controller>:<ProductController>:<Upload Product request initiated>'
     );
     try {
       const result = await this.productService.updatePartnerProductImages(
         partnerProductId,
+        dataList,
         req
       );
       res.send({
