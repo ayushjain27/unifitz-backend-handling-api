@@ -29,7 +29,11 @@ export const cartSchema: Schema = new Schema(
   {
     cartId: { type: Types.ObjectId, ref: 'productcarts' },
     productId: { type: Types.ObjectId, ref: 'partnersproducts' },
-    status: { type: String },
+    status: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING'
+    },
     oemUserName: {
       type: String
     },

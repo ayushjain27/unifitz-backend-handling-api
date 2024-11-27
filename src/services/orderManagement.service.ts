@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
 import container from '../config/inversify.container';
@@ -321,12 +322,6 @@ export class OrderManagementService {
     if (!userType) {
       delete query['oemUserName'];
     }
-    if (status === 'PARTNERDRAFT') {
-      query.oemUserName = { $exists: true };
-    }
-    if (status === 'DRAFT') {
-      query.oemUserName = { $exists: userRoleType };
-    }
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
@@ -365,16 +360,87 @@ export class OrderManagementService {
     console.log(query, 'FEWFm');
 
     const orders: any = await DistributorOrder.aggregate([
+      // Match the query
+      { $match: query },
+
+      // Optionally sort before pagination
+      { $sort: { createdAt: -1 } },
+
+      // Pagination: Skip and Limit
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
+
+      // Unwind the items array
+      { $unwind: { path: '$items', preserveNullAndEmptyArrays: true } },
+
+      // Lookup cart details
       {
-        $match: query
+        $lookup: {
+          from: 'productcarts',
+          localField: 'items.cartId',
+          foreignField: '_id',
+          as: 'items.cartDetails'
+        }
+      },
+
+      // Lookup product details
+      {
+        $lookup: {
+          from: 'partnersproducts',
+          localField: 'items.productId',
+          foreignField: '_id',
+          as: 'items.productDetails'
+        }
+      },
+
+      // Unwind lookup results
+      {
+        $unwind: {
+          path: '$items.cartDetails',
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
-        $skip: pageNo * pageSize
+        $unwind: {
+          path: '$items.productDetails',
+          preserveNullAndEmptyArrays: true
+        }
       },
+
+      // Group data back into a single document
       {
-        $limit: pageSize
+        $group: {
+          _id: '$_id',
+          items: { $push: '$items' },
+          customerOrderId: { $first: '$customerOrderId' },
+          status: { $first: '$status' },
+          totalAmount: { $first: '$totalAmount' },
+          oemUserName: { $first: '$oemUserName' },
+          createdAt: { $first: '$createdAt' },
+          updatedAt: { $first: '$updatedAt' }
+        }
+      },
+
+      // Lookup customer order details
+      {
+        $lookup: {
+          from: 'orders', // Collection name for customer orders
+          localField: 'customerOrderId',
+          foreignField: '_id',
+          as: 'customerOrderDetails'
+        }
+      },
+
+      // Unwind customerOrderDetails
+      {
+        $unwind: {
+          path: '$customerOrderDetails',
+          preserveNullAndEmptyArrays: true
+        }
       }
     ]);
+
+    console.log(orders, 'orders');
     return orders;
   }
 }

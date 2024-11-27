@@ -1,24 +1,16 @@
-import { Document, model, Schema, Types } from 'mongoose';
+import { Document, model, ObjectId, Schema, Types } from 'mongoose';
 
 export interface ICartInfo {
-  cartId: string;
-  quantity: number;
-  price: number;
+  cartId: ObjectId;
+  productId: ObjectId;
   status: string;
   oemUserName: string;
 }
 
 export const cartSchema: Schema = new Schema(
   {
-    cartId: { type: String, required: true },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true
-    },
+    cartId: { type: Types.ObjectId, required: true },
+    productId: { type: Types.ObjectId, required: true },
     status: {
       type: String,
       enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
@@ -34,7 +26,7 @@ export const cartSchema: Schema = new Schema(
 export interface IDistributorOrderManagement {
   _id?: string;
   customerOrderId?: Types.ObjectId;
-  orders?: ICartInfo[];
+  items?: ICartInfo[];
   totalAmount: string;
   oemUserName?: string;
   createdAt?: Date;
@@ -51,7 +43,7 @@ const orderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
       default: 'PENDING'
     },
     totalAmount: {
