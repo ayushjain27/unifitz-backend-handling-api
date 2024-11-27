@@ -39,7 +39,6 @@ import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
-import AWS from 'aws-sdk';
 import { API_VERSION, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
@@ -52,11 +51,11 @@ const app = express();
 import cron from 'node-cron';
 // Connect to MongoDB
 
-AWS.config.update({
-  accessKeyId: s3Config.AWS_KEY_ID,
-  secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
-});
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-south-1'
+// });
 
 connectDB();
 // Connect with firebase admin
@@ -259,7 +258,7 @@ app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
 });
 
-app.use(errorHandler);
+app.use(errorHandler as any);
 
 const port = app.get('port');
 const server = app.listen(port, () =>
@@ -439,89 +438,89 @@ async function updateSlugs() {
 //   updateSlug();
 // });
 
-const sqs = new AWS.SQS();
-const ses = new AWS.SES();
+// const sqs = new AWS.SQS();
+// const ses = new AWS.SES();
 const path = require('path');
 
-app.get('/createTemplate', async (req, res) => {
-  const params = {
-    Template: {
-      TemplateName: 'NewVehicleEnquiryOemUserPartner',
-      SubjectPart: '🚗 New Vehicle Enquiry 🚗', // Use a placeholder for dynamic subject
-      HtmlPart: `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-          }
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          }
-          h1 {
-            color: #333;
-          }
-          p {
-            color: #666;
-          }
-          .cta-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #ff6600;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-      <p style="font-size: 20px; text-align: center;">🚗 New Vehicle Enquiry 🚗</p>
-          <p style="font-size: 16px; color: blue;">User Details</p>
-          <p>UserName : {{userName}}</p>
-          <p>Phone Number : {{phoneNumber}}</p>
-          <p>Email : {{email}}</p>
-          <p>State : {{userState}}</p>
-          <p>City : {{userCity}}</p>
-          <p style="font-size: 17px; color: blue">Vehicle Details</p>
-          <P>Vehicle Name : {{vehicleName}}</p>
-          <p>Brand : {{brand}}</p>
-          <p>Model Name : {{model}}</p>
-          <p style="font-size: 17px; color: blue">Nearby Store Details</p>
-          <P>Dealer Name : {{dealerName}}</p>
-          <P>Store Id : {{storeId}}</p>
-          <p>State : {{storeState}}</p>
-          <p>City : {{storeCity}}</p>
+// app.get('/createTemplate', async (req, res) => {
+//   const params = {
+//     Template: {
+//       TemplateName: 'NewVehicleEnquiryOemUserPartner',
+//       SubjectPart: '🚗 New Vehicle Enquiry 🚗', // Use a placeholder for dynamic subject
+//       HtmlPart: `<!DOCTYPE html>
+//       <html lang="en">
+//       <head>
+//         <meta charset="UTF-8">
+//         <style>
+//           body {
+//             font-family: Arial, sans-serif;
+//             background-color: #f4f4f4;
+//             margin: 0;
+//             padding: 0;
+//           }
+//           .container {
+//             max-width: 600px;
+//             margin: 0 auto;
+//             padding: 20px;
+//             background-color: #fff;
+//             border-radius: 8px;
+//             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+//           }
+//           h1 {
+//             color: #333;
+//           }
+//           p {
+//             color: #666;
+//           }
+//           .cta-button {
+//             display: inline-block;
+//             padding: 10px 20px;
+//             background-color: #ff6600;
+//             color: #fff;
+//             text-decoration: none;
+//             border-radius: 4px;
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="container">
+//       <p style="font-size: 20px; text-align: center;">🚗 New Vehicle Enquiry 🚗</p>
+//           <p style="font-size: 16px; color: blue;">User Details</p>
+//           <p>UserName : {{userName}}</p>
+//           <p>Phone Number : {{phoneNumber}}</p>
+//           <p>Email : {{email}}</p>
+//           <p>State : {{userState}}</p>
+//           <p>City : {{userCity}}</p>
+//           <p style="font-size: 17px; color: blue">Vehicle Details</p>
+//           <P>Vehicle Name : {{vehicleName}}</p>
+//           <p>Brand : {{brand}}</p>
+//           <p>Model Name : {{model}}</p>
+//           <p style="font-size: 17px; color: blue">Nearby Store Details</p>
+//           <P>Dealer Name : {{dealerName}}</p>
+//           <P>Store Id : {{storeId}}</p>
+//           <p>State : {{storeState}}</p>
+//           <p>City : {{storeCity}}</p>
 
-          <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
-        </div>
-      </body>
-      </html>`,
-      TextPart: 'Plain text content goes here'
-    }
-  };
-  // console.log(params);
+//           <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+//         </div>
+//       </body>
+//       </html>`,
+//       TextPart: 'Plain text content goes here'
+//     }
+//   };
+//   // console.log(params);
 
-  ses.createTemplate(params, (err, data) => {
-    if (err) {
-      console.log(err, 'wdk');
-      // console.log('Error creating email template: ', err);
-      res.status(500).send({ error: 'Failed to create email template' });
-    } else {
-      // console.log('Email template created ', data);
-      res.send(data);
-    }
-  });
-});
+//   ses.createTemplate(params, (err, data) => {
+//     if (err) {
+//       console.log(err, 'wdk');
+//       // console.log('Error creating email template: ', err);
+//       res.status(500).send({ error: 'Failed to create email template' });
+//     } else {
+//       // console.log('Email template created ', data);
+//       res.send(data);
+//     }
+//   });
+// });
 
 // cron.schedule('0 0 * * *', async () => {
 //   console.log('Running cron job to update vehicle status');

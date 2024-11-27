@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Twilio } from 'twilio';
-import AWS from 'aws-sdk';
 import { SQSClient } from '@aws-sdk/client-sqs';
+import {S3Client} from '@aws-sdk/client-s3';
 
 import { TYPES } from './inversify.types';
 import { s3Config, sqsConfig, twilioConfig } from './constants';
@@ -80,8 +80,9 @@ container
   .toConstantValue(new Twilio(twilioConfig.ACC_ID, twilioConfig.AUTH_TOKEN));
 
 container.bind<S3Service>(TYPES.S3Service).to(S3Service).inSingletonScope();
-container.bind<AWS.S3>(TYPES.S3Client).toConstantValue(
-  new AWS.S3({
+container.bind<S3Client>(TYPES.S3Client).toConstantValue(
+  new S3Client({
+    region: s3Config.AWS_REGION,
     credentials: {
       accessKeyId: s3Config.AWS_KEY_ID,
       secretAccessKey: s3Config.ACCESS_KEY

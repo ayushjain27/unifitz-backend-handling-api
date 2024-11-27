@@ -9,7 +9,7 @@ import Logger from '../../config/winston';
 import { RBAC_MAP } from '../../config/rbac-mapping';
 
 export const roleAuth = (credentials: string | string[]) => {
-  return (req: Request, res: Response, next: NextFunction): Response => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     Logger.info('RBAC middleware');
     // Allow for a string OR array
     if (typeof credentials === 'string') {
@@ -17,9 +17,10 @@ export const roleAuth = (credentials: string | string[]) => {
     }
     const token = req.headers['authorization'];
     if (!token) {
-      return res
+      res
         .status(HttpStatusCodes.UNAUTHORIZED)
         .json({ msg: 'No token, authorization denied' });
+      return;
     }
     const tokenBody = token.slice(7);
     try {
@@ -39,7 +40,8 @@ export const roleAuth = (credentials: string | string[]) => {
         ) {
           next();
         } else {
-          return res.status(401).send('Error: Access Denied');
+          res.status(401).send('Error: Access Denied');
+          return;
         }
       } else {
         // No credentials required, user is authorized

@@ -10,26 +10,20 @@ export function appendCodeToPhone(phoneNumber: string) {
   return `+91${phoneNumber?.slice(-10)}`;
 }
 
-import AWS from 'aws-sdk';
 import { s3Config, serverkey } from '../config/constants';
 import JobCard, { IJobCard } from '../models/JobCard';
 import User, { IUser } from '../models/User';
 import Admin, { IDeviceFcm } from '../models/DeviceFcm';
 import _ from 'lodash';
 
-AWS.config.update({
-  accessKeyId: s3Config.AWS_KEY_ID,
-  secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
-});
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-south-1'
+// });
 
 // emailService.js
 
-const { SES } = require('aws-sdk'); // Import the AWS SDK
-
-// Create an instance of SES
-const sqs = new AWS.SQS();
-const ses = new SES();
 
 // Define the sendEmail function
 export async function sendEmail(
@@ -592,7 +586,7 @@ export async function pdfDesign(
 
 export async function jobCardEmail(store: any, jobCard: any, title: any) {
   const transporter = nodemailer.createTransport({
-    SES: { ses, aws: AWS }
+    // SES: { ses, aws: AWS }
   });
   try {
     const mailOptions = {

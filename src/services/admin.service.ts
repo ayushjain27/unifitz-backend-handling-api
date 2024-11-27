@@ -163,7 +163,7 @@ export class AdminService {
       throw new Error('File does not exist');
     }
 
-    const admin: IAdmin = await Admin.findOne({ userName: userId })?.lean();
+    const admin: IAdmin = await Admin.findOne({ userName: userId })?.lean() as IAdmin;
 
     if (_.isEmpty(admin)) {
       throw new Error('User does not exist');
@@ -276,7 +276,7 @@ export class AdminService {
   }
 
   async updatePassword(userName: string, password: string): Promise<any> {
-    const admin: IAdmin = await Admin.findOne({ userName })?.lean();
+    const admin: IAdmin = await Admin.findOne({ userName })?.lean() as IAdmin;
     if (_.isEmpty(admin)) {
       throw new Error('User does not exist');
     }
@@ -471,7 +471,7 @@ export class AdminService {
       store = await Store.findOne(
         { storeId: distributedPartersReview.storeId },
         { verificationDetails: 0 }
-      )?.lean();
+      )?.lean() as IStore;
     }
     if (!distributedPartersReview?.storeId) {
       throw new Error('Store not found');

@@ -8,7 +8,6 @@ import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
-import AWS from 'aws-sdk';
 import { s3Config } from '../config/constants';
 import path from 'path';
 import {
@@ -30,14 +29,14 @@ import Customer from '../models/Customer';
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-AWS.config.update({
-  accessKeyId: s3Config.AWS_KEY_ID,
-  secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
-});
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-south-1'
+// });
 
-const sqs = new AWS.SQS();
-const ses = new AWS.SES();
+// const sqs = new AWS.SQS();
+// const ses = new AWS.SES();
 @injectable()
 export class CreateInvoiceService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
