@@ -2,8 +2,7 @@
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
 import container from '../config/inversify.container';
-import mongoose, { Types } from 'mongoose';
-import Request from '../types/request';
+import { Types } from 'mongoose';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
@@ -15,14 +14,13 @@ import {
   OrderStatusRequest
 } from '../interfaces/orderRequest.interface';
 import UserOrder, { IUserOrderManagement } from '../models/UserOrderManagement';
-import { groupBy, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import DistributorOrder from '../models/DistributorOrderManagement';
 import ProductCartModel from '../models/ProductCart';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from './../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
-import { types } from 'util';
 
 @injectable()
 export class OrderManagementService {
@@ -298,6 +296,8 @@ export class OrderManagementService {
       dateField.cancelDate = new Date(); // Set cancelDate
     }
 
+    console.log(dateField,"emkd")
+
     const updatedDistributorOrder = await DistributorOrder.updateOne(
       { _id: new Types.ObjectId(requestBody.distributorId) }, // Match the order
       {
@@ -347,6 +347,8 @@ export class OrderManagementService {
     const itemStatuses = distributorOrder.items.map((item) => item.status);
     let overallStatus = 'PENDING'; // Default to PENDING if no other status is found
 
+    console.log(itemStatuses,"delmkl")
+
     if (itemStatuses.every((status) => status === 'CANCELLED')) {
       overallStatus = 'CANCELLED'; // If any item is CANCELLED, the whole order is CANCELLED
     } else if (
@@ -362,6 +364,8 @@ export class OrderManagementService {
     } else {
       overallStatus = 'PENDING'; // Otherwise, the order remains PENDING
     }
+
+    console.log(overallStatus,"demk")
 
     const updatedDistributorOrderOverallStatus =
       await DistributorOrder.updateOne(
@@ -432,8 +436,6 @@ export class OrderManagementService {
       //   }
       // }
     }
-
-    console.log(query, 'FEWFm');
 
     const orders: any = await DistributorOrder.aggregate([
       // Match the query
@@ -516,7 +518,6 @@ export class OrderManagementService {
       }
     ]);
 
-    console.log(orders, 'orders');
     return orders;
   }
 }
