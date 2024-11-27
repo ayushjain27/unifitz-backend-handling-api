@@ -9,8 +9,11 @@ export interface OrderRequest {
 }
 
 export interface OrderStatusRequest {
+  distributorId: string;
   orderId: string;
   cartId: string;
-  deliveryDate: string;
   status: string;
+  cancelReason: string;
+  courierCompanyName: string;
+  trackingNumber: string;
 }

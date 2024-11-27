@@ -22,7 +22,14 @@ export interface ICartInfo {
   productId: ObjectId;
   status: string;
   oemUserName: string;
-  deliveryDate: Date;
+  pendingDate?: Date;
+  cancelDate?: Date;
+  shippingDate?: Date;
+  deliveryDate?: Date;
+  processingDate?: Date;
+  cancelReason?: string;
+  courierCompanyName?: string;
+  trackingNumber?: string;
 }
 
 export const cartSchema: Schema = new Schema(
@@ -37,8 +44,29 @@ export const cartSchema: Schema = new Schema(
     oemUserName: {
       type: String
     },
+    pendingDate: {
+      type: Date
+    },
+    processingDate: {
+      type: Date
+    },
+    cancelDate: {
+      type: Date
+    },
+    shippingDate: {
+      type: Date
+    },
     deliveryDate: {
       type: Date
+    },
+    cancelReason: {
+      type: String
+    },
+    courierCompanyName: {
+      type: String
+    },
+    trackingNumber: {
+      type: String
     }
   },
   { _id: false }

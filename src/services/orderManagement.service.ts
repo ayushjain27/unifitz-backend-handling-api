@@ -22,6 +22,7 @@ import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from './../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
+import { types } from 'util';
 
 @injectable()
 export class OrderManagementService {
@@ -267,21 +268,67 @@ export class OrderManagementService {
       '<Service>:<OrderManagementService>: <Order Request Cart Status initiated>'
     );
 
+    const distributorOrder = await DistributorOrder.findOne({
+      _id: new Types.ObjectId(requestBody?.distributorId)
+    });
+
+    if (isEmpty(distributorOrder)) {
+      throw new Error('Order not found');
+    }
+
     const order = await UserOrder.findOne({
       _id: new Types.ObjectId(requestBody.orderId)
     });
 
-    if (!order) {
+    const dateField: Partial<{
+      processingDate: Date;
+      cancelDate: Date;
+      shippingDate: Date;
+      deliveryDate: Date;
+    }> = {};
+
+    // Dynamically determine which date field to update based on the status
+    if (requestBody.status === 'PROCESSING') {
+      dateField.processingDate = new Date(); // Set shippingDate to the current timestamp
+    } else if (requestBody.status === 'PARTIAL DELIVERED') {
+      dateField.shippingDate = new Date(); // Update shippingDate (example)
+    } else if (requestBody.status === 'DELIVERED') {
+      dateField.deliveryDate = new Date(); // Set deliveryDate
+    } else if (requestBody.status === 'CANCELLED') {
+      dateField.cancelDate = new Date(); // Set cancelDate
+    }
+
+    const updatedDistributorOrder = await DistributorOrder.updateOne(
+      { _id: new Types.ObjectId(requestBody.distributorId) }, // Match the order
+      {
+        $set: {
+          'items.$[item].status': requestBody.status, // Update the status
+          ...dateField,
+          'items.$[item].cancelReason': requestBody?.cancelReason,
+          'items.$[item].courierCompanyName': requestBody?.courierCompanyName,
+          'items.$[item].trackingNumber': requestBody?.trackingNumber
+        }
+      },
+      {
+        arrayFilters: [
+          { 'item.cartId': new Types.ObjectId(requestBody.cartId) } // Match the specific cartId
+        ]
+      }
+    );
+
+    if (isEmpty(order)) {
       throw new Error('Order not found');
     }
 
-    console.log(requestBody, 'fl');
     const updatedOrder = await UserOrder.updateOne(
       { _id: new Types.ObjectId(requestBody.orderId) }, // Match the order
       {
         $set: {
           'items.$[item].status': requestBody.status, // Update the status
-          'items.$[item].deliveryDate': requestBody.deliveryDate // Add deliveryDate
+          ...dateField,
+          'items.$[item].cancelReason': requestBody.cancelReason, // Add deliveryDate
+          'items.$[item].courierCompanyName': requestBody?.courierCompanyName,
+          'items.$[item].trackingNumber': requestBody?.trackingNumber
         }
       },
       {
@@ -296,6 +343,35 @@ export class OrderManagementService {
     } else {
       console.log('No matching item found for the given cartId');
     }
+
+    const itemStatuses = distributorOrder.items.map((item) => item.status);
+    let overallStatus = 'PENDING'; // Default to PENDING if no other status is found
+
+    if (itemStatuses.every((status) => status === 'CANCELLED')) {
+      overallStatus = 'CANCELLED'; // If any item is CANCELLED, the whole order is CANCELLED
+    } else if (
+      itemStatuses.some(
+        (status) => status === 'PROCESSING' || status === 'SHIPPED'
+      )
+    ) {
+      overallStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
+    } else if (itemStatuses.some((status) => status === 'DELIVERED')) {
+      overallStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
+    } else if (itemStatuses.every((status) => status === 'DELIVERED')) {
+      overallStatus = 'DELIVERED'; // If all items are DELIVERED, the order is DELIVERED
+    } else {
+      overallStatus = 'PENDING'; // Otherwise, the order remains PENDING
+    }
+
+    const updatedDistributorOrderOverallStatus =
+      await DistributorOrder.updateOne(
+        { _id: new Types.ObjectId(requestBody.distributorId) }, // Match the order
+        {
+          $set: {
+            status: overallStatus // Update the status
+          }
+        }
+      );
 
     return updatedOrder;
   }
