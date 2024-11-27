@@ -2057,88 +2057,60 @@ export class AnalyticService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
-    let query: any = {};
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
-    // const currentDate = new Date(lastDay);
     const nextDate = new Date(lastDay);
     nextDate.setDate(lastDay.getDate() + 1);
-    query = {
-      // 'userInformation.state': state,
-      // 'userInformation.city': city,
+
+    const query: any = {
       createdAt: {
         $gte: firstDay,
         $lte: nextDate
       },
-      // platform: platform,
       event: 'IMPRESSION_COUNT',
-      // moduleInformation: storeId,
       oemUserName: userName
     };
 
     if (platform === 'PARTNER' || platform === 'CUSTOMER') {
       const platformPrefix =
         platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
-      query.$or = [
-        { platform: `${platformPrefix}_ANDROID` },
-        { platform: `${platformPrefix}_IOS` }
-      ];
+      query.platform = {
+        $in: [`${platformPrefix}_ANDROID`, `${platformPrefix}_IOS`]
+      };
     }
     if (!userName) {
       delete query['oemUserName'];
     }
-    if (!state) {
-      delete query['userInformation.state'];
-    }
-    if (!city) {
-      delete query['userInformation.city'];
-    }
-    if (!platform) {
-      delete query['platform'];
-    }
     if (role === AdminRole.OEM) {
       query.oemUserName = oemUserName;
     }
-
     if (role === AdminRole.EMPLOYEE) {
       query.oemUserName = oemId;
     }
-
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    const statusQuery: any = {};
 
-    if (storeId)
-      statusQuery['vehicleDetails.storeDetails.storeId'] = { $in: [storeId] };
+    const statusQuery: any = {};
+    if (storeId) statusQuery['vehicleDetails.storeDetails.storeId'] = storeId;
     if (vehicleType) statusQuery['vehicleDetails.vehType'] = vehicleType;
     if (brandName?.catalogName)
-      statusQuery['vehicleDetails.brandName'] = brandName?.catalogName;
+      statusQuery['vehicleDetails.brandName'] = brandName.catalogName;
     if (state) {
       statusQuery.$or = [
-        // { 'userInformation.state': state },
         { 'vehicleDetails.sellerDetails.contactInfo.state': state },
-        {
-          'vehicleDetails.storeDetails.contactInfo.state': state
-        }
+        { 'vehicleDetails.storeDetails.contactInfo.state': state }
       ];
     }
     if (city) {
       statusQuery.$or = [
-        // { 'userInformation.city': city },
         { 'vehicleDetails.sellerDetails.contactInfo.city': city },
-        {
-          'vehicleDetails.storeDetails.contactInfo.city': city
-        }
+        { 'vehicleDetails.storeDetails.contactInfo.city': city }
       ];
     }
 
-    console.log(statusQuery, query, 'statusQuerystatusQuery');
-
     const queryFilter: any = await VehicleAnalyticModel.aggregate([
-      {
-        $match: query
-      },
+      { $match: query },
       { $set: { vehicle: { $toObjectId: '$moduleInformation' } } },
       {
         $lookup: {
@@ -2149,76 +2121,52 @@ export class AnalyticService {
         }
       },
       { $match: statusQuery },
-      { $project: { vehicleDetails: 0 } },
-      {
-        $project: {
-          createdAt: 1,
-          groupId: {
-            $dateFromParts: {
-              year: {
-                $year: '$createdAt'
-              },
-              month: {
-                $month: '$createdAt'
-              },
-              day: {
-                $dayOfMonth: '$createdAt'
-              },
-              hour: {
-                $cond: [
-                  {
-                    $gte: [
-                      {
-                        $dateDiff: {
-                          startDate: firstDay,
-                          endDate: lastDay,
-                          unit: 'day'
-                        }
-                      },
-                      1
-                    ]
-                  },
-                  0,
-                  {
-                    $hour: '$createdAt'
-                  }
-                ]
-              }
-            }
-          },
-          moduleInformation: 1
-        }
-      },
       {
         $group: {
           _id: {
-            createdAt: '$createdAt',
-            groupId: '$groupId',
-            store: '$moduleInformation'
-          }
-        }
-      },
-      {
-        $group: {
-          _id: '$_id.groupId',
-          views: {
-            $sum: 1
-          }
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' },
+            hour: {
+              $cond: [
+                {
+                  $gte: [
+                    {
+                      $dateDiff: {
+                        startDate: firstDay,
+                        endDate: lastDay,
+                        unit: 'day'
+                      }
+                    },
+                    1
+                  ]
+                },
+                0,
+                { $hour: '$createdAt' }
+              ]
+            }
+          },
+          views: { $sum: 1 }
         }
       },
       {
         $project: {
           date: {
-            $toString: '$_id'
+            $dateToString: {
+              format: '%Y-%m-%dT%H:%M:%S.%LZ',
+              date: {
+                $dateFromParts: {
+                  year: '$_id.year',
+                  month: '$_id.month',
+                  day: '$_id.day',
+                  hour: '$_id.hour'
+                }
+              }
+            }
           },
           views: 1,
-          // stores: 1,
-          // topViewStore: 1,
           _id: 0
         }
-      },
-      {
-        $unset: ['_id']
       },
       { $sort: { date: 1 } }
     ]);
@@ -2640,7 +2588,7 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-console.log(query, 'queryquery');
+    console.log(query, 'queryquery');
 
     const combinedResult = await EventAnalyticModel.aggregate([
       {
