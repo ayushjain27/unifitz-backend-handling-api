@@ -368,12 +368,12 @@ export class OrderManagementService {
           }
         }
       );
-    const updatedOrderStatus = await DistributorOrder.findOne({
-      _id: new Types.ObjectId(requestBody?.distributorId)
+    const updatedOrderStatus = await UserOrder.findOne({
+      _id: new Types.ObjectId(requestBody?.orderId)
     });
     let overallOrderStatus = 'PENDING'; // Default to PENDING if no other status is found
 
-    const ordersItemStatuses = updatedDistributorOrderStatus.items.map(
+    const ordersItemStatuses = updatedOrderStatus.items.map(
       (item) => item.status
     );
 
