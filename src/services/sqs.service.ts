@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable no-console */
 import { inject, injectable } from 'inversify';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { TYPES } from '../config/inversify.types';

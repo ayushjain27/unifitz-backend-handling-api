@@ -1,47 +1,54 @@
-import { Document, model, Schema, ObjectId, Types } from 'mongoose';
-
-export interface IUserInfo {
-  userId?: string;
-  name: string;
-  email?: string;
-  phoneNumber: string;
-}
-
-export const userSchema: Schema = new Schema(
-  {
-    userId: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true }
-  },
-  { _id: false }
-);
+import { Document, model, ObjectId, Schema, Types } from 'mongoose';
 
 export interface ICartInfo {
-  cartId: string;
-  quantity: number;
-  price: number;
+  cartId: ObjectId;
+  productId: ObjectId;
   status: string;
   oemUserName: string;
+  pendingDate?: Date;
+  cancelDate?: Date;
+  shippingDate?: Date;
+  deliveryDate?: Date;
+  processingDate?: Date;
+  cancelReason?: string;
+  courierCompanyName?: string;
+  trackingNumber?: string;
 }
 
 export const cartSchema: Schema = new Schema(
   {
-    cartId: { type: String, required: true },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1
-    },
-    price: {
-      type: Number,
-      required: true
-    },
+    cartId: { type: Types.ObjectId, required: true },
+    productId: { type: Types.ObjectId, required: true },
     status: {
       type: String,
-      enum: ['AVAILABLE', 'UNAVAILABLE']
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING'
     },
     oemUserName: {
+      type: String
+    },
+    pendingDate: {
+      type: Date
+    },
+    processingDate: {
+      type: Date
+    },
+    cancelDate: {
+      type: Date
+    },
+    shippingDate: {
+      type: Date
+    },
+    deliveryDate: {
+      type: Date
+    },
+    cancelReason: {
+      type: String
+    },
+    courierCompanyName: {
+      type: String
+    },
+    trackingNumber: {
       type: String
     }
   },
@@ -51,7 +58,7 @@ export const cartSchema: Schema = new Schema(
 export interface IDistributorOrderManagement {
   _id?: string;
   customerOrderId?: Types.ObjectId;
-  orders?: ICartInfo[];
+  items?: ICartInfo[];
   totalAmount: string;
   oemUserName?: string;
   createdAt?: Date;
@@ -60,9 +67,6 @@ export interface IDistributorOrderManagement {
 
 const orderSchema: Schema = new Schema(
   {
-    userDetail: {
-      type: userSchema
-    },
     items: {
       type: [cartSchema]
     },
@@ -71,12 +75,14 @@ const orderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      enum: [
+        'PENDING',
+        'PROCESSING',
+        'PARTIAL DELIVERED',
+        'DELIVERED',
+        'CANCELLED'
+      ],
       default: 'PENDING'
-    },
-    shippingAddress: {
-      type: String,
-      required: true
     },
     totalAmount: {
       type: String
@@ -88,6 +94,9 @@ const orderSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const DistributorOrder = model<IDistributorOrderManagement & Document>('distributors-orders', orderSchema);
+const DistributorOrder = model<IDistributorOrderManagement & Document>(
+  'distributors-orders',
+  orderSchema
+);
 
 export default DistributorOrder;

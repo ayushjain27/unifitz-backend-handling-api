@@ -22,14 +22,50 @@ export interface ICartInfo {
   productId: ObjectId;
   status: string;
   oemUserName: string;
+  pendingDate?: Date;
+  cancelDate?: Date;
+  shippingDate?: Date;
+  deliveryDate?: Date;
+  processingDate?: Date;
+  cancelReason?: string;
+  courierCompanyName?: string;
+  trackingNumber?: string;
 }
 
 export const cartSchema: Schema = new Schema(
   {
     cartId: { type: Types.ObjectId, ref: 'productcarts' },
     productId: { type: Types.ObjectId, ref: 'partnersproducts' },
-    status: { type: String },
+    status: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING'
+    },
     oemUserName: {
+      type: String
+    },
+    pendingDate: {
+      type: Date
+    },
+    processingDate: {
+      type: Date
+    },
+    cancelDate: {
+      type: Date
+    },
+    shippingDate: {
+      type: Date
+    },
+    deliveryDate: {
+      type: Date
+    },
+    cancelReason: {
+      type: String
+    },
+    courierCompanyName: {
+      type: String
+    },
+    trackingNumber: {
       type: String
     }
   },
@@ -60,7 +96,13 @@ const orderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      enum: [
+        'PENDING',
+        'PROCESSING',
+        'PARTIAL DELIVERED',
+        'DELIVERED',
+        'CANCELLED'
+      ],
       default: 'PENDING'
     },
     totalAmount: { type: Number, required: true },

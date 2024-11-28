@@ -37,4 +37,17 @@ router.post(
   orderManagementController.getUserAllOrdersPaginated
 );
 
+router.post(
+  '/update-cart-status',
+  roleAuth(ACL.STORE_GET_ALL),
+  validationHandler(),
+  orderManagementController.updateCartStatus
+);
+
+router.post(
+  '/distributors-orders-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.getAllDistributorsOrdersPaginated
+);
+
 export default router;
