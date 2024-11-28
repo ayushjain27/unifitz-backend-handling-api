@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
@@ -274,40 +275,31 @@ export class OrderManagementService {
       throw new Error('Order not found');
     }
 
-    const order = await UserOrder.findOne({
-      _id: new Types.ObjectId(requestBody.orderId)
-    });
+    const updateFields: any = {
+      'items.$[item].status': requestBody.status, // Update the status
+      'items.$[item].cancelReason': requestBody.cancelReason,
+      'items.$[item].courierCompanyName': requestBody?.courierCompanyName,
+      'items.$[item].trackingNumber': requestBody?.trackingNumber
+    };
 
-    const dateField: Partial<{
-      processingDate: Date;
-      cancelDate: Date;
-      shippingDate: Date;
-      deliveryDate: Date;
-    }> = {};
-
-    // Dynamically determine which date field to update based on the status
+    // Dynamically add date fields based on status
     if (requestBody.status === 'PROCESSING') {
-      dateField.processingDate = new Date(); // Set shippingDate to the current timestamp
-    } else if (requestBody.status === 'PARTIAL DELIVERED') {
-      dateField.shippingDate = new Date(); // Update shippingDate (example)
-    } else if (requestBody.status === 'DELIVERED') {
-      dateField.deliveryDate = new Date(); // Set deliveryDate
-    } else if (requestBody.status === 'CANCELLED') {
-      dateField.cancelDate = new Date(); // Set cancelDate
+      updateFields['items.$[item].processingDate'] = new Date();
     }
-
-    console.log(dateField,"emkd")
+    if (requestBody.status === 'CANCELLED') {
+      updateFields['items.$[item].cancelDate'] = new Date();
+    }
+    if (requestBody.status === 'SHIPPED') {
+      updateFields['items.$[item].shippingDate'] = new Date();
+    }
+    if (requestBody.status === 'DELIVERED') {
+      updateFields['items.$[item].deliveryDate'] = new Date();
+    }
 
     const updatedDistributorOrder = await DistributorOrder.updateOne(
       { _id: new Types.ObjectId(requestBody.distributorId) }, // Match the order
       {
-        $set: {
-          'items.$[item].status': requestBody.status, // Update the status
-          ...dateField,
-          'items.$[item].cancelReason': requestBody?.cancelReason,
-          'items.$[item].courierCompanyName': requestBody?.courierCompanyName,
-          'items.$[item].trackingNumber': requestBody?.trackingNumber
-        }
+        $set: updateFields
       },
       {
         arrayFilters: [
@@ -316,6 +308,10 @@ export class OrderManagementService {
       }
     );
 
+    const order = await UserOrder.findOne({
+      _id: new Types.ObjectId(requestBody.orderId)
+    });
+
     if (isEmpty(order)) {
       throw new Error('Order not found');
     }
@@ -323,13 +319,7 @@ export class OrderManagementService {
     const updatedOrder = await UserOrder.updateOne(
       { _id: new Types.ObjectId(requestBody.orderId) }, // Match the order
       {
-        $set: {
-          'items.$[item].status': requestBody.status, // Update the status
-          ...dateField,
-          'items.$[item].cancelReason': requestBody.cancelReason, // Add deliveryDate
-          'items.$[item].courierCompanyName': requestBody?.courierCompanyName,
-          'items.$[item].trackingNumber': requestBody?.trackingNumber
-        }
+        $set: updateFields
       },
       {
         arrayFilters: [
@@ -344,28 +334,30 @@ export class OrderManagementService {
       console.log('No matching item found for the given cartId');
     }
 
-    const itemStatuses = distributorOrder.items.map((item) => item.status);
-    let overallStatus = 'PENDING'; // Default to PENDING if no other status is found
+    const updatedDistributorOrderStatus = await DistributorOrder.findOne({
+      _id: new Types.ObjectId(requestBody?.distributorId)
+    });
 
-    console.log(itemStatuses,"delmkl")
+    const itemStatuses = updatedDistributorOrderStatus.items.map(
+      (item) => item.status
+    );
+    let overallStatus = 'PENDING'; // Default to PENDING if no other status is found
 
     if (itemStatuses.every((status) => status === 'CANCELLED')) {
       overallStatus = 'CANCELLED'; // If any item is CANCELLED, the whole order is CANCELLED
+    } else if (itemStatuses.every((status) => status === 'DELIVERED')) {
+      overallStatus = 'DELIVERED'; // If all items are DELIVERED, the order is DELIVERED
+    } else if (itemStatuses.some((status) => status === 'DELIVERED')) {
+      overallStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
     } else if (
       itemStatuses.some(
         (status) => status === 'PROCESSING' || status === 'SHIPPED'
       )
     ) {
       overallStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
-    } else if (itemStatuses.some((status) => status === 'DELIVERED')) {
-      overallStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
-    } else if (itemStatuses.every((status) => status === 'DELIVERED')) {
-      overallStatus = 'DELIVERED'; // If all items are DELIVERED, the order is DELIVERED
     } else {
       overallStatus = 'PENDING'; // Otherwise, the order remains PENDING
     }
-
-    console.log(overallStatus,"demk")
 
     const updatedDistributorOrderOverallStatus =
       await DistributorOrder.updateOne(
@@ -376,6 +368,39 @@ export class OrderManagementService {
           }
         }
       );
+    const updatedOrderStatus = await DistributorOrder.findOne({
+      _id: new Types.ObjectId(requestBody?.distributorId)
+    });
+    let overallOrderStatus = 'PENDING'; // Default to PENDING if no other status is found
+
+    const ordersItemStatuses = updatedDistributorOrderStatus.items.map(
+      (item) => item.status
+    );
+
+    if (ordersItemStatuses.every((status) => status === 'CANCELLED')) {
+      overallOrderStatus = 'CANCELLED'; // If any item is CANCELLED, the whole order is CANCELLED
+    } else if (ordersItemStatuses.every((status) => status === 'DELIVERED')) {
+      overallOrderStatus = 'DELIVERED'; // If all items are DELIVERED, the order is DELIVERED
+    } else if (ordersItemStatuses.some((status) => status === 'DELIVERED')) {
+      overallOrderStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
+    } else if (
+      ordersItemStatuses.some(
+        (status) => status === 'PROCESSING' || status === 'SHIPPED'
+      )
+    ) {
+      overallOrderStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
+    } else {
+      overallOrderStatus = 'PENDING'; // Otherwise, the order remains PENDING
+    }
+
+    const updatedOrderOverallStatus = await UserOrder.updateOne(
+      { _id: new Types.ObjectId(requestBody.orderId) }, // Match the order
+      {
+        $set: {
+          status: overallOrderStatus // Update the status
+        }
+      }
+    );
 
     return updatedOrder;
   }

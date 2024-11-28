@@ -96,7 +96,13 @@ const orderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      enum: [
+        'PENDING',
+        'PROCESSING',
+        'PARTIAL DELIVERED',
+        'DELIVERED',
+        'CANCELLED'
+      ],
       default: 'PENDING'
     },
     totalAmount: { type: Number, required: true },
