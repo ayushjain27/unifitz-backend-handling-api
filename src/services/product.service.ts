@@ -1237,7 +1237,7 @@ export class ProductService {
       brandName: brandName,
       makeType: makeType,
       status: 'ACTIVE',
-      'productCategory.catalogName': { $in: productCategory },
+      productCategory: productCategory,
       'productSubCategory.catalogName': { $in: productSubCategory },
       discount: {
         $gte: discountStart,
@@ -1286,7 +1286,7 @@ export class ProductService {
       delete query['discount'];
     }
     if (!productCategory) {
-      delete query['productCategory.catalogName'];
+      delete query['productCategory'];
     }
     if (!productSubCategory) {
       delete query['productSubCategory.catalogName'];

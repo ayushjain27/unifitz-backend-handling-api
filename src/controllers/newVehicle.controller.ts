@@ -392,6 +392,86 @@ export class NewVehicleInfoController {
     }
   };
 
+  getAllTestDrivePaginated = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query?.oemId;
+    const storeId = req.query?.storeId;
+    const enquiryStatus = req.query?.enquiryStatus;
+    const oemUser = req.query?.oemUserName;
+    const searchValue = req.query?.searchValue;
+    const followUpdate = req.query?.followUpdate;
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAllTestDrivePaginated(
+        userName,
+        role,
+        oemId as string,
+        storeId as string,
+        enquiryStatus as string,
+        searchValue as string,
+        followUpdate as unknown as Date,
+        oemUser as string,
+        pageNo,
+        pageSize
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllTestDriveCount = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    const userName = req?.userId;
+    const role = req?.role;
+    const oemId = req.query?.oemId;
+    const storeId = req.query?.storeId;
+    const enquiryStatus = req.query?.enquiryStatus;
+    const oemUser = req.query?.oemUserName;
+    const searchValue = req.query?.searchValue;
+    const followUpdate = req.query?.followUpdate;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get All vehicle request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAllTestDriveCount(
+        userName,
+        role,
+        oemId as string,
+        storeId as string,
+        enquiryStatus as string,
+        searchValue as string,
+        followUpdate as unknown as Date,
+        oemUser as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   updateNotificationStatus = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<VehicleController>:<Update Vehicle Status>');
     // Validate the request body

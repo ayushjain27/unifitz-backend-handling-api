@@ -644,29 +644,145 @@ export class NewVehicleInfoService {
       delete query['phoneNumber'];
     }
 
-    if (followUpdate) {
-      // Create the start of day in IST (UTC+5:30)
-      const startOfDay = new Date(followUpdate);
-      startOfDay.setHours(0, 0, 0, 0); // Set to start of the day in local time
-      startOfDay.setMinutes(
-        startOfDay.getMinutes() - startOfDay.getTimezoneOffset() - 330
-      ); // Adjust to IST (330 minutes ahead of UTC)
+    const vehicle = await TestDrive.find(query);
+    return vehicle;
+  }
 
-      // Create the end of day in IST (UTC+5:30)
-      const endOfDay = new Date(followUpdate);
-      endOfDay.setHours(23, 59, 59, 999); // Set to end of the day in local time
-      endOfDay.setMinutes(
-        endOfDay.getMinutes() - endOfDay.getTimezoneOffset() - 330
-      ); // Adjust to IST (330 minutes ahead of UTC)
+  async getAllTestDrivePaginated(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    storeId?: string,
+    enquiryStatus?: string,
+    searchValue?: string,
+    followUpdate?: Date,
+    oemUser?: string,
+    pageNo?: number,
+    pageSize?: number
+  ) {
+    const query: any = {
+      'storeDetails.storeId': storeId,
+      enquiryStatus: enquiryStatus,
+      $or: [
+        {
+          brand: new RegExp(searchValue, 'i')
+        },
+        {
+          model: new RegExp(searchValue, 'i')
+        },
+        {
+          phoneNumber: new RegExp(`\\+91${searchValue}`, 'i')
+        }
+      ]
+    };
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
 
-      query.followUpdate = {
-        $gte: startOfDay,
-        $lte: endOfDay
-      };
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
     }
 
-    const vehicle = await TestDrive.aggregate([{ $match: query }]);
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemUser) {
+      query.oemUserName = oemUser;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (!storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!enquiryStatus) {
+      delete query['enquiryStatus'];
+    }
+    if (!searchValue) {
+      delete query['brand'];
+    }
+    if (!searchValue) {
+      delete query['model'];
+    }
+    if (!searchValue) {
+      delete query['phoneNumber'];
+    }
+
+    const vehicle = await TestDrive.aggregate([
+      { $match: query },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
     return vehicle;
+  }
+
+  async getAllTestDriveCount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    storeId?: string,
+    enquiryStatus?: string,
+    searchValue?: string,
+    followUpdate?: Date,
+    oemUser?: string
+  ) {
+    const query: any = {
+      'storeDetails.storeId': storeId,
+      enquiryStatus: enquiryStatus,
+      $or: [
+        {
+          brand: new RegExp(searchValue, 'i')
+        },
+        {
+          model: new RegExp(searchValue, 'i')
+        },
+        {
+          phoneNumber: new RegExp(`\\+91${searchValue}`, 'i')
+        }
+      ]
+    };
+    Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemUser) {
+      query.oemUserName = oemUser;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    if (!storeId) {
+      delete query['storeDetails.storeId'];
+    }
+    if (!enquiryStatus) {
+      delete query['enquiryStatus'];
+    }
+    if (!searchValue) {
+      delete query['brand'];
+    }
+    if (!searchValue) {
+      delete query['model'];
+    }
+    if (!searchValue) {
+      delete query['phoneNumber'];
+    }
+
+    const vehicle = await TestDrive.count(query);
+    const allData = {
+      total: vehicle
+    };
+    return allData;
   }
 
   async updateNotificationStatus(
