@@ -1233,8 +1233,8 @@ export class ProductService {
 
     query = {
       'vehicleType.name': vehicleType,
-      vehicleModel: vehicleModel,
-      brandName: brandName,
+      'vehicleModel.value': vehicleModel,
+      'brandName.catalogName': brandName,
       makeType: makeType,
       status: 'ACTIVE',
       productCategory: productCategory,
@@ -1274,10 +1274,10 @@ export class ProductService {
       delete query['vehicleType.name'];
     }
     if (!vehicleModel) {
-      delete query['vehicleModel'];
+      delete query['vehicleModel.value'];
     }
     if (!brandName) {
-      delete query['brandName'];
+      delete query['brandName.catalogName'];
     }
     if (!makeType) {
       delete query['makeType'];
