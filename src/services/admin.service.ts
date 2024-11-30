@@ -1,3 +1,7 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
 import { injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
 import _ from 'lodash';
@@ -26,6 +30,8 @@ import ContactUsModel, { IContactUs } from '../models/ContactUs';
 import { permissions } from '../config/permissions';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { sendEmail } from '../utils/common';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
 export class AdminService {
@@ -33,6 +39,7 @@ export class AdminService {
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(reqBody: any): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
@@ -60,9 +67,7 @@ export class AdminService {
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
     upAdminFields.isFirstTimeLoggedIn = true;
-    console.log(permissions.OEM, 'f;klmk');
     upAdminFields.accessList = permissions.OEM;
-    console.log(upAdminFields, 'fw;elk');
 
     if (reqBody?.documents?.gstData?.business_name) {
       upAdminFields.documents.gstData.businessName =
@@ -628,13 +633,24 @@ export class AdminService {
       userName: oemUserDetails?.userName,
       password: password
     };
+
     if (!_.isEmpty(oemUserDetails?.contactInfo?.email)) {
-      sendEmail(
-        templateData,
-        oemUserDetails?.contactInfo?.email,
-        'support@serviceplug.in',
-        'EmployeeResetPassword'
+      const data = {
+        to: oemUserDetails?.contactInfo?.email,
+        templateData: templateData,
+        templateName: 'EmployeeResetPassword'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      console.log(sqsMessage, 'Message');
+      // sendEmail(
+      //   templateData,
+      //   oemUserDetails?.contactInfo?.email,
+      //   'support@serviceplug.in',
+      //   'EmployeeResetPassword'
+      // );
     }
     return 'Email sent';
   }
@@ -653,12 +669,22 @@ export class AdminService {
       comment: newSeller?.comment
     };
     if (!_.isEmpty(newSeller?.email)) {
-      sendEmail(
-        templateData,
-        newSeller?.email,
-        'support@serviceplug.in',
-        'NewSellerOnboarded'
+      const data = {
+        to: newSeller?.email,
+        templateData: templateData,
+        templateName: 'NewSellerOnboarded'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      console.log(sqsMessage, 'Message');
+      // sendEmail(
+      //   templateData,
+      //   newSeller?.email,
+      //   'support@serviceplug.in',
+      //   'NewSellerOnboarded'
+      // );
     }
     return newSeller;
   }

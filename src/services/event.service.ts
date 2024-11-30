@@ -7,18 +7,20 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import EventModel, { IEvent, EventStatus } from './../models/Event';
-import Store, { IStore } from './../models/Store';
-import Customer, { ICustomer } from './../models/Customer';
-import OfferModel, { IOffer } from './../models/Offers';
+import Store from './../models/Store';
+import Customer from './../models/Customer';
+import OfferModel from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
-import Admin, { AdminRole, IAdmin } from '../models/Admin';
-import { sendEmail, sendNotification } from '../utils/common';
+import { sendEmail } from '../utils/common';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { SQSService } from './sqs.service';
 
 @injectable()
 export class EventService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(eventRequest: IEvent): Promise<any> {
     Logger.info(
@@ -394,20 +396,42 @@ export class EventService {
       organiserName: event?.organizerName
     };
     if (!_.isEmpty(event?.email) || !_.isEmpty(offer?.email)) {
-      sendEmail(
-        templateData,
-        event?.email || offer?.email,
-        'support@serviceplug.in',
-        'EventsOfferscheme'
+      const data = {
+        to: event?.email || offer?.email,
+        templateData: templateData,
+        templateName: 'EventsOfferscheme'
+      };
+
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      console.log(sqsMessage, 'Message');
+      // sendEmail(
+      //   templateData,
+      //   event?.email || offer?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOfferscheme'
+      // );
     }
     if (!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)) {
-      sendEmail(
-        templateDataUsers,
-        store?.contactInfo?.email || customer?.email,
-        'support@serviceplug.in',
-        'EventsOffersUsersScheme'
+      const data = {
+        to: store?.contactInfo?.email || customer?.email,
+        templateData: templateData,
+        templateName: 'EventsOffersUsersScheme'
+      };
+
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      console.log(sqsMessage, 'Message');
+      // sendEmail(
+      //   templateDataUsers,
+      //   store?.contactInfo?.email || customer?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOffersUsersScheme'
+      // );
     }
     return newInterest;
   }

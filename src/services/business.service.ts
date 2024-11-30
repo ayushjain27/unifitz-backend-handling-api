@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-const */
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -13,10 +15,13 @@ import InterestedBusiness, {
   IInterestedBusiness
 } from '../models/InterestedBusiness';
 import { sendEmail } from '../utils/common';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { SQSService } from './sqs.service';
 
 @injectable()
 export class BusinessService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(businessRequest: IBusiness): Promise<any> {
     Logger.info(
@@ -238,21 +243,41 @@ export class BusinessService {
       eventOfferName: 'new business opportunities',
       organiserName: business?.organizerName
     };
-    if(!_.isEmpty(business?.email)){
-    sendEmail(
-      templateData,
-      business?.email,
-      'support@serviceplug.in',
-      'EventsOfferscheme'
-    );
+    if (!_.isEmpty(business?.email)) {
+      const data = {
+        to: business?.email,
+        templateData: templateData,
+        templateName: 'EventsOfferscheme'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
+      );
+      console.log(sqsMessage, 'Message');
+      // sendEmail(
+      //   templateData,
+      //   business?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOfferscheme'
+      // );
     }
-    if(!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)){
-    sendEmail(
-      templateDataUsers,
-      store?.contactInfo?.email || customer?.email,
-      'support@serviceplug.in',
-      'EventsOffersUsersScheme'
-    );
+    if (!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)) {
+      const data = {
+        to: store?.contactInfo?.email || customer?.email,
+        templateData: templateData,
+        templateName: 'EventsOffersUsersScheme'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
+      );
+      console.log(sqsMessage, 'Message');
+      // sendEmail(
+      //   templateDataUsers,
+      //   store?.contactInfo?.email || customer?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOffersUsersScheme'
+      // );
     }
     return newInterest;
   }

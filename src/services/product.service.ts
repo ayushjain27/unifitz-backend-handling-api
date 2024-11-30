@@ -1232,7 +1232,7 @@ export class ProductService {
     const discountEnd = Number(discount?.split('-')[1]);
 
     query = {
-      vehicleType: vehicleType,
+      'vehicleType.name': vehicleType,
       vehicleModel: vehicleModel,
       brandName: brandName,
       makeType: makeType,
@@ -1268,10 +1268,10 @@ export class ProductService {
       });
       const subCategory = store[0]?.basicInfo?.subCategory;
       const subCategoryNames = subCategory.map((sub) => sub.name);
-      query.vehicleType = { $in: subCategoryNames };
+      query['vehicleType.name'] = { $in: subCategoryNames };
     }
     if (!vehicleType && !storeId) {
-      delete query['vehicleType'];
+      delete query['vehicleType.name'];
     }
     if (!vehicleModel) {
       delete query['vehicleModel'];
