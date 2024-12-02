@@ -1,30 +1,18 @@
+/* eslint-disable no-unsafe-optional-chaining */
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { injectable } from 'inversify';
 import container from '../config/inversify.container';
 import { Types } from 'mongoose';
-import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
-import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
-import Store, { IStore } from '../models/Store';
+import JobCard, { IJobCard } from './../models/JobCard';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
-import { s3Config } from '../config/constants';
-import path from 'path';
-import {
-  receiveFromSqs,
-  receiveInvoiceFromSqs,
-  sendNotification,
-  sendToSqs
-} from '../utils/common';
 import { v4 as uuidv4 } from 'uuid';
-import CreateInvoice, {
-  IAdditionalItems,
-  ICreateInvoice
-} from './../models/CreateInvoice';
+import CreateInvoice, { ICreateInvoice } from './../models/CreateInvoice';
 import { SurepassService } from './surepass.service';
-import User, { IUser } from '../models/User';
-import VehicleInfo, { IVehiclesInfo } from '../models/Vehicle';
-import Customer from '../models/Customer';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -43,6 +31,7 @@ export class CreateInvoiceService {
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async createAdditionalItems(additionalItemsPayload: ICreateInvoice) {
     Logger.info(
@@ -51,7 +40,7 @@ export class CreateInvoiceService {
     const { jobCardId } = additionalItemsPayload;
     const jobCard: IJobCard = await JobCard.findOne({
       _id: jobCardId
-    })?.lean();
+    });
     let amount = 0;
 
     // Calculate amount based on line items
@@ -91,12 +80,16 @@ export class CreateInvoiceService {
       newInvoice = await CreateInvoice.create(newInvoice);
       const { phoneNumber } = jobCard?.customerDetails[0];
       const customPhoneNumber = `+91${phoneNumber}`;
-      await sendNotification(
-        'Invoice Generated',
-        'Your invoice has been generated',
-        customPhoneNumber,
-        'USER',
-        'INVOICE'
+      const data = {
+        title: 'Invoice Generated',
+        body: 'Your invoice has been generated',
+        phoneNumber: customPhoneNumber,
+        role: 'USER',
+        type: 'INVOICE'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
       );
       // this.createOrUpdateUser(phoneNumber, jobCard);
       //  "category": "", "fuel": "", "fuelType": "PETROL", "gearType": "MANUAL", "kmsDriven": "2000", "lastInsuanceDate": "2020-10-22T18:30:00.000Z", "lastServiceDate": "2023-11-14T07:03:33.476Z", "manufactureYear": "8/2019", "modelName": "ACCESS 125", "ownerShip": "1", "purpose": "OWNED", "userId": "63aadcd071f7e310475492f1", "vehicleImageList": [], "vehicleNumber": "DL8SCS6791"}
@@ -187,7 +180,7 @@ export class CreateInvoiceService {
 
     const invoiceDetail: ICreateInvoice = await CreateInvoice.findOne({
       _id: new Types.ObjectId(id)
-    }).lean();
+    });
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Store Job Cards fetched successfully>'
     );
@@ -201,7 +194,7 @@ export class CreateInvoiceService {
 
     const storeJobCard: ICreateInvoice[] = await CreateInvoice.find({
       storeId
-    }).lean();
+    });
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Store Job Cards fetched successfully>'
     );
@@ -217,14 +210,15 @@ export class CreateInvoiceService {
 
     const invoiceCard: ICreateInvoice = await CreateInvoice.findOne({
       _id: new Types.ObjectId(invoiceId)
-    }).lean();
+    });
     if (!invoiceCard) {
       Logger.error('<Service>:<CreateInvoiceService>:<Invoice id not found>');
       throw new Error('Job Card not found');
     }
-
-    sendToSqs(invoiceCard, uniqueMessageId);
-    receiveInvoiceFromSqs();
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.INVOICE,
+      invoiceCard
+    );
 
     return 'Email sent';
   }

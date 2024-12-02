@@ -323,9 +323,8 @@ export class ProductController {
     const productId = req.params.productId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.updatePrelistProduct(
@@ -346,9 +345,8 @@ export class ProductController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.updateProductStatus(req.body);
@@ -961,9 +959,8 @@ export class ProductController {
     const partnerProductId = req.params.partnerProductId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.updatePartnerProduct(
@@ -985,9 +982,8 @@ export class ProductController {
     const partnerProductId = req.params.partnerProductId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.deletePartnerProduct(
@@ -1008,9 +1004,8 @@ export class ProductController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.updatePartnerProductStatus(
@@ -1139,9 +1134,8 @@ export class ProductController {
     const cartId = req.params.cartId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.updateCartProduct(
@@ -1163,9 +1157,8 @@ export class ProductController {
     const cartId = req.params.cartId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.productService.deleteCartProduct(cartId);

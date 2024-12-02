@@ -13,12 +13,13 @@ import OfferModel, { IOffer } from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
-import Admin, { AdminRole, IAdmin } from '../models/Admin';
-import { sendEmail, sendNotification } from '../utils/common';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { SQSService } from './sqs.service';
 
 @injectable()
 export class EventService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(eventRequest: IEvent): Promise<any> {
     Logger.info(
@@ -53,7 +54,7 @@ export class EventService {
     }
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -292,7 +293,7 @@ export class EventService {
 
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -306,7 +307,7 @@ export class EventService {
     Logger.info('<Service>:<EventService>:<Update Event details >');
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -361,14 +362,14 @@ export class EventService {
       Store.findOne(
         { storeId: reqBody.storeId },
         { verificationDetails: 0 }
-      ).lean(),
-      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      ),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }),
       EventModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
-      }).lean(),
+      }),
       OfferModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
-      }).lean()
+      })
     ]);
     let newInterest: IInterestedEventAndOffer = reqBody;
     newInterest.name = store?.basicInfo?.ownerName || customer?.fullName;
@@ -394,20 +395,40 @@ export class EventService {
       organiserName: event?.organizerName
     };
     if (!_.isEmpty(event?.email) || !_.isEmpty(offer?.email)) {
-      sendEmail(
-        templateData,
-        event?.email || offer?.email,
-        'support@serviceplug.in',
-        'EventsOfferscheme'
+      const data = {
+        to: event?.email || offer?.email,
+        templateData: templateData,
+        templateName: 'EventsOfferscheme'
+      };
+
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      // sendEmail(
+      //   templateData,
+      //   event?.email || offer?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOfferscheme'
+      // );
     }
     if (!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)) {
-      sendEmail(
-        templateDataUsers,
-        store?.contactInfo?.email || customer?.email,
-        'support@serviceplug.in',
-        'EventsOffersUsersScheme'
+      const data = {
+        to: store?.contactInfo?.email || customer?.email,
+        templateData: templateData,
+        templateName: 'EventsOffersUsersScheme'
+      };
+
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      // sendEmail(
+      //   templateDataUsers,
+      //   store?.contactInfo?.email || customer?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOffersUsersScheme'
+      // );
     }
     return newInterest;
   }
@@ -415,8 +436,8 @@ export class EventService {
   async getAllInterest(): Promise<any> {
     Logger.info('<Service>:<EventService>:<get event offer interest >');
 
-    const interestResult: IInterestedEventAndOffer =
-      await InterestedEventAndOffer.find().lean();
+    const interestResult: IInterestedEventAndOffer[] =
+      await InterestedEventAndOffer.find();
 
     return interestResult;
   }

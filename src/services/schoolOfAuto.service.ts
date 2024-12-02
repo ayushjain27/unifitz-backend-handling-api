@@ -32,7 +32,7 @@ export class SchoolOfAutoService {
   //   }
   //   const businessResult: ISchoolOfAuto = await SchoolOfAutoModel.findOne({
   //     _id: new Types.ObjectId(schoolOfAutoId)
-  //   })?.lean();
+  //   });
 
   //   if (_.isEmpty(businessResult)) {
   //     throw new Error('Business does not exist');
@@ -67,7 +67,7 @@ export class SchoolOfAutoService {
   async getAll(): Promise<any> {
     Logger.info('<Service>:<SchoolOfAutoService>:<get auto service initiated>');
 
-    const getAllResult = await SchoolOfAutoModel.find()?.lean();
+    const getAllResult = await SchoolOfAutoModel.find();
 
     return getAllResult;
   }
@@ -77,7 +77,7 @@ export class SchoolOfAutoService {
 
     const getResult: ISchoolOfAuto = await SchoolOfAutoModel.findOne({
       _id: schoolOfAutoId
-    })?.lean();
+    });
 
     if (_.isEmpty(getResult)) {
       throw new Error('School of auto service does not exist');
@@ -95,7 +95,7 @@ export class SchoolOfAutoService {
     );
     const updateResult: ISchoolOfAuto = await SchoolOfAutoModel.findOne({
       _id: schoolOfAutoId
-    })?.lean();
+    });
 
     if (_.isEmpty(updateResult)) {
       throw new Error('School of auto service does not exist');

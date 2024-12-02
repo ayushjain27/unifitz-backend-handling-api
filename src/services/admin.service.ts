@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
 import _ from 'lodash';
@@ -25,7 +26,8 @@ import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
 import { permissions } from '../config/permissions';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
-import { sendEmail } from '../utils/common';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
 export class AdminService {
@@ -33,6 +35,7 @@ export class AdminService {
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(reqBody: any): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
@@ -60,9 +63,7 @@ export class AdminService {
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
     upAdminFields.isFirstTimeLoggedIn = true;
-    console.log(permissions.OEM, 'f;klmk');
     upAdminFields.accessList = permissions.OEM;
-    console.log(upAdminFields, 'fw;elk');
 
     if (reqBody?.documents?.gstData?.business_name) {
       upAdminFields.documents.gstData.businessName =
@@ -163,7 +164,9 @@ export class AdminService {
       throw new Error('File does not exist');
     }
 
-    const admin: IAdmin = await Admin.findOne({ userName: userId })?.lean() as IAdmin;
+    const admin: IAdmin = (await Admin.findOne({
+      userName: userId
+    })) as IAdmin;
 
     if (_.isEmpty(admin)) {
       throw new Error('User does not exist');
@@ -186,7 +189,7 @@ export class AdminService {
     userName: string,
     password: string
   ): Promise<{ user: IAdmin; token: string }> {
-    // const admin: IAdmin = await Admin.findOne({ userName })?.lean();
+    // const admin: IAdmin = await Admin.findOne({ userName });
     const query = {
       userName: userName
     };
@@ -276,7 +279,7 @@ export class AdminService {
   }
 
   async updatePassword(userName: string, password: string): Promise<any> {
-    const admin: IAdmin = await Admin.findOne({ userName })?.lean() as IAdmin;
+    const admin: IAdmin = (await Admin.findOne({ userName })) as IAdmin;
     if (_.isEmpty(admin)) {
       throw new Error('User does not exist');
     }
@@ -468,10 +471,10 @@ export class AdminService {
     Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
     let store: IStore;
     if (distributedPartersReview?.storeId) {
-      store = await Store.findOne(
+      store = (await Store.findOne(
         { storeId: distributedPartersReview.storeId },
         { verificationDetails: 0 }
-      )?.lean() as IStore;
+      )) as IStore;
     }
     if (!distributedPartersReview?.storeId) {
       throw new Error('Store not found');
@@ -548,8 +551,7 @@ export class AdminService {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
     const storeReviews = await DistributorPartnersReview.find({ userName })
       .skip(pageNo * pageSize)
-      .limit(pageSize)
-      .lean();
+      .limit(pageSize);
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
@@ -628,13 +630,23 @@ export class AdminService {
       userName: oemUserDetails?.userName,
       password: password
     };
+
     if (!_.isEmpty(oemUserDetails?.contactInfo?.email)) {
-      sendEmail(
-        templateData,
-        oemUserDetails?.contactInfo?.email,
-        'support@serviceplug.in',
-        'EmployeeResetPassword'
+      const data = {
+        to: oemUserDetails?.contactInfo?.email,
+        templateData: templateData,
+        templateName: 'EmployeeResetPassword'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      // sendEmail(
+      //   templateData,
+      //   oemUserDetails?.contactInfo?.email,
+      //   'support@serviceplug.in',
+      //   'EmployeeResetPassword'
+      // );
     }
     return 'Email sent';
   }
@@ -653,12 +665,21 @@ export class AdminService {
       comment: newSeller?.comment
     };
     if (!_.isEmpty(newSeller?.email)) {
-      sendEmail(
-        templateData,
-        newSeller?.email,
-        'support@serviceplug.in',
-        'NewSellerOnboarded'
+      const data = {
+        to: newSeller?.email,
+        templateData: templateData,
+        templateName: 'NewSellerOnboarded'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
       );
+      // sendEmail(
+      //   templateData,
+      //   newSeller?.email,
+      //   'support@serviceplug.in',
+      //   'NewSellerOnboarded'
+      // );
     }
     return newSeller;
   }

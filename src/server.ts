@@ -295,7 +295,7 @@ const server = app.listen(port, () =>
 //       //Stores Delete
 //       let stores = await Store.find({
 //         'contactInfo.phoneNumber.primary': `+91${phoneNumber}`
-//       }).lean();
+//       });
 
 //       for (let store of stores) {
 //         await Store.deleteOne({ storeId: store.storeId }, { session });

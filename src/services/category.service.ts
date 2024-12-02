@@ -21,7 +21,7 @@ export class CategoryService {
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
     const query: any = {};
-    const result: CategoryResponse[] = await Catalog.find(query).lean();
+    const result: CategoryResponse[] = await Catalog.find(query);
     return result;
   }
 
@@ -59,7 +59,7 @@ export class CategoryService {
     if (searchQuery) {
       query.$or = [{ catalogName: searchQuery }, { catalogType: searchQuery }];
     }
-    const result = await Catalog.count(query);
+    const result = await Catalog.countDocuments(query);
     const jsonRes = {
       total: result
     };
@@ -71,7 +71,7 @@ export class CategoryService {
       '<Service>:<CategoryService>:<Get all root Category service initiated>'
     );
     const query: any = { parent: 'root' };
-    const result: CategoryResponse[] = await Catalog.find(query).lean();
+    const result: CategoryResponse[] = await Catalog.find(query);
     return result;
   }
 
@@ -81,7 +81,7 @@ export class CategoryService {
     );
     const query: any = {};
     query.catalogType = 'brand';
-    const result: CategoryResponse[] = await Catalog.find(query).lean();
+    const result: CategoryResponse[] = await Catalog.find(query);
     return result;
   }
 

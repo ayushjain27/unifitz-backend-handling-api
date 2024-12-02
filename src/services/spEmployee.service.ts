@@ -8,22 +8,17 @@ import { Types } from 'mongoose';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
-import EventModel, { IEvent, EventStatus } from './../models/Event';
-import Store, { IStore } from './../models/Store';
-import Customer, { ICustomer } from './../models/Customer';
-import OfferModel, { IOffer } from './../models/Offers';
-import InterestedEventAndOffer, {
-  IInterestedEventAndOffer
-} from './../models/InterestedEventsAndOffers';
-import Admin, { AdminRole, IAdmin } from '../models/Admin';
-import { sendEmail, sendNotification } from '../utils/common';
+import Admin, { IAdmin } from '../models/Admin';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { permissions } from '../config/permissions';
 import { StaticIds } from '../models/StaticId';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { SQSService } from './sqs.service';
 
 @injectable()
 export class SPEmployeeService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(employeePayload: ISPEmployee): Promise<any> {
     Logger.info(
@@ -104,12 +99,22 @@ export class SPEmployeeService {
       userName: `EMP${String(employeeIdUser).slice(-4)}`,
       password: password
     };
-    sendEmail(
-      templateData,
-      employeePayload?.email,
-      'support@serviceplug.in',
-      'EmployeeOnboarded'
+    const data = {
+      to: employeePayload?.email,
+      templateData: templateData,
+      templateName: 'EmployeeOnboarded'
+    };
+
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.EMAIL_NOTIFICATION,
+      data
     );
+    // sendEmail(
+    //   templateData,
+    //   employeePayload?.email,
+    //   'support@serviceplug.in',
+    //   'EmployeeOnboarded'
+    // );
     Logger.info(
       '<Service>:<SPEmployeeService>:<Employee created successfully>'
     );
@@ -189,7 +194,7 @@ export class SPEmployeeService {
     const employee: ISPEmployee = await SPEmployee.findOne({
       employeeId,
       userName
-    })?.lean();
+    });
     Logger.info(
       '<Service>:<SPEmployeeService>:<Employee fetched successfully>'
     );
@@ -303,12 +308,21 @@ export class SPEmployeeService {
       userName: oemUserDetails?.userName,
       password: password
     };
-    sendEmail(
-      templateData,
-      employee?.email,
-      'support@serviceplug.in',
-      'EmployeeResetPassword'
+    const data = {
+      to: employee?.email,
+      templateData: templateData,
+      templateName: 'EmployeeResetPassword'
+    };
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.EMAIL_NOTIFICATION,
+      data
     );
+    // sendEmail(
+    //   templateData,
+    //   employee?.email,
+    //   'support@serviceplug.in',
+    //   'EmployeeResetPassword'
+    // );
     return 'res';
   }
 

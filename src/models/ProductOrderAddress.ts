@@ -12,23 +12,23 @@ export interface IProductOrderAddress {
   app: string;
   storeId?: string;
   customerId?: string;
-  landmark?: string,
-  state?: string,
-  city?: string,
-  pincode?: string,
+  landmark?: string;
+  state?: string;
+  city?: string;
+  pincode?: string;
   geoLocation: {
     // kind: string;
     type: string;
     coordinates: number[];
-  }; 
-  isDefault?: boolean
+  };
+  isDefault?: boolean;
 }
 
 const productOrderAddressSchema: Schema = new Schema(
   {
     address: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     userId: {
       type: Types.ObjectId,
@@ -51,22 +51,22 @@ const productOrderAddressSchema: Schema = new Schema(
       required: false
     },
     name: {
-      type: String,
+      type: String
     },
     userPhoneNumber: {
-      type: String,
+      type: String
     },
     landmark: {
-      type: String,
+      type: String
     },
     state: {
-      type: String,
+      type: String
     },
     city: {
-      type: String,
+      type: String
     },
     pincode: {
-      type: String,
+      type: String
     },
     geoLocation: {
       // kind: String,

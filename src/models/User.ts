@@ -9,7 +9,7 @@ import { UserRole } from '../enum/user-role.enum';
  * @param createdDate:Date
  */
 export interface IUser extends Document {
-  _id?: Types.ObjectId;
+  _id: Types.ObjectId;
   phoneNumber: string;
   role: string;
   deviceId: string;

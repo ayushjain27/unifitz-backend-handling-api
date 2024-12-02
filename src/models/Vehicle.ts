@@ -1,7 +1,7 @@
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IVehiclesInfo extends Document {
-  _id?: string;
+  _id: string;
   vehicleType: string;
   vehicleNumber: string;
   userId?: string;

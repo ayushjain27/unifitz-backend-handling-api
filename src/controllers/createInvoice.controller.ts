@@ -36,76 +36,80 @@ export class CreateInvoiceController {
   };
 
   getInvoiceById = async (req: Request, res: Response) => {
-      const id = req.params.id;
+    const id = req.params.id;
 
-      if (!id) {
-        res
-          .status(HttpStatusCodes.BAD_REQUEST)
-          .json({ errors: { message: 'Id is not present' } });
-        return;
-      }
-      Logger.info(
-        '<Controller>:<CreateInvoiceController>:<Get invoice by id controller initiated>'
+    if (!id) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<CreateInvoiceController>:<Get invoice by id controller initiated>'
+    );
+    try {
+      const result = await this.createInvoiceService.getInvoiceById(id);
+      res.send({
+        message: 'Store Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getInvoiceByStoreId = async (req: Request, res: Response) => {
+    const storeId = req.params.storeId;
+
+    if (!storeId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Store Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<CreateInvoiceController>:<Get invoices by store id controller initiated>'
+    );
+    try {
+      const result = await this.createInvoiceService.getInvoicesByStoreId(
+        storeId
       );
-      try {
-        const result = await this.createInvoiceService.getInvoiceById(id);
-        res.send({
-          message: 'Store Job Card Fetch Successful',
-          result
-        });
-      } catch (err) {
-        Logger.error(err.message);
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-      }
-    };
+      res.send({
+        message: 'Store Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
-    getInvoiceByStoreId = async (req: Request, res: Response) => {
-        const storeId = req.params.storeId;
-    
-        if (!storeId) {
-          res
-            .status(HttpStatusCodes.BAD_REQUEST)
-            .json({ errors: { message: 'Store Id is not present' } });
-          return;
-        }
-        Logger.info(
-          '<Controller>:<CreateInvoiceController>:<Get invoices by store id controller initiated>'
-        );
-        try {
-          const result = await this.createInvoiceService.getInvoicesByStoreId(storeId);
-          res.send({
-            message: 'Store Job Card Fetch Successful',
-            result
-          });
-        } catch (err) {
-          Logger.error(err.message);
-          res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-        }
-      };
+  invoiceEmail = async (req: Request, res: Response) => {
+    const invoiceId = req.query.invoiceId;
 
-      invoiceEmail = async (req: Request, res: Response) => {
-      const invoiceId = req.query.invoiceId;
-
-      if (!invoiceId) {
-        res
-          .status(HttpStatusCodes.BAD_REQUEST)
-          .json({ errors: { message: 'Invoice Id is not present' } });
-        return;
-      }
-      Logger.info(
-        '<Controller>:<CreateInvoiceController>:<Get invoice email controller initiated>'
+    if (!invoiceId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Invoice Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<CreateInvoiceController>:<Get invoice email controller initiated>'
+    );
+    try {
+      const result = await this.createInvoiceService.invoiceEmail(
+        invoiceId as string
       );
-      try {
-        const result = await this.createInvoiceService.invoiceEmail(invoiceId as string);
-        res.send({
-          message: 'Job Card Fetch Successful',
-          result
-        });
-      } catch (err) {
-        Logger.error(err.message);
-        res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-      }
-    };
+      res.send({
+        message: 'Job Card Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
   //   validate = (method: string) => {
   //     switch (method) {

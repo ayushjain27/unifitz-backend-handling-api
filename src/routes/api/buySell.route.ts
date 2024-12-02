@@ -22,19 +22,19 @@ router.post(
   buySellController.addSellVehicle
 );
 
-router.post(
-  '/getAllSellVehicleByUser',
-  roleAuth(ACL.ADD_VEHICLE),
-  // buySellController.validate('addorGetSellVehicle'),
-  buySellController.getAllSellVehicleByUser
-);
+// router.post(
+//   '/getAllSellVehicleByUser',
+//   roleAuth(ACL.ADD_VEHICLE),
+//   // buySellController.validate('addorGetSellVehicle'),
+//   buySellController.getAllSellVehicleByUser
+// );
 
-router.post(
-  '/getBuySellVehicleById',
-  roleAuth(ACL.ADD_VEHICLE),
-  // buySellController.validate('addorGetSellVehicle'),
-  buySellController.getBuyVehicleById
-);
+// router.post(
+//   '/getBuySellVehicleById',
+//   roleAuth(ACL.ADD_VEHICLE),
+//   // buySellController.validate('addorGetSellVehicle'),
+//   buySellController.getBuyVehicleById
+// );
 
 router.put(
   '/updateSellVehicle',

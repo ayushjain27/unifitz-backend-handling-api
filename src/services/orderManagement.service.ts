@@ -25,9 +25,7 @@ export class OrderManagementService {
   private customerService = container.get<CustomerService>(
     TYPES.CustomerService
   );
-  private sqsService = container.get<SQSService>(
-    TYPES.SQSService
-  );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(requestBody: OrderRequest): Promise<IUserOrderManagement> {
     Logger.info('<Service>:<OrderManagementService>: <Order Request created>');
@@ -79,9 +77,9 @@ export class OrderManagementService {
       if (isEmpty(customer)) {
         throw new Error('Customer not found');
       }
-      params.customerId = customer?._id;
+      params.customerId = String(customer?._id);
       params.userDetail = {
-        userId: customer?._id,
+        userId: new Types.ObjectId(customer?._id as string),
         name: customer?.fullName,
         email: customer?.email,
         phoneNumber: customer?.phoneNumber
@@ -96,46 +94,47 @@ export class OrderManagementService {
       );
     });
 
-    const sqsMessage = await this.sqsService.createMessage(SQSEvent.CREATE_DISTRIBUTOR_ORDER, userOrderRequest?._id);
-    console.log(sqsMessage,"Message")
-    
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.CREATE_DISTRIBUTOR_ORDER,
+      userOrderRequest?._id
+    );
+    console.log(sqsMessage, 'Message');
 
     // if (!isEmpty(userOrderRequest)) {
 
-      // const groupedData = groupBy(requestBody.items, 'oemUserName');
-      // const groupedData = requestBody.items.reduce((result, currentItem) => {
-      //   const userGroup = result.find(
-      //     (group) => group[0]?.oemUserName === currentItem.oemUserName
-      //   );
+    // const groupedData = groupBy(requestBody.items, 'oemUserName');
+    // const groupedData = requestBody.items.reduce((result, currentItem) => {
+    //   const userGroup = result.find(
+    //     (group) => group[0]?.oemUserName === currentItem.oemUserName
+    //   );
 
-      //   if (userGroup) {
-      //     // If a group already exists for this user, add the item to that group
-      //     userGroup.push(currentItem);
-      //   } else {
-      //     // If no group exists for this user, create a new group with the item
-      //     result.push([currentItem]);
-      //   }
+    //   if (userGroup) {
+    //     // If a group already exists for this user, add the item to that group
+    //     userGroup.push(currentItem);
+    //   } else {
+    //     // If no group exists for this user, create a new group with the item
+    //     result.push([currentItem]);
+    //   }
 
-      //   return result;
-      // }, []);
+    //   return result;
+    // }, []);
 
-      // await groupedData.map(async (itemGroup) => {
-      //   const totalAmount = itemGroup.reduce(
-      //     (sum: any, item: { price: any }) => sum + item.price,
-      //     0
-      //   );
+    // await groupedData.map(async (itemGroup) => {
+    //   const totalAmount = itemGroup.reduce(
+    //     (sum: any, item: { price: any }) => sum + item.price,
+    //     0
+    //   );
 
-      //   const distributorOrderData = {
-      //     orderId: userOrderRequest._id,
-      //     orders: itemGroup,
-      //     oemUserName: itemGroup[0]?.username, // Assuming username is the grouping field
-      //     totalAmount // Include totalAmount here
-      //   };
+    //   const distributorOrderData = {
+    //     orderId: userOrderRequest._id,
+    //     orders: itemGroup,
+    //     oemUserName: itemGroup[0]?.username, // Assuming username is the grouping field
+    //     totalAmount // Include totalAmount here
+    //   };
 
-      //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
-      // });
+    //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
+    // });
     // }
-
 
     return userOrderRequest;
   }
@@ -144,8 +143,9 @@ export class OrderManagementService {
     Logger.info('<Service>:<OrderManagementService>:<Get order by id>');
     const orderResponse: IUserOrderManagement = await UserOrder.findOne({
       _id: new Types.ObjectId(orderId)
-    }).lean().populate('items.cartId')     // Populate cartId in each item
-    .populate('items.productId'); // Populate productId in each item
+    })
+      .populate('items.cartId') // Populate cartId in each item
+      .populate('items.productId'); // Populate productId in each item
     return orderResponse;
   }
 
@@ -156,25 +156,26 @@ export class OrderManagementService {
     pageSize: number,
     status: string
   ): Promise<IUserOrderManagement[]> {
-    let query: { storeId?: string; customerId?: string; status?: string } = {};
+    const query: { storeId?: string; customerId?: string; status?: string } =
+      {};
 
     // Add status to the query object
     if (!isEmpty(status)) {
       query.status = status;
     }
-  
+
     const userPayload = {
       phoneNumber: `+91${phoneNumber.slice(-10)}`,
       role: userRole
     };
-  
+
     // Get the user details
     const user = await this.userService.getUserByPhoneNumber(userPayload);
-  
+
     if (!user) {
       throw new Error('User not found');
     }
-  
+
     // Define query for either storeId or customerId based on user role
     if (userRole === 'STORE_OWNER') {
       const store = await this.storeService.getStoreByUserId(user._id);
@@ -183,57 +184,61 @@ export class OrderManagementService {
       }
       query.storeId = store.storeId;
     } else {
-      const customer = await this.customerService.getByPhoneNumber(`+91${phoneNumber.slice(-10)}`);
+      const customer = await this.customerService.getByPhoneNumber(
+        `+91${phoneNumber.slice(-10)}`
+      );
       if (!customer) {
         throw new Error('Customer not found');
       }
-      query.customerId = customer._id;
+      query.customerId = String(customer._id);
     }
-  
-    Logger.info('<Service>:<OrderManagementService>:<Get user all orders by id>');
-  
+
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Get user all orders by id>'
+    );
+
     const orderResponse: any = await UserOrder.aggregate([
       {
         $match: query
       },
       {
-        $unwind: "$items"  // Unwind the items array to populate each individually
+        $unwind: '$items' // Unwind the items array to populate each individually
       },
       {
         $lookup: {
-          from: "productcarts",
-          localField: "items.cartId",
-          foreignField: "_id",
-          as: "items.cartDetails"
+          from: 'productcarts',
+          localField: 'items.cartId',
+          foreignField: '_id',
+          as: 'items.cartDetails'
         }
       },
       {
         $lookup: {
-          from: "partnersproducts",
-          localField: "items.productId",
-          foreignField: "_id",
-          as: "items.productDetails"
+          from: 'partnersproducts',
+          localField: 'items.productId',
+          foreignField: '_id',
+          as: 'items.productDetails'
         }
       },
       {
-        $unwind: "$items.cartDetails"  // Unwind single cartDetail (since it’s a 1-to-1 relationship)
+        $unwind: '$items.cartDetails' // Unwind single cartDetail (since it’s a 1-to-1 relationship)
       },
       {
-        $unwind: "$items.productDetails"  // Unwind single productDetail (since it’s a 1-to-1 relationship)
+        $unwind: '$items.productDetails' // Unwind single productDetail (since it’s a 1-to-1 relationship)
       },
       {
         $group: {
-          _id: "$_id",
-          userDetail: { $first: "$userDetail" },
-          status: { $first: "$status" },
-          totalAmount: { $first: "$totalAmount" },
-          shippingAddress: { $first: "$shippingAddress" },
-          storeId: { $first: "$storeId" },
-          customerId: { $first: "$customerId" },
-          userId: { $first: "$userId" },
-          createdAt: { $first: "$createdAt" },
-          updatedAt: { $first: "$updatedAt" },
-          items: { $push: "$items" }  // Re-assemble items as an array after lookups
+          _id: '$_id',
+          userDetail: { $first: '$userDetail' },
+          status: { $first: '$status' },
+          totalAmount: { $first: '$totalAmount' },
+          shippingAddress: { $first: '$shippingAddress' },
+          storeId: { $first: '$storeId' },
+          customerId: { $first: '$customerId' },
+          userId: { $first: '$userId' },
+          createdAt: { $first: '$createdAt' },
+          updatedAt: { $first: '$updatedAt' },
+          items: { $push: '$items' } // Re-assemble items as an array after lookups
         }
       },
       {
@@ -243,8 +248,7 @@ export class OrderManagementService {
         $limit: pageSize
       }
     ]);
-  
+
     return orderResponse;
   }
-  
 }

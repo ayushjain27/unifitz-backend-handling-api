@@ -57,12 +57,12 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    const gstVerStores = await Store.count({
+    const gstVerStores = await Store.countDocuments({
       'verificationDetails.documentType': 'GST',
       profileStatus: 'ONBOARDED',
       ...query
     });
-    const aadharVerStores = await Store.count({
+    const aadharVerStores = await Store.countDocuments({
       'verificationDetails.documentType': 'AADHAR',
       profileStatus: 'ONBOARDED',
       ...query
@@ -80,7 +80,7 @@ export class AnalyticService {
     }
     const queryFilter: any = await Admin.find(query, {
       'verificationDetails.verifyObj': 0
-    }).lean();
+    });
     const totalManu = queryFilter.filter(
       (val: any) => val.companyType === 'Manufacturer'
     ).length;
@@ -285,7 +285,7 @@ export class AnalyticService {
     } else {
       userResult = await User.findOne({
         _id: new Types.ObjectId(requestData.userId)
-      })?.lean();
+      });
 
       if (_.isEmpty(userResult)) {
         throw new Error('User does not exist');
@@ -294,7 +294,7 @@ export class AnalyticService {
 
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
-    }).lean();
+    });
 
     userData.userId = userResult?._id || requestData.userId;
     userData.fullName = customerResponse?.fullName || '';
@@ -1036,12 +1036,12 @@ export class AnalyticService {
 
     userResult = await User.findOne({
       _id: new Types.ObjectId(requestData.userId)
-    })?.lean();
+    });
 
     if (requestData?.phoneNumber || !_.isEmpty(userResult)) {
       customerResponse = await Customer.findOne({
         phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
-      }).lean();
+      });
     }
     userData.userId = userResult?._id || requestData.userId || '';
     userData.fullName = customerResponse?.fullName || '';
@@ -1669,10 +1669,10 @@ export class AnalyticService {
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
-    const storeEvent = await EventAnalyticModel.count({
+    const storeEvent = await EventAnalyticModel.countDocuments({
       ...query
     });
-    const bannerEvent = await PlusFeatureAnalyticModel.count();
+    const bannerEvent = await PlusFeatureAnalyticModel.countDocuments();
     return {
       totalStoreImpression: storeEvent,
       totalBannerImpression: bannerEvent
@@ -2689,9 +2689,9 @@ console.log(query, 'queryquery');
       event: 'CATEGORY_CLICK',
       moduleInformation: 'Buy/Sell'
     };
-    const combinedResult2 = await EventAnalyticModel.count(query2);
+    const combinedResult2 = await EventAnalyticModel.countDocuments(query2);
     delete query['createdAt'];
-    const combinedResult3 = await EventAnalyticModel.count(query2);
+    const combinedResult3 = await EventAnalyticModel.countDocuments(query2);
 
     const finalVal = [
       ...combinedResult,

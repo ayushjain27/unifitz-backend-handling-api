@@ -12,11 +12,13 @@ import Customer from '../models/Customer';
 import InterestedBusiness, {
   IInterestedBusiness
 } from '../models/InterestedBusiness';
-import { sendEmail } from '../utils/common';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { SQSService } from './sqs.service';
 
 @injectable()
 export class BusinessService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(businessRequest: IBusiness): Promise<any> {
     Logger.info(
@@ -35,7 +37,7 @@ export class BusinessService {
     }
     const businessResult: IBusiness = await BusinessModel.findOne({
       _id: new Types.ObjectId(businessId)
-    })?.lean();
+    });
 
     if (_.isEmpty(businessResult)) {
       throw new Error('Business does not exist');
@@ -70,7 +72,7 @@ export class BusinessService {
   async getAllBusiness(): Promise<any> {
     Logger.info('<Service>:<BusinessService>:<get business initiated>');
 
-    const businessResult = await BusinessModel.find()?.lean();
+    const businessResult = await BusinessModel.find();
 
     return businessResult;
   }
@@ -132,7 +134,7 @@ export class BusinessService {
       }
     ]);
 
-    // const businessResult = await BusinessModel.find(query)?.lean();
+    // const businessResult = await BusinessModel.find(query);
 
     return businessResponse;
   }
@@ -142,7 +144,7 @@ export class BusinessService {
 
     const businessResult: IBusiness = await BusinessModel.findOne({
       _id: businessId
-    })?.lean();
+    });
 
     if (_.isEmpty(businessResult)) {
       throw new Error('business does not exist');
@@ -156,7 +158,7 @@ export class BusinessService {
     Logger.info('<Service>:<BusinessService>:<Update business details >');
     const businessResult: IBusiness = await BusinessModel.findOne({
       _id: businessId
-    })?.lean();
+    });
 
     if (_.isEmpty(businessResult)) {
       throw new Error('business does not exist');
@@ -210,11 +212,11 @@ export class BusinessService {
       Store.findOne(
         { storeId: reqBody.storeId },
         { verificationDetails: 0 }
-      ).lean(),
-      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      ),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }),
       BusinessModel.findOne({
         _id: new Types.ObjectId(reqBody.businessId)
-      }).lean()
+      })
     ]);
     let newInterest: IInterestedBusiness = reqBody;
     newInterest.userName = store?.basicInfo?.ownerName || customer?.fullName;
@@ -238,21 +240,39 @@ export class BusinessService {
       eventOfferName: 'new business opportunities',
       organiserName: business?.organizerName
     };
-    if(!_.isEmpty(business?.email)){
-    sendEmail(
-      templateData,
-      business?.email,
-      'support@serviceplug.in',
-      'EventsOfferscheme'
-    );
+    if (!_.isEmpty(business?.email)) {
+      const data = {
+        to: business?.email,
+        templateData: templateData,
+        templateName: 'EventsOfferscheme'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
+      );
+      // sendEmail(
+      //   templateData,
+      //   business?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOfferscheme'
+      // );
     }
-    if(!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)){
-    sendEmail(
-      templateDataUsers,
-      store?.contactInfo?.email || customer?.email,
-      'support@serviceplug.in',
-      'EventsOffersUsersScheme'
-    );
+    if (!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)) {
+      const data = {
+        to: store?.contactInfo?.email || customer?.email,
+        templateData: templateData,
+        templateName: 'EventsOffersUsersScheme'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
+      );
+      // sendEmail(
+      //   templateDataUsers,
+      //   store?.contactInfo?.email || customer?.email,
+      //   'support@serviceplug.in',
+      //   'EventsOffersUsersScheme'
+      // );
     }
     return newInterest;
   }

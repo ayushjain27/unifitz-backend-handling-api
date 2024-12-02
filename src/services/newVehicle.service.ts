@@ -2,7 +2,7 @@
 import NewVehicle, { INewVehicle } from '../models/NewVehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
-import _, { identity } from 'lodash';
+import _ from 'lodash';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -10,9 +10,9 @@ import Admin, { AdminRole } from './../models/Admin';
 import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
-import { sendEmail, sendNotification } from '../utils/common';
-import { isValidEmail } from '../enum/docType.enum';
 import Store from '../models/Store';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { SQSService } from './sqs.service';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -20,6 +20,7 @@ export class NewVehicleInfoService {
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(vehicleStore: INewVehicle, userName?: string, role?: string) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
@@ -372,7 +373,7 @@ export class NewVehicleInfoService {
 
     const vehicleResult = await NewVehicle.findOne({
       _id: vehicleID
-    })?.lean();
+    });
 
     if (_.isEmpty(vehicleResult)) {
       throw new Error('vehicle does not exist');
@@ -386,7 +387,7 @@ export class NewVehicleInfoService {
     Logger.info('<Service>:<vehicleService>:<Update vehicle details >');
     const vehicleResult = await NewVehicle.findOne({
       _id: vehicleId
-    })?.lean();
+    });
     if (_.isEmpty(vehicleResult)) {
       throw new Error('Vehicle does not exist');
     }
@@ -423,7 +424,7 @@ export class NewVehicleInfoService {
     if (query?.type === 'CUSTOMER') {
       const vehicleResult = await NewVehicle.findOne({
         _id: reqBody?.vehicleId
-      })?.lean();
+      });
       if (_.isEmpty(vehicleResult)) {
         throw new Error('Vehicle does not exist');
       }
@@ -464,12 +465,23 @@ export class NewVehicleInfoService {
         const storeDetails = await Store.findOne({
           storeId: reqBody?.storeDetails?.storeId
         });
-        sendNotification(
-          'New Enquiry',
-          `You've received a new inquiry`,
-          storeDetails?.contactInfo?.phoneNumber?.primary,
-          'STORE_OWNER',
-          ''
+        // sendNotification(
+        //   'New Enquiry',
+        //   `You've received a new inquiry`,
+        //   storeDetails?.contactInfo?.phoneNumber?.primary,
+        //   'STORE_OWNER',
+        //   ''
+        // );
+        const data = {
+          title: 'New Enquiry',
+          body: `You've received a new inquiry`,
+          phoneNumber: storeDetails?.contactInfo?.phoneNumber?.primary,
+          role: 'STORE_OWNER',
+          type: 'NEW_VEHICLE'
+        };
+        const sqsMessage = await this.sqsService.createMessage(
+          SQSEvent.NOTIFICATION,
+          data
         );
         if (!_.isEmpty(storeDetails?.oemUserName)) {
           const adminDetails = await Admin.findOne({
@@ -491,12 +503,22 @@ export class NewVehicleInfoService {
                 storeState: reqBody?.storeDetails?.state,
                 storeCity: reqBody?.storeDetails?.city
               };
-              await sendEmail(
-                templateData,
-                adminDetails?.contactInfo?.email,
-                'support@serviceplug.in',
-                'NewVehicleEnquiryOemUserPartner'
+              const data = {
+                to: adminDetails?.contactInfo?.email,
+                templateData: templateData,
+                templateName: 'NewVehicleEnquiryOemUserPartner'
+              };
+
+              const sqsMessage = await this.sqsService.createMessage(
+                SQSEvent.EMAIL_NOTIFICATION,
+                data
               );
+              // await sendEmail(
+              //   templateData,
+              //   adminDetails?.contactInfo?.email,
+              //   'support@serviceplug.in',
+              //   'NewVehicleEnquiryOemUserPartner'
+              // );
             }
           }
           if (!_.isEmpty(storeDetails?.contactInfo?.email)) {
@@ -510,12 +532,22 @@ export class NewVehicleInfoService {
               brand: vehicleResult?.brand,
               model: vehicleResult?.model
             };
-            await sendEmail(
-              templateDataToStore,
-              storeDetails?.contactInfo?.email,
-              'support@serviceplug.in',
-              'NewVehicleTestDriveStore'
+            const data = {
+              to: storeDetails?.contactInfo?.email,
+              templateData: templateDataToStore,
+              templateName: 'NewVehicleTestDriveStore'
+            };
+
+            const sqsMessage = await this.sqsService.createMessage(
+              SQSEvent.EMAIL_NOTIFICATION,
+              data
             );
+            // await sendEmail(
+            //   templateDataToStore,
+            //   storeDetails?.contactInfo?.email,
+            //   'support@serviceplug.in',
+            //   'NewVehicleTestDriveStore'
+            // );
           }
         }
         return updatedVehicle;
@@ -528,12 +560,23 @@ export class NewVehicleInfoService {
       const storeDetails = await Store.findOne({
         storeId: reqBody?.storeDetails?.storeId
       });
-      sendNotification(
-        'New Enquiry',
-        `You've received a new inquiry`,
-        storeDetails?.contactInfo?.phoneNumber?.primary,
-        'STORE_OWNER',
-        ''
+      // sendNotification(
+      //   'New Enquiry',
+      //   `You've received a new inquiry`,
+      //   storeDetails?.contactInfo?.phoneNumber?.primary,
+      //   'STORE_OWNER',
+      //   ''
+      // );
+      const data = {
+        title: 'New Enquiry',
+        body: `You've received a new inquiry`,
+        phoneNumber: storeDetails?.contactInfo?.phoneNumber?.primary,
+        role: 'STORE_OWNER',
+        type: 'NEW_VEHICLE'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
       );
       return newTestDrive;
     }
@@ -676,7 +719,7 @@ export class NewVehicleInfoService {
     Logger.info('<Service>:<vehicleService>:<Update vehicle details >');
     const vehicleResult = await TestDrive.findOne({
       _id: vehicleId
-    })?.lean();
+    });
     if (_.isEmpty(vehicleResult)) {
       throw new Error('Vehicle does not exist');
     }
@@ -695,7 +738,7 @@ export class NewVehicleInfoService {
 
     const vehicleResult = await TestDrive.findOne({
       _id: new Types.ObjectId(id)
-    })?.lean();
+    });
 
     if (_.isEmpty(vehicleResult)) {
       throw new Error('Enquiry does not exist');

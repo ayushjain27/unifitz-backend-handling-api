@@ -48,9 +48,8 @@ export class AdminController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const { userId } = req.body;
     Logger.info(
@@ -137,7 +136,6 @@ export class AdminController {
   };
 
   getAll = async (req: Request, res: Response) => {
-
     const roleBase = req.query.roleBase;
     const oemId = req.query.oemId;
     Logger.info(
@@ -148,7 +146,10 @@ export class AdminController {
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
       // }
-      const result = await this.adminService.getAll(roleBase as string, oemId as string);
+      const result = await this.adminService.getAll(
+        roleBase as string,
+        oemId as string
+      );
       res.send({
         result
       });
@@ -219,9 +220,8 @@ export class AdminController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adminService.updateUserStatus(req.body);
@@ -239,9 +239,8 @@ export class AdminController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adminService.updateUserAccessStatus(req.body);
@@ -438,9 +437,8 @@ export class AdminController {
   sellerRegister = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const interestRequest = req.body;
     Logger.info(

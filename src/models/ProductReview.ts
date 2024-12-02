@@ -13,7 +13,7 @@ export interface IProductReview {
 const productReviewSchema: Schema = new Schema<IProductReview>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId
       // required: true
     },
     productId: {
