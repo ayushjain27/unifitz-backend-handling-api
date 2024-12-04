@@ -1244,6 +1244,7 @@ export class ProductService {
         $lte: discountEnd
       }
     };
+
     if (userType === 'Distributer') {
       query.$or = [
         {
@@ -1260,16 +1261,29 @@ export class ProductService {
         { 'targetedAudience.dealer': true }
       ];
     }
-    if (!isEmpty(storeId) && isEmpty(vehicleType)) {
+
+    let stateFilter: string | null = null;
+    let cityFilter: string | null = null;
+
+    if (!isEmpty(storeId)) {
       const store = await this.storeService.getById({
         storeId: storeId,
         lat: '',
         long: ''
       });
-      const subCategory = store[0]?.basicInfo?.subCategory;
-      const subCategoryNames = subCategory.map((sub) => sub.name);
-      query['vehicleType.name'] = { $in: subCategoryNames };
+
+      if (isEmpty(vehicleType)) {
+        const subCategory = store[0]?.basicInfo?.subCategory;
+        const subCategoryNames = subCategory.map((sub) => sub.name);
+        query['vehicleType.name'] = { $in: subCategoryNames };
+      }
+      stateFilter = store[0]?.contactInfo?.state || null;
+      console.log(stateFilter, 'Dekm');
+      cityFilter = store[0]?.contactInfo?.city || null;
+      console.log(cityFilter, 'Dekm');
     }
+
+    // Remove unused filters if their values are not provided
     if (!vehicleType && !storeId) {
       delete query['vehicleType.name'];
     }
@@ -1291,8 +1305,41 @@ export class ProductService {
     if (!productSubCategory) {
       delete query['productSubCategory.catalogName'];
     }
+
     console.log(userName, role, oemId, query, 'partner');
 
+    const matchStage: any = { ...query };
+
+    // Dynamically build the $expr for state and city filters
+    if (stateFilter && cityFilter) {
+      // Both state and city filters are present
+      matchStage.$expr = {
+        $and: [
+          {
+            $or: [
+              { $eq: [{ $size: '$state' }, 0] },
+              { $in: [stateFilter, '$state.name'] }
+            ]
+          },
+          {
+            $or: [
+              { $eq: [{ $size: '$city' }, 0] },
+              { $in: [cityFilter, '$city.name'] }
+            ]
+          }
+        ]
+      };
+    } else if (stateFilter) {
+      // Only state filter is present
+      matchStage.$expr = {
+        $or: [
+          { $eq: [{ $size: '$state' }, 0] },
+          { $in: [stateFilter, '$state.name'] }
+        ]
+      };
+    }
+
+    // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
       {
         $lookup: {
@@ -1304,7 +1351,7 @@ export class ProductService {
       },
       { $unwind: { path: '$partnerDetail' } },
       {
-        $match: query
+        $match: matchStage
       },
       {
         $skip: pageNo * pageSize

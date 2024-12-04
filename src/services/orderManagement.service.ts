@@ -466,13 +466,6 @@ export class OrderManagementService {
       // Match the query
       { $match: query },
 
-      // Optionally sort before pagination
-      { $sort: { createdAt: -1 } },
-
-      // Pagination: Skip and Limit
-      { $skip: pageNo * pageSize },
-      { $limit: pageSize },
-
       // Unwind the items array
       { $unwind: { path: '$items', preserveNullAndEmptyArrays: true } },
 
@@ -509,7 +502,6 @@ export class OrderManagementService {
           preserveNullAndEmptyArrays: true
         }
       },
-
       // Group data back into a single document
       {
         $group: {
@@ -540,7 +532,43 @@ export class OrderManagementService {
           path: '$customerOrderDetails',
           preserveNullAndEmptyArrays: true
         }
-      }
+      },
+      {
+        $lookup: {
+          from: 'stores', // Collection name for stores
+          localField: 'customerOrderDetails.storeId', // Field in distributor data
+          foreignField: 'storeId', // Corresponding field in stores collection
+          as: 'storeDetails'
+        }
+      },
+      // Unwind storeDetails to include it as a flat structure
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'admin_users', // Collection name for oemusers
+          localField: 'oemUserName', // Field in distributor data
+          foreignField: 'userName', // Corresponding field in stores collection
+          as: 'oemDetails'
+        }
+      },
+      // Unwind oemDetails to include it as a flat structure
+      {
+        $unwind: {
+          path: '$oemDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Optionally sort before pagination
+      { $sort: { createdAt: 1 } }, // 1 for ascending order
+
+      // Pagination: Skip and Limit
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize }
     ]);
 
     return orders;

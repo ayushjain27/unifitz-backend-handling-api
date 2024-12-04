@@ -202,6 +202,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    ORDERS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   OEM: {
@@ -402,6 +409,13 @@ export const permissions: any = {
       DELETE: false
     },
     NEW_VEHICLES: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    ORDERS: {
       STATUS: 'ALL',
       CREATE: false,
       READ: false,
