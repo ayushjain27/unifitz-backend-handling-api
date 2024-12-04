@@ -251,6 +251,7 @@ export class OrderManagementService {
           items: { $push: '$items' } // Re-assemble items as an array after lookups
         }
       },
+      { $sort: { createdAt: 1 } }, // 1 for ascending order
       {
         $skip: pageNo * pageSize
       },
