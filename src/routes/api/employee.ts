@@ -30,7 +30,7 @@ router.post(
 );
 
 router.get(
-  '/:storeId',
+  '/getEmployeesByStoreId',
   roleAuth(ACL.STORE_CREATE),
   employeeController.getEmployeesByStoreId
 );
@@ -46,6 +46,11 @@ router.get(
   '/employeeDetail/:employeeId',
   roleAuth(ACL.STORE_CREATE),
   employeeController.getEmployeesByEmployeeId
+);
+
+router.get(
+  '/employeeDetailByPhoneNumber',
+  employeeController.getEmployeeDetailByPhoneNumber
 );
 
 export default router;

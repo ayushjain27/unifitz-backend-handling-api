@@ -422,5 +422,80 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     }
+  },
+  PARTNER_EMPLOYEE: {
+    DASHBOARD: {
+      CREATE: true,
+      READ: true,
+      UPDATE: true,
+      DELETE: true
+    },
+    ANALYTICS: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    BUY_SELL: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    PRODUCT_AND_SERVICES: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    EVENTS: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    OFFERS: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    BUSINESS_OPPORTUNITIES: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    AUTO_NEWS: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    RATING_AND_REVIEWS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    BUY_SPARES: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    JOB_CARD: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    ENQUIRY_MANAGEMENT: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    }
   }
 };
