@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 
 import { StoreService } from '../services';
 import Logger from '../config/winston';
