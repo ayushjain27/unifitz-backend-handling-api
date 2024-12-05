@@ -457,6 +457,70 @@ export class AdminController {
     }
   };
 
+  createVideo = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<AdminController>:<create Video request controller initiated>'
+      );
+      const result = await this.adminService.createVideo(req.body);
+      res.send({
+        res: result,
+        created: 'successful'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getPaginatedAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdminController>:<Get all video request controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    try {
+      const result = await this.adminService.getPaginatedAll(
+        pageNo,
+        pageSize,
+        searchQuery as string,
+        state as string,
+        city as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdminController>:<Get all video request controller initiated>'
+    );
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    try {
+      const result = await this.adminService.getAllCount(
+        searchQuery as string,
+        state as string,
+        city as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

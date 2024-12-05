@@ -23,6 +23,7 @@ import Store, { IStore } from '../models/Store';
 import Seller from '../models/Seller';
 import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
+import Marketing from '../models/Marketing';
 import { permissions } from '../config/permissions';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { sendEmail } from '../utils/common';
@@ -661,5 +662,115 @@ export class AdminService {
       );
     }
     return newSeller;
+  }
+
+  async createVideo(marketingLst?: any) {
+    Logger.info(
+      '<Service>:<AdminService>:<create all video service initiated>'
+    );
+    const query = marketingLst;
+    const result = await Marketing.create(query);
+    return result;
+  }
+
+  async updateVehicleVideos(
+    fileID: string,
+    fileType: string,
+    req: Request | any
+  ): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
+    const vehicle = await Marketing.findOne(
+      { _id: fileID },
+      { verificationDetails: 0 }
+    );
+    if (_.isEmpty(vehicle)) {
+      throw new Error('Vehicle does not exist');
+    }
+
+    const files: any = req.files;
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    const videoList: any = [];
+    for (const file of files) {
+      const fileName = file.originalname;
+      const { key, url } = await this.s3Client.uploadVideo(
+        fileID,
+        fileName,
+        file.buffer
+      );
+      videoList.push({ key, docURL: url });
+    }
+    const videoUrl = videoList[0];
+
+    const res = await Marketing.findOneAndUpdate(
+      { _id: fileID },
+      { $set: { videoUrl } },
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
+    );
+    return res;
+  }
+
+  async getAllCount(searchQuery?: string, state?: string, city?: string) {
+    Logger.info('<Service>:<AdminService>:<Get all video>');
+    const query: any = {
+      'contactInfo.state': state,
+      'contactInfo.city': city
+    };
+
+    if (!state) {
+      delete query['contactInfo.state'];
+    }
+    if (!city) {
+      delete query['contactInfo.city'];
+    }
+    if (searchQuery) {
+      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+    }
+    const marketingResponse: any = await Marketing.count(query);
+    const result = {
+      count: marketingResponse
+    };
+    return result;
+  }
+
+  async getPaginatedAll(
+    pageNo?: number,
+    pageSize?: number,
+    searchQuery?: string,
+    state?: string,
+    city?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<Get all video>');
+    const query: any = {
+      'contactInfo.state': state,
+      'contactInfo.city': city
+    };
+
+    if (!state) {
+      delete query['contactInfo.state'];
+    }
+    if (!city) {
+      delete query['contactInfo.city'];
+    }
+    if (searchQuery) {
+      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+    }
+    const marketingResponse = await Marketing.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return marketingResponse;
   }
 }

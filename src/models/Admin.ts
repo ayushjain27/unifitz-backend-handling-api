@@ -96,6 +96,41 @@ export const gstDocumentSchema: Schema = new Schema<IGstInformation>({
   }
 });
 
+export interface IState {
+  name: string;
+}
+export const stateSchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export const citySchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    },
+    value: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export interface ICity {
+  name: string;
+  value: string;
+}
+
 export interface IAdmin {
   _id?: Types.ObjectId | string;
   nameSalutation: string;
@@ -129,6 +164,8 @@ export interface IAdmin {
   accessList: object;
   accessPolicy: object;
   loginDate?: Date;
+  productState?: IState[];
+  productCity?: ICity[];
 }
 
 export interface IDocumentImage {
@@ -355,6 +392,12 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     loginDate: {
       type: Date
+    },
+    productState: {
+      type: [stateSchema]
+    },
+    productCity: {
+      type: [citySchema]
     }
   },
   { timestamps: true, strict: false }

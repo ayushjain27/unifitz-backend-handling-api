@@ -112,4 +112,8 @@ router.get('/resetPassword', adminController.resetPassword);
 
 router.post('/sellerRegister', adminController.sellerRegister);
 
+router.post('/videoUpload/create', adminController.createVideo);
+router.get('/videoUpload/paginated', adminController.getPaginatedAll);
+router.get('/videoUpload/count', adminController.getAllCount);
+
 export default router;
