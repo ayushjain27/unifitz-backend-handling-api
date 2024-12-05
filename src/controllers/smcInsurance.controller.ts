@@ -49,6 +49,9 @@ export class SmcInsuranceController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+      //   res
+      //     .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      //     .json({ message: err.message });
     }
   };
 }
