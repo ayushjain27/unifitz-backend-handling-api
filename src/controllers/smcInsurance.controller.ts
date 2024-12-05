@@ -15,7 +15,7 @@ export class SmcInsuranceController {
     this.smcInsuranceService = smcInsuranceService;
   }
 
-  createSmcInsurance = async (req: Request, res: Response) => {
+  createSmcInsurance = async (req: any, res: Response) => {
     const smcInsuranceRequest = req.body;
     Logger.info(
       '<Controller>:<SmcInsuranceController>:<Create new smcInsurance controller request controller initiated>'
@@ -34,12 +34,12 @@ export class SmcInsuranceController {
     }
   };
 
-  getAllSmcInsurance = async (req: Request, res: Response) => {
+  getAllSmcInsurance = async (req: any, res: Response) => {
     Logger.info(
       '<Controller>:<SmcInsuranceController>:<Get all smcInsurance controller request controller initiated>'
     );
     try {
-      const result = await this.smcInsuranceService.getAllSmcInsurance();
+      const result = await this.smcInsuranceService.recordPolicyDetails();
       res.send({
         message: 'Smc Insurance Fetched Successful',
         result

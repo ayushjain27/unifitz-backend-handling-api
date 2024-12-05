@@ -33,5 +33,7 @@ export class SmcInsuranceService {
     Logger.info(
       '<Service>:<SmcInsuranceService>: <Offer onboarding: creating new offer>'
     );
+    const getAllSmcInsurance = SmcInsurance.find({});
+    return getAllSmcInsurance;
   }
 }
