@@ -113,7 +113,18 @@ router.get('/resetPassword', adminController.resetPassword);
 router.post('/sellerRegister', adminController.sellerRegister);
 
 router.post('/videoUpload/create', adminController.createVideo);
+router.post(
+  '/videoUpload',
+  uploadFiles.array('files'),
+  adminController.updateMarketingVideos
+);
 router.get('/videoUpload/paginated', adminController.getPaginatedAll);
 router.get('/videoUpload/count', adminController.getAllCount);
+router.delete(
+  '/videoUpload/delete/:marketingId',
+  adminController.deleteVideoUpload
+);
+router.get('/videoUpload/getById', adminController.getVideoUploadDetails);
+router.put('/videoUpload/:marketingId', adminController.updateVideoUpload);
 
 export default router;

@@ -137,7 +137,6 @@ export class AdminController {
   };
 
   getAll = async (req: Request, res: Response) => {
-
     const roleBase = req.query.roleBase;
     const oemId = req.query.oemId;
     Logger.info(
@@ -148,7 +147,10 @@ export class AdminController {
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
       // }
-      const result = await this.adminService.getAll(roleBase as string, oemId as string);
+      const result = await this.adminService.getAll(
+        roleBase as string,
+        oemId as string
+      );
       res.send({
         result
       });
@@ -464,12 +466,30 @@ export class AdminController {
       );
       const result = await this.adminService.createVideo(req.body);
       res.send({
-        res: result,
+        result,
         created: 'successful'
       });
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateMarketingVideos = async (req: Request, res: Response) => {
+    const { fileID } = req.body;
+    Logger.info(
+      '<Controller>:<AdminController>:<Upload Video request initiated>'
+    );
+    try {
+      const result = await this.adminService.updateMarketingVideos(fileID, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 
@@ -482,13 +502,15 @@ export class AdminController {
     const searchQuery = req.query.searchQuery;
     const state = req.query.state;
     const city = req.query.city;
+    const selectType = req.query.selectType;
     try {
       const result = await this.adminService.getPaginatedAll(
         pageNo,
         pageSize,
         searchQuery as string,
         state as string,
-        city as string
+        city as string,
+        selectType as string
       );
       res.send({
         result
@@ -506,11 +528,14 @@ export class AdminController {
     const searchQuery = req.query.searchQuery;
     const state = req.query.state;
     const city = req.query.city;
+    const selectType = req.query.selectType;
+
     try {
       const result = await this.adminService.getAllCount(
         searchQuery as string,
         state as string,
-        city as string
+        city as string,
+        selectType as string
       );
       res.send({
         result
@@ -521,6 +546,69 @@ export class AdminController {
     }
   };
 
+  deleteVideoUpload = async (req: Request, res: Response) => {
+    const marketingId = req.params.marketingId;
+    Logger.info(
+      '<Controller>:<AdminController>:<Delete marketing request controller initiated>'
+    );
+    try {
+      let result;
+      if (!marketingId) {
+        throw new Error('marketingId required');
+      } else {
+        result = await this.adminService.deleteVideoUpload(
+          marketingId as string
+        );
+      }
+      res.send({
+        message: 'deleted successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getVideoUploadDetails = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Getting ID>');
+    try {
+      const marketingId = req.query.marketingId;
+      const result = await this.adminService.getVideoUploadDetails(
+        marketingId as string
+      );
+      Logger.info('<Controller>:<AdminController>:<get successfully>');
+      res.send({
+        message: 'Marketing obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  updateVideoUpload = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update Marketing Status>');
+    // Validate the request body
+    const marketingId = req.params.marketingId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateVideoUpload(
+        req.body,
+        marketingId
+      );
+      res.send({
+        message: 'Marketing updated successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

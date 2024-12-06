@@ -1,25 +1,87 @@
 import { Document, model, Schema, Types } from 'mongoose';
 import { DocType } from '../enum/docType.enum';
 
+export interface IState {
+  name: string;
+}
+export const stateSchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export const citySchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    },
+    value: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export interface ICity {
+  name: string;
+  value: string;
+}
+
+export interface ICatalogMap {
+  _id?: Types.ObjectId;
+  name: string;
+}
+
+export const catalogMapSchema: Schema = new Schema({
+  _id: {
+    type: Types.ObjectId,
+    required: false
+  },
+  name: {
+    type: String,
+    required: true
+  }
+});
+
 export interface IMarketing extends Document {
+  _id?: Types.ObjectId;
   storeId: string;
+  oemUserName: string;
   phoneNumber: string;
   fromDate: Date;
   endDate: Date;
   userType: string;
-  state: string;
-  city: string;
+  selectType: string;
+  state: IState[];
+  city: ICity[];
+  category: ICatalogMap[];
+  subCategory: ICatalogMap[];
+  brand: ICatalogMap[];
   fileType: string;
+  websiteLink: string;
   distance: number;
-  image1: { key: string; docURL: string };
+  fileUrl: { key: string; docURL: string };
   createdAt?: Date;
   updatedAt?: Date;
+  status: string;
 }
 
 const MarketingSchema: Schema = new Schema(
   {
     storeId: {
-      type: Types.ObjectId
+      type: String
+    },
+    oemUserName: {
+      type: String
     },
     phoneNumber: {
       type: String
@@ -33,19 +95,39 @@ const MarketingSchema: Schema = new Schema(
     userType: {
       type: String
     },
+    websiteLink: {
+      type: String
+    },
+    selectType: {
+      type: String
+    },
     fileType: {
       type: String
     },
     state: {
-      type: String
+      type: [stateSchema]
     },
     city: {
-      type: String
+      type: [citySchema]
+    },
+    category: {
+      type: [catalogMapSchema]
+    },
+    subCategory: {
+      type: [catalogMapSchema]
+    },
+    brand: {
+      type: [catalogMapSchema]
     },
     distance: {
       type: Number
     },
-    image1: { type: { key: String, docURL: String } }
+    status: {
+      type: String,
+      enum: ['ENABLED', 'DISABLED'],
+      default: 'DISABLED'
+    },
+    fileUrl: { type: { key: String, docURL: String } }
   },
   { timestamps: true }
 );

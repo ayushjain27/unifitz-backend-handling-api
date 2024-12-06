@@ -673,18 +673,17 @@ export class AdminService {
     return result;
   }
 
-  async updateVehicleVideos(
+  async updateMarketingVideos(
     fileID: string,
-    fileType: string,
     req: Request | any
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
-    const vehicle = await Marketing.findOne(
+    const marketingInfo = await Marketing.findOne(
       { _id: fileID },
       { verificationDetails: 0 }
     );
-    if (_.isEmpty(vehicle)) {
-      throw new Error('Vehicle does not exist');
+    if (_.isEmpty(marketingInfo)) {
+      throw new Error('Fiile does not exist');
     }
 
     const files: any = req.files;
@@ -693,20 +692,36 @@ export class AdminService {
       throw new Error('Files not found');
     }
     const videoList: any = [];
-    for (const file of files) {
-      const fileName = file.originalname;
-      const { key, url } = await this.s3Client.uploadVideo(
-        fileID,
-        fileName,
-        file.buffer
-      );
-      videoList.push({ key, docURL: url });
+
+    if (marketingInfo.fileType === 'video') {
+      for (const file of files) {
+        const fileName = file.originalname;
+        const { key, url } = await this.s3Client.uploadVideo(
+          fileID,
+          fileName,
+          file.buffer
+        );
+        videoList.push({ key, docURL: url });
+      }
     }
-    const videoUrl = videoList[0];
+
+    if (marketingInfo.fileType === 'image') {
+      for (const file of files) {
+        const fileName = file.originalname;
+        const { key, url } = await this.s3Client.uploadFile(
+          fileID,
+          fileName,
+          file.buffer
+        );
+        videoList.push({ key, docURL: url });
+      }
+    }
+
+    const fileUrl = videoList[0];
 
     const res = await Marketing.findOneAndUpdate(
       { _id: fileID },
-      { $set: { videoUrl } },
+      { $set: { fileUrl } },
       {
         returnDocument: 'after',
         projection: { 'verificationDetails.verifyObj': 0 }
@@ -715,21 +730,34 @@ export class AdminService {
     return res;
   }
 
-  async getAllCount(searchQuery?: string, state?: string, city?: string) {
+  async getAllCount(
+    searchQuery?: string,
+    state?: string,
+    city?: string,
+    selectType?: string
+  ) {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
-      'contactInfo.state': state,
-      'contactInfo.city': city
+      'state.name': { $in: [state] },
+      'city.name': { $in: [city] },
+      selectType
     };
 
     if (!state) {
-      delete query['contactInfo.state'];
+      delete query['state.name'];
     }
     if (!city) {
-      delete query['contactInfo.city'];
+      delete query['city.name'];
+    }
+    if (!selectType) {
+      delete query['selectType'];
     }
     if (searchQuery) {
-      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+      query.$or = [
+        { storeId: searchQuery },
+        { oemUserName: searchQuery },
+        { phoneNumber: searchQuery }
+      ];
     }
     const marketingResponse: any = await Marketing.count(query);
     const result = {
@@ -743,26 +771,54 @@ export class AdminService {
     pageSize?: number,
     searchQuery?: string,
     state?: string,
-    city?: string
+    city?: string,
+    selectType?: string
   ): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
-      'contactInfo.state': state,
-      'contactInfo.city': city
+      'state.name': { $in: [state] },
+      'city.name': { $in: [city] },
+      selectType
     };
 
     if (!state) {
-      delete query['contactInfo.state'];
+      delete query['state.name'];
     }
     if (!city) {
-      delete query['contactInfo.city'];
+      delete query['city.name'];
+    }
+    if (!selectType) {
+      delete query['selectType'];
     }
     if (searchQuery) {
-      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+      query.$or = [
+        { storeId: searchQuery },
+        { oemUserName: searchQuery },
+        { phoneNumber: searchQuery }
+      ];
     }
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     const marketingResponse = await Marketing.aggregate([
       {
         $match: query
+      },
+      {
+        $addFields: {
+          status: {
+            $cond: {
+              if: { $eq: ['$endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
+        }
       },
       {
         $skip: pageNo * pageSize
@@ -772,5 +828,48 @@ export class AdminService {
       }
     ]);
     return marketingResponse;
+  }
+
+  async deleteVideoUpload(marketingId: string): Promise<any> {
+    Logger.info(
+      '<Service>:<AdminService>:<Delete Marketing by Id service initiated>'
+    );
+    const query: any = {};
+    query._id = marketingId;
+    const res = await Marketing.findOneAndDelete(query);
+    return res;
+  }
+
+  async getVideoUploadDetails(marketingID: string): Promise<any> {
+    Logger.info('<Service>:<adminService>:<get marketing initiated>');
+
+    const jsonResult = await Marketing.findOne({
+      _id: marketingID
+    })?.lean();
+
+    if (_.isEmpty(jsonResult)) {
+      throw new Error('vehicle does not exist');
+    }
+    Logger.info('<Service>:<adminService>:<Upload marketing successful>');
+
+    return jsonResult;
+  }
+
+  async updateVideoUpload(reqBody: any, marketingId: string): Promise<any> {
+    Logger.info('<Service>:<adminService>:<Update marketing details >');
+    const jsonResult = await Marketing.findOne({
+      _id: marketingId
+    })?.lean();
+    if (_.isEmpty(jsonResult)) {
+      throw new Error('marketing does not exist');
+    }
+    console.log(jsonResult, 'flnjr');
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await Marketing.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
   }
 }
