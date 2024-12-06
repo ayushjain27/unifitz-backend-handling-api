@@ -35,6 +35,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    VIDEOUPLOAD: {
+      STATUS: 'ADMIN & EMPLOYEE',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     CUSTOMER: {
       STATUS: 'ADMIN & EMPLOYEE',
       CREATE: false,
@@ -241,6 +248,13 @@ export const permissions: any = {
       DELETE: false
     },
     STORE_LEAD_GENERATION: {
+      STATUS: 'ADMIN & EMPLOYEE',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    VIDEOUPLOAD: {
       STATUS: 'ADMIN & EMPLOYEE',
       CREATE: false,
       READ: false,
