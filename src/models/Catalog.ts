@@ -12,7 +12,7 @@ export interface ICatalog extends Document {
   tree: string;
   parent: string;
   catalogType: string;
-  catalogIcon?: string;
+  catalogIcon: string;
   status?: string;
   displayOrder: number;
   catalogWebIcon?: string;
