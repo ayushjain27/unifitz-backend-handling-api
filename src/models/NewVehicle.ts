@@ -49,24 +49,6 @@ export const colorCodeSchema: Schema = new Schema(
   }
 );
 
-export interface IVideoUrl {
-  key: string;
-  docURL: string;
-}
-
-export const videoSchema: Schema = new Schema(
-  {
-    key: {
-      type: String
-    },
-    docURL: { type: String }
-  },
-  {
-    _id: false,
-    strict: false
-  }
-);
-
 export interface IStoreList {
   storeId: string;
 }
@@ -87,7 +69,7 @@ export interface INewVehicle {
   _id?: Types.ObjectId;
   oemUserName?: string;
   vehicleNameSuggest: string;
-  videoUrl: IVideoUrl;
+  videoUrl: { key: string; docURL: string };
   vehicle: string;
   fuelType: string;
   sku: string;
@@ -147,9 +129,7 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     vehicleNameSuggest: {
       type: String
     },
-    videoUrl: {
-      type: videoSchema
-    },
+    videoUrl: { type: { key: String, docURL: String } },
     vehicle: {
       type: String,
       enum: VehicleType

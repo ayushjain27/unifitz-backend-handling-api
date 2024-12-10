@@ -2,11 +2,6 @@ import { model, Schema, ObjectId } from 'mongoose';
 import { catalogSchema, ICatalog } from './Catalog';
 import { IContactInfo, storeContactSchema } from './Store';
 
-export enum ProductType {
-  OEM = 'OEM',
-  AFTER_MARKET = 'AFTER MARKET'
-}
-
 export interface IProductOemModel {
   name: string;
   value: string;
@@ -263,8 +258,7 @@ export const bulkOrdersSchema: Schema = new Schema<IBulkOrderDetail>({
 const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
   {
     makeType: {
-      type: String,
-      enum: ProductType
+      type: String
     },
     oemUserName: {
       type: String

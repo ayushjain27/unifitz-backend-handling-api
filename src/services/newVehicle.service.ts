@@ -168,12 +168,15 @@ export class NewVehicleInfoService {
     if (_.isEmpty(vehicle)) {
       throw new Error('Vehicle does not exist');
     }
-
+    if (vehicle?.videoUrl?.key) {
+      await this.s3Client.deleteFile(vehicle?.videoUrl?.key);
+    }
     const files: any = req.files;
 
     if (!files) {
       throw new Error('Files not found');
     }
+
     const videoList: any = [];
     for (const file of files) {
       const fileName = file.originalname;
