@@ -147,7 +147,7 @@ export interface IB2BPartnersProduct {
   productDescription: string;
   features: string;
   inTheBox: string;
-  warranty: number;
+  warranty: string;
   materialDetails: string;
   // colour: string;
   madeIn: string;
@@ -303,7 +303,7 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       type: String
     },
     warranty: {
-      type: Number
+      type: String
     },
     materialDetails: {
       type: String
