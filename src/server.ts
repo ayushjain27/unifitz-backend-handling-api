@@ -197,11 +197,17 @@ app.post('/subCategory', async (req, res) => {
   }
   query = { tree: { $in: treeVal }, catalogType };
   const subCatList: ICatalog[] = await Catalog.find(query);
-  let result = subCatList.map(
-    ({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
+  let result = subCatList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
       return { _id, catalogName, tree, parent, catalogType, catalogIcon };
-    }
-  );
+    });
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
