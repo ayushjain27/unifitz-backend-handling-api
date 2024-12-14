@@ -6,8 +6,17 @@ export interface IProductOemModel {
   name: string;
   value: string;
 }
+
 export const oemModelSchema: Schema = new Schema(
   { name: { type: String }, value: { type: String } },
+  { _id: false, strict: false }
+);
+
+export interface IFuelType {
+  name: string;
+}
+export const fuelTypeSchema: Schema = new Schema(
+  { name: { type: String } },
   { _id: false, strict: false }
 );
 
@@ -15,12 +24,20 @@ export interface IProductOemList {
   oemBrand: string;
   oemModel: IProductOemModel[];
   partNumber: string;
+  startYear: Date;
+  endYear: Date;
+  variants: string;
+  fuelType: IFuelType[];
 }
 export const ProductOemListSchema: Schema = new Schema(
   {
     oemBrand: { type: String },
     oemModel: { type: [oemModelSchema] },
-    partNumber: { type: String }
+    partNumber: { type: String },
+    startYear: { type: Date },
+    endYear: { type: Date },
+    variants: { type: String },
+    fuelType: { type: [fuelTypeSchema] }
   },
   { _id: false, strict: false }
 );
@@ -123,33 +140,21 @@ export const vehicleBrandSchema: Schema = new Schema(
   { _id: false, strict: false }
 );
 
-export interface IFuelType {
-  name: string;
-}
-export const fuelTypeSchema: Schema = new Schema(
-  { name: { type: String } },
-  { _id: false, strict: false }
-);
-
 export interface IB2BPartnersProduct {
   _id?: string;
   makeType: string;
   brandName: IVehicleBrand[];
   vehicleType: IVehicleType[];
   vehicleModel: IProductOemModel[];
-  variants: string;
-  fuelType: IFuelType[];
-  productCategory?: string;
+  productCategory?: ICatalog[];
   productSubCategory?: ICatalog[];
-  startYear: Date;
-  endYear: Date;
   productSuggest: string;
   productDescription: string;
   features: string;
   inTheBox: string;
   warranty: string;
   materialDetails: string;
-  // colour: string;
+  manufactureName: string;
   madeIn: string;
   returnPolicy: string;
   isActive: boolean;
@@ -272,23 +277,11 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     vehicleModel: {
       type: [oemModelSchema]
     },
-    variants: {
-      type: String
-    },
-    fuelType: {
-      type: [fuelTypeSchema]
-    },
     productCategory: {
-      type: String
+      type: [catalogSchema]
     },
     productSubCategory: {
       type: [catalogSchema]
-    },
-    startYear: {
-      type: Date
-    },
-    endYear: {
-      type: Date
     },
     productSuggest: {
       type: String
@@ -308,9 +301,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     materialDetails: {
       type: String
     },
-    // colour: {
-    //   type: String
-    // },
+    manufactureName: {
+      type: String
+    },
     madeIn: {
       type: String
     },

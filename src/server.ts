@@ -223,6 +223,51 @@ app.get('/brand', async (req, res) => {
   });
 });
 
+app.post('/brandLists', async (req, res) => {
+  try {
+    const { category, subCategoryList } = req.body;
+
+    const categories = Array.isArray(category) ? category : [category];
+    const subCategories = Array.isArray(subCategoryList)
+      ? subCategoryList
+      : [subCategoryList];
+
+    const treePaths: any = [];
+
+    categories.forEach((cat) => {
+      if (subCategories && subCategories.length > 0) {
+        subCategories.forEach((subCat) => {
+          treePaths.push(`root/${cat}/${subCat}`);
+        });
+      } else {
+        treePaths.push(`root/${cat}/`);
+      }
+    });
+
+    const categoryList = await Catalog.aggregate([
+      {
+        $match: {
+          tree: { $in: treePaths }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          catalogName: 1,
+          catalogType: 1
+        }
+      }
+    ]);
+
+    res.json({
+      list: categoryList
+    });
+  } catch (err) {
+    // console.error('Error fetching categories:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.post('/brand', async (req, res) => {
   const { subCategoryList, category } = req.body;
   let query = {};
@@ -301,7 +346,7 @@ const server = app.listen(port, () =>
 //       for (let store of stores) {
 //         await Store.deleteOne({ storeId: store.storeId }, { session });
 //         await StoreReview.deleteMany({ storeId: store.storeId }, { session });
-       
+
 //         //Products Delete
 //         let products = await Product.find({ storeId: store.storeId });
 //         for (let product of products) {
@@ -311,7 +356,7 @@ const server = app.listen(port, () =>
 //           );
 //         }
 //         await Product.deleteOne({ storeId: store.storeId }, { session });
-       
+
 //         //Vehicle Delete
 //         let buySell = await buySellVehicleInfo.find({
 //           'storeDetails.storeId': store.storeId
@@ -342,7 +387,7 @@ const server = app.listen(port, () =>
 //       });
 //     } else {
 //       // If role is not STORE_OWNER
-      
+
 //     }
 //   } catch (error) {
 //     // Rollback the transaction in case of any error
@@ -561,27 +606,27 @@ cron.schedule('0 0 * * *', async () => {
       {
         status: 'ACTIVE',
         $or: [
-          { 
-            activeDate: { 
-              $lt: cutoffDate, 
-              $type: "date" // Check if `activeDate` is a date type
-            } 
+          {
+            activeDate: {
+              $lt: cutoffDate,
+              $type: 'date' // Check if `activeDate` is a date type
+            }
           },
-          { 
-            createdAt: { 
-              $lt: cutoffDate 
-            } 
+          {
+            createdAt: {
+              $lt: cutoffDate
+            }
           },
-          { 
-            activeDate: { 
+          {
+            activeDate: {
               $exists: false // Check if `activeDate` is missing
-            } 
+            }
           }
         ]
       },
       { $set: { status: 'INACTIVE', activeDate: null } }
     );
-    console.log(result,'dflkml')
+    console.log(result, 'dflkml');
     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
   } catch (err) {
     console.error('Error updating vehicle status:', err);

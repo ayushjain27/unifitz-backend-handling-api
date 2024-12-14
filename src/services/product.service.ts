@@ -1045,11 +1045,11 @@ export class ProductService {
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
-      productCategory: category,
+      'productCategory.catalogName': { $in: [category] },
       'productSubCategory.catalogName': { $in: [subCategory] }
     };
 
-    if (!category) delete query['productCategory'];
+    if (!category) delete query['productCategory.catalogName'];
     if (!subCategory) delete query['productSubCategory.catalogName'];
 
     if (role === AdminRole.OEM) {
@@ -1091,11 +1091,11 @@ export class ProductService {
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
-      productCategory: category,
+      'productCategory.catalogName': { $in: [category] },
       'productSubCategory.catalogName': { $in: [subCategory] }
     };
 
-    if (!category) delete query['productCategory'];
+    if (!category) delete query['productCategory.catalogName'];
     if (!subCategory) delete query['productSubCategory.catalogName'];
 
     if (role === AdminRole.OEM) {
@@ -1237,7 +1237,7 @@ export class ProductService {
       'brandName.catalogName': brandName,
       makeType: makeType,
       status: 'ACTIVE',
-      productCategory: productCategory,
+      'productCategory.catalogName': { $in: [productCategory] },
       'productSubCategory.catalogName': { $in: productSubCategory },
       discount: {
         $gte: discountStart,
@@ -1300,7 +1300,7 @@ export class ProductService {
       delete query['discount'];
     }
     if (!productCategory) {
-      delete query['productCategory'];
+      delete query['productCategory.catalogName'];
     }
     if (!productSubCategory) {
       delete query['productSubCategory.catalogName'];
