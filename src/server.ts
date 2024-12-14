@@ -197,11 +197,17 @@ app.post('/subCategory', async (req, res) => {
   }
   query = { tree: { $in: treeVal }, catalogType };
   const subCatList: ICatalog[] = await Catalog.find(query);
-  let result = subCatList.map(
-    ({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
+  let result = subCatList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
       return { _id, catalogName, tree, parent, catalogType, catalogIcon };
-    }
-  );
+    });
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
@@ -301,7 +307,7 @@ const server = app.listen(port, () =>
 //       for (let store of stores) {
 //         await Store.deleteOne({ storeId: store.storeId }, { session });
 //         await StoreReview.deleteMany({ storeId: store.storeId }, { session });
-       
+
 //         //Products Delete
 //         let products = await Product.find({ storeId: store.storeId });
 //         for (let product of products) {
@@ -311,7 +317,7 @@ const server = app.listen(port, () =>
 //           );
 //         }
 //         await Product.deleteOne({ storeId: store.storeId }, { session });
-       
+
 //         //Vehicle Delete
 //         let buySell = await buySellVehicleInfo.find({
 //           'storeDetails.storeId': store.storeId
@@ -342,7 +348,7 @@ const server = app.listen(port, () =>
 //       });
 //     } else {
 //       // If role is not STORE_OWNER
-      
+
 //     }
 //   } catch (error) {
 //     // Rollback the transaction in case of any error
@@ -561,27 +567,27 @@ cron.schedule('0 0 * * *', async () => {
       {
         status: 'ACTIVE',
         $or: [
-          { 
-            activeDate: { 
-              $lt: cutoffDate, 
-              $type: "date" // Check if `activeDate` is a date type
-            } 
+          {
+            activeDate: {
+              $lt: cutoffDate,
+              $type: 'date' // Check if `activeDate` is a date type
+            }
           },
-          { 
-            createdAt: { 
-              $lt: cutoffDate 
-            } 
+          {
+            createdAt: {
+              $lt: cutoffDate
+            }
           },
-          { 
-            activeDate: { 
+          {
+            activeDate: {
               $exists: false // Check if `activeDate` is missing
-            } 
+            }
           }
         ]
       },
       { $set: { status: 'INACTIVE', activeDate: null } }
     );
-    console.log(result,'dflkml')
+    console.log(result, 'dflkml');
     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
   } catch (err) {
     console.error('Error updating vehicle status:', err);
