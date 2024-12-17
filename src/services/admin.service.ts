@@ -4,7 +4,7 @@
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import secureRandomPassword from 'secure-random-password';
 import { TYPES } from '../config/inversify.types';
 import Payload from '../types/payload';
@@ -32,11 +32,13 @@ import { permissions } from '../config/permissions';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { sendEmail } from '../utils/common';
 import { SQSService } from './sqs.service';
+import { StoreService } from './store.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
 export class AdminService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private storeService = container.get<StoreService>(TYPES.StoreService);
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
@@ -897,5 +899,129 @@ export class AdminService {
       projection: { 'verificationDetails.verifyObj': 0 }
     });
     return res;
+  }
+
+  async getAllPaginated(
+    pageNo?: number,
+    pageSize?: number,
+    state?: string,
+    city?: string,
+    category?: string,
+    subCategory?: string,
+    brand?: string,
+    storeId?: string,
+    oemUserName?: string,
+    platform?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<Get all video>');
+    const query: any = {
+      userType: platform
+    };
+
+    if (!platform) {
+      delete query['userType'];
+    }
+
+    let stateFilter: string | null = null;
+    let cityFilter: string | null = null;
+
+    if (!isEmpty(storeId)) {
+      const store = await this.storeService.getById({
+        storeId: storeId,
+        lat: '',
+        long: ''
+      });
+
+      const categories = store[0]?.basicInfo?.category;
+      const categoryNames = categories.map((sub) => sub.name);
+      const subCategories = store[0]?.basicInfo?.subCategory;
+      const subCategoryNames = subCategories.map((sub) => sub.name);
+      const brands = store[0]?.basicInfo?.brand;
+      const brandNames = brands.map((sub) => sub.name);
+      query['category.name'] = { $in: categoryNames };
+      query['subCategory.name'] = { $in: subCategoryNames };
+      query['brand.name'] = { $in: brandNames };
+      stateFilter = store[0]?.contactInfo?.state || null;
+      console.log(stateFilter, 'Dekm');
+      cityFilter = store[0]?.contactInfo?.city || null;
+      console.log(cityFilter, 'Dekm');
+    }
+
+    if (!isEmpty(oemUserName)) {
+      const userName = oemUserName;
+      const oemUser: any = await this.getAdminUserByUserName(userName);
+      const categories = oemUser[0]?.category;
+      const categoryNames = categories.map((sub: any) => sub.name);
+      const subCategories = oemUser[0]?.subCategory;
+      const subCategoryNames = subCategories.map((sub: any) => sub.name);
+      const brands = oemUser[0]?.brand;
+      const brandNames = brands.map((sub: any) => sub.name);
+      query['category.name'] = { $in: categoryNames };
+      query['subCategory.name'] = { $in: subCategoryNames };
+      query['brand.name'] = { $in: brandNames };
+      query['state.name'] = { $in: [state] };
+      query['city.name'] = { $in: [city] };
+    }
+
+    const matchStage: any = { ...query };
+
+    if (stateFilter && cityFilter) {
+      matchStage.$expr = {
+        $and: [
+          {
+            $or: [
+              { $eq: [{ $size: '$state' }, 0] },
+              { $in: [stateFilter, '$state.name'] }
+            ]
+          },
+          {
+            $or: [
+              { $eq: [{ $size: '$city' }, 0] },
+              { $in: [cityFilter, '$city.name'] }
+            ]
+          }
+        ]
+      };
+    } else if (stateFilter) {
+      matchStage.$expr = {
+        $or: [
+          { $eq: [{ $size: '$state' }, 0] },
+          { $in: [stateFilter, '$state.name'] }
+        ]
+      };
+    }
+
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const marketingResponse = await Marketing.aggregate([
+      {
+        $match: matchStage
+      },
+      {
+        $addFields: {
+          status: {
+            $cond: {
+              if: { $eq: ['$endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
+        }
+      },
+      { $match: { status: 'ENABLED' } },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return marketingResponse;
   }
 }
