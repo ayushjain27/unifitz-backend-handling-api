@@ -419,7 +419,9 @@ export class OrderManagementService {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter distributors orders service initiated>'
     );
-    const query: any = {};
+    const query: any = {
+      status: status
+    };
     const userRoleType = userType === 'OEM' ? true : false;
 
     if (role === AdminRole.ADMIN) {
@@ -450,7 +452,7 @@ export class OrderManagementService {
           employeeId,
           userName
         );
-      console.log(employeeDetails, 'dfwklm');
+      // console.log(employeeDetails, 'dfwklm');
       // if (employeeDetails) {
       //   query['contactInfo.state'] = {
       //     $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -573,5 +575,114 @@ export class OrderManagementService {
     ]);
 
     return orders;
+  }
+
+  async getDistributorOrdersCount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string,
+    employeeId?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Search and Filter orders count service initiated>'
+    );
+    const query: any = {};
+    const userRoleType = userType === 'OEM' ? true : false;
+    let pending: any = 0;
+    let processing: any = 0;
+    let partialDelivered: any = 0;
+    let delivered: any = 0;
+    let cancelled: any = 0;
+
+    if (role === AdminRole.ADMIN) {
+      query.oemUserName = { $exists: userRoleType };
+    }
+    if (!userType) {
+      delete query['oemUserName'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const overallStatus = {
+      status: status
+    };
+    if (!status) {
+      delete query['status'];
+      delete overallStatus['status'];
+    }
+
+    if (role === 'EMPLOYEE') {
+      const userName = oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      // if (employeeDetails) {
+      //   query['contactInfo.state'] = {
+      //     $in: employeeDetails.state.map((stateObj) => stateObj.name)
+      //   };
+      //   if (!isEmpty(employeeDetails?.city)) {
+      //     query['contactInfo.city'] = {
+      //       $in: employeeDetails.city.map((cityObj) => cityObj.name)
+      //     };
+      //   }
+      // }
+    }
+
+    const total = await DistributorOrder.count({ ...overallStatus });
+    if (status === 'PENDING' || !status) {
+      pending = await DistributorOrder.count({
+        status: 'PENDING',
+        ...query
+      });
+    }
+    if (status === 'PROCESSING' || !status) {
+      processing = await DistributorOrder.count({
+        status: 'PROCESSING',
+        ...query
+      });
+    }
+    if (status === 'PARTIAL DELIVERED' || !status) {
+      partialDelivered = await DistributorOrder.count({
+        status: 'PARTIAL DELIVERED',
+        ...query
+      });
+    }
+    if (status === 'DELIVERED' || !status) {
+      delivered = await DistributorOrder.count({
+        status: 'DELIVERED',
+        ...query
+      });
+    }
+    if (status === 'CANCELLED' || !status) {
+      cancelled = await DistributorOrder.count({
+        status: 'CANCELLED',
+        ...query
+      });
+    }
+
+    const totalCounts = {
+      total,
+      pending,
+      processing,
+      partialDelivered,
+      delivered,
+      cancelled
+    };
+
+    return totalCounts;
   }
 }
