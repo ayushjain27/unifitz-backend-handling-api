@@ -465,8 +465,6 @@ export class OrderManagementService {
       // }
     }
 
-    console.log(query,"wdekm")
-
     const orders: any = await DistributorOrder.aggregate([
       // Match the query
       { $match: query },
@@ -588,7 +586,6 @@ export class OrderManagementService {
     verifiedStore?: string,
     employeeId?: string
   ): Promise<any> {
-    console.log(userName,"lemk")
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter orders count service initiated>'
     );
@@ -644,8 +641,6 @@ export class OrderManagementService {
       //   }
       // }
     }
-
-    console.log(overallStatus,"Elml")
 
     const total = await DistributorOrder.count({ ...overallStatus });
     if (status === 'PENDING' || !status) {
