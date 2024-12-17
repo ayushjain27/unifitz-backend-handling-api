@@ -127,4 +127,6 @@ router.delete(
 router.get('/videoUpload/getById', adminController.getVideoUploadDetails);
 router.put('/videoUpload/:marketingId', adminController.updateVideoUpload);
 
+router.post('/videoUpload/getAllPaginated', adminController.getAllPaginated);
+
 export default router;

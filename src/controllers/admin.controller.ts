@@ -609,6 +609,45 @@ export class AdminController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getAllPaginated = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdminController>:<Get all video request controller initiated>'
+    );
+    const {
+      pageNo,
+      pageSize,
+      state,
+      city,
+      category,
+      subCategory,
+      brand,
+      storeId,
+      oemUserName,
+      platform
+    } = req.body;
+    try {
+      const result = await this.adminService.getAllPaginated(
+        pageNo,
+        pageSize,
+        state as string,
+        city as string,
+        category as string,
+        subCategory as string,
+        brand as string,
+        storeId as string,
+        oemUserName as string,
+        platform as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

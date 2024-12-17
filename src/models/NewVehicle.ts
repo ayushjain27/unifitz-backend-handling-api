@@ -81,6 +81,7 @@ export interface INewVehicle {
   variant: string;
   colorCode: IColorCode[];
   price: string;
+  specialOffer: string;
   motors: string;
   battery: string;
   speed: string;
@@ -174,6 +175,9 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
       type: [colorCodeSchema]
     },
     price: {
+      type: String
+    },
+    specialOffer: {
       type: String
     },
     motors: {
