@@ -963,6 +963,14 @@ export class AdminService {
       query['city.name'] = { $in: [city] };
     }
 
+    if (!storeId && !oemUserName) {
+      query['state.name'] = { $in: [state] };
+      query['city.name'] = { $in: [city] };
+
+      if (!state) delete query['state.name'];
+      if (!city) delete query['city.name'];
+    }
+
     const matchStage: any = { ...query };
 
     if (stateFilter && cityFilter) {
