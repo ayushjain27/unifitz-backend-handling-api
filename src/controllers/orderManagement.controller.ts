@@ -127,7 +127,7 @@ export class OrderManagementController {
     const role = req?.role;
     const { userType, status, pageNo, pageSize, oemId, employeeId } = req.body;
     Logger.info(
-      '<Controller>:<OrderManagementController>:<Search and Filter Distributors stores pagination request controller initiated>'
+      '<Controller>:<OrderManagementController>:<Search and Filter Distributors orders pagination request controller initiated>'
     );
     try {
       const result =
@@ -140,6 +140,43 @@ export class OrderManagementController {
           pageNo,
           pageSize,
           employeeId
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getDistributorOrdersCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const oemId = req?.query?.oemId;
+    const status = req?.query?.status;
+    const userType = req?.query?.userType;
+    const verifiedStore = req?.query?.verifiedStore;
+    const employeeId = req?.query?.employeeId;
+
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Search and Filter Orders count request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Search and Filter Orders count ination request controller initiated>'
+      );
+      const result =
+        await this.orderManagementService.getDistributorOrdersCount(
+          userName,
+          role,
+          oemId as string,
+          userType as string,
+          status as string,
+          verifiedStore as string,
+          employeeId as string
         );
       res.send({
         result

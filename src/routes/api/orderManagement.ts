@@ -50,4 +50,10 @@ router.post(
   orderManagementController.getAllDistributorsOrdersPaginated
 );
 
+router.get(
+  '/countAllDistributorOrdersCount',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.getDistributorOrdersCount
+);
+
 export default router;
