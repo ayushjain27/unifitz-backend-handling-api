@@ -3,4 +3,3 @@ npm-debug.log
 keys/
 .git
 .gitignore
-dist/

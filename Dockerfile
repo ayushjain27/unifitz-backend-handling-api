@@ -30,10 +30,11 @@ FROM node:20-alpine AS runner
 
 WORKDIR /build
 
-COPY --from=builder /build/node_modules .
-COPY --from=builder /build/package.json .
+COPY --from=builder /build/node_modules ./node_modules
+COPY --from=builder /build/package.json ./package.json
 # COPY --from=builder /build/package-lock.json .
-COPY --from=builder /build/dist/ dist/
+COPY --from=builder /build/dist/ ./dist
+COPY --from=builder /build/config ./config
 
 # Expose the port the app runs on
 EXPOSE 3005
