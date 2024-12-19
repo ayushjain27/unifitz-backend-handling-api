@@ -1055,7 +1055,7 @@ export class AdminService {
           }
         }
       },
-      { $match: { status: 'ENABLED', isShow: true } },
+      { $match: { status: 'ENABLED' } },
       {
         $skip: pageNo * pageSize
       },
