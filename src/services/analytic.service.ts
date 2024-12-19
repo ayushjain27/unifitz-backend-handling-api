@@ -19,7 +19,7 @@ import { TYPES } from '../config/inversify.types';
 import EventModel from './../models/Event';
 import VehicleAnalyticModel from './../models/VehicleAnalytic';
 import NewVehicleAnalyticModel from './../models/NewVehicleAnalytic';
-
+import MarketingAnalyticModel from './../models/MarketingAnalytic';
 import OfferModel from './../models/Offers';
 import SchoolOfAutoModel from '../models/SchoolOfAuto';
 import BusinessModel from '../models/Business';
@@ -2588,7 +2588,7 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    console.log(query, 'queryquery');
+    // console.log(query, 'queryquery');
 
     const combinedResult = await EventAnalyticModel.aggregate([
       {
@@ -2927,4 +2927,23 @@ export class AnalyticService {
 
   /// New vehicle analytic creation api end ===========================
   ///======================================================================//
+
+  /// Marketing video analytic creation api start ===========================
+  ///======================================================================//
+
+  async createMarketingAnalytic(requestData: any): Promise<any> {
+    const eventResult = requestData;
+    Logger.info(
+      '<Service>:<AnalyticService>:<Create analytic service initiated>'
+    );
+    let newAnalytic: any = [];
+    if (!_.isEmpty(eventResult)) {
+      newAnalytic = await MarketingAnalyticModel.create(eventResult);
+    }
+    Logger.info('<Service>:<AnalyticService>:<analytic created successfully>');
+    return newAnalytic;
+  }
 }
+
+/// Marketing video analytic creation api end ===========================
+///======================================================================//

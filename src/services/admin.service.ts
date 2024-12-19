@@ -911,12 +911,14 @@ export class AdminService {
     brand?: string,
     storeId?: string,
     oemUserName?: string,
-    platform?: string
+    platform?: string,
+    coordinates?: number[]
   ): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
       userType: platform
     };
+    const locationQuery: any = {};
 
     if (!platform) {
       delete query['userType'];
@@ -941,6 +943,9 @@ export class AdminService {
       query['category.name'] = { $in: categoryNames };
       query['subCategory.name'] = { $in: subCategoryNames };
       query['brand.name'] = { $in: brandNames };
+      locationQuery['geoLocation'] =
+        store[0]?.contactInfo?.geoLocation?.coordinates;
+
       stateFilter = store[0]?.contactInfo?.state || null;
       console.log(stateFilter, 'Dekm');
       cityFilter = store[0]?.contactInfo?.city || null;
@@ -961,14 +966,18 @@ export class AdminService {
       query['brand.name'] = { $in: brandNames };
       query['state.name'] = { $in: [state] };
       query['city.name'] = { $in: [city] };
+      locationQuery['geoLocation'] =
+        oemUser[0]?.contactInfo?.geoLocation?.coordinates;
     }
 
     if (!storeId && !oemUserName) {
       query['state.name'] = { $in: [state] };
       query['city.name'] = { $in: [city] };
+      locationQuery['geoLocation'] = coordinates;
 
       if (!state) delete query['state.name'];
       if (!city) delete query['city.name'];
+      if (!coordinates) delete locationQuery['geoLocation'];
     }
 
     const matchStage: any = { ...query };
@@ -998,15 +1007,39 @@ export class AdminService {
         ]
       };
     }
+    console.log(query, matchStage, locationQuery, 'matchStage');
 
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
     const marketingResponse = await Marketing.aggregate([
       {
-        $match: matchStage
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: locationQuery.geoLocation
+          },
+          key: 'geoLocation',
+          spherical: true,
+          query: matchStage,
+          distanceField: 'geoLocation.distance',
+          distanceMultiplier: 0.001
+        }
       },
       {
         $addFields: {
+          isShow: {
+            $cond: {
+              if: { $eq: ['$distance', '$geoLocation.distance'] },
+              then: true,
+              else: {
+                $cond: {
+                  if: { $lt: ['$distance', '$geoLocation.distance'] },
+                  then: false,
+                  else: true
+                }
+              }
+            }
+          },
           status: {
             $cond: {
               if: { $eq: ['$endDate', currentDate] },
@@ -1022,7 +1055,7 @@ export class AdminService {
           }
         }
       },
-      { $match: { status: 'ENABLED' } },
+      { $match: { status: 'ENABLED', isShow: true } },
       {
         $skip: pageNo * pageSize
       },

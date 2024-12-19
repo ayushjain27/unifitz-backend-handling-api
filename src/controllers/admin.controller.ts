@@ -624,7 +624,8 @@ export class AdminController {
       brand,
       storeId,
       oemUserName,
-      platform
+      platform,
+      coordinates
     } = req.body;
     try {
       const result = await this.adminService.getAllPaginated(
@@ -637,7 +638,8 @@ export class AdminController {
         brand as string,
         storeId as string,
         oemUserName as string,
-        platform as string
+        platform as string,
+        coordinates
       );
       res.send({
         result

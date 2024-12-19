@@ -56,6 +56,12 @@ export interface IMarketing extends Document {
   _id?: Types.ObjectId;
   storeId: string;
   oemUserName: string;
+  businessName: string;
+  businessImage: string;
+  geoLocation: {
+    type: string;
+    coordinates: number[];
+  };
   phoneNumber: string;
   fromDate: Date;
   endDate: Date;
@@ -82,6 +88,14 @@ const MarketingSchema: Schema = new Schema(
     },
     oemUserName: {
       type: String
+    },
+    businessName: {
+      type: String
+    },
+    businessImage: { type: String },
+    geoLocation: {
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
     },
     phoneNumber: {
       type: String

@@ -202,4 +202,15 @@ router.post(
 // ====================NewVehicle analytic api lists end=====================
 // =======================================================================
 
+// ====================Marketing Video analytic api lists start=====================
+// =======================================================================
+
+router.post(
+  '/createMarketingAnalytic',
+  analyticController.createMarketingAnalytic
+);
+
+// ====================Marketing Video analytic api lists end=====================
+// =======================================================================
+
 export default router;

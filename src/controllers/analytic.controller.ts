@@ -1078,4 +1078,34 @@ export class AnalyticController {
 
   /// New vehicle analytic creation api end===========================
   ///======================================================================//
+
+  /// Marketing Video analytic creation api start===========================
+  ///======================================================================//
+
+  createMarketingAnalytic = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<Vehiclecontroller>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createMarketingAnalytic(
+        requestData
+      );
+      res.send({
+        message: 'OK !!!!',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  /// Marketing Video analytic creation api end===========================
+  ///======================================================================//
 }
