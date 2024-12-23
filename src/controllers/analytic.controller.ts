@@ -1106,6 +1106,126 @@ export class AnalyticController {
     }
   };
 
+  getMarketingAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      userName
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingAnalytic(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        userName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getMarketingImpressionByYear = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      userName
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingImpressionByYear(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        userName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getMarketingAll = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      userName
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingAll(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        userName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   /// Marketing Video analytic creation api end===========================
   ///======================================================================//
 }

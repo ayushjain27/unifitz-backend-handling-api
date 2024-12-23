@@ -210,6 +210,24 @@ router.post(
   analyticController.createMarketingAnalytic
 );
 
+router.post(
+  '/getMarketingImpression',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingAnalytic
+);
+
+router.post(
+  '/getMarketingImpressionByYear',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingImpressionByYear
+);
+
+router.post(
+  '/getMarketingAll',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingAll
+);
+
 // ====================Marketing Video analytic api lists end=====================
 // =======================================================================
 

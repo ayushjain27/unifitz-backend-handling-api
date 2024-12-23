@@ -2943,7 +2943,451 @@ export class AnalyticService {
     Logger.info('<Service>:<AnalyticService>:<analytic created successfully>');
     return newAnalytic;
   }
-}
 
-/// Marketing video analytic creation api end ===========================
-///======================================================================//
+  async getMarketingAnalytic(
+    role: string,
+    oemUserName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    userName?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const query: any = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      event: 'IMPRESSION_COUNT',
+      'userInformation.state': state,
+      'userInformation.city': city
+      // oemUserName: userName
+    };
+
+    if (!state) delete query['userInformation.state'];
+    if (!city) delete query['userInformation.city'];
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.platform = {
+        $in: [`${platformPrefix}_ANDROID`, `${platformPrefix}_IOS`]
+      };
+    }
+    // if (!userName) {
+    //   delete query['oemUserName'];
+    // }
+    // if (role === AdminRole.OEM) {
+    //   query.oemUserName = oemUserName;
+    // }
+    // if (role === AdminRole.EMPLOYEE) {
+    //   query.oemUserName = oemId;
+    // }
+    // if (oemId === 'SERVICEPLUG') {
+    //   delete query['oemUserName'];
+    // }
+
+    const statusQuery: any = {};
+    if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
+    if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+
+    const queryFilter: any = await MarketingAnalyticModel.aggregate([
+      { $match: query },
+      { $set: { marketingID: { $toObjectId: '$marketingId' } } },
+      {
+        $lookup: {
+          from: 'marketing',
+          localField: 'marketingID',
+          foreignField: '_id',
+          as: 'marketingDetails'
+        }
+      },
+      { $match: statusQuery },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+            day: { $dayOfMonth: '$createdAt' },
+            hour: {
+              $cond: [
+                {
+                  $gte: [
+                    {
+                      $dateDiff: {
+                        startDate: firstDay,
+                        endDate: lastDay,
+                        unit: 'day'
+                      }
+                    },
+                    1
+                  ]
+                },
+                0,
+                { $hour: '$createdAt' }
+              ]
+            }
+          },
+          views: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: {
+              format: '%Y-%m-%dT%H:%M:%S.%LZ',
+              date: {
+                $dateFromParts: {
+                  year: '$_id.year',
+                  month: '$_id.month',
+                  day: '$_id.day',
+                  hour: '$_id.hour'
+                }
+              }
+            }
+          },
+          views: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return queryFilter;
+  }
+
+  async getMarketingImpressionByYear(
+    role: string,
+    oemUserName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    userName?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const startDate = new Date(firstDay);
+    const nextDate = new Date(lastDay);
+    startDate.setDate(firstDay.getDate() + 1);
+    nextDate.setDate(lastDay.getDate() + 1);
+    query = {
+      createdAt: {
+        $gte: startDate,
+        $lte: nextDate
+      },
+      event: 'IMPRESSION_COUNT',
+      'userInformation.state': state,
+      'userInformation.city': city
+    };
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
+    if (!userName) {
+      delete query['oemUserName'];
+    }
+    if (!state) delete query['userInformation.state'];
+    if (!city) delete query['userInformation.city'];
+    if (!platform) {
+      delete query['platform'];
+    }
+    // if (role === AdminRole.OEM) {
+    //   query.oemUserName = oemUserName;
+    // }
+
+    // if (role === AdminRole.EMPLOYEE) {
+    //   query.oemUserName = oemId;
+    // }
+
+    // if (oemId === 'SERVICEPLUG') {
+    //   delete query['oemUserName'];
+    // }
+    Logger.debug(`${JSON.stringify(query)} ${role} ${oemUserName} datateee`);
+    // const c_Date = new Date();
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    const statusQuery: any = {};
+
+    if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
+    if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+
+    const queryFilter: any = await MarketingAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      { $set: { marketingID: { $toObjectId: '$marketingId' } } },
+      {
+        $lookup: {
+          from: 'marketing',
+          localField: 'marketingID',
+          foreignField: '_id',
+          as: 'marketingDetails'
+        }
+      },
+      { $match: statusQuery },
+      { $project: { marketingDetails: 0 } },
+      {
+        $project: {
+          createdAt: 1,
+          month: { $month: '$createdAt' },
+          year: { $year: '$createdAt' },
+          moduleInformation: 1
+        }
+      },
+      {
+        $group: {
+          _id: { month: '$month', year: '$year' },
+          views: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          date: {
+            $let: {
+              vars: {
+                monthNames: monthNames
+              },
+              in: {
+                $concat: [
+                  {
+                    $arrayElemAt: [
+                      '$$monthNames',
+                      { $subtract: ['$_id.month', 1] }
+                    ]
+                  },
+                  ' ',
+                  { $toString: '$_id.year' }
+                ]
+              }
+            }
+          },
+          views: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    const allMonths = monthNames.map((month) => ({
+      [`${month}`]: 0,
+      date: month
+    }));
+
+    const resultWithAllMonths = allMonths.map((month) => {
+      const monthName = Object.keys(month)[0];
+      const aggregatedData = queryFilter.find(
+        (item: any) => item.date === `${monthName} ${new Date().getFullYear()}`
+      );
+
+      if (aggregatedData) {
+        return { [`${monthName}`]: aggregatedData.views, date: month.date };
+      }
+
+      return { [`${monthName}`]: 0, date: month.date };
+    });
+
+    resultWithAllMonths.sort((a, b) => {
+      const monthIndexA = monthNames.indexOf(a.date);
+      const monthIndexB = monthNames.indexOf(b.date);
+
+      return monthIndexA - monthIndexB;
+    });
+
+    return resultWithAllMonths;
+  }
+
+  async getMarketingAll(
+    role: string,
+    oemUserName: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    userName?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${oemUserName} getTrafficAnalaytic`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+    const tday = new Date();
+
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city
+    };
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
+
+    if (!userName) {
+      delete query['oemUserName'];
+    }
+    if (!state) delete query['userInformation.state'];
+    if (!city) delete query['userInformation.city'];
+    if (!platform) {
+      delete query['platform'];
+    }
+
+    // if (role === AdminRole.OEM) {
+    //   query.oemUserName = oemUserName;
+    // }
+
+    // if (role === AdminRole.EMPLOYEE) {
+    //   query.oemUserName = oemId;
+    // }
+
+    // if (oemId === 'SERVICEPLUG') {
+    //   delete query['oemUserName'];
+    // }
+
+    const statusQuery: any = {};
+
+    if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
+    if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+
+    const aggregateMarketingAnalytic = async (
+      query: any,
+      statusQuery: any,
+      groupByField: string,
+      firstDay: Date,
+      nextDate: Date
+    ) => {
+      return MarketingAnalyticModel.aggregate([
+        { $match: query },
+        { $set: { marketingID: { $toObjectId: '$marketingId' } } },
+        {
+          $lookup: {
+            from: 'marketing',
+            localField: 'marketingID',
+            foreignField: '_id',
+            as: 'marketingDetails'
+          }
+        },
+        { $match: statusQuery },
+        { $project: { marketingDetails: 0 } },
+        {
+          $group: {
+            _id: `$${groupByField}`,
+            initialCount: { $sum: 1 },
+            queryCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $gte: ['$createdAt', firstDay] },
+                      { $lte: ['$createdAt', nextDate] }
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            name: '$_id',
+            count: '$queryCount',
+            total: '$initialCount',
+            _id: 0
+          }
+        }
+      ]);
+    };
+
+    const getCombinedAnalytics = async (
+      query: any,
+      statusQuery: any,
+      firstDay: Date,
+      nextDate: Date
+    ) => {
+      const eventBasedResults = await aggregateMarketingAnalytic(
+        query,
+        statusQuery,
+        'event',
+        firstDay,
+        nextDate
+      );
+
+      const phoneBasedResults = await aggregateMarketingAnalytic(
+        query,
+        statusQuery,
+        'userInformation.phoneNumber',
+        firstDay,
+        nextDate
+      );
+
+      return [
+        ...eventBasedResults,
+        {
+          name: 'phoneNumber',
+          total: phoneBasedResults.filter((item) => item.total !== 0)?.length,
+          count: phoneBasedResults.filter((item) => item.count !== 0)?.length
+        }
+      ];
+    };
+
+    const combinedResult = await getCombinedAnalytics(
+      query,
+      statusQuery,
+      firstDay,
+      nextDate
+    );
+    return combinedResult;
+  }
+
+  /// Marketing video analytic creation api end ===========================
+  ///======================================================================//
+}

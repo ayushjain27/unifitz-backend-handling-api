@@ -918,6 +918,7 @@ export class AdminService {
     const query: any = {
       userType: platform
     };
+    const queryTwo: any = {};
     const locationQuery: any = {};
 
     if (!platform) {
@@ -940,16 +941,14 @@ export class AdminService {
       const subCategoryNames = subCategories.map((sub) => sub.name);
       const brands = store[0]?.basicInfo?.brand;
       const brandNames = brands.map((sub) => sub.name);
-      query['category.name'] = { $in: categoryNames };
-      query['subCategory.name'] = { $in: subCategoryNames };
-      query['brand.name'] = { $in: brandNames };
+      queryTwo['category.name'] = { $in: categoryNames };
+      queryTwo['subCategory.name'] = { $in: subCategoryNames };
+      queryTwo['brand.name'] = { $in: brandNames };
       locationQuery['geoLocation'] =
         store[0]?.contactInfo?.geoLocation?.coordinates;
 
-      stateFilter = store[0]?.contactInfo?.state || null;
-      console.log(stateFilter, 'Dekm');
-      cityFilter = store[0]?.contactInfo?.city || null;
-      console.log(cityFilter, 'Dekm');
+      queryTwo['state.name'] = { $in: [store[0]?.contactInfo?.state || null] };
+      queryTwo['city.name'] = { $in: [store[0]?.contactInfo?.city || null] };
     }
 
     if (!isEmpty(oemUserName)) {
@@ -961,53 +960,36 @@ export class AdminService {
       const subCategoryNames = subCategories.map((sub: any) => sub.name);
       const brands = oemUser[0]?.brand;
       const brandNames = brands.map((sub: any) => sub.name);
-      query['category.name'] = { $in: categoryNames };
-      query['subCategory.name'] = { $in: subCategoryNames };
-      query['brand.name'] = { $in: brandNames };
-      query['state.name'] = { $in: [state] };
-      query['city.name'] = { $in: [city] };
+      queryTwo['category.name'] = { $in: categoryNames };
+      queryTwo['subCategory.name'] = { $in: subCategoryNames };
+      queryTwo['brand.name'] = { $in: brandNames };
+      queryTwo['state.name'] = {
+        $in: [oemUser[0]?.contactInfo?.state || null]
+      };
+      queryTwo['city.name'] = { $in: [oemUser[0]?.contactInfo?.city || null] };
       locationQuery['geoLocation'] =
         oemUser[0]?.contactInfo?.geoLocation?.coordinates;
     }
 
     if (!storeId && !oemUserName) {
-      query['state.name'] = { $in: [state] };
-      query['city.name'] = { $in: [city] };
+      queryTwo['state.name'] = { $in: [state] };
+      queryTwo['city.name'] = { $in: [city] };
       locationQuery['geoLocation'] = coordinates;
 
-      if (!state) delete query['state.name'];
-      if (!city) delete query['city.name'];
+      if (!state) delete queryTwo['state.name'];
+      if (!city) delete queryTwo['city.name'];
       if (!coordinates) delete locationQuery['geoLocation'];
     }
 
-    const matchStage: any = { ...query };
+    const matchStage: any = { ...queryTwo };
 
-    if (stateFilter && cityFilter) {
-      matchStage.$expr = {
-        $and: [
-          {
-            $or: [
-              { $eq: [{ $size: '$state' }, 0] },
-              { $in: [stateFilter, '$state.name'] }
-            ]
-          },
-          {
-            $or: [
-              { $eq: [{ $size: '$city' }, 0] },
-              { $in: [cityFilter, '$city.name'] }
-            ]
-          }
-        ]
-      };
-    } else if (stateFilter) {
-      matchStage.$expr = {
-        $or: [
-          { $eq: [{ $size: '$state' }, 0] },
-          { $in: [stateFilter, '$state.name'] }
-        ]
-      };
-    }
-    console.log(query, matchStage, locationQuery, 'matchStage');
+    console.log(
+      query,
+      matchStage,
+      locationQuery,
+      matchStage['category.name'],
+      'matchStage'
+    );
 
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
@@ -1020,13 +1002,18 @@ export class AdminService {
           },
           key: 'geoLocation',
           spherical: true,
-          query: matchStage,
+          query: query,
           distanceField: 'geoLocation.distance',
           distanceMultiplier: 0.001
         }
       },
       {
         $addFields: {
+          hasCategory: { $gt: [{ $size: '$category' }, 0] },
+          hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
+          hasBrand: { $gt: [{ $size: '$brand' }, 0] },
+          hasState: { $gt: [{ $size: '$state' }, 0] },
+          hasCity: { $gt: [{ $size: '$city' }, 0] },
           isShow: {
             $cond: {
               if: { $eq: ['$distance', '$geoLocation.distance'] },
@@ -1055,7 +1042,58 @@ export class AdminService {
           }
         }
       },
-      { $match: { status: 'ENABLED' } },
+      {
+        $match: {
+          status: 'ENABLED',
+          isShow: true,
+          $or: [
+            {
+              $and: [
+                { hasCategory: true },
+                { category: { $exists: true, $ne: [] } },
+                { category: matchStage['category.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasSubCategory: true },
+                { subCategory: { $exists: true, $ne: [] } },
+                { subCategory: matchStage['subCategory.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasBrand: true },
+                { brand: { $exists: true, $ne: [] } },
+                { brand: matchStage['brand.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasState: true },
+                { state: { $exists: true, $ne: [] } },
+                { state: matchStage['state.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasCity: true },
+                { city: { $exists: true, $ne: [] } },
+                { city: matchStage['city.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasCategory: false },
+                { hasSubCategory: false },
+                { hasBrand: false },
+                { hasState: false },
+                { hasCity: false }
+              ]
+            }
+          ]
+        }
+      },
       {
         $skip: pageNo * pageSize
       },
