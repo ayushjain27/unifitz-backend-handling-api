@@ -28,6 +28,12 @@ RUN yarn tsc
 
 FROM node:20-alpine AS runner
 
+# Define the argument again in the runner stage
+ARG ENV
+
+# Set the environment variable based on the branch
+ENV NODE_ENV=$ENV
+
 WORKDIR /build
 
 COPY --from=builder /build/node_modules ./node_modules
