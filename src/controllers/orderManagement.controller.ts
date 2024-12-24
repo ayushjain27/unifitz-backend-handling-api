@@ -105,7 +105,8 @@ export class OrderManagementController {
         cancelReason: req.body?.cancelReason,
         courierCompanyName: req.body?.courierCompanyName,
         trackingNumber: req.body?.trackingNumber,
-        status: req.body.status
+        status: req.body.status,
+        employeeStatus: req.body.employeeStatus
       };
       const result = await this.orderManagementService.updateCartStatus(
         reqBody

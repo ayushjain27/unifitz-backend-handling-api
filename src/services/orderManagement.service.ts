@@ -300,7 +300,12 @@ export class OrderManagementService {
     const updatedDistributorOrder = await DistributorOrder.updateOne(
       { _id: new Types.ObjectId(requestBody.distributorId) }, // Match the order
       {
-        $set: updateFields
+        $set: updateFields,
+        ...(requestBody.employeeStatus && {
+          $push: {
+            'items.$[item].employeeStatus': requestBody.employeeStatus
+          }
+        })
       },
       {
         arrayFilters: [
