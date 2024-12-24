@@ -988,6 +988,9 @@ export class AdminService {
       matchStage,
       locationQuery,
       matchStage['category.name'],
+      matchStage['state.name'],
+      matchStage['city.name'],
+
       'matchStage'
     );
 
@@ -1051,35 +1054,35 @@ export class AdminService {
               $and: [
                 { hasCategory: true },
                 { category: { $exists: true, $ne: [] } },
-                { category: matchStage['category.name'] }
+                { 'category.name': matchStage['category.name'] }
               ]
             },
             {
               $and: [
                 { hasSubCategory: true },
                 { subCategory: { $exists: true, $ne: [] } },
-                { subCategory: matchStage['subCategory.name'] }
+                { 'subCategory.name': matchStage['subCategory.name'] }
               ]
             },
             {
               $and: [
                 { hasBrand: true },
                 { brand: { $exists: true, $ne: [] } },
-                { brand: matchStage['brand.name'] }
+                { 'brand.name': matchStage['brand.name'] }
               ]
             },
             {
               $and: [
                 { hasState: true },
                 { state: { $exists: true, $ne: [] } },
-                { state: matchStage['state.name'] }
+                { 'state.name': matchStage['state.name'] }
               ]
             },
             {
               $and: [
                 { hasCity: true },
                 { city: { $exists: true, $ne: [] } },
-                { city: matchStage['city.name'] }
+                { 'city.name': matchStage['city.name'] }
               ]
             },
             {
