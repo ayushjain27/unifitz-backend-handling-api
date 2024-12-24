@@ -20,6 +20,7 @@ import EventModel from './../models/Event';
 import VehicleAnalyticModel from './../models/VehicleAnalytic';
 import NewVehicleAnalyticModel from './../models/NewVehicleAnalytic';
 import MarketingAnalyticModel from './../models/MarketingAnalytic';
+import Marketing from './../models/Marketing';
 import OfferModel from './../models/Offers';
 import SchoolOfAutoModel from '../models/SchoolOfAuto';
 import BusinessModel from '../models/Business';
@@ -3386,6 +3387,109 @@ export class AnalyticService {
       nextDate
     );
     return combinedResult;
+  }
+
+  async marketingPaginatedAll(req: any, userName?: string, role?: string) {
+    Logger.info('<Service>:<AnalyticService>:<Get all AnalyticService>');
+
+    const {
+      state,
+      city,
+      firstDate,
+      lastDate,
+      storeId,
+      platform,
+      oemUsername,
+      pageNo = 0,
+      pageSize = 10,
+      oemId
+    } = req || {};
+
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const query: any = {
+      'marketingAnalytics.createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'marketingAnalytics.userInformation.state': state,
+      'marketingAnalytics.userInformation.city': city
+    };
+
+    if (!state) delete query['marketingAnalytics.userInformation.state'];
+    if (!city) delete query['marketingAnalytics.userInformation.city'];
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query['marketingAnalytics.platform'] = {
+        $in: [`${platformPrefix}_ANDROID`, `${platformPrefix}_IOS`]
+      };
+    }
+
+    const statusQuery: any = {};
+    if (storeId) statusQuery['storeId'] = storeId;
+    if (oemUsername) statusQuery['oemUserName'] = oemUsername;
+
+    const response = await Marketing.aggregate([
+      { $match: statusQuery },
+      { $set: { marketingKey: { $toString: '$_id' } } },
+      {
+        $lookup: {
+          from: 'marketinganalytics',
+          localField: 'marketingKey',
+          foreignField: 'marketingId',
+          as: 'marketingAnalytics'
+        }
+      },
+
+      {
+        $set: {
+          impressionCount: {
+            $size: {
+              $filter: {
+                input: '$marketingAnalytics',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'IMPRESSION_COUNT'] }
+              }
+            }
+          },
+          enquiryCount: {
+            $size: {
+              $filter: {
+                input: '$marketingAnalytics',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'ENQUIRY_SUBMISSION'] }
+              }
+            }
+          }
+        }
+      },
+
+      { $match: query },
+      { $sort: { impressionCount: -1 } },
+      {
+        $facet: {
+          paginatedResults: [
+            { $skip: pageNo * pageSize },
+            { $limit: pageSize },
+            { $project: { marketingAnalytics: 0 } }
+          ],
+          totalCount: [{ $count: 'totalCount' }]
+        }
+      }
+    ]);
+
+    const marketingResponse = response[0]?.paginatedResults || [];
+    const totalCount = response[0]?.totalCount[0]?.totalCount || 0;
+
+    return {
+      marketingResponse,
+      totalCount
+    };
   }
 
   /// Marketing video analytic creation api end ===========================

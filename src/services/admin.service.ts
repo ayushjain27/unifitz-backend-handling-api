@@ -949,6 +949,9 @@ export class AdminService {
 
       queryTwo['state.name'] = { $in: [store[0]?.contactInfo?.state || null] };
       queryTwo['city.name'] = { $in: [store[0]?.contactInfo?.city || null] };
+      stateFilter = store[0]?.contactInfo?.state || null;
+      console.log(stateFilter, 'Dekm');
+      cityFilter = store[0]?.contactInfo?.city || null;
     }
 
     if (!isEmpty(oemUserName)) {
@@ -967,6 +970,9 @@ export class AdminService {
         $in: [oemUser[0]?.contactInfo?.state || null]
       };
       queryTwo['city.name'] = { $in: [oemUser[0]?.contactInfo?.city || null] };
+      stateFilter = oemUser[0]?.contactInfo?.state || null;
+      console.log(stateFilter, 'Dekm');
+      cityFilter = oemUser[0]?.contactInfo?.city || null;
       locationQuery['geoLocation'] =
         oemUser[0]?.contactInfo?.geoLocation?.coordinates;
     }
@@ -975,6 +981,9 @@ export class AdminService {
       queryTwo['state.name'] = { $in: [state] };
       queryTwo['city.name'] = { $in: [city] };
       locationQuery['geoLocation'] = coordinates;
+      stateFilter = state || null;
+      console.log(stateFilter, 'Dekm');
+      cityFilter = city || null;
 
       if (!state) delete queryTwo['state.name'];
       if (!city) delete queryTwo['city.name'];
@@ -982,7 +991,32 @@ export class AdminService {
     }
 
     const matchStage: any = { ...queryTwo };
-
+    const matchLocation: any = {};
+    if (stateFilter && cityFilter) {
+      matchLocation.$expr = {
+        $and: [
+          {
+            $or: [
+              { $eq: [{ $size: '$state' }, 0] },
+              { $in: [stateFilter, '$state.name'] }
+            ]
+          },
+          {
+            $or: [
+              { $eq: [{ $size: '$city' }, 0] },
+              { $in: [cityFilter, '$city.name'] }
+            ]
+          }
+        ]
+      };
+    } else if (stateFilter) {
+      matchLocation.$expr = {
+        $or: [
+          { $eq: [{ $size: '$state' }, 0] },
+          { $in: [stateFilter, '$state.name'] }
+        ]
+      };
+    }
     console.log(
       query,
       matchStage,
@@ -1096,6 +1130,9 @@ export class AdminService {
             }
           ]
         }
+      },
+      {
+        $match: matchLocation
       },
       { $sort: { createdAt: -1 } },
       {

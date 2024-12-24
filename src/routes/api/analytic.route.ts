@@ -228,6 +228,12 @@ router.post(
   analyticController.getMarketingAll
 );
 
+router.post(
+  '/marketingPaginated/all',
+  roleAuth(ACL.ADD_VEHICLE),
+  analyticController.marketingPaginatedAll
+);
+
 // ====================Marketing Video analytic api lists end=====================
 // =======================================================================
 
