@@ -1150,13 +1150,14 @@ export class ProductService {
     let query: any = {};
     query = {
       // 'employeeCompanyDetails.companyType': userType,
-      vehicleType: vehicleType,
-      vehicleModel: vehicleModel,
-      brandName: brandName,
+      'vehicleType.name': { $in: [vehicleType] },
+      // vehicleModel: vehicleModel,
+      'colorCodeList.oemList.oemBrand': brandName,
+      'colorCodeList.oemList.oemModel.value': { $in: [vehicleModel] },
       makeType: makeType,
-      status: 'ACTIVE'
-      // productCategory: productCategory,
-      // productSubCategory: productSubCategory
+      status: 'ACTIVE',
+      'productCategory.catalogName': { $in: productCategory },
+      'productSubCategory.catalogName': { $in: productSubCategory }
     };
     if (userType === 'Distributer') {
       query.$or = [{ 'targetedAudience.distributor': true }];
@@ -1170,22 +1171,22 @@ export class ProductService {
       ];
     }
     if (!vehicleType) {
-      delete query['vehicleType'];
+      delete query['vehicleType.name'];
     }
     if (!vehicleModel) {
-      delete query['vehicleModel'];
+      delete query['colorCodeList.oemList.oemModel.value'];
     }
     if (!brandName) {
-      delete query['brandName'];
+      delete query['colorCodeList.oemList.oemBrand'];
     }
     if (!makeType) {
       delete query['makeType'];
     }
     if (_.isEmpty(productCategory)) {
-      delete query['productCategory'];
+      delete query['productCategory.catalogName'];
     }
     if (_.isEmpty(productSubCategory)) {
-      delete query['productSubCategory'];
+      delete query['productSubCategory.catalogName'];
     }
     console.log(userName, role, oemId, query, 'partner');
 
@@ -1232,9 +1233,11 @@ export class ProductService {
     const discountEnd = Number(discount?.split('-')[1]);
 
     query = {
-      'vehicleType.name': vehicleType,
-      'vehicleModel.value': vehicleModel,
-      'brandName.catalogName': brandName,
+      'vehicleType.name': { $in: [vehicleType] },
+      // 'vehicleModel.value': vehicleModel,
+      // 'brandName.catalogName': brandName,
+      'colorCodeList.oemList.oemBrand': brandName,
+      'colorCodeList.oemList.oemModel.value': { $in: [vehicleModel] },
       makeType: makeType,
       status: 'ACTIVE',
       'productCategory.catalogName': { $in: [productCategory] },
@@ -1288,10 +1291,10 @@ export class ProductService {
       delete query['vehicleType.name'];
     }
     if (!vehicleModel) {
-      delete query['vehicleModel.value'];
+      delete query['colorCodeList.oemList.oemModel.value'];
     }
     if (!brandName) {
-      delete query['brandName.catalogName'];
+      delete query['colorCodeList.oemList.oemBrand'];
     }
     if (!makeType) {
       delete query['makeType'];
@@ -1807,7 +1810,7 @@ export class ProductService {
       newProd.moqQty = Number(productPayload?.moqQty);
       newProd.totalMoqQty = totalBulkQty;
       newProd.totalAmount =
-        Number(totalBulkQty) * Number(productPayload?.price);
+        Number(productPayload?.qty) * Number(productPayload?.price);
     }
     newProd.status = 'ACTIVE';
     const productResult = await ProductCartModel.create(newProd);
@@ -1863,7 +1866,7 @@ export class ProductService {
       const totalBulkQty = Number(reqBody?.qty) * Number(partnerResult?.moqQty);
       cartJson.totalMoqQty = totalBulkQty;
       cartJson.totalAmount =
-        Number(totalBulkQty) * Number(partnerResult?.price);
+        Number(reqBody?.qty) * Number(partnerResult?.price);
     }
     cartJson.qty = Number(reqBody?.qty);
     const res = await ProductCartModel.findOneAndUpdate(query, cartJson, {

@@ -2,7 +2,6 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import _ from 'lodash';
-import connectDB from './config/database';
 import { connectFirebaseAdmin } from './config/firebase-config';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
@@ -59,7 +58,8 @@ AWS.config.update({
   region: 'ap-south-1'
 });
 
-connectDB();
+require('./config/database');
+
 // Connect with firebase admin
 connectFirebaseAdmin();
 

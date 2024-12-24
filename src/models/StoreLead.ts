@@ -46,6 +46,7 @@ export interface IBasicInfo {
   category: ICatalogMap[];
   subCategory: ICatalogMap[];
   language: ILanguage[];
+  authorizationType: string;
 }
 
 export const storeBasicInfoSchema: Schema = new Schema(
@@ -66,6 +67,9 @@ export const storeBasicInfoSchema: Schema = new Schema(
       type: Date
     },
     userPhoneNumber: {
+      type: String
+    },
+    authorizationType: {
       type: String
     },
     brand: {
@@ -223,6 +227,7 @@ export interface IStore {
   missingItem?: string;
   verificationDetails?: IVerificationDetails;
   userName: string;
+  videoUrl: string;
 }
 
 const storeSchema: Schema = new Schema<IStore>({
@@ -242,6 +247,9 @@ const storeSchema: Schema = new Schema<IStore>({
     type: storeDocumentsSchema
   },
   missingItem: {
+    type: String
+  },
+  videoUrl: {
     type: String
   },
   slug: {
