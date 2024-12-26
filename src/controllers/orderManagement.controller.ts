@@ -190,6 +190,30 @@ export class OrderManagementController {
     }
   };
 
+  getDistributorOrderById = async (req: Request, res: Response) => {
+    const id = req?.query?.id;
+
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Get Order Details By Id>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Get Order Details By Id>'
+      );
+      const result = await this.orderManagementService.getDistributorOrderById(
+        id as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createOrder':

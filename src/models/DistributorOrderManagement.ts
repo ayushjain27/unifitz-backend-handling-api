@@ -4,12 +4,16 @@ export interface IEmployeeStatus {
   employeeId?: string;
   status?: string;
   oemUserName?: string;
+  employeeName?: string;
+  createAt: Date;
 }
 
 export const employeeStatusSchema: Schema = new Schema({
   employeeId: { type: String },
+  employeeName: { type: String },
   status: { type: String },
-  oemUserName: { type: String }
+  oemUserName: { type: String },
+  createdAt: { type: Date }
 });
 
 export interface ICartInfo {
