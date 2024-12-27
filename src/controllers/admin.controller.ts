@@ -460,11 +460,19 @@ export class AdminController {
   };
 
   createVideo = async (req: Request, res: Response) => {
+    const { oemId } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<AdminController>:<create Video request controller initiated>'
       );
-      const result = await this.adminService.createVideo(req.body);
+      const result = await this.adminService.createVideo(
+        req.body,
+        oemId,
+        role,
+        userName
+      );
       res.send({
         result,
         created: 'successful'
@@ -494,6 +502,8 @@ export class AdminController {
   };
 
   getPaginatedAll = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
     Logger.info(
       '<Controller>:<AdminController>:<Get all video request controller initiated>'
     );
@@ -503,6 +513,9 @@ export class AdminController {
     const state = req.query.state;
     const city = req.query.city;
     const selectType = req.query.selectType;
+    const oemId = req?.query?.oemId;
+    const employeeId = req?.query?.employeeId;
+
     try {
       const result = await this.adminService.getPaginatedAll(
         pageNo,
@@ -510,7 +523,11 @@ export class AdminController {
         searchQuery as string,
         state as string,
         city as string,
-        selectType as string
+        selectType as string,
+        userName,
+        role,
+        oemId as string,
+        employeeId as string
       );
       res.send({
         result
@@ -522,6 +539,8 @@ export class AdminController {
   };
 
   getAllCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
     Logger.info(
       '<Controller>:<AdminController>:<Get all video request controller initiated>'
     );
@@ -529,13 +548,19 @@ export class AdminController {
     const state = req.query.state;
     const city = req.query.city;
     const selectType = req.query.selectType;
+    const oemId = req?.query?.oemId;
+    const employeeId = req?.query?.employeeId;
 
     try {
       const result = await this.adminService.getAllCount(
         searchQuery as string,
         state as string,
         city as string,
-        selectType as string
+        selectType as string,
+        userName,
+        role,
+        oemId as string,
+        employeeId as string
       );
       res.send({
         result
