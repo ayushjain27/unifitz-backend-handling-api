@@ -1,5 +1,21 @@
 import { Document, model, ObjectId, Schema, Types } from 'mongoose';
 
+export interface IEmployeeStatus {
+  employeeId?: string;
+  status?: string;
+  oemUserName?: string;
+  employeeName?: string;
+  createAt: Date;
+}
+
+export const employeeStatusSchema: Schema = new Schema({
+  employeeId: { type: String },
+  employeeName: { type: String },
+  status: { type: String },
+  oemUserName: { type: String },
+  createdAt: { type: Date }
+});
+
 export interface ICartInfo {
   cartId: ObjectId;
   productId: ObjectId;
@@ -13,6 +29,7 @@ export interface ICartInfo {
   cancelReason?: string;
   courierCompanyName?: string;
   trackingNumber?: string;
+  employeeStatus?: IEmployeeStatus[];
 }
 
 export const cartSchema: Schema = new Schema(
@@ -50,6 +67,9 @@ export const cartSchema: Schema = new Schema(
     },
     trackingNumber: {
       type: String
+    },
+    employeeStatus: {
+      type: [employeeStatusSchema]
     }
   },
   { _id: false }

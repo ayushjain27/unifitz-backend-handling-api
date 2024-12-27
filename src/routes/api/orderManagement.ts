@@ -56,4 +56,10 @@ router.get(
   orderManagementController.getDistributorOrdersCount
 );
 
+router.get(
+  '/getDistributorOrderById',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.getDistributorOrderById
+);
+
 export default router;

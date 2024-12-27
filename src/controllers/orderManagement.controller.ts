@@ -105,7 +105,8 @@ export class OrderManagementController {
         cancelReason: req.body?.cancelReason,
         courierCompanyName: req.body?.courierCompanyName,
         trackingNumber: req.body?.trackingNumber,
-        status: req.body.status
+        status: req.body.status,
+        employeeStatus: req.body.employeeStatus
       };
       const result = await this.orderManagementService.updateCartStatus(
         reqBody
@@ -178,6 +179,30 @@ export class OrderManagementController {
           verifiedStore as string,
           employeeId as string
         );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getDistributorOrderById = async (req: Request, res: Response) => {
+    const id = req?.query?.id;
+
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Get Order Details By Id>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Get Order Details By Id>'
+      );
+      const result = await this.orderManagementService.getDistributorOrderById(
+        id as string
+      );
       res.send({
         result
       });

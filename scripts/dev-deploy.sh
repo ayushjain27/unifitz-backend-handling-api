@@ -36,6 +36,8 @@ ssh -i "${KEY_PATH}" ${EC2_USER}@${EC2_HOST} << EOF
     docker stop \$(docker ps -q --filter ancestor=${REPOSITORY_URL}/serviceplug/serviceplug-dev-api)
     echo "Removing the old Docker container..."
     docker rm \$(docker ps -a -q --filter ancestor=${REPOSITORY_URL}/serviceplug/serviceplug-dev-api)
+    echo "Removing the Docker image ${REPOSITORY_URL}/serviceplug/serviceplug-dev-api..."
+     docker rmi \$(docker ps -a -q --filter ancestor=${REPOSITORY_URL}/serviceplug/serviceplug-dev-api)
     docker-compose up -d
 EOF
 

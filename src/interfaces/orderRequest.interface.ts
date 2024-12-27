@@ -1,3 +1,4 @@
+import { IEmployeeStatus } from '../models/DistributorOrderManagement';
 import { ICartInfo } from '../models/UserOrderManagement';
 
 export interface OrderRequest {
@@ -16,4 +17,5 @@ export interface OrderStatusRequest {
   cancelReason: string;
   courierCompanyName: string;
   trackingNumber: string;
+  employeeStatus: IEmployeeStatus;
 }
