@@ -692,11 +692,27 @@ export class AdminService {
     return newSeller;
   }
 
-  async createVideo(marketingLst?: any) {
+  async createVideo(
+    marketingLst?: any,
+    oemId?: string,
+    role?: string,
+    userName?: string
+  ) {
     Logger.info(
       '<Service>:<AdminService>:<create all video service initiated>'
     );
     const query = marketingLst;
+    if (role === AdminRole.OEM) {
+      query.employeeUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.employeeUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['employeeUserName'];
+    }
     const result = await Marketing.create(query);
     return result;
   }
@@ -762,15 +778,23 @@ export class AdminService {
     searchQuery?: string,
     state?: string,
     city?: string,
-    selectType?: string
+    selectType?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    employeeId?: string
   ) {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
       'state.name': { $in: [state] },
       'city.name': { $in: [city] },
-      selectType
+      selectType,
+      employeeId
     };
 
+    if (!employeeId) {
+      delete query['employeeId'];
+    }
     if (!state) {
       delete query['state.name'];
     }
@@ -786,6 +810,17 @@ export class AdminService {
         { oemUserName: searchQuery },
         { phoneNumber: searchQuery }
       ];
+    }
+    if (role === AdminRole.OEM) {
+      query.employeeUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.employeeUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['employeeUserName'];
     }
     const marketingResponse: any = await Marketing.count(query);
     const result = {
@@ -800,15 +835,23 @@ export class AdminService {
     searchQuery?: string,
     state?: string,
     city?: string,
-    selectType?: string
+    selectType?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    employeeId?: string
   ): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
       'state.name': { $in: [state] },
       'city.name': { $in: [city] },
-      selectType
+      selectType,
+      employeeId
     };
 
+    if (!employeeId) {
+      delete query['employeeId'];
+    }
     if (!state) {
       delete query['state.name'];
     }
@@ -824,6 +867,18 @@ export class AdminService {
         { oemUserName: searchQuery },
         { phoneNumber: searchQuery }
       ];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.employeeUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.employeeUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['employeeUserName'];
     }
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);

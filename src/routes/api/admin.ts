@@ -112,14 +112,26 @@ router.get('/resetPassword', adminController.resetPassword);
 
 router.post('/sellerRegister', adminController.sellerRegister);
 
-router.post('/videoUpload/create', adminController.createVideo);
+router.post(
+  '/videoUpload/create',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.createVideo
+);
 router.post(
   '/videoUpload',
   uploadFiles.array('files'),
   adminController.updateMarketingVideos
 );
-router.get('/videoUpload/paginated', adminController.getPaginatedAll);
-router.get('/videoUpload/count', adminController.getAllCount);
+router.get(
+  '/videoUpload/paginated',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.getPaginatedAll
+);
+router.get(
+  '/videoUpload/count',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.getAllCount
+);
 router.delete(
   '/videoUpload/delete/:marketingId',
   adminController.deleteVideoUpload

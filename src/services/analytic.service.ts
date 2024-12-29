@@ -2955,7 +2955,8 @@ export class AnalyticService {
     storeId: string,
     platform: string,
     oemId?: string,
-    userName?: string
+    userName?: string,
+    status?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -3000,18 +3001,39 @@ export class AnalyticService {
     // }
 
     const statusQuery: any = {};
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+    if (status) statusQuery['marketingDetails.status'] = status;
 
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       { $match: query },
-      { $set: { marketingID: { $toObjectId: '$marketingId' } } },
+      { $set: { marketingKey: { $toObjectId: '$marketingId' } } },
       {
         $lookup: {
-          from: 'marketing',
-          localField: 'marketingID',
+          from: 'marketings',
+          localField: 'marketingKey',
           foreignField: '_id',
           as: 'marketingDetails'
+        }
+      },
+      { $unwind: { path: '$marketingDetails' } },
+      {
+        $addFields: {
+          'marketingDetails.status': {
+            $cond: {
+              if: { $eq: ['$marketingDetails.endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$marketingDetails.endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
         }
       },
       { $match: statusQuery },
@@ -3078,7 +3100,8 @@ export class AnalyticService {
     storeId: string,
     platform: string,
     oemId?: string,
-    userName?: string
+    userName?: string,
+    status?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -3145,21 +3168,41 @@ export class AnalyticService {
       'Dec'
     ];
     const statusQuery: any = {};
-
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+    if (status) statusQuery['marketingDetails.status'] = status;
 
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       {
         $match: query
       },
-      { $set: { marketingID: { $toObjectId: '$marketingId' } } },
+      { $set: { marketingKey: { $toObjectId: '$marketingId' } } },
       {
         $lookup: {
-          from: 'marketing',
-          localField: 'marketingID',
+          from: 'marketings',
+          localField: 'marketingKey',
           foreignField: '_id',
           as: 'marketingDetails'
+        }
+      },
+      { $unwind: { path: '$marketingDetails' } },
+      {
+        $addFields: {
+          'marketingDetails.status': {
+            $cond: {
+              if: { $eq: ['$marketingDetails.endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$marketingDetails.endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
         }
       },
       { $match: statusQuery },
@@ -3243,7 +3286,8 @@ export class AnalyticService {
     storeId: string,
     platform: string,
     oemId?: string,
-    userName?: string
+    userName?: string,
+    status?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -3293,9 +3337,11 @@ export class AnalyticService {
     // }
 
     const statusQuery: any = {};
-
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+    if (status) statusQuery['marketingDetails.status'] = status;
 
     const aggregateMarketingAnalytic = async (
       query: any,
@@ -3306,13 +3352,31 @@ export class AnalyticService {
     ) => {
       return MarketingAnalyticModel.aggregate([
         { $match: query },
-        { $set: { marketingID: { $toObjectId: '$marketingId' } } },
+        { $set: { marketingKey: { $toObjectId: '$marketingId' } } },
         {
           $lookup: {
-            from: 'marketing',
-            localField: 'marketingID',
+            from: 'marketings',
+            localField: 'marketingKey',
             foreignField: '_id',
             as: 'marketingDetails'
+          }
+        },
+        { $unwind: { path: '$marketingDetails' } },
+        {
+          $addFields: {
+            'marketingDetails.status': {
+              $cond: {
+                if: { $eq: ['$marketingDetails.endDate', currentDate] },
+                then: 'ENABLED',
+                else: {
+                  $cond: {
+                    if: { $lt: ['$marketingDetails.endDate', currentDate] },
+                    then: 'DISABLED',
+                    else: 'ENABLED'
+                  }
+                }
+              }
+            }
           }
         },
         { $match: statusQuery },
@@ -3402,7 +3466,8 @@ export class AnalyticService {
       oemUsername,
       pageNo = 0,
       pageSize = 10,
-      oemId
+      oemId,
+      status
     } = req || {};
 
     const firstDay = new Date(firstDate);
@@ -3431,10 +3496,30 @@ export class AnalyticService {
     }
 
     const statusQuery: any = {};
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     if (storeId) statusQuery['storeId'] = storeId;
     if (oemUsername) statusQuery['oemUserName'] = oemUsername;
+    if (status) statusQuery['status'] = status;
 
     const response = await Marketing.aggregate([
+      {
+        $addFields: {
+          status: {
+            $cond: {
+              if: { $eq: ['$endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
+        }
+      },
       { $match: statusQuery },
       { $set: { marketingKey: { $toString: '$_id' } } },
       {
@@ -3465,10 +3550,26 @@ export class AnalyticService {
                 cond: { $eq: ['$$item.event', 'ENQUIRY_SUBMISSION'] }
               }
             }
+          },
+          uniqueVisits: {
+            $size: {
+              $setUnion: [
+                {
+                  $map: {
+                    input: '$marketingAnalytics',
+                    as: 'item',
+                    in: {
+                      phoneNumber: '$$item.userInformation.phoneNumber',
+                      marketingId: '$$item.marketingId'
+                    }
+                  }
+                },
+                []
+              ]
+            }
           }
         }
       },
-
       { $match: query },
       { $sort: { impressionCount: -1 } },
       {
@@ -3490,6 +3591,191 @@ export class AnalyticService {
       marketingResponse,
       totalCount
     };
+  }
+
+  async getAtiveUsersByHour(
+    currentDate: any,
+    lastDaysStart: any,
+    platform: any
+  ) {
+    const firstDate: any = new Date(currentDate);
+    const lastDate: any = new Date(lastDaysStart);
+    const dateDifference = (firstDate - lastDate) / (1000 * 3600 * 24);
+
+    const query: any = {
+      createdAt: {
+        $gte: lastDate,
+        $lt: firstDate
+      }
+    };
+
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query.$or = [
+        { platform: `${platformPrefix}_ANDROID` },
+        { platform: `${platformPrefix}_IOS` }
+      ];
+    }
+
+    const aggregateStages: any = [
+      {
+        $match: query
+      },
+      {
+        $project: {
+          phoneNumber: '$userInformation.phoneNumber',
+          day: { $dayOfMonth: '$createdAt' },
+          month: { $month: '$createdAt' },
+          hourStr: {
+            $dateToString: {
+              format: '%H',
+              date: '$createdAt',
+              timezone: 'Asia/Kolkata'
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          phoneNumber: 1,
+          day: 1,
+          month: 1,
+          hour: { $toInt: '$hourStr' }
+        }
+      }
+    ];
+
+    if (dateDifference <= 15) {
+      aggregateStages.push(
+        {
+          $group: {
+            _id: {
+              day: '$day',
+              hour: '$hour',
+              month: '$month',
+              phoneNumber: '$phoneNumber'
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { day: '$_id.day', hour: '$_id.hour', month: '$_id.month' },
+            uniqueUsers: { $sum: 1 }
+          }
+        }
+      );
+    } else {
+      aggregateStages.push(
+        {
+          $group: {
+            _id: {
+              month: '$month',
+              hour: '$hour',
+              phoneNumber: '$phoneNumber'
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { month: '$_id.month', hour: '$_id.hour' },
+            uniqueUsers: { $sum: 1 }
+          }
+        }
+      );
+    }
+
+    aggregateStages.push({
+      $sort: { '_id.month': 1, '_id.hour': 1 }
+    });
+
+    const result = await MarketingAnalyticModel.aggregate(aggregateStages);
+
+    const data = [];
+    const hourMap: any = {};
+
+    if (dateDifference <= 15) {
+      for (let day = lastDate.getDate(); day <= firstDate.getDate(); day++) {
+        for (let hour = 0; hour < 24; hour++) {
+          const hourData = result.find(
+            (r) => r._id.day === day && r._id.hour === hour
+          );
+          hourMap[`${day}-${hour}`] = hourData ? hourData.uniqueUsers : 0;
+        }
+      }
+
+      for (let day = lastDate.getDate(); day <= firstDate.getDate(); day++) {
+        for (let hour = 0; hour < 24; hour += 2) {
+          const hour1 = `${day}-${hour}`;
+          const hour2 = `${day}-${hour + 1}`;
+
+          const uniqueUsersInFirstHour = hourMap[hour1] || 0;
+          const uniqueUsersInSecondHour = hourMap[hour2] || 0;
+
+          const totalUniqueUsers =
+            uniqueUsersInFirstHour + uniqueUsersInSecondHour;
+
+          data.push({
+            day,
+            month: result.find((r) => r._id.day === day)
+              ? result.find((r) => r._id.day === day)._id.month
+              : firstDate.getMonth() + 1,
+            x: `${hour}-${hour + 2}`,
+            y: totalUniqueUsers
+          });
+        }
+      }
+    } else {
+      const monthMap: any = {};
+
+      for (const item of result) {
+        const month = item._id.month;
+        const hour = item._id.hour;
+        const day = item._id.day;
+        const uniqueUsers = item.uniqueUsers;
+
+        if (!monthMap[month]) {
+          monthMap[month] = {};
+        }
+
+        const hourSlotStart = Math.floor(hour / 2) * 2;
+        const hourSlotEnd = hourSlotStart + 2;
+        const hourRange = `${hourSlotStart}-${hourSlotEnd}`;
+
+        if (!monthMap[month][day]) {
+          monthMap[month][day] = {};
+        }
+
+        if (!monthMap[month][day][hourRange]) {
+          monthMap[month][day][hourRange] = 0;
+        }
+
+        monthMap[month][day][hourRange] += uniqueUsers;
+      }
+
+      Object.keys(monthMap).forEach((month) => {
+        const days = monthMap[month];
+
+        Object.keys(days).forEach((day) => {
+          for (let hour = 0; hour < 24; hour += 2) {
+            const hourSlotStart = hour;
+            const hourSlotEnd = hour + 2;
+            const hourRange = `${hourSlotStart}-${hourSlotEnd}`;
+
+            const totalUniqueUsers = days[day][hourRange] || 0;
+
+            data.push({
+              day: parseInt(month),
+              month: parseInt(month),
+              x: hourRange,
+              y: totalUniqueUsers
+            });
+          }
+        });
+      });
+    }
+
+    return data;
   }
 
   /// Marketing video analytic creation api end ===========================

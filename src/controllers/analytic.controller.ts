@@ -1117,7 +1117,8 @@ export class AnalyticController {
       storeId,
       platform,
       oemId,
-      userName
+      userName,
+      status
     } = req.body;
     try {
       Logger.info(
@@ -1133,7 +1134,8 @@ export class AnalyticController {
         storeId,
         platform,
         oemId,
-        userName
+        userName,
+        status
       );
       res.send({
         result
@@ -1157,7 +1159,8 @@ export class AnalyticController {
       storeId,
       platform,
       oemId,
-      userName
+      userName,
+      status
     } = req.body;
     try {
       Logger.info(
@@ -1173,7 +1176,8 @@ export class AnalyticController {
         storeId,
         platform,
         oemId,
-        userName
+        userName,
+        status
       );
       res.send({
         result
@@ -1197,7 +1201,8 @@ export class AnalyticController {
       storeId,
       platform,
       oemId,
-      userName
+      userName,
+      status
     } = req.body;
     try {
       Logger.info(
@@ -1213,7 +1218,8 @@ export class AnalyticController {
         storeId,
         platform,
         oemId,
-        userName
+        userName,
+        status
       );
       res.send({
         result
@@ -1237,6 +1243,28 @@ export class AnalyticController {
         req.body,
         userName,
         role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAtiveUsersByHour = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Get all marketing request controller initiated>'
+    );
+    const currentDate = req?.query?.firstDate;
+    const lastDaysStart = req?.query?.lastDate;
+    const platform = req?.query?.platform;
+    try {
+      const result = await this.analyticService.getAtiveUsersByHour(
+        currentDate,
+        lastDaysStart,
+        platform
       );
       res.send({
         result

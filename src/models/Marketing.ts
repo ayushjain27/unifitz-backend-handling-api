@@ -76,9 +76,12 @@ export interface IMarketing extends Document {
   websiteLink: string;
   distance: number;
   fileUrl: { key: string; docURL: string };
+  youtubeUrl: string;
   createdAt?: Date;
   updatedAt?: Date;
   status: string;
+  employeeId: string;
+  employeeUserName: string;
 }
 
 const MarketingSchema: Schema = new Schema(
@@ -118,6 +121,9 @@ const MarketingSchema: Schema = new Schema(
     fileType: {
       type: String
     },
+    youtubeUrl: {
+      type: String
+    },
     state: {
       type: [stateSchema]
     },
@@ -136,6 +142,12 @@ const MarketingSchema: Schema = new Schema(
     distance: {
       type: Number
     },
+    employeeId: {
+      type: String
+    },
+    employeeUserName: {
+      type: String
+    },
     status: {
       type: String,
       enum: ['ENABLED', 'DISABLED'],
@@ -148,6 +160,6 @@ const MarketingSchema: Schema = new Schema(
 
 MarketingSchema.index({ geoLocation: '2dsphere' }, { sparse: true });
 
-const Marketing = model<IMarketing & Document>('marketing', MarketingSchema);
+const Marketing = model<IMarketing & Document>('marketings', MarketingSchema);
 
 export default Marketing;

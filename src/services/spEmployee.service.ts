@@ -331,7 +331,7 @@ export class SPEmployeeService {
 
   async updatePermission(employeePayload: any): Promise<ISPEmployee> {
     Logger.info('<Service>:<SPEmployeeService>:<Update employee initiated>');
-    const { userName, employeeId } = employeePayload;
+    const { userName, employeeId, permission } = employeePayload;
 
     Logger.info(
       '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
@@ -340,15 +340,33 @@ export class SPEmployeeService {
     query.userName = userName;
     query.employeeId = employeeId;
 
-    const updatedAdmin: any = await Admin.findOneAndUpdate(
-      { oemId: userName, employeeId: employeeId },
-      {
+    let permissionList: any = {};
+    if (permission === 'STORE_LEAD_GENERATION') {
+      permissionList = {
         $set: {
           'accessPolicy.STORE_LEAD_GENERATION': {
             APPROVE: 'ENABLED'
           }
         }
-      },
+      };
+    }
+    if (permission === 'VIDEOUPLOAD') {
+      permissionList = {
+        $set: {
+          'accessList.VIDEOUPLOAD': {
+            STATUS: 'ADMIN & EMPLOYEE',
+            CREATE: true,
+            READ: true,
+            UPDATE: true,
+            DELETE: true
+          }
+        }
+      };
+    }
+
+    const updatedAdmin: any = await Admin.findOneAndUpdate(
+      { oemId: userName, employeeId: employeeId },
+      permissionList,
       {
         returnDocument: 'after'
       }

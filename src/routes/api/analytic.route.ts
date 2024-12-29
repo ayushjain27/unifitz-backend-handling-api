@@ -230,8 +230,14 @@ router.post(
 
 router.post(
   '/marketingPaginated/all',
-  roleAuth(ACL.ADD_VEHICLE),
+  roleAuth(ACL.STORE_CREATE),
   analyticController.marketingPaginatedAll
+);
+
+router.get(
+  '/marketing/getAtiveUsersByHour',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getAtiveUsersByHour
 );
 
 // ====================Marketing Video analytic api lists end=====================
