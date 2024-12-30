@@ -82,6 +82,7 @@ export interface IUserOrderManagement {
   userId: Types.ObjectId;
   storeId: string;
   customerId: string;
+  customerOrderId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -118,6 +119,10 @@ const orderSchema: Schema = new Schema(
     },
     userId: {
       type: Types.ObjectId,
+      required: true
+    },
+    customerOrderId: {
+      type: String,
       required: true
     }
   },

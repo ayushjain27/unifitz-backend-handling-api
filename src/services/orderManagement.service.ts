@@ -22,6 +22,7 @@ import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from './../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class OrderManagementService {
@@ -47,7 +48,8 @@ export class OrderManagementService {
       userDetail: undefined,
       status: 'PENDING',
       storeId: '',
-      customerId: ''
+      customerId: '',
+      customerOrderId: ''
     };
 
     // Get the user and attach the user id
@@ -94,6 +96,15 @@ export class OrderManagementService {
         phoneNumber: customer?.phoneNumber
       };
     }
+
+    const lastCreatedOrderId = await StaticIds.find({}).limit(1).exec();
+
+    const newOrderId = String(
+      parseInt(lastCreatedOrderId[0].customerOrderId) + 1
+    );
+
+    await StaticIds.findOneAndUpdate({}, { customerOrderId: newOrderId });
+    params.customerOrderId = newOrderId;
 
     const userOrderRequest = await UserOrder.create(params);
     requestBody.items.forEach(async (item) => {
