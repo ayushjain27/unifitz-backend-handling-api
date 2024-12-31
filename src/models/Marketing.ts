@@ -82,6 +82,7 @@ export interface IMarketing extends Document {
   status: string;
   employeeId: string;
   employeeUserName: string;
+  postType: string;
 }
 
 const MarketingSchema: Schema = new Schema(
@@ -146,6 +147,9 @@ const MarketingSchema: Schema = new Schema(
       type: String
     },
     employeeUserName: {
+      type: String
+    },
+    postType: {
       type: String
     },
     status: {
