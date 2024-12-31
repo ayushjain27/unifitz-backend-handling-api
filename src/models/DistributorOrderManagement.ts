@@ -5,7 +5,7 @@ export interface IEmployeeStatus {
   status?: string;
   oemUserName?: string;
   employeeName?: string;
-  createAt: Date;
+  createdAt: Date;
 }
 
 export const employeeStatusSchema: Schema = new Schema({
