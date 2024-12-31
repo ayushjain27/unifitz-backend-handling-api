@@ -755,6 +755,7 @@ export class OrderManagementService {
           status: { $first: '$status' },
           totalAmount: { $first: '$totalAmount' },
           oemUserName: { $first: '$oemUserName' },
+          paymentMode: { $first: '$paymentMode' },
           createdAt: { $first: '$createdAt' },
           updatedAt: { $first: '$updatedAt' }
         }
@@ -810,5 +811,59 @@ export class OrderManagementService {
     ]);
 
     return orders[0];
+  }
+
+  async updatePaymentMode(requestPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Updating Payment Details>'
+    );
+    try {
+      const checkDistributorOrder = await DistributorOrder.findOne({
+        _id: new Types.ObjectId(requestPayload.distributorOrderId)
+      });
+      if (isEmpty(checkDistributorOrder)) {
+        throw new Error('Order not Found');
+      }
+      const distributorOrderPaymentPayload =
+        await DistributorOrder.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(requestPayload.distributorOrderId)
+          },
+          {
+            $set: {
+              paymentMode: requestPayload
+            }
+          }
+        );
+
+      const checkUserOrder = await UserOrder.findOne({
+        _id: new Types.ObjectId(checkDistributorOrder.customerOrderId)
+      });
+
+      if (isEmpty(checkUserOrder)) {
+        throw new Error('Order not Found');
+      }
+
+      const userOrderPayload = {
+        paymentType: requestPayload.paymentType,
+        totalPayment: requestPayload.totalPayment,
+        advancePayment: requestPayload.advancePayment,
+        balancePayment: requestPayload.balancePayment,
+        comment: requestPayload?.comment,
+        oemUserName: requestPayload.oemUserName,
+        dueDate: requestPayload?.dueDate
+      };
+
+      const updateUserOrderPaymentMode = await UserOrder.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(checkDistributorOrder.customerOrderId)
+        },
+        { $set: { paymentMode: userOrderPayload } }
+      );
+
+      return updateUserOrderPaymentMode;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }

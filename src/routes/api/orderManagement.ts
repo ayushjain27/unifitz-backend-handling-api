@@ -62,4 +62,11 @@ router.get(
   orderManagementController.getDistributorOrderById
 );
 
+router.post(
+  '/updatePaymentMode',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.validate('paymentMode'),
+  orderManagementController.updatePaymentMode
+);
+
 export default router;

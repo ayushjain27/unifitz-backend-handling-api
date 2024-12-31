@@ -75,10 +75,61 @@ export const cartSchema: Schema = new Schema(
   { _id: false }
 );
 
+export interface IPaymentMode {
+  paymentType: string;
+  totalPayment: number;
+  advancePayment: number;
+  balancePayment: number;
+  comment: string;
+  oemUserName: string;
+  employeeId: string;
+  employeeName: string;
+  distributorOrderId: string;
+  dueDate: Date;
+}
+
+export const paymentModeSchema: Schema = new Schema({
+  paymentType: {
+    type: String,
+    required: true
+  },
+  totalPayment: {
+    type: Number,
+    required: true
+  },
+  advancePayment: {
+    type: Number,
+    required: true
+  },
+  balancePayment: {
+    type: Number,
+    required: true
+  },
+  comment: {
+    type: String
+  },
+  oemUserName: {
+    type: String
+  },
+  employeeId: {
+    type: String
+  },
+  employeeName: {
+    type: String
+  },
+  distributorOrderId: {
+    type: String
+  },
+  dueDate: {
+    type: Date
+  }
+});
+
 export interface IDistributorOrderManagement {
   _id?: string;
   customerOrderId?: Types.ObjectId;
   items?: ICartInfo[];
+  paymentMode?: IPaymentMode[];
   totalAmount: string;
   oemUserName?: string;
   createdAt?: Date;
@@ -89,6 +140,9 @@ const orderSchema: Schema = new Schema(
   {
     items: {
       type: [cartSchema]
+    },
+    paymentMode: {
+      type: [paymentModeSchema]
     },
     customerOrderId: {
       type: Types.ObjectId
