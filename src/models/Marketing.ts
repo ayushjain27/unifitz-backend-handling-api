@@ -85,6 +85,7 @@ export interface IMarketing extends Document {
   postType: string;
   description: string;
   displayName: string;
+  visitStore: boolean;
 }
 
 const MarketingSchema: Schema = new Schema(
@@ -159,6 +160,9 @@ const MarketingSchema: Schema = new Schema(
     },
     displayName: {
       type: String
+    },
+    visitStore: {
+      type: Boolean
     },
     status: {
       type: String,
