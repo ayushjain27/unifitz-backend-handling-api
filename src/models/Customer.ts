@@ -78,6 +78,7 @@ export interface ICustomer extends Document {
   };
   isVerified?: boolean;
   verificationDetails?: IVerificationDetails;
+  customerId: string;
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
@@ -120,6 +121,9 @@ const customerSchema: Schema = new Schema(
       type: { type: String, default: 'Point' },
       coordinates: [{ type: Number }]
     },
+    customerId: {
+      type: String
+    }
   },
   { timestamps: true }
 );

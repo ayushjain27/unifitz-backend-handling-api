@@ -72,16 +72,66 @@ export const cartSchema: Schema = new Schema(
   { _id: false }
 );
 
+export interface IPaymentMode {
+  paymentType: string;
+  totalPayment: number;
+  advancePayment: number;
+  balancePayment: number;
+  comment: string;
+  oemUserName: string;
+  dueDate: Date;
+  paymentId: Types.ObjectId;
+  paymentReceived: boolean;
+}
+
+export const paymentModeSchema: Schema = new Schema({
+  paymentType: {
+    type: String,
+    required: true
+  },
+  totalPayment: {
+    type: Number,
+    required: true
+  },
+  advancePayment: {
+    type: Number,
+    required: true
+  },
+  balancePayment: {
+    type: Number,
+    required: true
+  },
+  comment: {
+    type: String
+  },
+  oemUserName: {
+    type: String
+  },
+  dueDate: {
+    type: Date
+  },
+  paymentReceived: {
+    type: Boolean,
+    default: false
+  },
+  paymentId: {
+    type: Types.ObjectId,
+    required: true
+  }
+});
+
 export interface IUserOrderManagement {
   _id?: string;
   userDetail: IUserInfo;
   items: ICartInfo[];
+  paymentMode?: IPaymentMode[];
   totalAmount: number;
   status: string;
   shippingAddress: string;
   userId: Types.ObjectId;
   storeId: string;
   customerId: string;
+  customerOrderId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -93,6 +143,9 @@ const orderSchema: Schema = new Schema(
     },
     items: {
       type: [cartSchema]
+    },
+    paymentMode: {
+      type: [paymentModeSchema]
     },
     status: {
       type: String,
@@ -118,6 +171,10 @@ const orderSchema: Schema = new Schema(
     },
     userId: {
       type: Types.ObjectId,
+      required: true
+    },
+    customerOrderId: {
+      type: String,
       required: true
     }
   },
