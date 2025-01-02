@@ -242,21 +242,10 @@ export class OrderManagementService {
         }
       },
       {
-        $lookup: {
-          from: 'admin_users',
-          localField: 'items.oemUserName',
-          foreignField: 'userName',
-          as: 'items.oemDetails'
-        }
-      },
-      {
         $unwind: '$items.cartDetails' // Unwind single cartDetail (since it’s a 1-to-1 relationship)
       },
       {
         $unwind: '$items.productDetails' // Unwind single productDetail (since it’s a 1-to-1 relationship)
-      },
-      {
-        $unwind: '$items.oemDetails' // Unwind single productDetail (since it’s a 1-to-1 relationship)
       },
       {
         $group: {
