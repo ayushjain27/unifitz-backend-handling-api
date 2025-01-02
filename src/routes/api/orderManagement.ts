@@ -69,4 +69,10 @@ router.post(
   orderManagementController.updatePaymentMode
 );
 
+router.post(
+  '/updatePaymentStatus',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.updatePaymentStatus
+);
+
 export default router;

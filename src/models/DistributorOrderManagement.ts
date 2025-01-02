@@ -1,4 +1,4 @@
-import { Document, model, ObjectId, Schema, Types } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IEmployeeStatus {
   employeeId?: string;
@@ -17,8 +17,8 @@ export const employeeStatusSchema: Schema = new Schema({
 });
 
 export interface ICartInfo {
-  cartId: ObjectId;
-  productId: ObjectId;
+  cartId: Types.ObjectId;
+  productId: Types.ObjectId;
   status: string;
   oemUserName: string;
   pendingDate?: Date;
@@ -76,6 +76,7 @@ export const cartSchema: Schema = new Schema(
 );
 
 export interface IPaymentMode {
+  _id: Types.ObjectId;
   paymentType: string;
   totalPayment: number;
   advancePayment: number;
@@ -84,8 +85,8 @@ export interface IPaymentMode {
   oemUserName: string;
   employeeId: string;
   employeeName: string;
-  distributorOrderId: string;
   dueDate: Date;
+  paymentReceived: boolean;
 }
 
 export const paymentModeSchema: Schema = new Schema({
@@ -117,11 +118,12 @@ export const paymentModeSchema: Schema = new Schema({
   employeeName: {
     type: String
   },
-  distributorOrderId: {
-    type: String
-  },
   dueDate: {
     type: Date
+  },
+  paymentReceived: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -132,6 +134,7 @@ export interface IDistributorOrderManagement {
   paymentMode?: IPaymentMode[];
   totalAmount: string;
   oemUserName?: string;
+  distributorOrderId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -162,6 +165,9 @@ const orderSchema: Schema = new Schema(
       type: String
     },
     oemUserName: {
+      type: String
+    },
+    distributorOrderId: {
       type: String
     }
   },

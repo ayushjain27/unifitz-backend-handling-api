@@ -80,6 +80,8 @@ export interface IPaymentMode {
   comment: string;
   oemUserName: string;
   dueDate: Date;
+  paymentId: Types.ObjectId;
+  paymentReceived: boolean;
 }
 
 export const paymentModeSchema: Schema = new Schema({
@@ -107,6 +109,14 @@ export const paymentModeSchema: Schema = new Schema({
   },
   dueDate: {
     type: Date
+  },
+  paymentReceived: {
+    type: Boolean,
+    default: false
+  },
+  paymentId: {
+    type: Types.ObjectId,
+    required: true
   }
 });
 

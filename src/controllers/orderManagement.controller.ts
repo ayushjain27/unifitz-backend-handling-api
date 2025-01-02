@@ -236,6 +236,28 @@ export class OrderManagementController {
     }
   };
 
+  updatePaymentStatus = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Update Payment Status Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Update Payment Status Initiated>'
+      );
+      const result = await this.orderManagementService.updatePaymentStatus(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createOrder':
