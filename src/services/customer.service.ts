@@ -13,6 +13,7 @@ import {
 } from '../interfaces';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class CustomerService {
@@ -26,6 +27,12 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>: <Customer onboarding: creating new customer>'
     );
+    const lastCreatedCustomerId = await StaticIds.find({}).limit(1).exec();
+    const newCustomerId = String(
+      parseInt(lastCreatedCustomerId[0].customerId) + 1
+    );
+    await StaticIds.findOneAndUpdate({}, { customerId: newCustomerId });
+    customerPayload.customerId = newCustomerId;
     const newCustomer = await Customer.create(customerPayload);
     Logger.info('<Service>:<CustomerService>:<Customer created successfully>');
     return newCustomer;

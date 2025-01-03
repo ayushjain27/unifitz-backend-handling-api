@@ -50,6 +50,7 @@ import errorHandler from './routes/middleware/errorHandler';
 
 const app = express();
 import cron from 'node-cron';
+import Customer from './models/Customer';
 // Connect to MongoDB
 
 AWS.config.update({
@@ -426,19 +427,28 @@ async function updateSlugs() {
   }
 }
 
-// async function updateSlug() {
-//   try {
-//     // Use aggregation pipeline in updateMany
-//     await Admin.findOneAndUpdate(// Only update documents that have storeId
-//       { userName: 'SERVICEPLUG' },
-//       { $set: { accessList: permissions.OEM } },
-//     );
+async function updateSlug() {
+  try {
+    // Use aggregation pipeline in updateMany
+    const customers = await Customer.find().sort({ _id: 1 });
+    const baseId = 10000000;
+    for (let i = 0; i < customers.length; i++) {
+      customers[0].customerId = String(baseId); // Increment customerId
+      await customers[0].save(); // Save each updated document
+    }
+    return "Done"
+      // console.log(customers[0]?._id)
+      // await Admin.findOneAndUpdate(// Only update documents that have storeId
+      //   { userName: 'SERVICEPLUG' },
+      //   { $set: { accessList: permissions.OEM } },
+      // );
+    // }
 
-//     console.log('All documents have been updated with slugs.');
-//   } catch (err) {
-//     console.log(err, "sa;lkfndj")
-//   }
-// }
+    console.log('All documents have been updated with slugs.');
+  } catch (err) {
+    console.log(err, 'sa;lkfndj');
+  }
+}
 
 // function isValidEmail(email: any) {
 //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -488,9 +498,9 @@ async function updateSlugs() {
 //   }
 // }
 
-// app.get('/slug', async (req, res) => {
-//   updateSlug();
-// });
+app.get('/slug', async (req, res) => {
+  updateSlug();
+});
 
 const sqs = new AWS.SQS();
 const ses = new AWS.SES();

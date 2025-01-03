@@ -1,4 +1,4 @@
-import { Document, model, ObjectId, Schema, Types } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IEmployeeStatus {
   employeeId?: string;
@@ -17,8 +17,8 @@ export const employeeStatusSchema: Schema = new Schema({
 });
 
 export interface ICartInfo {
-  cartId: ObjectId;
-  productId: ObjectId;
+  cartId: Types.ObjectId;
+  productId: Types.ObjectId;
   status: string;
   oemUserName: string;
   pendingDate?: Date;
@@ -75,12 +75,66 @@ export const cartSchema: Schema = new Schema(
   { _id: false }
 );
 
+export interface IPaymentMode {
+  _id: Types.ObjectId;
+  paymentType: string;
+  totalPayment: number;
+  advancePayment: number;
+  balancePayment: number;
+  comment: string;
+  oemUserName: string;
+  employeeId: string;
+  employeeName: string;
+  dueDate: Date;
+  paymentReceived: boolean;
+}
+
+export const paymentModeSchema: Schema = new Schema({
+  paymentType: {
+    type: String,
+    required: true
+  },
+  totalPayment: {
+    type: Number,
+    required: true
+  },
+  advancePayment: {
+    type: Number,
+    required: true
+  },
+  balancePayment: {
+    type: Number,
+    required: true
+  },
+  comment: {
+    type: String
+  },
+  oemUserName: {
+    type: String
+  },
+  employeeId: {
+    type: String
+  },
+  employeeName: {
+    type: String
+  },
+  dueDate: {
+    type: Date
+  },
+  paymentReceived: {
+    type: Boolean,
+    default: false
+  }
+});
+
 export interface IDistributorOrderManagement {
   _id?: string;
   customerOrderId?: Types.ObjectId;
   items?: ICartInfo[];
+  paymentMode?: IPaymentMode[];
   totalAmount: string;
   oemUserName?: string;
+  distributorOrderId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -89,6 +143,9 @@ const orderSchema: Schema = new Schema(
   {
     items: {
       type: [cartSchema]
+    },
+    paymentMode: {
+      type: [paymentModeSchema]
     },
     customerOrderId: {
       type: Types.ObjectId
@@ -108,6 +165,9 @@ const orderSchema: Schema = new Schema(
       type: String
     },
     oemUserName: {
+      type: String
+    },
+    distributorOrderId: {
       type: String
     }
   },

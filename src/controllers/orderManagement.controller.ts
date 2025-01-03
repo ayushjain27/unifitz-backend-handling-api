@@ -214,6 +214,50 @@ export class OrderManagementController {
     }
   };
 
+  updatePaymentMode = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Update Payment Details Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Update Payment Details Initiated>'
+      );
+      const result = await this.orderManagementService.updatePaymentMode(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updatePaymentStatus = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Update Payment Status Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Update Payment Status Initiated>'
+      );
+      const result = await this.orderManagementService.updatePaymentStatus(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createOrder':
@@ -224,6 +268,19 @@ export class OrderManagementController {
 
           body('items', 'Cart Items does not exist').exists().isArray(),
           body('totalAmount', 'Total Amount does not exist')
+            .exists()
+            .isNumeric()
+        ];
+      case 'paymentMode':
+        return [
+          body('paymentType', 'Payment Type is required').exists().isString(),
+          body('totalPayment', 'Total Payment is required')
+            .exists()
+            .isNumeric(),
+          body('advancePayment', 'Advance Payment is required')
+            .exists()
+            .isNumeric(),
+          body('balancePayment', 'Balance Payment is required')
             .exists()
             .isNumeric()
         ];

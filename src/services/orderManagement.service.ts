@@ -22,6 +22,7 @@ import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from './../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class OrderManagementService {
@@ -47,7 +48,8 @@ export class OrderManagementService {
       userDetail: undefined,
       status: 'PENDING',
       storeId: '',
-      customerId: ''
+      customerId: '',
+      customerOrderId: ''
     };
 
     // Get the user and attach the user id
@@ -94,6 +96,15 @@ export class OrderManagementService {
         phoneNumber: customer?.phoneNumber
       };
     }
+
+    const lastCreatedOrderId = await StaticIds.find({}).limit(1).exec();
+
+    const newOrderId = String(
+      parseInt(lastCreatedOrderId[0].customerOrderId) + 1
+    );
+
+    await StaticIds.findOneAndUpdate({}, { customerOrderId: newOrderId });
+    params.customerOrderId = newOrderId;
 
     const userOrderRequest = await UserOrder.create(params);
     requestBody.items.forEach(async (item) => {
@@ -155,7 +166,14 @@ export class OrderManagementService {
     })
       .lean()
       .populate('items.cartId') // Populate cartId in each item
-      .populate('items.productId'); // Populate productId in each item
+      .populate('items.productId')
+      .populate({
+        path: 'paymentMode.oemUserName', // Field to populate
+        model: 'admin_user', // Target collection
+        match: {}, // Optional: Add filters if needed
+        localField: 'oemUserName', // Field in paymentModeSchema
+        foreignField: 'userName' // Corresponding field in admin_user collection
+      }); // Populate productId in each item
     return orderResponse;
   }
 
@@ -245,6 +263,7 @@ export class OrderManagementService {
           shippingAddress: { $first: '$shippingAddress' },
           storeId: { $first: '$storeId' },
           customerId: { $first: '$customerId' },
+          customerOrderId: { $first: '$customerOrderId' },
           userId: { $first: '$userId' },
           createdAt: { $first: '$createdAt' },
           updatedAt: { $first: '$updatedAt' },
@@ -744,6 +763,7 @@ export class OrderManagementService {
           status: { $first: '$status' },
           totalAmount: { $first: '$totalAmount' },
           oemUserName: { $first: '$oemUserName' },
+          paymentMode: { $first: '$paymentMode' },
           createdAt: { $first: '$createdAt' },
           updatedAt: { $first: '$updatedAt' }
         }
@@ -799,5 +819,141 @@ export class OrderManagementService {
     ]);
 
     return orders[0];
+  }
+
+  async updatePaymentMode(requestPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Updating Payment Details>'
+    );
+    try {
+      const checkDistributorOrder = await DistributorOrder.findOne({
+        _id: new Types.ObjectId(requestPayload.distributorOrderId)
+      });
+      if (isEmpty(checkDistributorOrder)) {
+        throw new Error('Order not Found');
+      }
+      const distributorOrderPaymentPayload =
+        await DistributorOrder.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(requestPayload.distributorOrderId)
+          },
+          {
+            $set: {
+              paymentMode: requestPayload
+            }
+          },
+          { new: true }
+        );
+
+      const checkUserOrder = await UserOrder.findOne({
+        _id: new Types.ObjectId(checkDistributorOrder.customerOrderId)
+      });
+
+      if (isEmpty(checkUserOrder)) {
+        throw new Error('Order not Found');
+      }
+
+      const userOrderPayload = {
+        paymentType: requestPayload.paymentType,
+        totalPayment: requestPayload.totalPayment,
+        advancePayment: requestPayload.advancePayment,
+        balancePayment: requestPayload.balancePayment,
+        comment: requestPayload?.comment,
+        oemUserName: requestPayload.oemUserName,
+        dueDate: requestPayload?.dueDate,
+        paymentId: distributorOrderPaymentPayload?.paymentMode[0]?._id
+      };
+
+      if (isEmpty(checkUserOrder.paymentMode)) {
+        const updateUserOrderPaymentMode = await UserOrder.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(checkDistributorOrder.customerOrderId)
+          },
+          { $set: { paymentMode: userOrderPayload } }
+        );
+      } else {
+        const updateUserOrderPaymentMode = await UserOrder.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(checkDistributorOrder.customerOrderId)
+          },
+          { $push: { paymentMode: userOrderPayload } }
+        );
+      }
+
+      return distributorOrderPaymentPayload;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async updatePaymentStatus(requestPayload: any): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<Updating Payment Status>');
+    try {
+      const checkPaymentDetails = await DistributorOrder.findOne({
+        _id: new Types.ObjectId(requestPayload.distributorOrderId)
+      });
+
+      if (!isEmpty(checkPaymentDetails)) {
+        const paymentModeId = checkPaymentDetails?.paymentMode?.[0]?._id;
+        // Ensure you import this for ObjectId handling
+
+        // Step 2: Check if the payment details exist and update paymentReceived
+        const updatedPaymentDetails = await DistributorOrder.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(requestPayload.distributorOrderId),
+            paymentMode: {
+              $elemMatch: {
+                _id: new Types.ObjectId(paymentModeId) // Match using correct _id
+              }
+            }
+          },
+          {
+            $set: {
+              'paymentMode.$.paymentReceived': true // Update the specific element
+            }
+          },
+          { new: true } // Return the updated document
+        );
+        // Log success or proceed with further logic
+        console.log('Payment updated successfully:', updatedPaymentDetails);
+      }
+
+      const checkUserOrderPaymentDetails = await UserOrder.findOne({
+        _id: new Types.ObjectId(checkPaymentDetails.customerOrderId),
+        paymentMode: {
+          $elemMatch: {
+            paymentId: checkPaymentDetails?.paymentMode?.[0]?._id
+          }
+        }
+      });
+
+      if (isEmpty(checkUserOrderPaymentDetails)) {
+        throw new Error('Order not Found');
+      }
+
+      console.log(checkPaymentDetails?.paymentMode?.[0]?._id, 'dekmkm');
+
+      const updatedUserPaymentDetails = await UserOrder.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(checkPaymentDetails.customerOrderId),
+          paymentMode: {
+            $elemMatch: {
+              paymentId: new Types.ObjectId(
+                checkPaymentDetails?.paymentMode?.[0]?._id
+              )
+            }
+          }
+        },
+        {
+          $set: {
+            'paymentMode.$.paymentReceived': true // Update the specific element in the paymentMode array
+          }
+        }
+      );
+
+      return updatedUserPaymentDetails;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
