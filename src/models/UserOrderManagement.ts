@@ -105,7 +105,8 @@ export const paymentModeSchema: Schema = new Schema({
     type: String
   },
   oemUserName: {
-    type: String
+    type: String,
+    ref: 'admin_user'
   },
   dueDate: {
     type: Date

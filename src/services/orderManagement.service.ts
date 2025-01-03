@@ -166,7 +166,14 @@ export class OrderManagementService {
     })
       .lean()
       .populate('items.cartId') // Populate cartId in each item
-      .populate('items.productId'); // Populate productId in each item
+      .populate('items.productId')
+      .populate({
+        path: 'paymentMode.oemUserName', // Field to populate
+        model: 'admin_user', // Target collection
+        match: {}, // Optional: Add filters if needed
+        localField: 'oemUserName', // Field in paymentModeSchema
+        foreignField: 'userName' // Corresponding field in admin_user collection
+      }); // Populate productId in each item
     return orderResponse;
   }
 
