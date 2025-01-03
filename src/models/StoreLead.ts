@@ -47,6 +47,7 @@ export interface IBasicInfo {
   subCategory: ICatalogMap[];
   language: ILanguage[];
   authorizationType: string;
+  detailingType: string;
 }
 
 export const storeBasicInfoSchema: Schema = new Schema(
@@ -70,6 +71,9 @@ export const storeBasicInfoSchema: Schema = new Schema(
       type: String
     },
     authorizationType: {
+      type: String
+    },
+    detailingType: {
       type: String
     },
     brand: {
