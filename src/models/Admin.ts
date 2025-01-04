@@ -151,7 +151,7 @@ export interface IAdmin {
   generatedPassword?: string;
   status: string;
   documentImageList: IDocumentImageList;
-  // wareHouseInfo: IContactInfo;
+  wareHouseInfo: IContactInfo;
   wareHouseDynamicInfo: IContactInfo[];
   aboutUs: string;
   // businessCategory: IBusinessCategory;
@@ -304,9 +304,9 @@ const adminSchema: Schema = new Schema<IAdmin>(
     contactInfo: {
       type: storeContactSchema
     },
-    // wareHouseInfo: {
-    //   type: storeContactSchema
-    // },
+    wareHouseInfo: {
+      type: storeContactSchema
+    },
     wareHouseDynamicInfo: {
       type: [storeContactSchema]
     },
