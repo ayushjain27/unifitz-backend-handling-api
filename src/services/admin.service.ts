@@ -1272,7 +1272,7 @@ export class AdminService {
     ]);
     const fileUrlResponse = await Marketing.aggregate([
       {
-        $match: { postType: 'YoutubeUrl' }
+        $match: { postType: 'YoutubeUrl', userType: platform }
       },
       {
         $addFields: {

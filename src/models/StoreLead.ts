@@ -48,6 +48,7 @@ export interface IBasicInfo {
   language: ILanguage[];
   authorizationType: string;
   detailingType: string;
+  serviceType: string;
 }
 
 export const storeBasicInfoSchema: Schema = new Schema(
@@ -74,6 +75,9 @@ export const storeBasicInfoSchema: Schema = new Schema(
       type: String
     },
     detailingType: {
+      type: String
+    },
+    serviceType: {
       type: String
     },
     brand: {
