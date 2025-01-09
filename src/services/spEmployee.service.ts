@@ -354,7 +354,7 @@ export class SPEmployeeService {
       permissionList = {
         $set: {
           'accessList.VIDEOUPLOAD': {
-            STATUS: 'ADMIN & EMPLOYEE',
+            STATUS: 'ALL',
             CREATE: true,
             READ: true,
             UPDATE: true,

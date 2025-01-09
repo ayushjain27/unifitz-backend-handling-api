@@ -36,7 +36,7 @@ export const permissions: any = {
       DELETE: false
     },
     VIDEOUPLOAD: {
-      STATUS: 'ADMIN & EMPLOYEE',
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
@@ -255,7 +255,7 @@ export const permissions: any = {
       DELETE: false
     },
     VIDEOUPLOAD: {
-      STATUS: 'ADMIN & EMPLOYEE',
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,

@@ -2991,13 +2991,13 @@ export class AnalyticService {
     //   delete query['oemUserName'];
     // }
     // if (role === AdminRole.OEM) {
-    //   query.oemUserName = oemUserName;
+    //   query.employeeUserName = oemUserName;
     // }
     // if (role === AdminRole.EMPLOYEE) {
-    //   query.oemUserName = oemId;
+    //   query.employeeUserName = oemId;
     // }
     // if (oemId === 'SERVICEPLUG') {
-    //   delete query['oemUserName'];
+    //   delete query['employeeUserName'];
     // }
 
     const statusQuery: any = {};
@@ -3006,6 +3006,15 @@ export class AnalyticService {
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
     if (status) statusQuery['marketingDetails.status'] = status;
+
+    if (role === AdminRole.OEM) {
+      statusQuery.$or = [
+        { 'marketingDetails.employeeUserName': oemUserName },
+        { 'marketingDetails.oemUserName': oemUserName }
+      ];
+    }
+
+    console.log(query, statusQuery, role, oemUserName, 'oemusernamemmmamam');
 
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       { $match: query },
@@ -3173,6 +3182,13 @@ export class AnalyticService {
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
     if (status) statusQuery['marketingDetails.status'] = status;
+
+    if (role === AdminRole.OEM) {
+      statusQuery.$or = [
+        { 'marketingDetails.employeeUserName': oemUserName },
+        { 'marketingDetails.oemUserName': oemUserName }
+      ];
+    }
 
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       {
@@ -3342,6 +3358,12 @@ export class AnalyticService {
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
     if (status) statusQuery['marketingDetails.status'] = status;
+    if (role === AdminRole.OEM) {
+      statusQuery.$or = [
+        { 'marketingDetails.employeeUserName': oemUserName },
+        { 'marketingDetails.oemUserName': oemUserName }
+      ];
+    }
 
     const aggregateMarketingAnalytic = async (
       query: any,
@@ -3501,6 +3523,14 @@ export class AnalyticService {
     if (storeId) statusQuery['storeId'] = storeId;
     if (oemUsername) statusQuery['oemUserName'] = oemUsername;
     if (status) statusQuery['status'] = status;
+
+    if (role === AdminRole.OEM) {
+      statusQuery.$or = [
+        { employeeUserName: userName },
+        { oemUserName: userName }
+      ];
+    }
+    console.log(statusQuery, query, userName, role, 'userNameuserName');
 
     const response = await Marketing.aggregate([
       {

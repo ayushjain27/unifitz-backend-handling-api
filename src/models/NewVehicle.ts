@@ -120,6 +120,8 @@ export interface INewVehicle {
   selectAllStores: boolean;
   authorizedDealer: boolean;
   subDealer: boolean;
+  postType: string;
+  youtubeUrl: string;
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -270,6 +272,12 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
       //   enum: RidingModeType,
     },
     displayType: {
+      type: String
+    },
+    postType: {
+      type: String
+    },
+    youtubeUrl: {
       type: String
     },
     partnerEmail: {

@@ -822,6 +822,8 @@ export class AdminService {
     if (oemId === 'SERVICEPLUG') {
       delete query['employeeUserName'];
     }
+    console.log(query, userName, 'queryyyyyyyyyyyy');
+
     const marketingResponse: any = await Marketing.count(query);
     const result = {
       count: marketingResponse
@@ -1359,7 +1361,15 @@ export class AdminService {
       }
     ]);
 
-    const finalData = [...fileUrlResponse, ...marketingResponse];
-    return finalData;
+    const finalData: any = [...fileUrlResponse, ...marketingResponse];
+    const result: any = finalData.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (isNaN(dateA) || isNaN(dateB)) {
+        return 0;
+      }
+      return dateB - dateA;
+    });
+    return result;
   }
 }
