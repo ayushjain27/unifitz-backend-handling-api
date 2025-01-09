@@ -3581,6 +3581,15 @@ export class AnalyticService {
               }
             }
           },
+          shareCount: {
+            $size: {
+              $filter: {
+                input: '$marketingAnalytics',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'SHARE_INFORMATION'] }
+              }
+            }
+          },
           uniqueVisits: {
             $size: {
               $setUnion: [
