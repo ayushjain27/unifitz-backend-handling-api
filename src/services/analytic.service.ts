@@ -3590,6 +3590,15 @@ export class AnalyticService {
               }
             }
           },
+          viewStoreCount: {
+            $size: {
+              $filter: {
+                input: '$marketingAnalytics',
+                as: 'item',
+                cond: { $eq: ['$$item.event', 'VIEW_STORE'] }
+              }
+            }
+          },
           uniqueVisits: {
             $size: {
               $setUnion: [
