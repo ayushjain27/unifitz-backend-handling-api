@@ -990,11 +990,18 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>: <creating new  partner product>');
 
     const newProd: any = productPayload;
-    const numVal =
-      (productPayload?.priceDetail?.mrp -
-        productPayload?.priceDetail?.sellingPrice) /
-      productPayload?.priceDetail?.mrp;
-    newProd.discount = numVal * 100;
+    if (
+      productPayload?.priceDetail?.mrp !== null &&
+      productPayload?.priceDetail?.sellingPrice !== null
+    ) {
+      const numVal =
+        (productPayload?.priceDetail?.mrp -
+          productPayload?.priceDetail?.sellingPrice) /
+        productPayload?.priceDetail?.mrp;
+
+      newProd.discount = numVal * 100;
+    }
+
     if (role === AdminRole.OEM) {
       newProd.oemUserName = userName;
     }

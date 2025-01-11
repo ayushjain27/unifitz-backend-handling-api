@@ -822,6 +822,8 @@ export class AdminService {
     if (oemId === 'SERVICEPLUG') {
       delete query['employeeUserName'];
     }
+    console.log(query, userName, 'queryyyyyyyyyyyy');
+
     const marketingResponse: any = await Marketing.count(query);
     const result = {
       count: marketingResponse
@@ -903,6 +905,7 @@ export class AdminService {
           }
         }
       },
+      { $sort: { createdAt: -1 } },
       {
         $skip: pageNo * pageSize
       },
@@ -971,7 +974,8 @@ export class AdminService {
   ): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
-      userType: platform
+      userType: platform,
+      postType: 'Files'
     };
     const queryTwo: any = {};
     const locationQuery: any = {};
@@ -1100,6 +1104,77 @@ export class AdminService {
         }
       },
       {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      { $unwind: { path: '$storeInfo', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          businessName: {
+            $cond: {
+              if: {
+                $ne: [
+                  { $ifNull: ['$storeInfo.basicInfo.businessName', ''] },
+                  ''
+                ]
+              },
+              then: '$storeInfo.basicInfo.businessName',
+              else: {
+                $cond: {
+                  if: {
+                    $ne: [{ $ifNull: ['$partnerDetail.businessName', ''] }, '']
+                  },
+                  then: '$partnerDetail.businessName',
+                  else: null
+                }
+              }
+            }
+          },
+          businessImage: {
+            $cond: {
+              if: {
+                $ne: [
+                  { $ifNull: ['$storeInfo.documents.profile.docURL', ''] },
+                  ''
+                ]
+              },
+              then: '$storeInfo.documents.profile.docURL',
+              else: {
+                $cond: {
+                  if: {
+                    $ne: [
+                      {
+                        $ifNull: [
+                          '$partnerDetail.documentImageList.logo.docURL',
+                          ''
+                        ]
+                      },
+                      ''
+                    ]
+                  },
+                  then: '$partnerDetail.documentImageList.logo.docURL',
+                  else: null
+                }
+              }
+            }
+          }
+        }
+      },
+      { $project: { storeInfo: 0, partnerDetail: 0 } },
+      {
         $addFields: {
           hasCategory: { $gt: [{ $size: '$category' }, 0] },
           hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
@@ -1197,6 +1272,104 @@ export class AdminService {
         $limit: pageSize
       }
     ]);
-    return marketingResponse;
+    const fileUrlResponse = await Marketing.aggregate([
+      {
+        $match: { postType: 'YoutubeUrl', userType: platform }
+      },
+      {
+        $addFields: {
+          hasCategory: { $gt: [{ $size: '$category' }, 0] },
+          hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
+          hasBrand: { $gt: [{ $size: '$brand' }, 0] },
+          hasState: { $gt: [{ $size: '$state' }, 0] },
+          hasCity: { $gt: [{ $size: '$city' }, 0] },
+          status: {
+            $cond: {
+              if: { $eq: ['$endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          status: 'ENABLED',
+          $or: [
+            {
+              $and: [
+                { hasCategory: true },
+                { category: { $exists: true, $ne: [] } },
+                { 'category.name': matchStage['category.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasSubCategory: true },
+                { subCategory: { $exists: true, $ne: [] } },
+                { 'subCategory.name': matchStage['subCategory.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasBrand: true },
+                { brand: { $exists: true, $ne: [] } },
+                { 'brand.name': matchStage['brand.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasState: true },
+                { state: { $exists: true, $ne: [] } },
+                { 'state.name': matchStage['state.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasCity: true },
+                { city: { $exists: true, $ne: [] } },
+                { 'city.name': matchStage['city.name'] }
+              ]
+            },
+            {
+              $and: [
+                { hasCategory: false },
+                { hasSubCategory: false },
+                { hasBrand: false },
+                { hasState: false },
+                { hasCity: false }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        $match: matchLocation
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    const finalData: any = [...fileUrlResponse, ...marketingResponse];
+    const result: any = finalData.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      if (isNaN(dateA) || isNaN(dateB)) {
+        return 0;
+      }
+      return dateB - dateA;
+    });
+    return result;
   }
 }

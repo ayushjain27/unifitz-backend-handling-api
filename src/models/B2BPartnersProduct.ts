@@ -24,6 +24,7 @@ export interface IProductOemList {
   oemBrand: string;
   oemModel: IProductOemModel[];
   partNumber: string;
+  engineSize: string;
   startYear: Date;
   endYear: Date;
   variants: string;
@@ -34,6 +35,7 @@ export const ProductOemListSchema: Schema = new Schema(
     oemBrand: { type: String },
     oemModel: { type: [oemModelSchema] },
     partNumber: { type: String },
+    engineSize: { type: String },
     startYear: { type: Date },
     endYear: { type: Date },
     variants: { type: String },
@@ -164,6 +166,7 @@ export interface IB2BPartnersProduct {
   priceDetail: IPriceDetail;
   bulkOrders: IBulkOrderDetail;
   shippingAddress: IContactInfo;
+  shippingIndex: number;
   state?: IState[];
   city?: ICity[];
   // distributor?: boolean;
@@ -326,6 +329,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     shippingAddress: {
       type: storeContactSchema
+    },
+    shippingIndex: {
+      type: Number
     },
     state: {
       type: [stateSchema]

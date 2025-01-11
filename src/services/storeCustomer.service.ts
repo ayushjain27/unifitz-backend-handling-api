@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { injectable } from 'inversify';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -80,7 +81,8 @@ export class StoreCustomerService {
     );
 
     const storeCustomers: IStoreCustomer = await StoreCustomer.find({
-      phoneNumber, storeId: storeId
+      phoneNumber,
+      storeId: storeId
     }).lean();
     Logger.info(
       '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
@@ -102,10 +104,10 @@ export class StoreCustomerService {
       throw new Error('Customer does not exist');
     }
 
-    if(_.isEmpty(storeCustomerVehiclePayload?.vehicleNumber)){
+    if (_.isEmpty(storeCustomerVehiclePayload?.vehicleNumber)) {
       storeCustomerVehiclePayload.vehicleNumber = uuidv4();
     }
-    
+
     const { vehicleNumber } = storeCustomerVehiclePayload;
 
     let vehicleIndex = -1;
@@ -170,13 +172,13 @@ export class StoreCustomerService {
       );
     }
 
-    console.log(storeCustomer.storeCustomerVehicleInfo,"DFWekl")
+    console.log(storeCustomer.storeCustomerVehicleInfo, 'DFWekl');
 
-    console.log(vehicleIndex,"df;lm")
+    console.log(vehicleIndex, 'df;lm');
 
     const files: Array<any> = req.files;
 
-    let vehicleInfo: IStoreCustomerVehicleInfo =
+    const vehicleInfo: IStoreCustomerVehicleInfo =
       storeCustomer.storeCustomerVehicleInfo[vehicleIndex];
 
     const vehicleImageList: Partial<IVehicleImageList> | any =
@@ -211,7 +213,7 @@ export class StoreCustomerService {
     Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
 
     Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
-    console.log(req.body.vehicleNumber,"Sdwl")
+    console.log(req.body.vehicleNumber, 'Sdwl');
 
     const updatedVehicle = await StoreCustomer.findOneAndUpdate(
       {
@@ -227,7 +229,7 @@ export class StoreCustomerService {
       { returnDocument: 'after' }
     );
 
-    console.log(updatedVehicle,"d,l;sf")
+    console.log(updatedVehicle, 'd,l;sf');
 
     return updatedVehicle;
   }

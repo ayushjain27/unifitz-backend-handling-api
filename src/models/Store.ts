@@ -45,6 +45,8 @@ export interface IBasicInfo {
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   language: ILanguage[];
   authorizationType: string;
+  detailingType: string;
+  serviceType: string;
   // businessHours for the different
 }
 
@@ -69,6 +71,12 @@ export const storeBasicInfoSchema: Schema = new Schema(
       type: String
     },
     authorizationType: {
+      type: String
+    },
+    detailingType: {
+      type: String
+    },
+    serviceType: {
       type: String
     },
     brand: {
