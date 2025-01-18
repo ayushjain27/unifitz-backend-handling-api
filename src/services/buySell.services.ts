@@ -340,9 +340,9 @@ export class BuySellService {
         }
       },
       // Ensure sorting before applying pagination
-      {
-        $sort: { distance: 1 } // Sort by distance in ascending order
-      },
+      // {
+      //   $sort: { distance: 1 } // Sort by distance in ascending order
+      // },
       {
         $skip: query.pageNo * query.pageSize
       },
