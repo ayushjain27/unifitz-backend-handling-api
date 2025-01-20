@@ -169,6 +169,72 @@ app.get('/category', async (req, res) => {
     list: result
   });
 });
+app.get('/productCategory', async (req, res) => {
+  const catalogType = 'productCategory';
+  const categoryList: ICatalog[] = await Catalog.find({
+    parent: 'root',
+    catalogType
+  });
+  const result = categoryList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(
+      ({
+        _id,
+        catalogName,
+        tree,
+        parent,
+        catalogType,
+        catalogIcon,
+        catalogWebIcon
+      }) => {
+        return {
+          _id,
+          catalogName,
+          tree,
+          parent,
+          catalogType,
+          catalogIcon,
+          catalogWebIcon
+        };
+      }
+    );
+  res.json({
+    list: result
+  });
+});
+app.post('/productBrand', async (req, res) => {
+  const { subCategoryList, category } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(subCategoryList)) {
+    subCategoryList.forEach((subCat) => {
+      if (subCat?.tree) {
+        treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
+      } else {
+        treeVal.push(`root/${category}/${subCat}`);
+      }
+    });
+  }
+  query = { tree: { $in: treeVal } };
+  const categoryList: ICatalog[] = await Catalog.find(query);
+  let result = categoryList.map(
+    ({ _id, catalogName, tree, parent, catalogType }) => {
+      return { _id, catalogName, tree, parent, catalogType };
+    }
+  );
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
+  });
+  res.json({
+    list: result
+  });
+});
 
 // TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
@@ -187,6 +253,39 @@ app.get('/subCategory', async (req, res) => {
 });
 
 app.post('/subCategory', async (req, res) => {
+  const { categoryList } = req.body;
+  const catalogType = req.body.catalogType || 'subCategory';
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryList.forEach((category) => {
+      treeVal.push(`root/${category.catalogName}`);
+    });
+  } else {
+    treeVal.push(`root/${categoryList}`);
+  }
+  query = { tree: { $in: treeVal }, catalogType };
+  const subCatList: ICatalog[] = await Catalog.find(query);
+  let result = subCatList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
+      return { _id, catalogName, tree, parent, catalogType, catalogIcon };
+    });
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
+  });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/productSubCategory', async (req, res) => {
   const { categoryList } = req.body;
   const catalogType = req.body.catalogType || 'subCategory';
   let query = {};

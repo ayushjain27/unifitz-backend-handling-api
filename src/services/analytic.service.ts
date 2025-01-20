@@ -3826,6 +3826,104 @@ export class AnalyticService {
     return data;
   }
 
+  async getMarketingUserByArea(
+    role: string,
+    userName: string,
+    state: string,
+    city: string,
+    firstDate: string,
+    lastDate: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    adminFilterOemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      // event: 'LOCATION_CHANGE',
+      platform: platform,
+      // moduleInformation: storeId
+      // oemUserName: role
+      oemUserName: adminFilterOemId
+    };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+    if (!firstDate || !lastDate) {
+      delete query['createdAt'];
+    }
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const queryFilter: any = await MarketingAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$userInformation.geoLocation.coordinates',
+          users: {
+            $sum: 1
+          },
+          state: {
+            $first: '$userInformation.state'
+          },
+          city: {
+            $first: '$userInformation.city'
+          },
+          geoLocation: {
+            $first: '$userInformation.geoLocation'
+          }
+        }
+      },
+      {
+        $project: {
+          geoLocation: 1,
+          users: 1,
+          state: 1,
+          city: 1,
+          _id: 0
+        }
+      },
+      { $sort: { users: -1 } }
+      // { $limit: 1000 }
+    ]);
+    return queryFilter;
+  }
+
   /// Marketing video analytic creation api end ===========================
   ///======================================================================//
 }

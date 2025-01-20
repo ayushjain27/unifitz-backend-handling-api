@@ -782,7 +782,8 @@ export class AdminService {
     userName?: string,
     role?: string,
     oemId?: string,
-    employeeId?: string
+    employeeId?: string,
+    profileStatus?: string
   ) {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
@@ -792,6 +793,11 @@ export class AdminService {
       employeeId
     };
 
+    const query2: any = { status: profileStatus };
+
+    if (!profileStatus) {
+      delete query2['status'];
+    }
     if (!employeeId) {
       delete query['employeeId'];
     }
@@ -822,11 +828,35 @@ export class AdminService {
     if (oemId === 'SERVICEPLUG') {
       delete query['employeeUserName'];
     }
-    console.log(query, userName, 'queryyyyyyyyyyyy');
-
-    const marketingResponse: any = await Marketing.count(query);
+    // console.log(query, userName, 'queryyyyyyyyyyyy');
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const marketingResponse: any = await Marketing.aggregate([
+      {
+        $match: query
+      },
+      {
+        $set: {
+          status: {
+            $cond: {
+              if: { $eq: ['$endDate', currentDate] },
+              then: 'ENABLED',
+              else: {
+                $cond: {
+                  if: { $lt: ['$endDate', currentDate] },
+                  then: 'DISABLED',
+                  else: 'ENABLED'
+                }
+              }
+            }
+          }
+        }
+      },
+      { $match: { status: profileStatus } },
+      { $project: { status: 1 } }
+    ]);
     const result = {
-      count: marketingResponse
+      count: marketingResponse?.length || 0
     };
     return result;
   }
@@ -841,7 +871,8 @@ export class AdminService {
     userName?: string,
     role?: string,
     oemId?: string,
-    employeeId?: string
+    employeeId?: string,
+    profileStatus?: string
   ): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
@@ -851,6 +882,11 @@ export class AdminService {
       employeeId
     };
 
+    const query2: any = { status: profileStatus };
+
+    if (!profileStatus) {
+      delete query2['status'];
+    }
     if (!employeeId) {
       delete query['employeeId'];
     }
@@ -884,12 +920,13 @@ export class AdminService {
     }
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
+
     const marketingResponse = await Marketing.aggregate([
       {
         $match: query
       },
       {
-        $addFields: {
+        $set: {
           status: {
             $cond: {
               if: { $eq: ['$endDate', currentDate] },
@@ -905,6 +942,7 @@ export class AdminService {
           }
         }
       },
+      { $match: { status: profileStatus } },
       { $sort: { createdAt: -1 } },
       {
         $skip: pageNo * pageSize
@@ -974,8 +1012,8 @@ export class AdminService {
   ): Promise<any> {
     Logger.info('<Service>:<AdminService>:<Get all video>');
     const query: any = {
-      userType: platform,
-      postType: 'Files'
+      userType: platform
+      // postType: 'Files'
     };
     const queryTwo: any = {};
     const locationQuery: any = {};
@@ -1081,6 +1119,8 @@ export class AdminService {
       matchStage,
       locationQuery,
       matchStage['category.name'],
+      matchStage['subCategory.name'],
+      matchStage['brand.name'],
       matchStage['state.name'],
       matchStage['city.name'],
 
@@ -1218,18 +1258,30 @@ export class AdminService {
               $and: [
                 { hasCategory: true },
                 { category: { $exists: true, $ne: [] } },
-                { 'category.name': matchStage['category.name'] }
+                { 'category.name': matchStage['category.name'] },
+                { hasSubCategory: false },
+                { hasBrand: false }
               ]
             },
             {
               $and: [
+                { hasCategory: true },
+                { category: { $exists: true, $ne: [] } },
+                { 'category.name': matchStage['category.name'] },
                 { hasSubCategory: true },
                 { subCategory: { $exists: true, $ne: [] } },
-                { 'subCategory.name': matchStage['subCategory.name'] }
+                { 'subCategory.name': matchStage['subCategory.name'] },
+                { hasBrand: false }
               ]
             },
             {
               $and: [
+                { hasCategory: true },
+                { category: { $exists: true, $ne: [] } },
+                { 'category.name': matchStage['category.name'] },
+                { hasSubCategory: true },
+                { subCategory: { $exists: true, $ne: [] } },
+                { 'subCategory.name': matchStage['subCategory.name'] },
                 { hasBrand: true },
                 { brand: { $exists: true, $ne: [] } },
                 { 'brand.name': matchStage['brand.name'] }
@@ -1239,11 +1291,15 @@ export class AdminService {
               $and: [
                 { hasState: true },
                 { state: { $exists: true, $ne: [] } },
-                { 'state.name': matchStage['state.name'] }
+                { 'state.name': matchStage['state.name'] },
+                { hasCity: false }
               ]
             },
             {
               $and: [
+                { hasState: true },
+                { state: { $exists: true, $ne: [] } },
+                { 'state.name': matchStage['state.name'] },
                 { hasCity: true },
                 { city: { $exists: true, $ne: [] } },
                 { 'city.name': matchStage['city.name'] }
@@ -1272,17 +1328,166 @@ export class AdminService {
         $limit: pageSize
       }
     ]);
-    const fileUrlResponse = await Marketing.aggregate([
+    // const fileUrlResponse = await Marketing.aggregate([
+    //   {
+    //     $match: { postType: 'YoutubeUrl', userType: platform }
+    //   },
+    //   {
+    //     $addFields: {
+    //       hasCategory: { $gt: [{ $size: '$category' }, 0] },
+    //       hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
+    //       hasBrand: { $gt: [{ $size: '$brand' }, 0] },
+    //       hasState: { $gt: [{ $size: '$state' }, 0] },
+    //       hasCity: { $gt: [{ $size: '$city' }, 0] },
+    //       status: {
+    //         $cond: {
+    //           if: { $eq: ['$endDate', currentDate] },
+    //           then: 'ENABLED',
+    //           else: {
+    //             $cond: {
+    //               if: { $lt: ['$endDate', currentDate] },
+    //               then: 'DISABLED',
+    //               else: 'ENABLED'
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   },
+    //   {
+    //     $match: {
+    //       status: 'ENABLED',
+    //       $or: [
+    //         {
+    //           $and: [
+    //             { hasCategory: true },
+    //             { category: { $exists: true, $ne: [] } },
+    //             { 'category.name': matchStage['category.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasSubCategory: true },
+    //             { subCategory: { $exists: true, $ne: [] } },
+    //             { 'subCategory.name': matchStage['subCategory.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasBrand: true },
+    //             { brand: { $exists: true, $ne: [] } },
+    //             { 'brand.name': matchStage['brand.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasState: true },
+    //             { state: { $exists: true, $ne: [] } },
+    //             { 'state.name': matchStage['state.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasCity: true },
+    //             { city: { $exists: true, $ne: [] } },
+    //             { 'city.name': matchStage['city.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasCategory: false },
+    //             { hasSubCategory: false },
+    //             { hasBrand: false },
+    //             { hasState: false },
+    //             { hasCity: false }
+    //           ]
+    //         }
+    //       ]
+    //     }
+    //   },
+    //   {
+    //     $match: matchLocation
+    //   },
+    //   { $sort: { createdAt: -1 } },
+    //   {
+    //     $skip: pageNo * pageSize
+    //   },
+    //   {
+    //     $limit: pageSize
+    //   }
+    // ]);
+
+    // const finalData: any = [...fileUrlResponse, ...marketingResponse];
+    // const result: any = finalData.sort((a: any, b: any) => {
+    //   const dateA = new Date(a.createdAt).getTime();
+    //   const dateB = new Date(b.createdAt).getTime();
+    //   if (isNaN(dateA) || isNaN(dateB)) {
+    //     return 0;
+    //   }
+    //   return dateB - dateA;
+    // });
+    return marketingResponse;
+  }
+
+  async getVideoUploadCount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    searchQuery?: string,
+    state?: string,
+    city?: string,
+    employeeId?: string,
+    selectType?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<AdminService>:<Total Count Video service initiated>'
+    );
+    let query: any = {
+      'state.name': { $in: [state] },
+      'city.name': { $in: [city] },
+      selectType,
+      employeeId
+    };
+
+    if (!employeeId) {
+      delete query['employeeId'];
+    }
+    if (!state) {
+      delete query['state.name'];
+    }
+    if (!city) {
+      delete query['city.name'];
+    }
+    if (!selectType) {
+      delete query['selectType'];
+    }
+    if (searchQuery) {
+      query.$or = [
+        { storeId: searchQuery },
+        { oemUserName: searchQuery },
+        { phoneNumber: searchQuery }
+      ];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.employeeUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.employeeUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['employeeUserName'];
+    }
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const totalCounts: any = await Marketing.aggregate([
       {
-        $match: { postType: 'YoutubeUrl', userType: platform }
+        $match: query
       },
       {
-        $addFields: {
-          hasCategory: { $gt: [{ $size: '$category' }, 0] },
-          hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
-          hasBrand: { $gt: [{ $size: '$brand' }, 0] },
-          hasState: { $gt: [{ $size: '$state' }, 0] },
-          hasCity: { $gt: [{ $size: '$city' }, 0] },
+        $set: {
           status: {
             $cond: {
               if: { $eq: ['$endDate', currentDate] },
@@ -1299,77 +1504,42 @@ export class AdminService {
         }
       },
       {
-        $match: {
-          status: 'ENABLED',
-          $or: [
-            {
-              $and: [
-                { hasCategory: true },
-                { category: { $exists: true, $ne: [] } },
-                { 'category.name': matchStage['category.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasSubCategory: true },
-                { subCategory: { $exists: true, $ne: [] } },
-                { 'subCategory.name': matchStage['subCategory.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasBrand: true },
-                { brand: { $exists: true, $ne: [] } },
-                { 'brand.name': matchStage['brand.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasState: true },
-                { state: { $exists: true, $ne: [] } },
-                { 'state.name': matchStage['state.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasCity: true },
-                { city: { $exists: true, $ne: [] } },
-                { 'city.name': matchStage['city.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasCategory: false },
-                { hasSubCategory: false },
-                { hasBrand: false },
-                { hasState: false },
-                { hasCity: false }
-              ]
-            }
-          ]
+        $group: {
+          _id: '$status',
+          initialCount: { $sum: 1 }
         }
       },
       {
-        $match: matchLocation
-      },
-      { $sort: { createdAt: -1 } },
-      {
-        $skip: pageNo * pageSize
-      },
-      {
-        $limit: pageSize
+        $project: {
+          name: '$_id',
+          total: '$initialCount',
+          _id: 0
+        }
       }
     ]);
+    return totalCounts;
+  }
 
-    const finalData: any = [...fileUrlResponse, ...marketingResponse];
-    const result: any = finalData.sort((a: any, b: any) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      if (isNaN(dateA) || isNaN(dateB)) {
-        return 0;
-      }
-      return dateB - dateA;
-    });
-    return result;
+  async updateVideoStatus(reqBody: {
+    marketingId: string;
+    profileStatus: string;
+    rejectionReason: string;
+  }): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<Update video status >');
+
+    const finalResult: any = await Marketing.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(reqBody.marketingId)
+      },
+      {
+        $set: {
+          profileStatus: reqBody.profileStatus,
+          rejectionReason: reqBody.rejectionReason
+        }
+      },
+      { returnDocument: 'after' }
+    );
+
+    return finalResult;
   }
 }

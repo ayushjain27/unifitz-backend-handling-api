@@ -141,4 +141,16 @@ router.put('/videoUpload/:marketingId', adminController.updateVideoUpload);
 
 router.post('/videoUpload/getAllPaginated', adminController.getAllPaginated);
 
+router.get(
+  '/totalVideoUploadCount',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.getVideoUploadCount
+);
+
+router.post(
+  '/updateVideoStatus',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.updateVideoStatus
+);
+
 export default router;

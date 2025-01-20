@@ -1071,7 +1071,11 @@ export class ProductService {
       delete query['oemUserName'];
     }
     if (searchQuery) {
-      query.$or = [{ oemUserName: searchQuery }];
+      query.$or = [
+        { oemUserName: searchQuery },
+        { manufactureName: searchQuery },
+        { productSuggest: searchQuery }
+      ];
     }
     const product = await PartnersPoduct.aggregate([
       {

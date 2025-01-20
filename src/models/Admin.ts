@@ -5,6 +5,7 @@ import {
   storeCatalogMapSchema,
   storeContactSchema
 } from './Store';
+import { catalogSchema, ICatalog } from './Catalog';
 
 /**
  * Interface to model the Admin Schema for TypeScript.
@@ -156,7 +157,8 @@ export interface IAdmin {
   aboutUs: string;
   // businessCategory: IBusinessCategory;
   documents: IDocuments;
-  productCategory: IProductCategory;
+  // productCategory: IProductCategory;
+  productCategoryLists: IProductCategory[];
   updateCount?: string;
   lastModifyResult?: Date;
   lastLogin: Date;
@@ -181,6 +183,14 @@ export interface IDocumentImageList {
   aadhaarBackView: IDocumentImage;
 }
 
+export interface IVehicleType {
+  name: string;
+}
+export const vehicleTypeSchema: Schema = new Schema(
+  { name: { type: String } },
+  { _id: false, strict: false }
+);
+
 // export interface IBusinessCategory {
 //   category: ICatalogMap[];
 //   subCategory: ICatalogMap[];
@@ -188,20 +198,30 @@ export interface IDocumentImageList {
 //   marketBrand: string;
 // }
 
-export interface IProductCatagoryMap {
-  name: string;
-}
-
-export interface IProductSubCatagoryMap {
-  name: string;
-  category: string;
-}
-
 export interface IProductCategory {
-  category: IProductCatagoryMap[];
-  subCategory: IProductSubCatagoryMap[];
-  brand: string;
+  category: ICatalog[];
+  subCategory: ICatalog[];
+  brandName: string;
+  pincode: string;
+  state: IState[];
+  city: ICity[];
+  vehicleType: IVehicleType[];
 }
+
+export const productCategorySchema: Schema = new Schema(
+  {
+    category: { type: [catalogSchema] },
+    subCategory: { type: [catalogSchema] },
+    brandName: { type: String },
+    pincode: { type: String },
+    state: { type: [stateSchema] },
+    city: { type: [citySchema] },
+    vehicleType: { type: [vehicleTypeSchema] }
+  },
+  {
+    _id: false
+  }
+);
 
 export interface IGstInformation {
   clientId: string;
@@ -313,20 +333,32 @@ const adminSchema: Schema = new Schema<IAdmin>(
     aboutUs: {
       type: String
     },
-    productCategory: {
-      type: {
-        category: {
-          type: [productCateoryMapSchema]
-          // required: true
-        },
-        subCategory: {
-          type: [productSubCateoryMapSchema]
-          // required: false
-        },
-        brand: {
-          type: String
-        }
-      }
+    // productCategory: {
+    //   type: {
+    //     category: {
+    //       type: [catalogSchema]
+    //       // required: true
+    //     },
+    //     subCategory: {
+    //       type: [catalogSchema]
+    //       // required: false
+    //     },
+    //     brandName: {
+    //       type: String
+    //     },
+    //     pincode: {
+    //       type: String
+    //     },
+    //     state: {
+    //       type: [stateSchema]
+    //     },
+    //     city: {
+    //       type: [citySchema]
+    //     }
+    //   }
+    // },
+    productCategoryLists: {
+      type: [productCategorySchema]
     },
     documents: {
       gstData: gstDocumentSchema,

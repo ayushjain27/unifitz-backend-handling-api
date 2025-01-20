@@ -240,6 +240,12 @@ router.get(
   analyticController.getAtiveUsersByHour
 );
 
+router.post(
+  '/getMarketingUserByArea',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingUserByArea
+);
+
 // ====================Marketing Video analytic api lists end=====================
 // =======================================================================
 
