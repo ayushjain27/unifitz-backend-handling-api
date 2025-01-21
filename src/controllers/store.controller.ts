@@ -181,7 +181,8 @@ export class StoreController {
       pageSize,
       coordinates,
       oemUserName,
-      detailingType
+      detailingType,
+      serviceType
     }: {
       category: string;
       brand: string;
@@ -191,6 +192,7 @@ export class StoreController {
       coordinates: number[];
       oemUserName: string;
       detailingType: string;
+      serviceType: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -215,7 +217,8 @@ export class StoreController {
           pageSize,
           coordinates,
           oemUserName,
-          detailingType
+          detailingType,
+          serviceType
         });
       res.send({
         result
