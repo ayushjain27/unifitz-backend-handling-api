@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Logger from '../config/winston';
 import Customer, { ICustomer } from './../models/Customer';
 import container from '../config/inversify.container';
@@ -104,6 +104,20 @@ export class CustomerService {
   async getAll(): Promise<ICustomer[]> {
     Logger.info('<Service>:<CustomerService>:<Get all customers>');
     const customerResponse: ICustomer[] = (await Customer.find({})).reverse();
+    return customerResponse;
+  }
+
+  async getcustomerDetailsByCustomerId(customerId: string): Promise<any> {
+    Logger.info('<Service>:<CustomerService>:<Get customer by customer id>');
+    const customerResponse: ICustomer = await Customer.findOne({
+      customerId: customerId
+    });
+    if (isEmpty(customerResponse)) {
+      return {
+        message: 'Customer Not Found',
+        isPresent: false
+      };
+    }
     return customerResponse;
   }
 

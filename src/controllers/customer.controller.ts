@@ -128,6 +128,27 @@ export class CustomerController {
     }
   };
 
+  getcustomerDetailsByCustomerId = async (req: Request, res: Response) => {
+    const customerId = req.query.customerId as string;
+    if (!customerId) {
+      throw new Error('Customer not found');
+    }
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get Customer Details By Customer Id request controller initiated>'
+    );
+    try {
+      const result = await this.customerService.getcustomerDetailsByCustomerId(
+        customerId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getPaginatedAll = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<CustomerController>:<Get all customers request controller initiated>'
@@ -280,6 +301,10 @@ export class CustomerController {
             .isString(),
           body('clientId', 'Cliend Id does not exist').exists().isString(),
           body('otp', 'OTP does not exist').exists().isString()
+        ];
+      case 'getcustomerDetailsByCustomerId':
+        return [
+          body('customerId', 'Customer Id not Found').exists().isString()
         ];
     }
   };
