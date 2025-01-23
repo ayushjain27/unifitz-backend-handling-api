@@ -44,6 +44,9 @@ export interface IBasicInfo {
   category: ICatalogMap[]; //<Object> {_id:, name:} {required}, - (MD)
   subCategory: ICatalogMap[]; //<Array> {_id:, name:}{required}  - (MD),
   language: ILanguage[];
+  authorizationType: string;
+  detailingType: string;
+  serviceType: string;
   // businessHours for the different
 }
 
@@ -65,6 +68,15 @@ export const storeBasicInfoSchema: Schema = new Schema(
       type: Date
     },
     userPhoneNumber: {
+      type: String
+    },
+    authorizationType: {
+      type: String
+    },
+    detailingType: {
+      type: String
+    },
+    serviceType: {
       type: String
     },
     brand: {
@@ -237,6 +249,7 @@ export interface IStore {
   contactInfo: IContactInfo;
   storeTiming: IStoreTiming;
   documents: IDocuments;
+  videoUrl: string;
   createdAt?: Date;
   updatedAt?: Date;
   slug?: string;
@@ -258,6 +271,9 @@ const storeSchema: Schema = new Schema<IStore>(
       unique: true
     },
     oemUserName: {
+      type: String
+    },
+    videoUrl: {
       type: String
     },
     profileStatus: {

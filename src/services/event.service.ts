@@ -7,12 +7,13 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import EventModel, { IEvent, EventStatus } from './../models/Event';
-import Store, { IStore } from './../models/Store';
-import Customer, { ICustomer } from './../models/Customer';
-import OfferModel, { IOffer } from './../models/Offers';
+import Store from './../models/Store';
+import Customer from './../models/Customer';
+import OfferModel from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
+import { sendEmail } from '../utils/common';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
 
@@ -405,6 +406,7 @@ export class EventService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
+      console.log(sqsMessage, 'Message');
       // sendEmail(
       //   templateData,
       //   event?.email || offer?.email,
@@ -423,6 +425,7 @@ export class EventService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
+      console.log(sqsMessage, 'Message');
       // sendEmail(
       //   templateDataUsers,
       //   store?.contactInfo?.email || customer?.email,

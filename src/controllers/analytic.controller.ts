@@ -1078,4 +1078,243 @@ export class AnalyticController {
 
   /// New vehicle analytic creation api end===========================
   ///======================================================================//
+
+  /// Marketing Video analytic creation api start===========================
+  ///======================================================================//
+
+  createMarketingAnalytic = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const requestData = req.body;
+    Logger.info(
+      '<Controller>:<Vehiclecontroller>:<Create  analytic controller initiated>'
+    );
+    try {
+      const result = await this.analyticService.createMarketingAnalytic(
+        requestData
+      );
+      res.send({
+        message: 'OK !!!!',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getMarketingAnalytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      userName,
+      status
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingAnalytic(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        userName,
+        status
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getMarketingImpressionByYear = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      userName,
+      status
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingImpressionByYear(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        userName,
+        status
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getMarketingAll = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const oemUserName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      userName,
+      status
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingAll(
+        role,
+        oemUserName,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        userName,
+        status
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  marketingPaginatedAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Get all marketing request controller initiated>'
+    );
+    const userName = req?.userId;
+    const role = req?.role;
+    try {
+      const result = await this.analyticService.marketingPaginatedAll(
+        req.body,
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAtiveUsersByHour = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AnalyticController>:<Get all marketing request controller initiated>'
+    );
+    const currentDate = req?.query?.firstDate;
+    const lastDaysStart = req?.query?.lastDate;
+    const platform = req?.query?.platform;
+    try {
+      const result = await this.analyticService.getAtiveUsersByHour(
+        currentDate,
+        lastDaysStart,
+        platform
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getMarketingUserByArea = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const {
+      firstDate,
+      lastDate,
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getMarketingUserByArea(
+        role,
+        userName,
+        state,
+        city,
+        firstDate,
+        lastDate,
+        storeId,
+        platform,
+        oemId,
+        adminFilterOemId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  /// Marketing Video analytic creation api end===========================
+  ///======================================================================//
 }

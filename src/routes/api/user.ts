@@ -20,6 +20,7 @@ import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 import StoreLead from '../../models/StoreLead';
 import UserOtp from '../../models/UserOtp';
+import { S3Service } from '../../services';
 import { UserRole } from '../../enum/user-role.enum';
 import { ErrorCode } from '../../enum/error-code.enum';
 
@@ -28,6 +29,7 @@ const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
 const twoFactorService = container.get<TwoFactorService>(
   TYPES.TwoFactorService
 );
+const s3Client = container.get<S3Service>(TYPES.S3Service);
 
 const userService = container.get<UserService>(TYPES.UserService);
 
@@ -357,5 +359,22 @@ router.get(
     }
   }
 );
+
+// router.post('/deleteImage', async (req, res) => {
+//   try {
+//     const { key } = req.body;
+//     Logger.info('<Router>:<UserService>:<User creation initiated>');
+
+//     // Delete the banner from the s3
+//     const result = await s3Client.deleteFile(key);
+//     res.json({
+//       message: 'Image Deleted successful',
+//       result
+//     });
+//   } catch (err) {
+//     Logger.error(err.message);
+//     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+//   }
+// });
 
 export default router;

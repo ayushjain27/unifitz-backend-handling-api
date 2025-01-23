@@ -70,6 +70,16 @@ router.get(
   roleAuth(ACL.STORE_GET_ALL),
   newVehicleController.getAllTestDrive
 );
+router.get(
+  '/getAllTestDrive/paginated',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.getAllTestDrivePaginated
+);
+router.get(
+  '/getAllTestDriveCount',
+  roleAuth(ACL.STORE_GET_ALL),
+  newVehicleController.getAllTestDriveCount
+);
 
 router.put(
   '/updateNotificationStatus/:vehicleId',

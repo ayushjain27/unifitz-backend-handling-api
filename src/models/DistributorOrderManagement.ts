@@ -1,93 +1,182 @@
-import { Document, model, Schema, ObjectId, Types } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 
-export interface IUserInfo {
-  userId?: string;
-  name: string;
-  email?: string;
-  phoneNumber: string;
+export interface IEmployeeStatus {
+  employeeId?: string;
+  status?: string;
+  oemUserName?: string;
+  employeeName?: string;
+  createdAt: Date;
 }
 
-export const userSchema: Schema = new Schema(
-  {
-    userId: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true }
-  },
-  { _id: false }
-);
+export const employeeStatusSchema: Schema = new Schema({
+  employeeId: { type: String },
+  employeeName: { type: String },
+  status: { type: String },
+  oemUserName: { type: String },
+  createdAt: { type: Date }
+});
 
 export interface ICartInfo {
-  cartId: string;
-  quantity: number;
-  price: number;
+  cartId: Types.ObjectId;
+  productId: Types.ObjectId;
   status: string;
   oemUserName: string;
+  pendingDate?: Date;
+  cancelDate?: Date;
+  shippingDate?: Date;
+  deliveryDate?: Date;
+  processingDate?: Date;
+  cancelReason?: string;
+  courierCompanyName?: string;
+  trackingNumber?: string;
+  employeeStatus?: IEmployeeStatus[];
 }
 
 export const cartSchema: Schema = new Schema(
   {
-    cartId: { type: String, required: true },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1
-    },
-    price: {
-      type: Number,
-      required: true
-    },
+    cartId: { type: Types.ObjectId, required: true },
+    productId: { type: Types.ObjectId, required: true },
     status: {
       type: String,
-      enum: ['AVAILABLE', 'UNAVAILABLE']
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING'
     },
     oemUserName: {
       type: String
+    },
+    pendingDate: {
+      type: Date
+    },
+    processingDate: {
+      type: Date
+    },
+    cancelDate: {
+      type: Date
+    },
+    shippingDate: {
+      type: Date
+    },
+    deliveryDate: {
+      type: Date
+    },
+    cancelReason: {
+      type: String
+    },
+    courierCompanyName: {
+      type: String
+    },
+    trackingNumber: {
+      type: String
+    },
+    employeeStatus: {
+      type: [employeeStatusSchema]
     }
   },
   { _id: false }
 );
 
+export interface IPaymentMode {
+  _id: Types.ObjectId;
+  paymentType: string;
+  totalPayment: number;
+  advancePayment: number;
+  balancePayment: number;
+  comment: string;
+  oemUserName: string;
+  employeeId: string;
+  employeeName: string;
+  dueDate: Date;
+  paymentReceived: boolean;
+}
+
+export const paymentModeSchema: Schema = new Schema({
+  paymentType: {
+    type: String,
+    required: true
+  },
+  totalPayment: {
+    type: Number,
+    required: true
+  },
+  advancePayment: {
+    type: Number,
+    required: true
+  },
+  balancePayment: {
+    type: Number,
+    required: true
+  },
+  comment: {
+    type: String
+  },
+  oemUserName: {
+    type: String
+  },
+  employeeId: {
+    type: String
+  },
+  employeeName: {
+    type: String
+  },
+  dueDate: {
+    type: Date
+  },
+  paymentReceived: {
+    type: Boolean,
+    default: false
+  }
+});
+
 export interface IDistributorOrderManagement {
   _id?: string;
   customerOrderId?: Types.ObjectId;
-  orders?: ICartInfo[];
+  items?: ICartInfo[];
+  paymentMode?: IPaymentMode[];
   totalAmount: string;
   oemUserName?: string;
+  distributorOrderId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 const orderSchema: Schema = new Schema(
   {
-    userDetail: {
-      type: userSchema
-    },
     items: {
       type: [cartSchema]
+    },
+    paymentMode: {
+      type: [paymentModeSchema]
     },
     customerOrderId: {
       type: Types.ObjectId
     },
     status: {
       type: String,
-      enum: ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      enum: [
+        'PENDING',
+        'PROCESSING',
+        'PARTIAL DELIVERED',
+        'DELIVERED',
+        'CANCELLED'
+      ],
       default: 'PENDING'
-    },
-    shippingAddress: {
-      type: String,
-      required: true
     },
     totalAmount: {
       type: String
     },
     oemUserName: {
       type: String
+    },
+    distributorOrderId: {
+      type: String
     }
   },
   { timestamps: true }
 );
 
-const DistributorOrder = model<IDistributorOrderManagement & Document>('distributors-orders', orderSchema);
+const DistributorOrder = model<IDistributorOrderManagement & Document>(
+  'distributors-orders',
+  orderSchema
+);
 
 export default DistributorOrder;

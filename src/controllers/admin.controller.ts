@@ -455,6 +455,283 @@ export class AdminController {
     }
   };
 
+  createVideo = async (req: Request, res: Response) => {
+    const { oemId } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
+    try {
+      Logger.info(
+        '<Controller>:<AdminController>:<create Video request controller initiated>'
+      );
+      const result = await this.adminService.createVideo(
+        req.body,
+        oemId,
+        role,
+        userName
+      );
+      res.send({
+        result,
+        created: 'successful'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateMarketingVideos = async (req: Request, res: Response) => {
+    const { fileID } = req.body;
+    Logger.info(
+      '<Controller>:<AdminController>:<Upload Video request initiated>'
+    );
+    try {
+      const result = await this.adminService.updateMarketingVideos(fileID, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getPaginatedAll = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    Logger.info(
+      '<Controller>:<AdminController>:<Get all video request controller initiated>'
+    );
+    const pageNo = Number(req.query.pageNo);
+    const pageSize = Number(req.query.pageSize || 10);
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    const selectType = req.query.selectType;
+    const oemId = req?.query?.oemId;
+    const employeeId = req?.query?.employeeId;
+    const profileStatus = req?.query?.profileStatus;
+
+    try {
+      const result = await this.adminService.getPaginatedAll(
+        pageNo,
+        pageSize,
+        searchQuery as string,
+        state as string,
+        city as string,
+        selectType as string,
+        userName,
+        role,
+        oemId as string,
+        employeeId as string,
+        profileStatus as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    Logger.info(
+      '<Controller>:<AdminController>:<Get all video request controller initiated>'
+    );
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    const selectType = req.query.selectType;
+    const oemId = req?.query?.oemId;
+    const employeeId = req?.query?.employeeId;
+    const profileStatus = req?.query?.profileStatus;
+
+    try {
+      const result = await this.adminService.getAllCount(
+        searchQuery as string,
+        state as string,
+        city as string,
+        selectType as string,
+        userName,
+        role,
+        oemId as string,
+        employeeId as string,
+        profileStatus as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteVideoUpload = async (req: Request, res: Response) => {
+    const marketingId = req.params.marketingId;
+    Logger.info(
+      '<Controller>:<AdminController>:<Delete marketing request controller initiated>'
+    );
+    try {
+      let result;
+      if (!marketingId) {
+        throw new Error('marketingId required');
+      } else {
+        result = await this.adminService.deleteVideoUpload(
+          marketingId as string
+        );
+      }
+      res.send({
+        message: 'deleted successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getVideoUploadDetails = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Getting ID>');
+    try {
+      const marketingId = req.query.marketingId;
+      const result = await this.adminService.getVideoUploadDetails(
+        marketingId as string
+      );
+      Logger.info('<Controller>:<AdminController>:<get successfully>');
+      res.send({
+        message: 'Marketing obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+  updateVideoUpload = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update Marketing Status>');
+    // Validate the request body
+    const marketingId = req.params.marketingId;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateVideoUpload(
+        req.body,
+        marketingId
+      );
+      res.send({
+        message: 'Marketing updated successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllPaginated = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<AdminController>:<Get all video request controller initiated>'
+    );
+    const {
+      pageNo,
+      pageSize,
+      state,
+      city,
+      category,
+      subCategory,
+      brand,
+      storeId,
+      oemUserName,
+      platform,
+      coordinates
+    } = req.body;
+    try {
+      const result = await this.adminService.getAllPaginated(
+        pageNo,
+        pageSize,
+        state as string,
+        city as string,
+        category as string,
+        subCategory as string,
+        brand as string,
+        storeId as string,
+        oemUserName as string,
+        platform as string,
+        coordinates
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getVideoUploadCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const oemId = req?.query?.oemId;
+    const employeeId = req?.query?.employeeId;
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    const selectType = req.query.selectType;
+
+    try {
+      Logger.info(
+        '<Controller>:<AdminController>:<Admin request controller initiated>'
+      );
+      const result = await this.adminService.getVideoUploadCount(
+        userName,
+        role,
+        oemId as string,
+        searchQuery as string,
+        state as string,
+        city as string,
+        employeeId as string,
+        selectType as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateVideoStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update video Status>');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateVideoStatus(req.body);
+      res.send({
+        message: 'Video Status is Updated',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

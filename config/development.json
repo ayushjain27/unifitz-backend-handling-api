@@ -11,12 +11,13 @@
     "AWS_REGION": "ap-south-1",
     "BUCKET_NAME": "serviceplug-dev",
     "VIDEO_BUCKET_NAME": "sp-entity-video",
-    "QUEUE_URL": "https://sqs.ap-south-1.amazonaws.com/771470636147/ServicePlugTaskQueue",
+    "QUEUE_URL": "https://sqs.ap-south-1.amazonaws.com/771470636147/SPQueueDev",
     "2FACTOR_API_KEY": "072aa3d3-31b9-11ed-9c12-0200cd936042",
     "2FACTOR_API_URL": "https://2factor.in/API/V1",
     "2FACTOR_TEMPLATE_NAME": "ServiceplugLOGINOTP",
     "SUREPASS_URL": "https://kyc-api.surepass.io/api/v1",
     "SUREPASS_API_KEY": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY5MTc1MzMzNSwianRpIjoiMmJjMTk4NmQtYjIzNS00YmRlLWJmNDEtYmE0NzQ0YThkOWJjIiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LnNlcnZpY2VwbHVnQHN1cmVwYXNzLmlvIiwibmJmIjoxNjkxNzUzMzM1LCJleHAiOjIwMDcxMTMzMzUsInVzZXJfY2xhaW1zIjp7InNjb3BlcyI6WyJ3YWxsZXQiXX19.ZmrkxrRed7VoS-2knDfwKAqYHBj0nVdsZfR2HDnleEM",
-    "API_VERSION": "2.0.0 100"
+    "API_VERSION": "2.0.0 100 DEV",
+    "SMC_INSURANCE_API_KEY": "8mgPPNIUOQmy5xFTvjFuEF136FumMu4-DqJjsIdRtvE"
   }
   

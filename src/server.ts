@@ -2,7 +2,6 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import _ from 'lodash';
-import connectDB from './config/database';
 import { connectFirebaseAdmin } from './config/firebase-config';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
@@ -39,6 +38,8 @@ import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
+import smcInsurance from './routes/api/smcInsurance';
+import AWS from 'aws-sdk';
 import { API_VERSION, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
@@ -49,6 +50,7 @@ import errorHandler from './routes/middleware/errorHandler';
 
 const app = express();
 import cron from 'node-cron';
+import Customer from './models/Customer';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -57,7 +59,8 @@ import cron from 'node-cron';
 //   region: 'ap-south-1'
 // });
 
-connectDB();
+require('./config/database');
+
 // Connect with firebase admin
 connectFirebaseAdmin();
 
@@ -126,6 +129,7 @@ app.use('/storeCustomer', storeCustomer);
 app.use('/spEmployee', spEmployee);
 app.use('/account', deleteAccount);
 app.use('/orderManagement', orderManagement);
+app.use('/smcInsurance', smcInsurance);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -165,6 +169,72 @@ app.get('/category', async (req, res) => {
     list: result
   });
 });
+app.get('/productCategory', async (req, res) => {
+  const catalogType = 'productCategory';
+  const categoryList: ICatalog[] = await Catalog.find({
+    parent: 'root',
+    catalogType
+  });
+  const result = categoryList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(
+      ({
+        _id,
+        catalogName,
+        tree,
+        parent,
+        catalogType,
+        catalogIcon,
+        catalogWebIcon
+      }) => {
+        return {
+          _id,
+          catalogName,
+          tree,
+          parent,
+          catalogType,
+          catalogIcon,
+          catalogWebIcon
+        };
+      }
+    );
+  res.json({
+    list: result
+  });
+});
+app.post('/productBrand', async (req, res) => {
+  const { subCategoryList, category } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(subCategoryList)) {
+    subCategoryList.forEach((subCat) => {
+      if (subCat?.tree) {
+        treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
+      } else {
+        treeVal.push(`root/${category}/${subCat}`);
+      }
+    });
+  }
+  query = { tree: { $in: treeVal } };
+  const categoryList: ICatalog[] = await Catalog.find(query);
+  let result = categoryList.map(
+    ({ _id, catalogName, tree, parent, catalogType }) => {
+      return { _id, catalogName, tree, parent, catalogType };
+    }
+  );
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
+  });
+  res.json({
+    list: result
+  });
+});
 
 // TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
@@ -196,11 +266,50 @@ app.post('/subCategory', async (req, res) => {
   }
   query = { tree: { $in: treeVal }, catalogType };
   const subCatList: ICatalog[] = await Catalog.find(query);
-  let result = subCatList.map(
-    ({ _id, catalogName, tree, parent, catalogType }) => {
-      return { _id, catalogName, tree, parent, catalogType };
-    }
-  );
+  let result = subCatList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
+      return { _id, catalogName, tree, parent, catalogType, catalogIcon };
+    });
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
+  });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/productSubCategory', async (req, res) => {
+  const { categoryList } = req.body;
+  const catalogType = req.body.catalogType || 'subCategory';
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryList.forEach((category) => {
+      treeVal.push(`root/${category.catalogName}`);
+    });
+  } else {
+    treeVal.push(`root/${categoryList}`);
+  }
+  query = { tree: { $in: treeVal }, catalogType };
+  const subCatList: ICatalog[] = await Catalog.find(query);
+  let result = subCatList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
+      return { _id, catalogName, tree, parent, catalogType, catalogIcon };
+    });
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
@@ -220,6 +329,51 @@ app.get('/brand', async (req, res) => {
   res.json({
     list: categoryList
   });
+});
+
+app.post('/brandLists', async (req, res) => {
+  try {
+    const { category, subCategoryList } = req.body;
+
+    const categories = Array.isArray(category) ? category : [category];
+    const subCategories = Array.isArray(subCategoryList)
+      ? subCategoryList
+      : [subCategoryList];
+
+    const treePaths: any = [];
+
+    categories.forEach((cat) => {
+      if (subCategories && subCategories.length > 0) {
+        subCategories.forEach((subCat) => {
+          treePaths.push(`root/${cat}/${subCat}`);
+        });
+      } else {
+        treePaths.push(`root/${cat}/`);
+      }
+    });
+
+    const categoryList = await Catalog.aggregate([
+      {
+        $match: {
+          tree: { $in: treePaths }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          catalogName: 1,
+          catalogType: 1
+        }
+      }
+    ]);
+
+    res.json({
+      list: categoryList
+    });
+  } catch (err) {
+    // console.error('Error fetching categories:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 app.post('/brand', async (req, res) => {
@@ -300,7 +454,7 @@ const server = app.listen(port, () =>
 //       for (let store of stores) {
 //         await Store.deleteOne({ storeId: store.storeId }, { session });
 //         await StoreReview.deleteMany({ storeId: store.storeId }, { session });
-       
+
 //         //Products Delete
 //         let products = await Product.find({ storeId: store.storeId });
 //         for (let product of products) {
@@ -310,7 +464,7 @@ const server = app.listen(port, () =>
 //           );
 //         }
 //         await Product.deleteOne({ storeId: store.storeId }, { session });
-       
+
 //         //Vehicle Delete
 //         let buySell = await buySellVehicleInfo.find({
 //           'storeDetails.storeId': store.storeId
@@ -341,7 +495,7 @@ const server = app.listen(port, () =>
 //       });
 //     } else {
 //       // If role is not STORE_OWNER
-      
+
 //     }
 //   } catch (error) {
 //     // Rollback the transaction in case of any error
@@ -372,19 +526,28 @@ async function updateSlugs() {
   }
 }
 
-// async function updateSlug() {
-//   try {
-//     // Use aggregation pipeline in updateMany
-//     await Admin.findOneAndUpdate(// Only update documents that have storeId
-//       { userName: 'SERVICEPLUG' },
-//       { $set: { accessList: permissions.OEM } },
-//     );
+async function updateSlug() {
+  try {
+    // Use aggregation pipeline in updateMany
+    const customers = await Customer.find().sort({ _id: 1 });
+    const baseId = 10000000;
+    for (let i = 0; i < customers.length; i++) {
+      customers[0].customerId = String(baseId); // Increment customerId
+      await customers[0].save(); // Save each updated document
+    }
+    return "Done"
+      // console.log(customers[0]?._id)
+      // await Admin.findOneAndUpdate(// Only update documents that have storeId
+      //   { userName: 'SERVICEPLUG' },
+      //   { $set: { accessList: permissions.OEM } },
+      // );
+    // }
 
-//     console.log('All documents have been updated with slugs.');
-//   } catch (err) {
-//     console.log(err, "sa;lkfndj")
-//   }
-// }
+    console.log('All documents have been updated with slugs.');
+  } catch (err) {
+    console.log(err, 'sa;lkfndj');
+  }
+}
 
 // function isValidEmail(email: any) {
 //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -434,9 +597,9 @@ async function updateSlugs() {
 //   }
 // }
 
-// app.get('/slug', async (req, res) => {
-//   updateSlug();
-// });
+app.get('/slug', async (req, res) => {
+  updateSlug();
+});
 
 // const sqs = new AWS.SQS();
 // const ses = new AWS.SES();
@@ -560,27 +723,27 @@ cron.schedule('0 0 * * *', async () => {
       {
         status: 'ACTIVE',
         $or: [
-          { 
-            activeDate: { 
-              $lt: cutoffDate, 
-              $type: "date" // Check if `activeDate` is a date type
-            } 
+          {
+            activeDate: {
+              $lt: cutoffDate,
+              $type: 'date' // Check if `activeDate` is a date type
+            }
           },
-          { 
-            createdAt: { 
-              $lt: cutoffDate 
-            } 
+          {
+            createdAt: {
+              $lt: cutoffDate
+            }
           },
-          { 
-            activeDate: { 
+          {
+            activeDate: {
               $exists: false // Check if `activeDate` is missing
-            } 
+            }
           }
         ]
       },
       { $set: { status: 'INACTIVE', activeDate: null } }
     );
-    console.log(result,'dflkml')
+    console.log(result, 'dflkml');
     // console.log(`Updated ${result.nModified} vehicle(s) to INACTIVE`);
   } catch (err) {
     console.error('Error updating vehicle status:', err);

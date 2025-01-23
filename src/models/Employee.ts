@@ -17,6 +17,7 @@ export interface IEmployee {
   leavingDate?: Date;
   isAadharVerified?: boolean;
   aadharDetails?: object;
+  accessList: object;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -62,6 +63,9 @@ const employeeSchema: Schema = new Schema<IEmployee>(
       default: false
     },
     aadharDetails: {
+      type: Object
+    },
+    accessList: {
       type: Object
     }
   },

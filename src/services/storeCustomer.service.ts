@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { injectable } from 'inversify';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';

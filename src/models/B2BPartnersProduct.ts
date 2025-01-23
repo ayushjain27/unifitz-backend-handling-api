@@ -2,45 +2,73 @@ import { model, Schema, ObjectId } from 'mongoose';
 import { catalogSchema, ICatalog } from './Catalog';
 import { IContactInfo, storeContactSchema } from './Store';
 
-export enum ProductType {
-  OEM = 'OEM',
-  AFTER_MARKET = 'AFTER MARKET'
+export interface IProductOemModel {
+  name: string;
+  value: string;
 }
 
-export interface IColorCode {
+export const oemModelSchema: Schema = new Schema(
+  { name: { type: String }, value: { type: String } },
+  { _id: false, strict: false }
+);
+
+export interface IFuelType {
+  name: string;
+}
+export const fuelTypeSchema: Schema = new Schema(
+  { name: { type: String } },
+  { _id: false, strict: false }
+);
+
+export interface IProductOemList {
+  oemBrand: string;
+  oemModel: IProductOemModel[];
+  partNumber: string;
+  engineSize: string;
+  startYear: Date;
+  endYear: Date;
+  variants: string;
+  fuelType: IFuelType[];
+}
+export const ProductOemListSchema: Schema = new Schema(
+  {
+    oemBrand: { type: String },
+    oemModel: { type: [oemModelSchema] },
+    partNumber: { type: String },
+    engineSize: { type: String },
+    startYear: { type: Date },
+    endYear: { type: Date },
+    variants: { type: String },
+    fuelType: { type: [fuelTypeSchema] }
+  },
+  { _id: false, strict: false }
+);
+
+export interface IProductColorList {
   color?: string;
   colorName?: string;
   oemPartNumber?: string;
   skuNumber?: string;
   manufacturerPartNumber?: string;
-  image: { key: string; docURL: string };
+  image1: { key: string; docURL: string };
+  image2: { key: string; docURL: string };
+  image3: { key: string; docURL: string };
+  oemList: IProductOemList[];
 }
 
-export const colorCodeSchema: Schema = new Schema(
+export const ProductColorListSchema: Schema = new Schema(
   {
-    color: {
-      type: String
-    },
-    colorName: {
-      type: String
-    },
-    oemPartNumber: {
-      type: String
-    },
-    skuNumber: {
-      type: String
-    },
-    manufacturerPartNumber: {
-      type: String
-    },
-    productImageList: {
-      type: { key: String, docURL: String }
-    }
+    color: { type: String },
+    colorName: { type: String },
+    oemPartNumber: { type: String },
+    skuNumber: { type: String },
+    manufacturerPartNumber: { type: String },
+    image1: { type: { key: String, docURL: String } },
+    image2: { type: { key: String, docURL: String } },
+    image3: { type: { key: String, docURL: String } },
+    oemList: { type: [ProductOemListSchema] }
   },
-  {
-    _id: false,
-    strict: false
-  }
+  { _id: false, strict: false }
 );
 
 export interface IState {
@@ -98,25 +126,37 @@ export const targetedAudienceSchema: Schema = new Schema(
   }
 );
 
+export interface IVehicleType {
+  name: string;
+}
+export const vehicleTypeSchema: Schema = new Schema(
+  { name: { type: String } },
+  { _id: false, strict: false }
+);
+
+export interface IVehicleBrand {
+  catalogName: string;
+}
+export const vehicleBrandSchema: Schema = new Schema(
+  { catalogName: { type: String } },
+  { _id: false, strict: false }
+);
+
 export interface IB2BPartnersProduct {
   _id?: string;
   makeType: string;
-  brandName: string;
-  vehicleType: string;
-  vehicleModel: string;
-  variants: string;
-  fuelType: string;
+  brandName: IVehicleBrand[];
+  vehicleType: IVehicleType[];
+  vehicleModel: IProductOemModel[];
   productCategory?: ICatalog[];
   productSubCategory?: ICatalog[];
-  startYear: Date;
-  endYear: Date;
   productSuggest: string;
   productDescription: string;
   features: string;
   inTheBox: string;
-  warranty: number;
+  warranty: string;
   materialDetails: string;
-  colour: string;
+  manufactureName: string;
   madeIn: string;
   returnPolicy: string;
   isActive: boolean;
@@ -126,15 +166,16 @@ export interface IB2BPartnersProduct {
   priceDetail: IPriceDetail;
   bulkOrders: IBulkOrderDetail;
   shippingAddress: IContactInfo;
+  shippingIndex: number;
   state?: IState[];
   city?: ICity[];
   // distributor?: boolean;
   // dealer?: boolean;
   selectAllStateAndCity?: boolean;
   status?: string;
-  colorCode: IColorCode[];
   targetedAudience: ITargetedAudience;
   discount?: number;
+  colorCodeList: IProductColorList[];
 }
 
 export enum ProductStatus {
@@ -225,38 +266,25 @@ export const bulkOrdersSchema: Schema = new Schema<IBulkOrderDetail>({
 const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
   {
     makeType: {
-      type: String,
-      enum: ProductType
+      type: String
     },
     oemUserName: {
       type: String
     },
     brandName: {
-      type: String
+      type: [vehicleBrandSchema]
     },
     vehicleType: {
-      type: String
+      type: [vehicleTypeSchema]
     },
     vehicleModel: {
-      type: String
-    },
-    variants: {
-      type: String
-    },
-    fuelType: {
-      type: String
+      type: [oemModelSchema]
     },
     productCategory: {
       type: [catalogSchema]
     },
     productSubCategory: {
       type: [catalogSchema]
-    },
-    startYear: {
-      type: Date
-    },
-    endYear: {
-      type: Date
     },
     productSuggest: {
       type: String
@@ -271,12 +299,12 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       type: String
     },
     warranty: {
-      type: Number
+      type: String
     },
     materialDetails: {
       type: String
     },
-    colour: {
+    manufactureName: {
       type: String
     },
     madeIn: {
@@ -302,6 +330,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     shippingAddress: {
       type: storeContactSchema
     },
+    shippingIndex: {
+      type: Number
+    },
     state: {
       type: [stateSchema]
     },
@@ -325,14 +356,14 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
       enum: ProductStatus,
       default: ProductStatus.ACTIVE
     },
-    colorCode: {
-      type: [colorCodeSchema]
-    },
     discount: {
       type: Number
     },
     targetedAudience: {
       type: targetedAudienceSchema
+    },
+    colorCodeList: {
+      type: [ProductColorListSchema]
     }
   },
   { timestamps: true }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-const */
 /* eslint-disable no-console */
 import { injectable } from 'inversify';
 import _ from 'lodash';
@@ -12,6 +14,7 @@ import Customer from '../models/Customer';
 import InterestedBusiness, {
   IInterestedBusiness
 } from '../models/InterestedBusiness';
+import { sendEmail } from '../utils/common';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
 
@@ -250,6 +253,7 @@ export class BusinessService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
+      console.log(sqsMessage, 'Message');
       // sendEmail(
       //   templateData,
       //   business?.email,
@@ -267,6 +271,7 @@ export class BusinessService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
+      console.log(sqsMessage, 'Message');
       // sendEmail(
       //   templateDataUsers,
       //   store?.contactInfo?.email || customer?.email,

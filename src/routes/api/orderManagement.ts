@@ -37,4 +37,42 @@ router.post(
   orderManagementController.getUserAllOrdersPaginated
 );
 
+router.post(
+  '/update-cart-status',
+  roleAuth(ACL.STORE_GET_ALL),
+  validationHandler(),
+  orderManagementController.updateCartStatus
+);
+
+router.post(
+  '/distributors-orders-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.getAllDistributorsOrdersPaginated
+);
+
+router.get(
+  '/countAllDistributorOrdersCount',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.getDistributorOrdersCount
+);
+
+router.get(
+  '/getDistributorOrderById',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.getDistributorOrderById
+);
+
+router.post(
+  '/updatePaymentMode',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.validate('paymentMode'),
+  orderManagementController.updatePaymentMode
+);
+
+router.post(
+  '/updatePaymentStatus',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.updatePaymentStatus
+);
+
 export default router;

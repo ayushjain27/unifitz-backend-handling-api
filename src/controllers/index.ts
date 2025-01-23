@@ -24,3 +24,4 @@ export * from './spEmployee.controller';
 export * from './deleteAccount.controller';
 export * from './storeLead.controller';
 export * from './orderManagement.controller';
+export * from './smcInsurance.controller';

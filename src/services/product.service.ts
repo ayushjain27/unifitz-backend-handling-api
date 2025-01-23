@@ -992,11 +992,18 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>: <creating new  partner product>');
 
     const newProd: any = productPayload;
-    const numVal =
-      (productPayload?.priceDetail?.mrp -
-        productPayload?.priceDetail?.sellingPrice) /
-      productPayload?.priceDetail?.mrp;
-    newProd.discount = numVal * 100;
+    if (
+      productPayload?.priceDetail?.mrp !== null &&
+      productPayload?.priceDetail?.sellingPrice !== null
+    ) {
+      const numVal =
+        (productPayload?.priceDetail?.mrp -
+          productPayload?.priceDetail?.sellingPrice) /
+        productPayload?.priceDetail?.mrp;
+
+      newProd.discount = numVal * 100;
+    }
+
     if (role === AdminRole.OEM) {
       newProd.oemUserName = userName;
     }
@@ -1064,7 +1071,11 @@ export class ProductService {
       delete query['oemUserName'];
     }
     if (searchQuery) {
-      query.$or = [{ oemUserName: searchQuery }];
+      query.$or = [
+        { oemUserName: searchQuery },
+        { manufactureName: searchQuery },
+        { productSuggest: searchQuery }
+      ];
     }
     const product = await PartnersPoduct.aggregate([
       {
@@ -1150,13 +1161,14 @@ export class ProductService {
     let query: any = {};
     query = {
       // 'employeeCompanyDetails.companyType': userType,
-      vehicleType: vehicleType,
-      vehicleModel: vehicleModel,
-      brandName: brandName,
+      'vehicleType.name': { $in: [vehicleType] },
+      // vehicleModel: vehicleModel,
+      'colorCodeList.oemList.oemBrand': brandName,
+      'colorCodeList.oemList.oemModel.value': { $in: [vehicleModel] },
       makeType: makeType,
-      status: 'ACTIVE'
-      // productCategory: productCategory,
-      // productSubCategory: productSubCategory
+      status: 'ACTIVE',
+      'productCategory.catalogName': { $in: productCategory },
+      'productSubCategory.catalogName': { $in: productSubCategory }
     };
     if (userType === 'Distributer') {
       query.$or = [{ 'targetedAudience.distributor': true }];
@@ -1170,22 +1182,22 @@ export class ProductService {
       ];
     }
     if (!vehicleType) {
-      delete query['vehicleType'];
+      delete query['vehicleType.name'];
     }
     if (!vehicleModel) {
-      delete query['vehicleModel'];
+      delete query['colorCodeList.oemList.oemModel.value'];
     }
     if (!brandName) {
-      delete query['brandName'];
+      delete query['colorCodeList.oemList.oemBrand'];
     }
     if (!makeType) {
       delete query['makeType'];
     }
     if (_.isEmpty(productCategory)) {
-      delete query['productCategory'];
+      delete query['productCategory.catalogName'];
     }
     if (_.isEmpty(productSubCategory)) {
-      delete query['productSubCategory'];
+      delete query['productSubCategory.catalogName'];
     }
     console.log(userName, role, oemId, query, 'partner');
 
@@ -1232,18 +1244,21 @@ export class ProductService {
     const discountEnd = Number(discount?.split('-')[1]);
 
     query = {
-      vehicleType: vehicleType,
-      vehicleModel: vehicleModel,
-      brandName: brandName,
+      'vehicleType.name': { $in: [vehicleType] },
+      // 'vehicleModel.value': vehicleModel,
+      // 'brandName.catalogName': brandName,
+      'colorCodeList.oemList.oemBrand': brandName,
+      'colorCodeList.oemList.oemModel.value': { $in: [vehicleModel] },
       makeType: makeType,
       status: 'ACTIVE',
-      'productCategory.catalogName': { $in: productCategory },
+      'productCategory.catalogName': { $in: [productCategory] },
       'productSubCategory.catalogName': { $in: productSubCategory },
       discount: {
         $gte: discountStart,
         $lte: discountEnd
       }
     };
+
     if (userType === 'Distributer') {
       query.$or = [
         {
@@ -1260,24 +1275,37 @@ export class ProductService {
         { 'targetedAudience.dealer': true }
       ];
     }
-    if (!isEmpty(storeId) && isEmpty(vehicleType)) {
+
+    let stateFilter: string | null = null;
+    let cityFilter: string | null = null;
+
+    if (!isEmpty(storeId)) {
       const store = await this.storeService.getById({
         storeId: storeId,
         lat: '',
         long: ''
       });
-      const subCategory = store[0]?.basicInfo?.subCategory;
-      const subCategoryNames = subCategory.map((sub) => sub.name);
-      query.vehicleType = { $in: subCategoryNames };
+
+      if (isEmpty(vehicleType)) {
+        const subCategory = store[0]?.basicInfo?.subCategory;
+        const subCategoryNames = subCategory.map((sub) => sub.name);
+        query['vehicleType.name'] = { $in: subCategoryNames };
+      }
+      stateFilter = store[0]?.contactInfo?.state || null;
+      console.log(stateFilter, 'Dekm');
+      cityFilter = store[0]?.contactInfo?.city || null;
+      console.log(cityFilter, 'Dekm');
     }
+
+    // Remove unused filters if their values are not provided
     if (!vehicleType && !storeId) {
-      delete query['vehicleType'];
+      delete query['vehicleType.name'];
     }
     if (!vehicleModel) {
-      delete query['vehicleModel'];
+      delete query['colorCodeList.oemList.oemModel.value'];
     }
     if (!brandName) {
-      delete query['brandName'];
+      delete query['colorCodeList.oemList.oemBrand'];
     }
     if (!makeType) {
       delete query['makeType'];
@@ -1291,8 +1319,41 @@ export class ProductService {
     if (!productSubCategory) {
       delete query['productSubCategory.catalogName'];
     }
+
     console.log(userName, role, oemId, query, 'partner');
 
+    const matchStage: any = { ...query };
+
+    // Dynamically build the $expr for state and city filters
+    if (stateFilter && cityFilter) {
+      // Both state and city filters are present
+      matchStage.$expr = {
+        $and: [
+          {
+            $or: [
+              { $eq: [{ $size: '$state' }, 0] },
+              { $in: [stateFilter, '$state.name'] }
+            ]
+          },
+          {
+            $or: [
+              { $eq: [{ $size: '$city' }, 0] },
+              { $in: [cityFilter, '$city.name'] }
+            ]
+          }
+        ]
+      };
+    } else if (stateFilter) {
+      // Only state filter is present
+      matchStage.$expr = {
+        $or: [
+          { $eq: [{ $size: '$state' }, 0] },
+          { $in: [stateFilter, '$state.name'] }
+        ]
+      };
+    }
+
+    // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
       {
         $lookup: {
@@ -1304,7 +1365,7 @@ export class ProductService {
       },
       { $unwind: { path: '$partnerDetail' } },
       {
-        $match: query
+        $match: matchStage
       },
       {
         $skip: pageNo * pageSize
@@ -1599,68 +1660,85 @@ export class ProductService {
 
   async updatePartnerProductImages(
     partnerProductId: string,
+    dataList: any,
     req: Request | any
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
     const partnerProduct = await PartnersPoduct.findOne({
       _id: new Types.ObjectId(partnerProductId)
     });
+
     if (_.isEmpty(partnerProduct)) {
       throw new Error('Product does not exist');
     }
 
-    const files: Array<any> = req.files;
-    const imgKeys: Array<any> = req.body.keys;
-
-    if (!files) {
-      throw new Error('Files not found');
+    const files = req.files;
+    const imageIndexes = req.body.imageIndex;
+    if (!files || !imageIndexes) {
+      // return res.status(400).send('Files or image indexes are missing');
+      throw new Error('Files or keys not found');
     }
     const ImageList: any = [];
-    for (const file of files) {
-      const fileName = file.originalname?.split('.')[0];
+    const imageIndexArray = Array.isArray(imageIndexes)
+      ? imageIndexes
+      : imageIndexes.split('-');
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      let colorCodeIndex, imageFieldIndex;
+
+      if (files.length === 1) {
+        [colorCodeIndex, imageFieldIndex] = imageIndexArray;
+      } else {
+        [colorCodeIndex, imageFieldIndex] = imageIndexArray[index].split('-');
+      }
+
+      const fileName = file.originalname.split('.')[0];
       const { key, url } = await this.s3Client.uploadFile(
         partnerProductId,
         fileName,
         file.buffer
       );
-      ImageList.push({ key, docURL: url });
+      ImageList.push({ colorCodeIndex, imageFieldIndex, key, docURL: url });
     }
+    console.log(ImageList, 'ImageListImageList');
+    console.log(
+      imageIndexes?.length,
+      imageIndexes,
+      imageIndexes[0],
+      imageIndexes[0].split('-'),
+      'imageIndex.splitsplitsplitsplit'
+    );
 
-    const colorList: any = ImageList?.map((val: any, key: number) => {
-      const jsonData = {
-        image: val,
-        imgKey: Number(imgKeys[key])
-      };
-      return jsonData;
-    });
-    const vehicleImages = partnerProduct?.colorCode
-      .map((val, key) =>
-        val?.image ? { image: val?.image, imgKey: key } : undefined
-      )
-      .filter((res) => res !== undefined);
-    const colorImages: any = [...vehicleImages, ...colorList].sort(
-      (a, b) => a.imgKey - b.imgKey
-    );
-    const colorCode: any = partnerProduct?.colorCode?.map(
-      (val: any, key: number) => {
-        const jsonData = {
-          color: val?.color,
-          colorName: val?.colorName,
-          oemPartNumber: val?.oemPartNumber,
-          skuNumber: val?.skuNumber,
-          manufacturerPartNumber: val?.manufacturerPartNumber,
-          image: colorImages[key]?.image
-        };
-        return jsonData;
-      }
-    );
+    const colorList: any = [];
+    for (let index = 0; index < partnerProduct?.colorCodeList.length; index++) {
+      const colorCode = partnerProduct?.colorCodeList[index];
+
+      ImageList.forEach((image: any) => {
+        if (parseInt(image.colorCodeIndex) === index) {
+          switch (image.imageFieldIndex) {
+            case '0':
+              colorCode.image1 = { key: image.key, docURL: image.docURL };
+              break;
+            case '1':
+              colorCode.image2 = { key: image.key, docURL: image.docURL };
+              break;
+            case '2':
+              colorCode.image3 = { key: image.key, docURL: image.docURL };
+              break;
+          }
+        }
+      });
+      colorList.push(colorCode);
+    }
+    console.log(dataList, colorList, 'colorListcolorList');
 
     const producttDetails = {
       ...partnerProduct,
-      colorCode,
+      colorCodeList: colorList,
       status: 'ACTIVE',
       _id: new Types.ObjectId(partnerProductId)
     };
+    console.log(dataList, producttDetails, 'dataListdataListdataListdataList');
 
     const res = await PartnersPoduct.findOneAndUpdate(
       { _id: partnerProductId },
@@ -1743,7 +1821,7 @@ export class ProductService {
       newProd.moqQty = Number(productPayload?.moqQty);
       newProd.totalMoqQty = totalBulkQty;
       newProd.totalAmount =
-        Number(totalBulkQty) * Number(productPayload?.price);
+        Number(productPayload?.qty) * Number(productPayload?.price);
     }
     newProd.status = 'ACTIVE';
     const productResult = await ProductCartModel.create(newProd);
@@ -1799,7 +1877,7 @@ export class ProductService {
       const totalBulkQty = Number(reqBody?.qty) * Number(partnerResult?.moqQty);
       cartJson.totalMoqQty = totalBulkQty;
       cartJson.totalAmount =
-        Number(totalBulkQty) * Number(partnerResult?.price);
+        Number(reqBody?.qty) * Number(partnerResult?.price);
     }
     cartJson.qty = Number(reqBody?.qty);
     const res = await ProductCartModel.findOneAndUpdate(query, cartJson, {

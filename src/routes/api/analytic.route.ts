@@ -202,4 +202,51 @@ router.post(
 // ====================NewVehicle analytic api lists end=====================
 // =======================================================================
 
+// ====================Marketing Video analytic api lists start=====================
+// =======================================================================
+
+router.post(
+  '/createMarketingAnalytic',
+  analyticController.createMarketingAnalytic
+);
+
+router.post(
+  '/getMarketingImpression',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingAnalytic
+);
+
+router.post(
+  '/getMarketingImpressionByYear',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingImpressionByYear
+);
+
+router.post(
+  '/getMarketingAll',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingAll
+);
+
+router.post(
+  '/marketingPaginated/all',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.marketingPaginatedAll
+);
+
+router.get(
+  '/marketing/getAtiveUsersByHour',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getAtiveUsersByHour
+);
+
+router.post(
+  '/getMarketingUserByArea',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getMarketingUserByArea
+);
+
+// ====================Marketing Video analytic api lists end=====================
+// =======================================================================
+
 export default router;

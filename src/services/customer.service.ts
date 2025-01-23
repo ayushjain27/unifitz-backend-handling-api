@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Logger from '../config/winston';
 import Customer, { ICustomer } from './../models/Customer';
 import container from '../config/inversify.container';
@@ -13,6 +13,7 @@ import {
 } from '../interfaces';
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class CustomerService {
@@ -26,6 +27,12 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>: <Customer onboarding: creating new customer>'
     );
+    const lastCreatedCustomerId = await StaticIds.find({}).limit(1).exec();
+    const newCustomerId = String(
+      parseInt(lastCreatedCustomerId[0].customerId) + 1
+    );
+    await StaticIds.findOneAndUpdate({}, { customerId: newCustomerId });
+    customerPayload.customerId = newCustomerId;
     const newCustomer = await Customer.create(customerPayload);
     Logger.info('<Service>:<CustomerService>:<Customer created successfully>');
     return newCustomer;
@@ -97,6 +104,20 @@ export class CustomerService {
   async getAll(): Promise<ICustomer[]> {
     Logger.info('<Service>:<CustomerService>:<Get all customers>');
     const customerResponse: ICustomer[] = (await Customer.find({})).reverse();
+    return customerResponse;
+  }
+
+  async getcustomerDetailsByCustomerId(customerId: string): Promise<any> {
+    Logger.info('<Service>:<CustomerService>:<Get customer by customer id>');
+    const customerResponse: ICustomer = await Customer.findOne({
+      customerId: customerId
+    });
+    if (isEmpty(customerResponse)) {
+      return {
+        message: 'Customer Not Found',
+        isPresent: false
+      };
+    }
     return customerResponse;
   }
 

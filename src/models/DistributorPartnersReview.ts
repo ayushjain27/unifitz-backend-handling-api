@@ -1,8 +1,7 @@
 import { Document, Model, model, Schema, Types } from 'mongoose';
 
-
 export interface IDistributorPartnersReview {
-  _id?: string; 
+  _id?: string;
   userName: string;
   ownerName: string;
   ownerPhoneNumber: string;
@@ -11,7 +10,6 @@ export interface IDistributorPartnersReview {
   storeId: string;
   // isHide?: boolean;
 }
-
 
 const distributorPartnersReviewSchema: Schema = new Schema(
   {

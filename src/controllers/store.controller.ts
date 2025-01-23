@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import HttpStatusCodes from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 
 import { StoreService } from '../services';
 import Logger from '../config/winston';
@@ -180,7 +180,9 @@ export class StoreController {
       pageNo,
       pageSize,
       coordinates,
-      oemUserName
+      oemUserName,
+      detailingType,
+      serviceType
     }: {
       category: string;
       brand: string;
@@ -189,6 +191,8 @@ export class StoreController {
       pageSize: number;
       coordinates: number[];
       oemUserName: string;
+      detailingType: string;
+      serviceType: string;
     } = req.body;
     let { subCategory } = req.body;
     if (subCategory) {
@@ -212,7 +216,9 @@ export class StoreController {
           pageNo,
           pageSize,
           coordinates,
-          oemUserName
+          oemUserName,
+          detailingType,
+          serviceType
         });
       res.send({
         result

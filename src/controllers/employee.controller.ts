@@ -58,7 +58,7 @@ export class EmployeeController {
   };
 
   getEmployeesByStoreId = async (req: Request, res: Response) => {
-    const storeId = req.params.storeId;
+    const storeId = req.query.storeId;
 
     if (!storeId) {
       res
@@ -70,7 +70,9 @@ export class EmployeeController {
       '<Controller>:<EmployeeController>:<Get employees by store id controller initiated>'
     );
     try {
-      const result = await this.employeeService.getEmployeesByStoreId(storeId);
+      const result = await this.employeeService.getEmployeesByStoreId(
+        storeId as string
+      );
       res.send({
         message: 'Employee Fetch Successful',
         result
@@ -128,6 +130,27 @@ export class EmployeeController {
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getEmployeeDetailByPhoneNumber = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<EmployeeController>:<Request Get Employee Detail controller initiated>'
+    );
+    try {
+      const phoneNumber = req.query.phoneNumber;
+      const result = await this.employeeService.getEmployeeDetailByPhoneNumber(
+        phoneNumber
+      );
+      res.send({
+        message: 'Employee Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 

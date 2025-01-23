@@ -3,17 +3,12 @@ import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Store, { IStore } from '../models/Store';
-import SPEmployee from '../models/SPEmployee';
-import User from '../models/User';
 import { S3Service } from './s3.service';
 import { Employee, EmployeeStatus, IEmployee } from '../models/Employee';
-import { TwilioLoginPayload, TwilioVerifyPayload } from '../interfaces';
-import { defaultCodeLength } from '../config/constants';
-import { generateToken } from '../utils';
-import { testUsers } from '../config/constants';
 import { TwoFactorService } from './twoFactor.service';
 import { Types } from 'mongoose';
 import _, { isEmpty } from 'lodash';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class EmployeeService {
@@ -45,6 +40,7 @@ export class EmployeeService {
     ) {
       newEmp.status = 'INACTIVE'; // Set status to INACTIVE
     }
+    newEmp.accessList = permissions.PARTNER_EMPLOYEE;
     newEmp = await Employee.create(newEmp);
     Logger.info('<Service>:<EmployeeService>:<Employee created successfully>');
     return newEmp;
@@ -87,7 +83,10 @@ export class EmployeeService {
       '<Service>:<EmployeeService>: <Employee Fetch: getting all the employees by store id>'
     );
 
-    const employees: IEmployee[] = await Employee.find({ storeId });
+    const employees: IEmployee[] = await Employee.find({
+      storeId,
+      status: 'ACTIVE'
+    });
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employees;
   }
@@ -144,6 +143,22 @@ export class EmployeeService {
     employee = await Employee.findOne({
       _id: new Types.ObjectId(employeeId)
     });
+    Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
+    return employee;
+  }
+
+  async getEmployeeDetailByPhoneNumber(phoneNumber: string): Promise<any> {
+    Logger.info(
+      '<Service>:<EmployeeService>: <Employee Fetch: getting employee details by phonenumber>'
+    );
+    const newPhoneNumber = `${phoneNumber.slice(-10)}`;
+    const employee: IEmployee = await Employee.findOne({
+      phoneNumber: newPhoneNumber,
+      status: 'ACTIVE'
+    }).lean();
+    if (isEmpty(employee)) {
+      throw new Error('Employee not exists');
+    }
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employee;
   }

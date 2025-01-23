@@ -5,6 +5,7 @@ import {
   storeCatalogMapSchema,
   storeContactSchema
 } from './Store';
+import { catalogSchema, ICatalog } from './Catalog';
 
 /**
  * Interface to model the Admin Schema for TypeScript.
@@ -96,6 +97,41 @@ export const gstDocumentSchema: Schema = new Schema<IGstInformation>({
   }
 });
 
+export interface IState {
+  name: string;
+}
+export const stateSchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export const citySchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    },
+    value: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
+
+export interface ICity {
+  name: string;
+  value: string;
+}
+
 export interface IAdmin {
   _id?: Types.ObjectId | string;
   nameSalutation: string;
@@ -117,10 +153,12 @@ export interface IAdmin {
   status: string;
   documentImageList: IDocumentImageList;
   wareHouseInfo: IContactInfo;
+  wareHouseDynamicInfo: IContactInfo[];
   aboutUs: string;
   // businessCategory: IBusinessCategory;
   documents: IDocuments;
-  productCategory: IProductCategory;
+  // productCategory: IProductCategory;
+  productCategoryLists: IProductCategory[];
   updateCount?: string;
   lastModifyResult?: Date;
   lastLogin: Date;
@@ -129,6 +167,8 @@ export interface IAdmin {
   accessList: object;
   accessPolicy: object;
   loginDate?: Date;
+  productState?: IState[];
+  productCity?: ICity[];
 }
 
 export interface IDocumentImage {
@@ -143,6 +183,14 @@ export interface IDocumentImageList {
   aadhaarBackView: IDocumentImage;
 }
 
+export interface IVehicleType {
+  name: string;
+}
+export const vehicleTypeSchema: Schema = new Schema(
+  { name: { type: String } },
+  { _id: false, strict: false }
+);
+
 // export interface IBusinessCategory {
 //   category: ICatalogMap[];
 //   subCategory: ICatalogMap[];
@@ -150,20 +198,30 @@ export interface IDocumentImageList {
 //   marketBrand: string;
 // }
 
-export interface IProductCatagoryMap {
-  name: string;
-}
-
-export interface IProductSubCatagoryMap {
-  name: string;
-  category: string;
-}
-
 export interface IProductCategory {
-  category: IProductCatagoryMap[];
-  subCategory: IProductSubCatagoryMap[];
-  brand: string;
+  category: ICatalog[];
+  subCategory: ICatalog[];
+  brandName: string;
+  pincode: string;
+  state: IState[];
+  city: ICity[];
+  vehicleType: IVehicleType[];
 }
+
+export const productCategorySchema: Schema = new Schema(
+  {
+    category: { type: [catalogSchema] },
+    subCategory: { type: [catalogSchema] },
+    brandName: { type: String },
+    pincode: { type: String },
+    state: { type: [stateSchema] },
+    city: { type: [citySchema] },
+    vehicleType: { type: [vehicleTypeSchema] }
+  },
+  {
+    _id: false
+  }
+);
 
 export interface IGstInformation {
   clientId: string;
@@ -269,23 +327,38 @@ const adminSchema: Schema = new Schema<IAdmin>(
     wareHouseInfo: {
       type: storeContactSchema
     },
+    wareHouseDynamicInfo: {
+      type: [storeContactSchema]
+    },
     aboutUs: {
       type: String
     },
-    productCategory: {
-      type: {
-        category: {
-          type: [productCateoryMapSchema]
-          // required: true
-        },
-        subCategory: {
-          type: [productSubCateoryMapSchema]
-          // required: false
-        },
-        brand: {
-          type: String
-        }
-      }
+    // productCategory: {
+    //   type: {
+    //     category: {
+    //       type: [catalogSchema]
+    //       // required: true
+    //     },
+    //     subCategory: {
+    //       type: [catalogSchema]
+    //       // required: false
+    //     },
+    //     brandName: {
+    //       type: String
+    //     },
+    //     pincode: {
+    //       type: String
+    //     },
+    //     state: {
+    //       type: [stateSchema]
+    //     },
+    //     city: {
+    //       type: [citySchema]
+    //     }
+    //   }
+    // },
+    productCategoryLists: {
+      type: [productCategorySchema]
     },
     documents: {
       gstData: gstDocumentSchema,
@@ -355,6 +428,12 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     loginDate: {
       type: Date
+    },
+    productState: {
+      type: [stateSchema]
+    },
+    productCity: {
+      type: [citySchema]
     }
   },
   { timestamps: true, strict: false }
