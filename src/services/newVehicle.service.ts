@@ -11,7 +11,6 @@ import Admin, { AdminRole } from './../models/Admin';
 import TestDrive from './../models/VehicleTestDrive';
 import { S3Service } from './s3.service';
 import { SurepassService } from './surepass.service';
-import { sendEmail, sendNotification } from '../utils/common';
 import Store from '../models/Store';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
@@ -828,7 +827,7 @@ export class NewVehicleInfoService {
       delete query['phoneNumber'];
     }
 
-    const vehicle = await TestDrive.count(query);
+    const vehicle = await TestDrive.countDocuments(query);
     const allData = {
       total: vehicle
     };

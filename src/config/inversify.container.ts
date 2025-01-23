@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Twilio } from 'twilio';
 import { SQSClient } from '@aws-sdk/client-sqs';
-import {S3Client} from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 
 import { TYPES } from './inversify.types';
 import { s3Config, sqsConfig, twilioConfig } from './constants';

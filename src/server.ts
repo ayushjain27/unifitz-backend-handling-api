@@ -39,7 +39,6 @@ import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
-import AWS from 'aws-sdk';
 import { API_VERSION, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
@@ -169,7 +168,7 @@ app.get('/category', async (req, res) => {
     list: result
   });
 });
-app.get('/productCategory', async (req, res) => {
+app.get('/productCategory', async (req: any, res: any) => {
   const catalogType = 'productCategory';
   const categoryList: ICatalog[] = await Catalog.find({
     parent: 'root',

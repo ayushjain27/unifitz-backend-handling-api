@@ -670,33 +670,33 @@ export class OrderManagementService {
       // }
     }
 
-    const total = await DistributorOrder.count({ ...overallStatus });
+    const total = await DistributorOrder.countDocuments({ ...overallStatus });
     if (status === 'PENDING' || !status) {
-      pending = await DistributorOrder.count({
+      pending = await DistributorOrder.countDocuments({
         status: 'PENDING',
         ...query
       });
     }
     if (status === 'PROCESSING' || !status) {
-      processing = await DistributorOrder.count({
+      processing = await DistributorOrder.countDocuments({
         status: 'PROCESSING',
         ...query
       });
     }
     if (status === 'PARTIAL DELIVERED' || !status) {
-      partialDelivered = await DistributorOrder.count({
+      partialDelivered = await DistributorOrder.countDocuments({
         status: 'PARTIAL DELIVERED',
         ...query
       });
     }
     if (status === 'DELIVERED' || !status) {
-      delivered = await DistributorOrder.count({
+      delivered = await DistributorOrder.countDocuments({
         status: 'DELIVERED',
         ...query
       });
     }
     if (status === 'CANCELLED' || !status) {
-      cancelled = await DistributorOrder.count({
+      cancelled = await DistributorOrder.countDocuments({
         status: 'CANCELLED',
         ...query
       });

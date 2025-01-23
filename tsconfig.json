@@ -14,7 +14,7 @@
       // add node as an option
       "node",
       "reflect-metadata",
-      "long"
+      // "long"
     ],
     "typeRoots": [
       // add path to @types

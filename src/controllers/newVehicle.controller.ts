@@ -389,9 +389,7 @@ export class NewVehicleInfoController {
   getAllTestDrivePaginated = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
     const userName = req?.userId;
     const role = req?.role;
@@ -431,9 +429,7 @@ export class NewVehicleInfoController {
   getAllTestDriveCount = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
     const userName = req?.userId;
     const role = req?.role;

@@ -29,8 +29,6 @@ import { StaticIds } from './../models/StaticId';
 import ContactUsModel, { IContactUs } from '../models/ContactUs';
 import Marketing from '../models/Marketing';
 import { permissions } from '../config/permissions';
-import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
-import { sendEmail } from '../utils/common';
 import { SQSService } from './sqs.service';
 import { StoreService } from './store.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';

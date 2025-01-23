@@ -617,9 +617,7 @@ export class AdminController {
     const marketingId = req.params.marketingId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
     try {
       const result = await this.adminService.updateVideoUpload(
@@ -714,9 +712,7 @@ export class AdminController {
     Logger.info('<Controller>:<AdminController>:<Update video Status>');
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
     try {
       const result = await this.adminService.updateVideoStatus(req.body);

@@ -53,7 +53,7 @@ export const catalogMapSchema: Schema = new Schema({
 });
 
 export interface IMarketing extends Document {
-  _id?: Types.ObjectId;
+  _id: Types.ObjectId;
   storeId: string;
   oemUserName: string;
   businessName: string;

@@ -10,7 +10,7 @@ export const validateApiKey = (
   const validApiKey = smcInsuranceKey; // Store the valid key securely in an environment variable
 
   if (!apiKey || apiKey !== validApiKey) {
-    return res
+    res
       .status(401)
       .json({ message: 'Unauthorized: Invalid or missing API key' });
   }

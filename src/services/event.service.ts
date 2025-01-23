@@ -13,7 +13,6 @@ import OfferModel from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
-import { sendEmail } from '../utils/common';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
 
@@ -360,10 +359,7 @@ export class EventService {
     Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
     const [store, customer, event, offer] = await Promise.all([
-      Store.findOne(
-        { storeId: reqBody.storeId },
-        { verificationDetails: 0 }
-      ),
+      Store.findOne({ storeId: reqBody.storeId }, { verificationDetails: 0 }),
       Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }),
       EventModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
