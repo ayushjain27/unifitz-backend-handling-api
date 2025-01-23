@@ -196,7 +196,7 @@ export class SPEmployeeService {
     const employee: ISPEmployee = await SPEmployee.findOne({
       employeeId,
       userName
-    })?.lean();
+    });
     Logger.info(
       '<Service>:<SPEmployeeService>:<Employee fetched successfully>'
     );

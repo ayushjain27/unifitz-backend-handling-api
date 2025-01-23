@@ -40,9 +40,8 @@ export class BusinessController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const { businessId } = req.body;
     Logger.info(
@@ -137,9 +136,8 @@ export class BusinessController {
     const businessId = req.params.businessId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.businessService.updateBusiness(
@@ -160,9 +158,8 @@ export class BusinessController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.businessService.deleteBusiness(req.body);
@@ -181,9 +178,8 @@ export class BusinessController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.businessService.updateBusinessStatus(req.body);
@@ -199,9 +195,8 @@ export class BusinessController {
   addToInterest = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const interestRequest = req.body;
     Logger.info(

@@ -23,9 +23,8 @@ export class NewVehicleInfoController {
   create = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const addVehicleInfoRequest: INewVehicle = req.body;
     const userName = req?.userId;
@@ -114,9 +113,8 @@ export class NewVehicleInfoController {
   getAllVehicle = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const userName = req?.userId;
     const role = req?.role;
@@ -261,9 +259,8 @@ export class NewVehicleInfoController {
     const vehicleId = req.params.vehicleId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.vehicleInfoService.update(req.body, vehicleId);
@@ -306,9 +303,8 @@ export class NewVehicleInfoController {
   createTestDrive = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const interestRequest = req.body;
     Logger.info(
@@ -331,9 +327,8 @@ export class NewVehicleInfoController {
   checkAvailabilityUserTestDrive = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const interestRequest = req.body;
     Logger.info(
@@ -357,9 +352,8 @@ export class NewVehicleInfoController {
   getAllTestDrive = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const userName = req?.userId;
     const role = req?.role;
@@ -478,9 +472,8 @@ export class NewVehicleInfoController {
     const vehicleId = req.params.vehicleId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.vehicleInfoService.updateNotificationStatus(

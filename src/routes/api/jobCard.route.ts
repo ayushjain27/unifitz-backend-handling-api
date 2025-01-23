@@ -34,10 +34,7 @@ router.get(
   jobCardController.getJobCardsByStoreId
 );
 
-router.get(
-  '/jobCardById',
-  jobCardController.getJobCardById
-);
+router.get('/jobCardById', jobCardController.getJobCardById);
 
 router.put(
   '/:jobCardId',
@@ -51,9 +48,6 @@ router.get(
   jobCardController.jobCardEmail
 );
 
-router.get(
-  '/filterJobCardDetails',
-  jobCardController.filterJobCards
-);
+router.get('/filterJobCardDetails', jobCardController.filterJobCards);
 
 export default router;

@@ -88,9 +88,9 @@ export class OrderManagementService {
       if (isEmpty(customer)) {
         throw new Error('Customer not found');
       }
-      params.customerId = customer?._id;
+      params.customerId = String(customer?._id);
       params.userDetail = {
-        userId: customer?._id,
+        userId: new Types.ObjectId(customer?._id as string),
         name: customer?.fullName,
         email: customer?.email,
         phoneNumber: customer?.phoneNumber
@@ -156,6 +156,10 @@ export class OrderManagementService {
     // });
     // }
 
+
+    //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
+    // });
+    // }
     return userOrderRequest;
   }
 
@@ -164,7 +168,6 @@ export class OrderManagementService {
     const orderResponse: IUserOrderManagement = await UserOrder.findOne({
       _id: new Types.ObjectId(orderId)
     })
-      .lean()
       .populate('items.cartId') // Populate cartId in each item
       .populate('items.productId')
       .populate({
@@ -219,7 +222,7 @@ export class OrderManagementService {
       if (!customer) {
         throw new Error('Customer not found');
       }
-      query.customerId = customer._id;
+      query.customerId = String(customer._id);
     }
 
     Logger.info(
@@ -282,7 +285,7 @@ export class OrderManagementService {
 
     return orderResponse;
   }
-
+  
   async updateCartStatus(requestBody: OrderStatusRequest): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>: <Order Request Cart Status initiated>'

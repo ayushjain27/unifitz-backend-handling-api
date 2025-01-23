@@ -25,7 +25,7 @@ export class FavouriteStoreService {
     const store: IStore = await Store.findOne(
       { storeId },
       { verificationDetails: 0 }
-    ).lean();
+    );
 
     if (_.isEmpty(store)) {
       throw new Error('Store not found');
@@ -34,7 +34,7 @@ export class FavouriteStoreService {
     // Check if Customer exists
     const customer: ICustomer = await Customer.findOne({
       _id: new Types.ObjectId(customerId)
-    }).lean();
+    });
     if (_.isEmpty(customer)) {
       throw new Error('Customer not found');
     }
@@ -42,7 +42,7 @@ export class FavouriteStoreService {
     const currentFavStore: IFavouriteStore = await FavouriteStore.findOne({
       storeId: favStore.storeId,
       customerId: new Types.ObjectId(favStore.customerId)
-    }).lean();
+    });
 
     if (!_.isEmpty(currentFavStore)) {
       const res = await FavouriteStore.findOneAndUpdate(
@@ -83,7 +83,7 @@ export class FavouriteStoreService {
     const favStoreDb = await FavouriteStore.findOne({
       storeId: favStore.storeId,
       customerId: new Types.ObjectId(favStore.customerId)
-    }).lean();
+    });
     if (_.isEmpty(favStoreDb)) {
       return { isFavourite: false, favouriteId: null };
     } else {
@@ -131,7 +131,7 @@ export class FavouriteStoreService {
     // })
     //   .limit(pageSize)
     //   .skip(pageNo * pageSize)
-    //   .lean();
+    //   ;
     return allFavStore;
   }
 }

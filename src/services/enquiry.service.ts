@@ -18,7 +18,7 @@ export class EnquiryService {
   }
 
   async getAll(): Promise<IEnquiry[]> {
-    const result: IEnquiry[] = await Enquiry.find({}).lean();
+    const result: IEnquiry[] = await Enquiry.find({});
 
     return result;
   }
@@ -29,7 +29,7 @@ export class EnquiryService {
     );
     const result: IEnquiry = await Enquiry.findOne({
       _id: new Types.ObjectId(id)
-    }).lean();
+    });
     return result;
   }
 

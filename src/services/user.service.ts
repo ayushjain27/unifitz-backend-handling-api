@@ -16,7 +16,7 @@ export class UserService {
     const userResponse: IUser = await User.findOne({
       phoneNumber: userPayload.phoneNumber,
       role: userPayload.role
-    }).lean();
+    });
     return userResponse;
   }
 }

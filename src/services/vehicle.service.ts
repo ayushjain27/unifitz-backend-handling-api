@@ -30,7 +30,7 @@ export class VehicleInfoService {
     // Check if user exists
     const user: IUser = await User.findOne({
       userId: new Types.ObjectId(vehicleStore.userId)
-    }).lean();
+    });
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
@@ -74,14 +74,14 @@ export class VehicleInfoService {
     // Check if user exists
     const user: IUser = await User.findOne({
       userId: new Types.ObjectId(userId)
-    }).lean();
+    });
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
 
     const allVehicles = await VehicleInfo.find({
       userId: new Types.ObjectId(userId)
-    }).lean();
+    });
     return allVehicles;
   }
 
@@ -317,7 +317,7 @@ export class VehicleInfoService {
     }
     const user: IUser = await User.findOne({
       userId: new Types.ObjectId(vehiclePayload.userId)
-    }).lean();
+    });
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }

@@ -72,11 +72,12 @@ router.post('/otp/send', async (req: Request, res: Response) => {
           phoneNumber
         );
         if (isEmpty(user)) {
-          return res.status(HttpStatusCodes.NOT_FOUND).send({
+          res.status(HttpStatusCodes.NOT_FOUND).send({
             message: 'User not found',
             phoneNumber,
             errCode: ErrorCode.USER_NOT_FOUND
           });
+          return;
         }
       }
 
@@ -210,11 +211,12 @@ router.post('/otp/login', async (req: Request, res: Response) => {
         };
 
         const token = await generateToken(payload);
-        return res.status(HttpStatusCodes.OK).send({
+        res.status(HttpStatusCodes.OK).send({
           message: 'Login Successful',
           token,
           userId
         });
+        return;
       }
 
       // Check for test users
@@ -222,10 +224,11 @@ router.post('/otp/login', async (req: Request, res: Response) => {
       if (testUser) {
         const isMatch = testUser?.otp === verifyPayload.code;
         if (!isMatch) {
-          return res.status(HttpStatusCodes.BAD_REQUEST).send({
+          res.status(HttpStatusCodes.BAD_REQUEST).send({
             message: 'Invalid verification code :(',
             phoneNumber
           });
+          return;
         }
       } else {
         // Call the two-factor service if not a test user
@@ -234,17 +237,18 @@ router.post('/otp/login', async (req: Request, res: Response) => {
           verifyPayload.code
         );
         if (!result || result?.Status === 'Error') {
-          return res.status(HttpStatusCodes.BAD_REQUEST).send({
+          res.status(HttpStatusCodes.BAD_REQUEST).send({
             message: 'Invalid verification code :(',
             phoneNumber
           });
+          return;
         }
       }
 
       const query = {
         'store.contactInfo.phoneNumber.primary': phoneNumber
       };
-      const store = await StoreLead.findOne({ query })?.lean();
+      const store = await StoreLead.findOne({ query });
 
       if (!_.isEmpty(store) && store?.status === 'VERIFIED') {
         const jsonQuery = {

@@ -10,14 +10,16 @@ import Banner, {
 } from './../models/advertisement/Banner';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
-import { sendNotification } from '../utils/common';
 import Store from '../models/Store';
 import { AdminRole } from './../models/Admin';
 import Customer from '../models/Customer';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
 export class AdvertisementService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async uploadBannerImage(bannerId: string, req: Request | any): Promise<any> {
     Logger.info('<Service>:<AdvertisementService>:<Into the upload banner >');
@@ -25,7 +27,7 @@ export class AdvertisementService {
     if (!file) {
       throw new Error('File does not exist');
     }
-    const banner: IBanner = await Banner.findOne({ _id: bannerId })?.lean();
+    const banner: IBanner = await Banner.findOne({ _id: bannerId });
 
     if (_.isEmpty(banner)) {
       throw new Error('Banner does not exist');
@@ -95,12 +97,23 @@ export class AdvertisementService {
       ]);
 
       await storeResponse.map((item, index) => {
-        sendNotification(
-          addBanner.title,
-          addBanner.description,
-          item?.contactInfo?.phoneNumber?.primary,
-          'STORE_OWNER',
-          ''
+        // sendNotification(
+        //   addBanner.title,
+        //   addBanner.description,
+        //   item?.contactInfo?.phoneNumber?.primary,
+        //   'STORE_OWNER',
+        //   ''
+        // );
+        const data = {
+          title: addBanner.title,
+          body: addBanner.description,
+          phoneNumber: item?.contactInfo?.phoneNumber?.primary,
+          role: 'STORE_OWNER',
+          type: 'NEW_BANNERS'
+        };
+        const sqsMessage = this.sqsService.createMessage(
+          SQSEvent.NOTIFICATION,
+          data
         );
       });
     } else {
@@ -151,12 +164,23 @@ export class AdvertisementService {
       // console.log(customerResponse, 'sad;lkwm');
 
       await customerResponse.forEach((customer) => {
-        sendNotification(
-          addBanner.title,
-          addBanner.description,
-          customer.phoneNumber,
-          'USER',
-          ''
+        // sendNotification(
+        //   addBanner.title,
+        //   addBanner.description,
+        //   customer.phoneNumber,
+        //   'USER',
+        //   ''
+        // );
+        const data = {
+          title: addBanner.title,
+          body: addBanner.description,
+          phoneNumber: customer?.primary,
+          role: 'USER',
+          type: 'NEW_BANNERS'
+        };
+        const sqsMessage = this.sqsService.createMessage(
+          SQSEvent.NOTIFICATION,
+          data
         );
       });
     }
@@ -205,7 +229,7 @@ export class AdvertisementService {
   async getBannerById(bannerId: string): Promise<any> {
     Logger.info('<Service>:<AdvertisementService>:<get Banner initiated>');
 
-    const banner: IBanner = await Banner.findOne({ _id: bannerId })?.lean();
+    const banner: IBanner = await Banner.findOne({ _id: bannerId });
 
     if (_.isEmpty(banner)) {
       throw new Error('Banner does not exist');
@@ -269,7 +293,7 @@ export class AdvertisementService {
       _.isEmpty(searchReqBody.bannerPlace)
     ) {
       delete query['status'];
-      bannerResponse = await Banner.find(query).lean();
+      bannerResponse = await Banner.find(query);
     } else {
       bannerResponse = await Banner.aggregate([
         {
@@ -408,7 +432,7 @@ export class AdvertisementService {
       if (!searchReqBody.bannerPlace) {
         delete query['bannerPlace'];
       }
-      bannerResponse = await Banner.findOne(query)?.limit(6).lean();
+      bannerResponse = await Banner.findOne(query)?.limit(6);
     } else {
       bannerResponse = [];
     }
@@ -423,7 +447,7 @@ export class AdvertisementService {
       status: BannerStatus.ACTIVE
     })
       .limit(4)
-      .lean();
+      ;
     Logger.info(
       '<Service>:<AdvertisementService>:<Get All Banner for customer completed>'
     );
@@ -449,7 +473,7 @@ export class AdvertisementService {
 
   async updateBannerDetails(reqBody: IBanner, bannerId: string): Promise<any> {
     Logger.info('<Service>:<AdvertisementService>:<Update Banner status >');
-    const banner: IBanner = await Banner.findOne({ _id: bannerId })?.lean();
+    const banner: IBanner = await Banner.findOne({ _id: bannerId });
 
     if (_.isEmpty(banner)) {
       throw new Error('Banner does not exist');

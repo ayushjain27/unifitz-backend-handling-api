@@ -86,7 +86,7 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Product image uploading>');
     const product: IProduct = await Product.findOne({
       _id: new Types.ObjectId(productId)
-    })?.lean();
+    });
     if (_.isEmpty(product)) {
       throw new Error('Product does not exist');
     }
@@ -140,7 +140,7 @@ export class ProductService {
       delete query['oemUserName'];
     }
     console.log(userName, role, oemId);
-    const product: IProduct[] = await Product.find(query).lean();
+    const product: IProduct[] = await Product.find(query);
 
     return product;
   }
@@ -408,7 +408,7 @@ export class ProductService {
     );
     const product: IProduct = await Product.findOne({
       _id: new Types.ObjectId(productId)
-    }).lean();
+    });
     product.overallRating = await this.getOverallRatings(productId);
     return product;
   }
@@ -421,7 +421,7 @@ export class ProductService {
     );
     const product: IPrelistProduct = await PrelistPoduct.findOne({
       _id: new Types.ObjectId(productId)
-    }).lean();
+    });
     return product;
   }
 
@@ -432,7 +432,7 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Update Product details >');
     const productResult: IPrelistProduct = await PrelistPoduct.findOne({
       _id: productId
-    })?.lean();
+    });
 
     if (_.isEmpty(productResult)) {
       throw new Error('Product does not exist');
@@ -468,7 +468,7 @@ export class ProductService {
       '<Service>:<ProductService>: <Product Fetch: getting all the products by store id>'
     );
 
-    const products: IProduct[] = await Product.find({ storeId }).lean();
+    const products: IProduct[] = await Product.find({ storeId });
     Logger.info('<Service>:<ProductService>:<Product fetched successfully>');
     return products;
   }
@@ -586,7 +586,9 @@ export class ProductService {
       productId: new Types.ObjectId(productReviewPayload.productId),
       name: store?.basicInfo?.ownerName || customer?.fullName,
       storeId: productReviewPayload?.storeId,
-      userId: customer?._id,
+      userId: customer?._id
+        ? new Types.ObjectId(customer._id as string)
+        : undefined,
       userName: productReviewPayload?.userName || ''
     };
 
@@ -700,7 +702,7 @@ export class ProductService {
 
     const product: IProduct = await Product.findOne({
       _id: new Types.ObjectId(productId)
-    })?.lean();
+    });
     if (_.isEmpty(product)) {
       throw new Error('Product does not exist');
     }
@@ -731,7 +733,7 @@ export class ProductService {
 
     const preListProduct: IPrelistProduct = await PrelistPoduct.findOne({
       _id: new Types.ObjectId(prelistId)
-    })?.lean();
+    });
 
     if (_.isEmpty(preListProduct)) {
       throw new Error('Prelist Product does not exist');
@@ -765,7 +767,7 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Product image uploading>');
     const prelistProduct: IPrelistProduct = await PrelistPoduct.findOne({
       _id: new Types.ObjectId(productId)
-    })?.lean();
+    });
     if (_.isEmpty(prelistProduct)) {
       throw new Error('Product does not exist');
     }
@@ -1033,9 +1035,7 @@ export class ProductService {
     }
     console.log(userName, role, oemId, 'partner');
 
-    const product: IB2BPartnersProduct[] = await PartnersPoduct.find(
-      query
-    ).lean();
+    const product: IB2BPartnersProduct[] = await PartnersPoduct.find(query);
 
     return product;
   }
@@ -1497,14 +1497,14 @@ export class ProductService {
 
     const newProd: IB2BPartnersProduct = await PartnersPoduct.findOne({
       _id: partnerProductId
-    })?.lean();
+    });
 
     if (_.isEmpty(newProd)) {
       throw new Error('Partner product does not exist');
     }
     const userData = await Admin.findOne({
       userName: newProd?.oemUserName
-    })?.lean();
+    });
     const jsonData = {
       ...newProd,
       partnerDetail: userData
@@ -1521,7 +1521,7 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Update Product details >');
     const partnerResult: IB2BPartnersProduct = await PartnersPoduct.findOne({
       _id: partnerProductId
-    })?.lean();
+    });
 
     if (_.isEmpty(partnerResult)) {
       throw new Error('Product does not exist');
@@ -1617,7 +1617,7 @@ export class ProductService {
   //   Logger.info('<Service>:<ProductService>:<Product image uploading>');
   //   const prelistProduct: IB2BPartnersProduct = await PartnersPoduct.findOne({
   //     _id: new Types.ObjectId(partnerProductId)
-  //   })?.lean();
+  //   });
   //   if (_.isEmpty(prelistProduct)) {
   //     throw new Error('Product does not exist');
   //   }
@@ -1664,9 +1664,9 @@ export class ProductService {
     req: Request | any
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Upload Vehicles initiated>');
-    const partnerProduct: any = await PartnersPoduct.findOne({
-      _id: partnerProductId
-    })?.lean();
+    const partnerProduct = await PartnersPoduct.findOne({
+      _id: new Types.ObjectId(partnerProductId)
+    });
 
     if (_.isEmpty(partnerProduct)) {
       throw new Error('Product does not exist');
@@ -1861,7 +1861,7 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Update Product details >');
     const partnerResult: any = await ProductCartModel.findOne({
       _id: cartId
-    })?.lean();
+    });
 
     if (_.isEmpty(partnerResult)) {
       throw new Error('Product does not exist');
@@ -1934,7 +1934,7 @@ export class ProductService {
     } else {
       const phoneNumber = requestBody.phoneNumber.slice(-10);
       const customer = await this.customerService.getByPhoneNumber(phoneNumber);
-      params.customerId = customer?._id;
+      params.customerId = String(customer?._id);
     }
     params.isDefault = false;
 
@@ -1951,7 +1951,7 @@ export class ProductService {
       await ProductOrderAddress.find({
         phoneNumber: `+91${phoneNumber?.slice(-10)}`,
         userRole
-      }).lean();
+      });
     return productOrderAddressResponse;
   }
 
@@ -1962,7 +1962,7 @@ export class ProductService {
     const productOrderAddressResponse: IProductOrderAddress =
       await ProductOrderAddress.findOne({
         _id: new Types.ObjectId(addressId)
-      }).lean();
+      });
     if (isEmpty(productOrderAddressResponse)) {
       throw new Error('Address not found');
     }
@@ -1971,10 +1971,19 @@ export class ProductService {
 
   async deleteAddressById(addressId: string): Promise<IProductOrderAddress> {
     Logger.info('<Service>:<ProductService>:<Delete address by id>');
-    const productOrderAddressResponse: IProductOrderAddress =
-      await ProductOrderAddress.deleteOne({
+    // Use `findByIdAndDelete` to delete and return the deleted document
+    const productOrderAddressResponse =
+      await ProductOrderAddress.findOneAndDelete({
         _id: new Types.ObjectId(addressId)
-      }).lean();
+      });
+
+    if (!productOrderAddressResponse) {
+      throw new Error('Address not found or already deleted');
+    }
+    // const productOrderAddressResponse: IProductOrderAddress =
+    //   await ProductOrderAddress.deleteOne({
+    //     _id: new Types.ObjectId(addressId)
+    //   });
     return productOrderAddressResponse;
   }
 
@@ -1986,7 +1995,7 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Get all addresses>');
     const address: IProductOrderAddress = await ProductOrderAddress.findOne({
       _id: new Types.ObjectId(addressId)
-    }).lean();
+    });
     if (isEmpty(address)) {
       throw new Error('Address not found');
     }
@@ -1999,7 +2008,7 @@ export class ProductService {
         },
         { $set: { isDefault: false } },
         { new: true }
-      ).lean();
+      );
     const productOrderAddressResponse: IProductOrderAddress =
       await ProductOrderAddress.findOneAndUpdate(
         {
@@ -2007,7 +2016,7 @@ export class ProductService {
         },
         { $set: { isDefault: true } },
         { new: true }
-      ).lean();
+      );
     return productOrderAddressResponse;
   }
 

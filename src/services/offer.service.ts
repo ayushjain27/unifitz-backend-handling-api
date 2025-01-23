@@ -64,7 +64,7 @@ export class OfferService {
     }
     const offerResult: IOffer = await OfferModel.findOne({
       _id: offerId
-    })?.lean();
+    });
 
     if (_.isEmpty(offerResult)) {
       throw new Error('Offer does not exist');
@@ -334,7 +334,7 @@ export class OfferService {
 
     const offerResult: IOffer = await OfferModel.findOne({
       _id: offerId
-    })?.lean();
+    });
 
     if (_.isEmpty(offerResult)) {
       throw new Error('Offer does not exist');
@@ -348,7 +348,7 @@ export class OfferService {
     Logger.info('<Service>:<OfferService>:<Update Offer details >');
     const offerResult: IOffer = await OfferModel.findOne({
       _id: offerId
-    })?.lean();
+    });
     if (_.isEmpty(offerResult)) {
       throw new Error('Offer does not exist');
     }

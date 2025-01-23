@@ -50,7 +50,7 @@ export class EmployeeService {
     Logger.info('<Service>:<CustomerService>:<Customer image uploading>');
     const employee: IEmployee = await Employee.findOne({
       _id: new Types.ObjectId(employeeId)
-    })?.lean();
+    });
     if (_.isEmpty(employee)) {
       throw new Error('employee does not exist');
     }
@@ -86,7 +86,7 @@ export class EmployeeService {
     const employees: IEmployee[] = await Employee.find({
       storeId,
       status: 'ACTIVE'
-    }).lean();
+    });
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employees;
   }
@@ -98,7 +98,7 @@ export class EmployeeService {
     const employee: IEmployee = await Employee.findOne({
       phoneNumber: phoneNumber?.slice(-10),
       status: EmployeeStatus.ACTIVE
-    }).lean();
+    });
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employee;
   }
@@ -136,13 +136,13 @@ export class EmployeeService {
     Logger.info(
       '<Service>:<EmployeeService>: <Employee Fetch: getting all the employees by store id>'
     );
-    let employee: IEmployee = await Employee.findOne({ storeId }).lean();
+    let employee: IEmployee = await Employee.findOne({ storeId });
     if (_.isEmpty(employee)) {
       throw new Error('Store Id not exists');
     }
     employee = await Employee.findOne({
       _id: new Types.ObjectId(employeeId)
-    }).lean();
+    });
     Logger.info('<Service>:<EmployeeService>:<Employee fetched successfully>');
     return employee;
   }

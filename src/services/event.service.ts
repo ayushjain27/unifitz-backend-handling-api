@@ -55,7 +55,7 @@ export class EventService {
     }
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -294,7 +294,7 @@ export class EventService {
 
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -308,7 +308,7 @@ export class EventService {
     Logger.info('<Service>:<EventService>:<Update Event details >');
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -363,14 +363,14 @@ export class EventService {
       Store.findOne(
         { storeId: reqBody.storeId },
         { verificationDetails: 0 }
-      ).lean(),
-      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      ),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }),
       EventModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
-      }).lean(),
+      }),
       OfferModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
-      }).lean()
+      })
     ]);
     let newInterest: IInterestedEventAndOffer = reqBody;
     newInterest.name = store?.basicInfo?.ownerName || customer?.fullName;
@@ -439,8 +439,8 @@ export class EventService {
   async getAllInterest(): Promise<any> {
     Logger.info('<Service>:<EventService>:<get event offer interest >');
 
-    const interestResult: IInterestedEventAndOffer =
-      await InterestedEventAndOffer.find().lean();
+    const interestResult: IInterestedEventAndOffer[] =
+      await InterestedEventAndOffer.find();
 
     return interestResult;
   }

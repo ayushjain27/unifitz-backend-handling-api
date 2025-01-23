@@ -21,10 +21,7 @@ router.post(
   createInvoiceController.createAdditionalItems
 );
 
-router.get(
-  '/invoiceDetail/:id',
-  createInvoiceController.getInvoiceById
-);
+router.get('/invoiceDetail/:id', createInvoiceController.getInvoiceById);
 
 router.get(
   '/invoiceDetails/:storeId',

@@ -103,9 +103,8 @@ export class SchoolOfAutoController {
     const schoolOfAutoId = req.params.schoolOfAutoId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.schoolOfAutoService.update(
@@ -126,9 +125,8 @@ export class SchoolOfAutoController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.schoolOfAutoService.delete(req.body);
@@ -149,9 +147,8 @@ export class SchoolOfAutoController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.schoolOfAutoService.updateStatus(req.body);

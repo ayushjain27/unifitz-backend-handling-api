@@ -53,11 +53,11 @@ import cron from 'node-cron';
 import Customer from './models/Customer';
 // Connect to MongoDB
 
-AWS.config.update({
-  accessKeyId: s3Config.AWS_KEY_ID,
-  secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
-});
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-south-1'
+// });
 
 require('./config/database');
 
@@ -412,7 +412,7 @@ app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
 });
 
-app.use(errorHandler);
+app.use(errorHandler as any);
 
 const port = app.get('port');
 const server = app.listen(port, () =>
@@ -449,7 +449,7 @@ const server = app.listen(port, () =>
 //       //Stores Delete
 //       let stores = await Store.find({
 //         'contactInfo.phoneNumber.primary': `+91${phoneNumber}`
-//       }).lean();
+//       });
 
 //       for (let store of stores) {
 //         await Store.deleteOne({ storeId: store.storeId }, { session });
@@ -601,8 +601,8 @@ app.get('/slug', async (req, res) => {
   updateSlug();
 });
 
-const sqs = new AWS.SQS();
-const ses = new AWS.SES();
+// const sqs = new AWS.SQS();
+// const ses = new AWS.SES();
 const path = require('path');
 
 // app.get('/createTemplate', async (req, res) => {

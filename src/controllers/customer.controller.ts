@@ -23,9 +23,8 @@ export class CustomerController {
   create = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const customerPayload: ICustomer = req.body;
     customerPayload.phoneNumber = appendCodeToPhone(

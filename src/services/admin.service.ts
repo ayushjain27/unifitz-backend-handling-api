@@ -171,7 +171,9 @@ export class AdminService {
       throw new Error('File does not exist');
     }
 
-    const admin: IAdmin = await Admin.findOne({ userName: userId })?.lean();
+    const admin: IAdmin = (await Admin.findOne({
+      userName: userId
+    })) as IAdmin;
 
     if (_.isEmpty(admin)) {
       throw new Error('User does not exist');
@@ -194,7 +196,7 @@ export class AdminService {
     userName: string,
     password: string
   ): Promise<{ user: IAdmin; token: string }> {
-    // const admin: IAdmin = await Admin.findOne({ userName })?.lean();
+    // const admin: IAdmin = await Admin.findOne({ userName });
     const query = {
       userName: userName
     };
@@ -284,7 +286,7 @@ export class AdminService {
   }
 
   async updatePassword(userName: string, password: string): Promise<any> {
-    const admin: IAdmin = await Admin.findOne({ userName })?.lean();
+    const admin: IAdmin = (await Admin.findOne({ userName })) as IAdmin;
     if (_.isEmpty(admin)) {
       throw new Error('User does not exist');
     }
@@ -476,10 +478,10 @@ export class AdminService {
     Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
     let store: IStore;
     if (distributedPartersReview?.storeId) {
-      store = await Store.findOne(
+      store = (await Store.findOne(
         { storeId: distributedPartersReview.storeId },
         { verificationDetails: 0 }
-      )?.lean();
+      )) as IStore;
     }
     if (!distributedPartersReview?.storeId) {
       throw new Error('Store not found');
@@ -556,8 +558,7 @@ export class AdminService {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
     const storeReviews = await DistributorPartnersReview.find({ userName })
       .skip(pageNo * pageSize)
-      .limit(pageSize)
-      .lean();
+      .limit(pageSize);
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );

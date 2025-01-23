@@ -21,9 +21,8 @@ export class AdvertisementController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const { bannerId } = req.body;
     Logger.info(
@@ -44,9 +43,8 @@ export class AdvertisementController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     Logger.info(
       '<Controller>:<AdvertisementController>:<Upload Banner request initiated>'
@@ -173,9 +171,8 @@ export class AdvertisementController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adService.getAllBannerForCustomer();
@@ -195,9 +192,8 @@ export class AdvertisementController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adService.updateBannerStatus(req.body);
@@ -218,9 +214,8 @@ export class AdvertisementController {
     const bannerId = req.params.bannerId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adService.updateBannerDetails(
@@ -241,9 +236,8 @@ export class AdvertisementController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adService.deleteBanner(req.body);

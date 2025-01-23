@@ -62,7 +62,7 @@ export class CustomerService {
     Logger.info('<Service>:<CustomerService>:<Customer image uploading>');
     const customer: ICustomer = await Customer.findOne({
       _id: new Types.ObjectId(customerId)
-    })?.lean();
+    });
     if (_.isEmpty(customer)) {
       throw new Error('customer does not exist');
     }
@@ -97,7 +97,7 @@ export class CustomerService {
 
     const customerResponse: ICustomer = await Customer.findOne({
       phoneNumber: `+91${phoneNumber.slice(-10)}`
-    }).lean();
+    });
     return customerResponse;
   }
 
@@ -137,7 +137,7 @@ export class CustomerService {
     if (searchQuery) {
       query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
     }
-    const customerResponse: any = await Customer.count(query);
+    const customerResponse: any = await Customer.countDocuments(query);
     const result = {
       count: customerResponse
     };
