@@ -42,7 +42,7 @@ export interface VerifyBusinessRequest {
 export interface VerifyCustomerRequest {
   documentNo: string;
   documentType: DocType;
-  phoneNumber?: string;
+  customerId?: string;
 }
 
 export interface ApproveBusinessVerifyRequest {
