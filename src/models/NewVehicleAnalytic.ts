@@ -88,7 +88,7 @@ const newVehicleAnalyticSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-newVehicleAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
+// newVehicleAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
 
 const NewVehicleAnalyticModel = model<INewVehicleAnalytic & Document>(
   'newvehicleanalytics',

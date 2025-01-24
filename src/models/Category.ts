@@ -43,7 +43,7 @@ const categorySchema: Schema = new Schema<ICategory>(
   { timestamps: true }
 );
 
-categorySchema.index({ 'contactInfo.geoLocation': '2dsphere' });
+// categorySchema.index({ 'contactInfo.geoLocation': '2dsphere' });
 
 const Category = model<ICategory>('catalogs', categorySchema);
 

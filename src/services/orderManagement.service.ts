@@ -165,19 +165,19 @@ export class OrderManagementService {
 
   async getOrderById(orderId: string): Promise<IUserOrderManagement> {
     Logger.info('<Service>:<OrderManagementService>:<Get order by id>');
-    // const orderResponse: IUserOrderManagement = await UserOrder.findOne({
-    //   _id: new Types.ObjectId(orderId)
-    // })
-    //   .populate('items.cartId') // Populate cartId in each item
-    //   .populate('items.productId')
-    //   .populate({
-    //     path: 'paymentMode.oemUserName', // Field to populate
-    //     model: 'admin_user', // Target collection
-    //     match: {}, // Optional: Add filters if needed
-    //     localField: 'oemUserName', // Field in paymentModeSchema
-    //     foreignField: 'userName' // Corresponding field in admin_user collection
-    //   }); // Populate productId in each item
-    const orderResponse: any = [];
+    const orderResponse: IUserOrderManagement = await UserOrder.findOne({
+      _id: new Types.ObjectId(orderId)
+    })
+      .populate('items.cartId') // Populate cartId in each item
+      .populate('items.productId')
+      .populate({
+        path: 'paymentMode.oemUserName', // Field to populate
+        model: 'admin_user', // Target collection
+        match: {}, // Optional: Add filters if needed
+        localField: 'oemUserName', // Field in paymentModeSchema
+        foreignField: 'userName' // Corresponding field in admin_user collection
+      }); // Populate productId in each item
+    // const orderResponse: any = [];
     return orderResponse;
   }
 

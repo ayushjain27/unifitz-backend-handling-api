@@ -83,7 +83,7 @@ const marketingAnalyticSchema: Schema = new Schema(
   }
 );
 
-marketingAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
+// marketingAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
 
 const MarketingAnalyticModel = model<IMarketingAnalytic & Document>(
   'marketinganalytics',
