@@ -15,7 +15,7 @@ import {
   OrderStatusRequest
 } from '../interfaces/orderRequest.interface';
 import UserOrder, { IUserOrderManagement } from '../models/UserOrderManagement';
-import { isEmpty } from 'lodash';
+import _, { isEmpty } from 'lodash';
 import DistributorOrder from '../models/DistributorOrderManagement';
 import ProductCartModel from '../models/ProductCart';
 import { SQSService } from './sqs.service';
@@ -23,6 +23,7 @@ import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from './../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
 import { StaticIds } from '../models/StaticId';
+import { SparePost } from '../models/SparePostRequirement';
 
 @injectable()
 export class OrderManagementService {
@@ -156,7 +157,6 @@ export class OrderManagementService {
     // });
     // }
 
-
     //   await DistributorOrder.create(distributorOrderData); // Assuming DistributorOrder model
     // });
     // }
@@ -165,19 +165,19 @@ export class OrderManagementService {
 
   async getOrderById(orderId: string): Promise<IUserOrderManagement> {
     Logger.info('<Service>:<OrderManagementService>:<Get order by id>');
-    const orderResponse: IUserOrderManagement = await UserOrder.findOne({
-      _id: new Types.ObjectId(orderId)
-    })
-      .populate('items.cartId') // Populate cartId in each item
-      .populate('items.productId')
-      .populate({
-        path: 'paymentMode.oemUserName', // Field to populate
-        model: 'admin_user', // Target collection
-        match: {}, // Optional: Add filters if needed
-        localField: 'oemUserName', // Field in paymentModeSchema
-        foreignField: 'userName' // Corresponding field in admin_user collection
-      }); // Populate productId in each item
-    // const orderResponse: any = [];
+    // const orderResponse: IUserOrderManagement = await UserOrder.findOne({
+    //   _id: new Types.ObjectId(orderId)
+    // })
+    //   .populate('items.cartId') // Populate cartId in each item
+    //   .populate('items.productId')
+    //   .populate({
+    //     path: 'paymentMode.oemUserName', // Field to populate
+    //     model: 'admin_user', // Target collection
+    //     match: {}, // Optional: Add filters if needed
+    //     localField: 'oemUserName', // Field in paymentModeSchema
+    //     foreignField: 'userName' // Corresponding field in admin_user collection
+    //   }); // Populate productId in each item
+    const orderResponse: any = [];
     return orderResponse;
   }
 
@@ -285,7 +285,7 @@ export class OrderManagementService {
 
     return orderResponse;
   }
-  
+
   async updateCartStatus(requestBody: OrderStatusRequest): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>: <Order Request Cart Status initiated>'
@@ -959,5 +959,126 @@ export class OrderManagementService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  async createSparePostRequirement(sparePostList?: any) {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<create sparePosts service initiated>'
+    );
+    const query = sparePostList;
+
+    const result = await SparePost.create(query);
+    return result;
+  }
+
+  async updateAudio(fileID: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<Upload Audio initiated>');
+    const sparePostInfo = await SparePost.findOne(
+      { _id: fileID },
+      { verificationDetails: 0 }
+    );
+    if (_.isEmpty(sparePostInfo)) {
+      throw new Error('File does not exist');
+    }
+
+    const files: any = req.files;
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    const audioList: any = [];
+
+    for (const file of files) {
+      const fileName = file.originalname;
+      const { key, url } = await this.s3Client.uploadAudio(
+        fileID,
+        fileName,
+        file.buffer
+      );
+      audioList.push({ key, docURL: url });
+    }
+
+    const audioUrl = audioList[0] || '';
+
+    const queryJson = {
+      audioUrl
+    };
+
+    console.log(queryJson, sparePostInfo, 'sparePostInfo');
+
+    if (!audioUrl) delete queryJson['audioUrl'];
+
+    const res = await SparePost.findOneAndUpdate(
+      { _id: fileID },
+      { $set: queryJson },
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
+    );
+    return res;
+  }
+
+  async updateImage(fileID: string, req: Request | any): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<Upload Audio initiated>');
+    const sparePostInfo = await SparePost.findOne(
+      { _id: fileID },
+      { verificationDetails: 0 }
+    );
+    if (_.isEmpty(sparePostInfo)) {
+      throw new Error('File does not exist');
+    }
+
+    const files: any = req.files;
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    const imageList: any = [];
+
+    for (const file of files) {
+      const fileName = file.originalname;
+      const { key, url } = await this.s3Client.uploadFile(
+        fileID,
+        fileName,
+        file.buffer
+      );
+      imageList.push({ key, docURL: url });
+    }
+
+    const sparePartImage = imageList[0] || '';
+
+    const queryJson = {
+      sparePartImage
+    };
+
+    if (!sparePartImage) delete queryJson['sparePartImage'];
+
+    const res = await SparePost.findOneAndUpdate(
+      { _id: fileID },
+      { $set: queryJson },
+      {
+        returnDocument: 'after',
+        projection: { 'verificationDetails.verifyObj': 0 }
+      }
+    );
+    return res;
+  }
+
+  async getSparePostRequirementDetails(sparePostId: string): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
+
+    const jsonResult = await SparePost.findOne({
+      _id: sparePostId
+    })?.lean();
+
+    if (_.isEmpty(jsonResult)) {
+      throw new Error('SparePost Requirement does not exist');
+    }
+    Logger.info(
+      '<Service>:<OrderManagementService>:<get SparePost successful>'
+    );
+
+    return jsonResult;
   }
 }

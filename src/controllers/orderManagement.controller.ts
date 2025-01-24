@@ -258,6 +258,80 @@ export class OrderManagementController {
     }
   };
 
+  createSparePostRequirement = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<create SparePost request controller initiated>'
+      );
+      const result =
+        await this.orderManagementService.createSparePostRequirement(req.body);
+      res.send({
+        result,
+        created: 'successful'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateAudio = async (req: Request, res: Response) => {
+    const { fileID } = req.body;
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Upload audio request initiated>'
+    );
+    try {
+      const result = await this.orderManagementService.updateAudio(fileID, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateImage = async (req: Request, res: Response) => {
+    const { fileID } = req.body;
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Upload image request initiated>'
+    );
+    try {
+      const result = await this.orderManagementService.updateImage(fileID, req);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getSparePostRequirementDetails = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
+    try {
+      const sparePostId = req.query.sparePostId;
+      const result =
+        await this.orderManagementService.getSparePostRequirementDetails(
+          sparePostId as string
+        );
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<get successfully>'
+      );
+      res.send({
+        message: 'Marketing obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createOrder':

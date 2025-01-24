@@ -971,7 +971,7 @@ export class AdminService {
     })?.lean();
 
     if (_.isEmpty(jsonResult)) {
-      throw new Error('vehicle does not exist');
+      throw new Error('video does not exist');
     }
     Logger.info('<Service>:<adminService>:<Upload marketing successful>');
 

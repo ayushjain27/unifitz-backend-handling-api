@@ -18,6 +18,8 @@ export class S3Service {
   private client: S3Client;
   private readonly bucketName: string = s3Config.BUCKET_NAME;
   private readonly videoBucketName: string = s3Config.VIDEO_BUCKET_NAME;
+  private readonly audioBucketName: string = s3Config.AUDIO_BUCKET_NAME;
+
   constructor(@inject(TYPES.S3Client) client: S3Client) {
     this.client = client;
   }
@@ -83,6 +85,36 @@ export class S3Service {
       await this.client.send(new PutObjectCommand(params));
       const location = this.getLocation(
         this.videoBucketName,
+        params.Key as string
+      );
+      return {
+        key: params.Key,
+        url: location
+      };
+    } catch (err) {
+      Logger.error('err in s3', err);
+      throw new Error('There is some problem with file uploading');
+    }
+  }
+
+  async uploadAudio(
+    keySalt: string,
+    fileName: string,
+    fileBuffer: Buffer
+  ): Promise<{
+    key: string;
+    url: string;
+  }> {
+    Logger.info('<Service>:<S3-Service>:<Doc upload starting>');
+    const params: PutObjectCommandInput = {
+      Bucket: this.audioBucketName,
+      Key: `${keySalt}/${fileName}`,
+      Body: fileBuffer
+    };
+    try {
+      await this.client.send(new PutObjectCommand(params));
+      const location = this.getLocation(
+        this.audioBucketName,
         params.Key as string
       );
       return {

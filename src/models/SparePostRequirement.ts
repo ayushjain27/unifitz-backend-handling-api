@@ -3,10 +3,10 @@ import { model, Schema } from 'mongoose';
 export interface ISparePostRequirement {
   storeId: string;
   vehicleType: string;
-  sparePartImage: string;
+  sparePartImage: { key: string; docURL: string };
   description: string;
-  audioDescription: string;
   customerId: string;
+  audioUrl: { key: string; docURL: string };
 }
 
 const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
@@ -24,17 +24,13 @@ const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
     description: {
       type: String
     },
-    audioDescription: {
-      type: String
-    },
-    sparePartImage: {
-      type: String
-    }
+    sparePartImage: { type: { key: String, docURL: String } },
+    audioUrl: { type: { key: String, docURL: String } }
   },
   { timestamps: true }
 );
 
-export const StaticIds = model<ISparePostRequirement>(
+export const SparePost = model<ISparePostRequirement>(
   'sparePostRequirement',
   sparePostRequirement
 );
