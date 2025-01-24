@@ -190,7 +190,7 @@ export class CustomerService {
     try {
       // get the store data
       const customerDetails = await Customer.findOne({
-        phoneNumber: payload.phoneNumber
+        customerId: payload.customerId
       });
 
       if (_.isEmpty(customerDetails)) {
