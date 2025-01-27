@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Logger from '../config/winston';
 import Customer, { ICustomer } from './../models/Customer';
 import container from '../config/inversify.container';
@@ -62,7 +62,7 @@ export class CustomerService {
     Logger.info('<Service>:<CustomerService>:<Customer image uploading>');
     const customer: ICustomer = await Customer.findOne({
       _id: new Types.ObjectId(customerId)
-    })?.lean();
+    });
     if (_.isEmpty(customer)) {
       throw new Error('customer does not exist');
     }
@@ -97,13 +97,27 @@ export class CustomerService {
 
     const customerResponse: ICustomer = await Customer.findOne({
       phoneNumber: `+91${phoneNumber.slice(-10)}`
-    }).lean();
+    });
     return customerResponse;
   }
 
   async getAll(): Promise<ICustomer[]> {
     Logger.info('<Service>:<CustomerService>:<Get all customers>');
     const customerResponse: ICustomer[] = (await Customer.find({})).reverse();
+    return customerResponse;
+  }
+
+  async getcustomerDetailsByCustomerId(customerId: string): Promise<any> {
+    Logger.info('<Service>:<CustomerService>:<Get customer by customer id>');
+    const customerResponse: ICustomer = await Customer.findOne({
+      customerId: customerId
+    });
+    if (isEmpty(customerResponse)) {
+      return {
+        message: 'Customer Not Found',
+        isPresent: false
+      };
+    }
     return customerResponse;
   }
 
@@ -123,7 +137,7 @@ export class CustomerService {
     if (searchQuery) {
       query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
     }
-    const customerResponse: any = await Customer.count(query);
+    const customerResponse: any = await Customer.countDocuments(query);
     const result = {
       count: customerResponse
     };
@@ -176,7 +190,7 @@ export class CustomerService {
     try {
       // get the store data
       const customerDetails = await Customer.findOne({
-        phoneNumber: payload.phoneNumber
+        customerId: payload.customerId
       });
 
       if (_.isEmpty(customerDetails)) {

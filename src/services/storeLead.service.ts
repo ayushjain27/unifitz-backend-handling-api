@@ -353,7 +353,7 @@ export class StoreLeadService {
     if (_.isEmpty(userType) && _.isEmpty(status) && _.isEmpty(verifiedStore)) {
       stores = await StoreLead.find(query, {
         'verificationDetails.verifyObj': 0
-      }).lean();
+      });
     }
     if (
       !_.isEmpty(userType) ||
@@ -431,7 +431,7 @@ export class StoreLeadService {
           _id: payload.storeId
         },
         { 'store.verificationDetails': 0 }
-      ).lean();
+      );
 
       const updatedStore = await this.updateStoreDetails(
         payload.verificationDetails,
@@ -508,7 +508,7 @@ export class StoreLeadService {
       // get the store data
       const storeDetails = await StoreLead.findOne({
         storeId: payload.storeId
-      }).lean();
+      });
 
       if (_.isEmpty(storeDetails)) {
         throw new Error('Store does not exist');
@@ -518,7 +518,7 @@ export class StoreLeadService {
         const userDetails = await User.findOne(
           { phoneNumber, role },
           { verificationDetails: 0 }
-        ).lean();
+        );
 
         if (_.isEmpty(userDetails)) {
           throw new Error('User does not exist');
@@ -606,8 +606,6 @@ export class StoreLeadService {
     if (oemId === 'SERVICEPLUG') {
       delete query['store.userName'];
     }
-
-    console.log(query, 'FEWFm');
 
     const basePipeline: any = [
       {
@@ -749,39 +747,39 @@ export class StoreLeadService {
       delete query['store.userName'];
     }
 
-    const total = await StoreLead.count({ ...query });
+    const total = await StoreLead.countDocuments({ ...query });
     if (status === 'PENDING_FOR_VERIFICATION' || !status) {
-      pendingForVerification = await StoreLead.count({
+      pendingForVerification = await StoreLead.countDocuments({
         status: 'PENDING_FOR_VERIFICATION',
         ...query
       });
     }
     if (status === 'REJECTED' || !status) {
-      rejected = await StoreLead.count({
+      rejected = await StoreLead.countDocuments({
         status: 'REJECTED',
         ...query
       });
     }
     // if (status === 'CREATED' || !status) {
-    //   created = await StoreLead.count({
+    //   created = await StoreLead.countDocument({
     //     status: 'CREATED',
     //     ...query
     //   });
     // }
     if (status === 'VERIFIED' || !status) {
-      verified = await StoreLead.count({
+      verified = await StoreLead.countDocuments({
         status: 'VERIFIED',
         ...query
       });
     }
     if (status === 'FOLLOWUP' || !status) {
-      followUp = await StoreLead.count({
+      followUp = await StoreLead.countDocuments({
         status: 'FOLLOWUP',
         ...query
       });
     }
     if (status === 'APPROVED' || !status) {
-      approved = await StoreLead.count({
+      approved = await StoreLead.countDocuments({
         status: 'APPROVED',
         ...query
       });
@@ -800,7 +798,7 @@ export class StoreLeadService {
     //     delete query['oemUserName'];
     //   }
 
-    //   partnerdraft = await StoreLead.count({
+    //   partnerdraft = await StoreLead.countDocument({
     //     profileStatus: 'DRAFT',
     //     ...query
     //   });

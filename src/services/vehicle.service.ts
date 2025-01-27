@@ -16,6 +16,7 @@ import { S3Service } from './s3.service';
 import { AdminRole } from './../models/Admin';
 import User, { IUser } from './../models/User';
 import { SurepassService } from './surepass.service';
+import Customer, { ICustomer } from '../models/Customer';
 
 @injectable()
 export class VehicleInfoService {
@@ -28,9 +29,9 @@ export class VehicleInfoService {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
 
     // Check if user exists
-    const user: IUser = await User.findOne({
-      userId: new Types.ObjectId(vehicleStore.userId)
-    }).lean();
+    const user: ICustomer = await Customer.findOne({
+      _id: new Types.ObjectId(vehicleStore.userId)
+    });
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
@@ -72,16 +73,16 @@ export class VehicleInfoService {
 
   async getAllVehicleByUser(userId: string): Promise<any> {
     // Check if user exists
-    const user: IUser = await User.findOne({
-      userId: new Types.ObjectId(userId)
-    }).lean();
+    const user: ICustomer = await Customer.findOne({
+      _id: new Types.ObjectId(userId)
+    });
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }
 
     const allVehicles = await VehicleInfo.find({
       userId: new Types.ObjectId(userId)
-    }).lean();
+    });
     return allVehicles;
   }
 
@@ -315,9 +316,9 @@ export class VehicleInfoService {
         '<Service>:<updatedVehicle>:<Vehicle not found with that vehicle Id>'
       );
     }
-    const user: IUser = await User.findOne({
-      userId: new Types.ObjectId(vehiclePayload.userId)
-    }).lean();
+    const user: ICustomer = await Customer.findOne({
+      _id: new Types.ObjectId(vehiclePayload.userId)
+    });
     if (_.isEmpty(user)) {
       throw new Error('User not found');
     }

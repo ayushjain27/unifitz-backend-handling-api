@@ -39,7 +39,6 @@ import spEmployee from './routes/api/spEmployee';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
-import AWS from 'aws-sdk';
 import { API_VERSION, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
@@ -53,11 +52,11 @@ import cron from 'node-cron';
 import Customer from './models/Customer';
 // Connect to MongoDB
 
-AWS.config.update({
-  accessKeyId: s3Config.AWS_KEY_ID,
-  secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
-});
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-south-1'
+// });
 
 require('./config/database');
 
@@ -169,6 +168,72 @@ app.get('/category', async (req, res) => {
     list: result
   });
 });
+app.get('/productCategory', async (req: any, res: any) => {
+  const catalogType = 'productCategory';
+  const categoryList: ICatalog[] = await Catalog.find({
+    parent: 'root',
+    catalogType
+  });
+  const result = categoryList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(
+      ({
+        _id,
+        catalogName,
+        tree,
+        parent,
+        catalogType,
+        catalogIcon,
+        catalogWebIcon
+      }) => {
+        return {
+          _id,
+          catalogName,
+          tree,
+          parent,
+          catalogType,
+          catalogIcon,
+          catalogWebIcon
+        };
+      }
+    );
+  res.json({
+    list: result
+  });
+});
+app.post('/productBrand', async (req, res) => {
+  const { subCategoryList, category } = req.body;
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(subCategoryList)) {
+    subCategoryList.forEach((subCat) => {
+      if (subCat?.tree) {
+        treeVal.push(`${subCat.tree}/${subCat.catalogName}`);
+      } else {
+        treeVal.push(`root/${category}/${subCat}`);
+      }
+    });
+  }
+  query = { tree: { $in: treeVal } };
+  const categoryList: ICatalog[] = await Catalog.find(query);
+  let result = categoryList.map(
+    ({ _id, catalogName, tree, parent, catalogType }) => {
+      return { _id, catalogName, tree, parent, catalogType };
+    }
+  );
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
+  });
+  res.json({
+    list: result
+  });
+});
 
 // TODO: Remove this API once app is launced to new v2
 app.get('/subCategory', async (req, res) => {
@@ -187,6 +252,39 @@ app.get('/subCategory', async (req, res) => {
 });
 
 app.post('/subCategory', async (req, res) => {
+  const { categoryList } = req.body;
+  const catalogType = req.body.catalogType || 'subCategory';
+  let query = {};
+  const treeVal: string[] = [];
+  if (Array.isArray(categoryList)) {
+    categoryList.forEach((category) => {
+      treeVal.push(`root/${category.catalogName}`);
+    });
+  } else {
+    treeVal.push(`root/${categoryList}`);
+  }
+  query = { tree: { $in: treeVal }, catalogType };
+  const subCatList: ICatalog[] = await Catalog.find(query);
+  let result = subCatList
+    .sort((a, b) =>
+      a.displayOrder > b.displayOrder
+        ? 1
+        : b.displayOrder > a.displayOrder
+        ? -1
+        : 0
+    )
+    .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
+      return { _id, catalogName, tree, parent, catalogType, catalogIcon };
+    });
+  result = _.uniqBy(result, (e: ICatalog) => {
+    return e.catalogName;
+  });
+  res.json({
+    list: result
+  });
+});
+
+app.post('/productSubCategory', async (req, res) => {
   const { categoryList } = req.body;
   const catalogType = req.body.catalogType || 'subCategory';
   let query = {};
@@ -313,7 +411,7 @@ app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
 });
 
-app.use(errorHandler);
+app.use(errorHandler as any);
 
 const port = app.get('port');
 const server = app.listen(port, () =>
@@ -350,7 +448,7 @@ const server = app.listen(port, () =>
 //       //Stores Delete
 //       let stores = await Store.find({
 //         'contactInfo.phoneNumber.primary': `+91${phoneNumber}`
-//       }).lean();
+//       });
 
 //       for (let store of stores) {
 //         await Store.deleteOne({ storeId: store.storeId }, { session });
@@ -502,8 +600,8 @@ app.get('/slug', async (req, res) => {
   updateSlug();
 });
 
-const sqs = new AWS.SQS();
-const ses = new AWS.SES();
+// const sqs = new AWS.SQS();
+// const ses = new AWS.SES();
 const path = require('path');
 
 // app.get('/createTemplate', async (req, res) => {

@@ -13,7 +13,6 @@ import OfferModel from './../models/Offers';
 import InterestedEventAndOffer, {
   IInterestedEventAndOffer
 } from './../models/InterestedEventsAndOffers';
-import { sendEmail } from '../utils/common';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
 
@@ -55,7 +54,7 @@ export class EventService {
     }
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -294,7 +293,7 @@ export class EventService {
 
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -308,7 +307,7 @@ export class EventService {
     Logger.info('<Service>:<EventService>:<Update Event details >');
     const eventResult: IEvent = await EventModel.findOne({
       _id: eventId
-    })?.lean();
+    });
 
     if (_.isEmpty(eventResult)) {
       throw new Error('Event does not exist');
@@ -360,17 +359,14 @@ export class EventService {
     Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
     const [store, customer, event, offer] = await Promise.all([
-      Store.findOne(
-        { storeId: reqBody.storeId },
-        { verificationDetails: 0 }
-      ).lean(),
-      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      Store.findOne({ storeId: reqBody.storeId }, { verificationDetails: 0 }),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }),
       EventModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
-      }).lean(),
+      }),
       OfferModel.findOne({
         _id: new Types.ObjectId(reqBody.eventOffersId)
-      }).lean()
+      })
     ]);
     let newInterest: IInterestedEventAndOffer = reqBody;
     newInterest.name = store?.basicInfo?.ownerName || customer?.fullName;
@@ -439,8 +435,8 @@ export class EventService {
   async getAllInterest(): Promise<any> {
     Logger.info('<Service>:<EventService>:<get event offer interest >');
 
-    const interestResult: IInterestedEventAndOffer =
-      await InterestedEventAndOffer.find().lean();
+    const interestResult: IInterestedEventAndOffer[] =
+      await InterestedEventAndOffer.find();
 
     return interestResult;
   }

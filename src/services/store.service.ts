@@ -30,9 +30,10 @@ import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from './../models/Customer';
 import { StaticIds } from './../models/StaticId';
-import { sendNotification } from '../utils/common';
 import slugify from 'slugify';
 import { SPEmployeeService } from './spEmployee.service';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
 export class StoreService {
@@ -46,6 +47,7 @@ export class StoreService {
   private spEmployeeService = container.get<SPEmployeeService>(
     TYPES.SPEmployeeService
   );
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(
     storeRequest: StoreRequest,
@@ -111,12 +113,23 @@ export class StoreService {
     } catch (err) {
       throw new Error(err);
     }
-    await sendNotification(
-      'Store Created',
-      'Your store has created. It is under review',
-      phoneNumber,
-      'STORE_OWNER',
-      ''
+    // await sendNotification(
+    //   'Store Created',
+    //   'Your store has created. It is under review',
+    //   phoneNumber,
+    //   'STORE_OWNER',
+    //   ''
+    // );
+    const data = {
+      title: 'Store Created',
+      body: `Your store has created. It is under review`,
+      phoneNumber: phoneNumber,
+      role: 'STORE_OWNER',
+      type: 'NEW_STORE'
+    };
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
     );
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
@@ -146,12 +159,23 @@ export class StoreService {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
-    await sendNotification(
-      'Store Updated',
-      'Your store has updated. It is under review',
-      storePayload?.contactInfo?.phoneNumber?.primary,
-      'STORE_OWNER',
-      ''
+    // await sendNotification(
+    //   'Store Updated',
+    //   'Your store has updated. It is under review',
+    //   storePayload?.contactInfo?.phoneNumber?.primary,
+    //   'STORE_OWNER',
+    //   ''
+    // );
+    const data = {
+      title: 'Store Updated',
+      body: `Your store has updated. It is under review`,
+      phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
+      role: 'STORE_OWNER',
+      type: 'UPDATED_STORE'
+    };
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
     );
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
@@ -232,13 +256,32 @@ export class StoreService {
       },
       { 'verificationDetails.verifyObj': 0 }
     );
-    await sendNotification(
-      `${
+    // await sendNotification(
+    //   `${
+    //     statusRequest.profileStatus === 'ONBOARDED'
+    //       ? 'Store Onboarded'
+    //       : 'Store Rejected'
+    //   }`,
+    //   `${
+    //     statusRequest.profileStatus === 'ONBOARDED'
+    //       ? 'Congratulations 😊'
+    //       : 'Sorry 😞'
+    //   } Your store has been ${
+    //     statusRequest.profileStatus === 'ONBOARDED'
+    //       ? 'onboarded'
+    //       : `rejected due to this reason: ${statusRequest.rejectionReason}`
+    //   }`,
+    //   phoneNumber,
+    //   'STORE_OWNER',
+    //   ''
+    // );
+    const data = {
+      title: `${
         statusRequest.profileStatus === 'ONBOARDED'
           ? 'Store Onboarded'
           : 'Store Rejected'
       }`,
-      `${
+      body: `${
         statusRequest.profileStatus === 'ONBOARDED'
           ? 'Congratulations 😊'
           : 'Sorry 😞'
@@ -247,9 +290,13 @@ export class StoreService {
           ? 'onboarded'
           : `rejected due to this reason: ${statusRequest.rejectionReason}`
       }`,
-      phoneNumber,
-      'STORE_OWNER',
-      ''
+      phoneNumber: phoneNumber,
+      role: 'STORE_OWNER',
+      type: 'STORE_STATUS'
+    };
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
     );
     return updatedStore;
   }
@@ -260,11 +307,11 @@ export class StoreService {
     );
     // const ownerDetails: IUser = await User.findOne({
     //   _id: store.userId
-    // }).lean();
+    // });
     // if (ownerDetails) {
     //   const deviceFcmDetails: IDeviceFcm = await DeviceFcm.findOne({
     //     deviceId: ownerDetails.deviceId
-    //   }).lean();
+    //   });
     // }
     const deviceFcmRecord = await User.aggregate([
       { $match: { _id: store.userId } },
@@ -427,7 +474,7 @@ export class StoreService {
     if (_.isEmpty(userType) && _.isEmpty(status) && _.isEmpty(verifiedStore)) {
       stores = await Store.find(query, {
         'verificationDetails.verifyObj': 0
-      }).lean();
+      });
     }
     if (
       !_.isEmpty(userType) ||
@@ -534,7 +581,7 @@ export class StoreService {
     Logger.debug(query);
     let stores: any = await Store.find(query, {
       'verificationDetails.verifyObj': 0
-    }).lean();
+    });
     if (stores && Array.isArray(stores)) {
       stores = await Promise.all(
         stores.map(async (store) => {
@@ -559,6 +606,7 @@ export class StoreService {
     coordinates: number[];
     oemUserName: string;
     detailingType: string;
+    serviceType: string;
   }): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -575,10 +623,14 @@ export class StoreService {
       'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
       oemUserName: searchReqBody.oemUserName,
       profileStatus: 'ONBOARDED',
-      'basicInfo.detailingType': searchReqBody.detailingType
+      'basicInfo.detailingType': searchReqBody.detailingType,
+      'basicInfo.serviceType': searchReqBody.serviceType
     };
     if (!searchReqBody.detailingType) {
       delete query['basicInfo.detailingType'];
+    }
+    if (!searchReqBody.serviceType) {
+      delete query['basicInfo.serviceType'];
     }
     if (!searchReqBody.brand) {
       delete query['basicInfo.brand.name'];
@@ -664,7 +716,7 @@ export class StoreService {
     if (storeReview?.userId) {
       customer = await Customer.findOne({
         _id: new Types.ObjectId(storeReview?.userId)
-      })?.lean();
+      });
     }
     console.log(customer, 'dfw;lmk');
     let store: IStore;
@@ -681,12 +733,23 @@ export class StoreService {
     const newStoreReview = new StoreReview(storeReview);
     newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
     await newStoreReview.save();
-    await sendNotification(
-      'Store Review',
-      'Hey 👋 you got a feedback',
-      phoneNumber,
-      'STORE_OWNER',
-      'RATING_REVIEW'
+    // await sendNotification(
+    //   'Store Review',
+    //   'Store Review',
+    //   phoneNumber,
+    //   'STORE_OWNER',
+    //   'RATING_REVIEW'
+    // );
+    const data = {
+      title: 'Store Review',
+      body: `Store Review`,
+      phoneNumber: phoneNumber,
+      role: 'STORE_OWNER',
+      type: 'RATING_REVIEW'
+    };
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
     );
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
@@ -752,7 +815,7 @@ export class StoreService {
     const storeReviews = await StoreReview.find({ storeId })
       .skip(pageNo * pageSize)
       .limit(pageSize)
-      .lean();
+      ;
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
@@ -791,10 +854,10 @@ export class StoreService {
           storeId: payload.storeId
         },
         { verificationDetails: 0 }
-      ).lean();
+      );
       Logger.debug(`${phoneNumber} ${role} user resulttttttttt`);
       if (role !== 'ADMIN' && role !== 'OEM') {
-        const userDetails = await User.findOne({ phoneNumber, role }).lean();
+        const userDetails = await User.findOne({ phoneNumber, role });
         if (_.isEmpty(storeDetails)) {
           throw new Error('Store does not exist');
         }
@@ -861,10 +924,10 @@ export class StoreService {
           storeId: payload.storeId
         },
         { verificationDetails: 0 }
-      ).lean();
+      );
 
       if (role !== 'ADMIN' && role !== 'OEM') {
-        const userDetails = await User.findOne({ phoneNumber, role }).lean();
+        const userDetails = await User.findOne({ phoneNumber, role });
         if (_.isEmpty(storeDetails)) {
           throw new Error('Store does not exist');
         }
@@ -885,7 +948,7 @@ export class StoreService {
         payload.verificationDetails,
         payload.documentType,
         payload.gstAdhaarNumber,
-        storeDetails
+        storeDetails as IStore
       );
 
       return updatedStore;
@@ -954,7 +1017,7 @@ export class StoreService {
       // get the store data
       const storeDetails = await Store.findOne({
         storeId: payload.storeId
-      }).lean();
+      });
 
       if (_.isEmpty(storeDetails)) {
         throw new Error('Store does not exist');
@@ -964,7 +1027,7 @@ export class StoreService {
         const userDetails = await User.findOne(
           { phoneNumber, role },
           { verificationDetails: 0 }
-        ).lean();
+        );
 
         if (_.isEmpty(userDetails)) {
           throw new Error('User does not exist');
@@ -975,11 +1038,12 @@ export class StoreService {
         payload.clientId,
         payload.otp
       );
+
       const updatedStore = await this.updateStoreDetails(
         verifyResult,
         DocType.AADHAR,
         gstAdhaarNumber,
-        storeDetails
+        storeDetails as IStore
       );
 
       return updatedStore;
@@ -1117,12 +1181,23 @@ export class StoreService {
         { $set: storePayload },
         { returnDocument: 'after' }
       );
-      await sendNotification(
-        'Store Updated',
-        'Your store has updated. It is under review',
-        phoneNumber,
-        role,
-        ''
+      // await sendNotification(
+      //   'Store Updated',
+      //   'Your store has updated. It is under review',
+      //   phoneNumber,
+      //   role,
+      //   ''
+      // );
+      const data = {
+        title: 'Store Updated',
+        body: `Your store has updated. It is under review`,
+        phoneNumber: phoneNumber,
+        role: role,
+        type: 'STORE_UPDATED'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
       );
       Logger.info(
         '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
@@ -1130,12 +1205,23 @@ export class StoreService {
       return res;
     }
     const newStore = await Store.create(storePayload);
-    await sendNotification(
-      'Store Created',
-      'Your store has created. It is under review',
-      phoneNumber,
-      role,
-      ''
+    // await sendNotification(
+    //   'Store Created',
+    //   'Your store has created. It is under review',
+    //   phoneNumber,
+    //   role,
+    //   ''
+    // );
+    const data = {
+      title: 'Store Created',
+      body: `Your store has created. It is under review`,
+      phoneNumber: phoneNumber,
+      role: role,
+      type: 'STORE_CREATED'
+    };
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
     );
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
@@ -1375,27 +1461,27 @@ export class StoreService {
       }
     }
 
-    const total = await Store.count({ ...overallStatus, ...query });
+    const total = await Store.countDocuments({ ...overallStatus, ...query });
     if (status === 'ONBOARDED' || !status) {
-      onboarded = await Store.count({
+      onboarded = await Store.countDocuments({
         profileStatus: 'ONBOARDED',
         ...query
       });
     }
     if (status === 'REJECTED' || !status) {
-      rejected = await Store.count({
+      rejected = await Store.countDocuments({
         profileStatus: 'REJECTED',
         ...query
       });
     }
     if (status === 'DRAFT' || !status) {
-      draft = await Store.count({
+      draft = await Store.countDocuments({
         profileStatus: 'DRAFT',
         ...query
       });
     }
     if (status === 'PENDING' || !status) {
-      pending = await Store.count({
+      pending = await Store.countDocuments({
         profileStatus: 'PENDING',
         ...query
       });
@@ -1414,7 +1500,7 @@ export class StoreService {
         delete query['oemUserName'];
       }
 
-      partnerdraft = await Store.count({
+      partnerdraft = await Store.countDocuments({
         profileStatus: 'DRAFT',
         ...query
       });
@@ -1582,7 +1668,7 @@ export class StoreService {
 
   async getStoreByUserId(userId: Types.ObjectId): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Get store by storeId>');
-    const storeResponse: IStore = await Store.findOne({ userId }).lean();
+    const storeResponse: IStore = await Store.findOne({ userId });
     return storeResponse;
   }
 

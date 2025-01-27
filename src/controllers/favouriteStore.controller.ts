@@ -21,9 +21,8 @@ export class FavouriteStoreController {
   addToFavourite = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const addToFavouriteRequest: AddToFavouriteRequest = req.body;
     // const addToFavouriteRequest: AddToFavouriteRequest = {
@@ -49,9 +48,8 @@ export class FavouriteStoreController {
   removeFromFavourite = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const favId = req.query.id as string;
     // const addToFavouriteRequest: AddToFavouriteRequest = {
@@ -77,9 +75,8 @@ export class FavouriteStoreController {
   checkFavStore = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const favStoreRequest: AddToFavouriteRequest = req.body;
     // const addToFavouriteRequest: AddToFavouriteRequest = {
@@ -105,9 +102,8 @@ export class FavouriteStoreController {
   getAllFavStore = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const allFavStoreReq: AllFavStoreRequest = req.body;
     // const addToFavouriteRequest: AddToFavouriteRequest = {

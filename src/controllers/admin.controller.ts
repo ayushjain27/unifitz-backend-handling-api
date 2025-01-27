@@ -48,9 +48,8 @@ export class AdminController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const { userId } = req.body;
     Logger.info(
@@ -221,9 +220,8 @@ export class AdminController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adminService.updateUserStatus(req.body);
@@ -241,9 +239,8 @@ export class AdminController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     try {
       const result = await this.adminService.updateUserAccessStatus(req.body);
@@ -440,9 +437,8 @@ export class AdminController {
   sellerRegister = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const interestRequest = req.body;
     Logger.info(
@@ -515,6 +511,7 @@ export class AdminController {
     const selectType = req.query.selectType;
     const oemId = req?.query?.oemId;
     const employeeId = req?.query?.employeeId;
+    const profileStatus = req?.query?.profileStatus;
 
     try {
       const result = await this.adminService.getPaginatedAll(
@@ -527,7 +524,8 @@ export class AdminController {
         userName,
         role,
         oemId as string,
-        employeeId as string
+        employeeId as string,
+        profileStatus as string
       );
       res.send({
         result
@@ -550,6 +548,7 @@ export class AdminController {
     const selectType = req.query.selectType;
     const oemId = req?.query?.oemId;
     const employeeId = req?.query?.employeeId;
+    const profileStatus = req?.query?.profileStatus;
 
     try {
       const result = await this.adminService.getAllCount(
@@ -560,7 +559,8 @@ export class AdminController {
         userName,
         role,
         oemId as string,
-        employeeId as string
+        employeeId as string,
+        profileStatus as string
       );
       res.send({
         result
@@ -617,9 +617,7 @@ export class AdminController {
     const marketingId = req.params.marketingId;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
     try {
       const result = await this.adminService.updateVideoUpload(
@@ -672,6 +670,61 @@ export class AdminController {
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getVideoUploadCount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const oemId = req?.query?.oemId;
+    const employeeId = req?.query?.employeeId;
+    const searchQuery = req.query.searchQuery;
+    const state = req.query.state;
+    const city = req.query.city;
+    const selectType = req.query.selectType;
+
+    try {
+      Logger.info(
+        '<Controller>:<AdminController>:<Admin request controller initiated>'
+      );
+      const result = await this.adminService.getVideoUploadCount(
+        userName,
+        role,
+        oemId as string,
+        searchQuery as string,
+        state as string,
+        city as string,
+        employeeId as string,
+        selectType as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateVideoStatus = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<AdminController>:<Update video Status>');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+    }
+    try {
+      const result = await this.adminService.updateVideoStatus(req.body);
+      res.send({
+        message: 'Video Status is Updated',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
     }
   };
 

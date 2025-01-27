@@ -8,6 +8,7 @@ export interface S3Config {
   ACCESS_KEY: string;
   BUCKET_NAME: string;
   VIDEO_BUCKET_NAME: string;
+  AUDIO_BUCKET_NAME: string;
   AWS_REGION: string;
 }
 export interface SQSConfig {

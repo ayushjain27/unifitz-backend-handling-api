@@ -62,7 +62,7 @@ const plusFeatureAnalyticSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-plusFeatureAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
+// plusFeatureAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
 
 const PlusFeatureAnalyticModel = model<IPlusFeaturesAnalytic & Document>(
   'plusfeatures',

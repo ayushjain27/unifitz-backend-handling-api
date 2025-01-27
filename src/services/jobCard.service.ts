@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { injectable } from 'inversify';
 import container from '../config/inversify.container';
 import { Types } from 'mongoose';
@@ -8,27 +10,23 @@ import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
 import _ from 'lodash';
-import AWS from 'aws-sdk';
-import { s3Config } from '../config/constants';
-import path from 'path';
-import { receiveFromSqs, sendToSqs } from '../utils/common';
 import { v4 as uuidv4 } from 'uuid';
-import CreateInvoice from '../models/CreateInvoice';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
 
-const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-AWS.config.update({
-  accessKeyId: s3Config.AWS_KEY_ID,
-  secretAccessKey: s3Config.ACCESS_KEY,
-  region: 'ap-south-1'
-});
+// AWS.config.update({
+//   accessKeyId: s3Config.AWS_KEY_ID,
+//   secretAccessKey: s3Config.ACCESS_KEY,
+//   region: 'ap-south-1'
+// });
 
-const sqs = new AWS.SQS();
-const ses = new AWS.SES();
+// const sqs = new AWS.SQS();
+// const ses = new AWS.SES();
 @injectable()
 export class JobCardService {
-  private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
 
   async create(jobCardPayload: IJobCard, req: Request): Promise<IJobCard> {
     Logger.info(
@@ -37,7 +35,6 @@ export class JobCardService {
 
     // check if store id exist
     const { storeId } = jobCardPayload;
-    const files = req.files;
     let store: IStore;
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
@@ -73,7 +70,7 @@ export class JobCardService {
     );
     const storeCustomer: IJobCard = await JobCard.findOne({
       _id: new Types.ObjectId(jobCardId)
-    })?.lean();
+    });
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
@@ -109,7 +106,6 @@ export class JobCardService {
       ]
     };
 
-    console.log(query, 'asdw;l');
     if (!storeId) {
       delete query.storeId;
     }
@@ -119,9 +115,8 @@ export class JobCardService {
     if (!searchValue) {
       delete query['customerDetails.phoneNumber'];
     }
-    console.log(query, 'asdw;wklml');
 
-    const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
+    const storeJobCard: IJobCard[] = await JobCard.find(query);
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
@@ -134,7 +129,7 @@ export class JobCardService {
     );
     const jobCard: IJobCard = await JobCard.findOne({
       _id: new Types.ObjectId(jobCardId)
-    }).lean();
+    });
     return jobCard;
   }
 
@@ -184,18 +179,17 @@ export class JobCardService {
       '<Service>:<JobCardService>: <Job Card Fetch: Get job card by job card id>'
     );
 
-    const uniqueMessageId = uuidv4();
-
     const jobCard: IJobCard = await JobCard.findOne({
       _id: new Types.ObjectId(jobCardId)
-    }).lean();
+    });
     if (!jobCard) {
       Logger.error('<Service>:<JobCardService>:<Job Card id not found>');
       throw new Error('Job Card not found');
     }
-
-    sendToSqs(jobCard, uniqueMessageId);
-    receiveFromSqs();
+    const sqsMessage = await this.sqsService.createMessage(
+      SQSEvent.JOB_CARD,
+      jobCard
+    );
 
     return 'Email sent';
   }
@@ -239,7 +233,7 @@ export class JobCardService {
 
     // Aggregate pipeline to calculate total amount
 
-    // const storeJobCard: IJobCard[] = await JobCard.find(query).lean();
+    // const storeJobCard: IJobCard[] = await JobCard.find(query);
     const storeJobCard: IJobCard[] = await JobCard.aggregate([
       {
         $match: query

@@ -34,7 +34,7 @@ export class ReportService {
     if (customerId) {
       customer = await Customer.findOne({
         _id: new Types.ObjectId(customerId)
-      })?.lean();
+      });
     }
     if (!customerId) {
       throw new Error('Customer not found');
@@ -80,7 +80,7 @@ export class ReportService {
     if (customerId) {
       customer = await Customer.findOne({
         _id: new Types.ObjectId(customerId)
-      })?.lean();
+      });
     }
     if (!customerId) {
       throw new Error('Customer not found');
@@ -116,7 +116,7 @@ export class ReportService {
       delete query['oemUserName'];
     }
     console.log(userName, role, oemId);
-    const report: IReport[] = await Report.find(query).lean();
+    const report: IReport[] = await Report.find(query);
 
     return report;
   }
@@ -127,7 +127,7 @@ export class ReportService {
     );
     const report: IReport = await Report.findOne({
       _id: new Types.ObjectId(reportId)
-    }).lean();
+    });
     return report;
   }
 
@@ -141,7 +141,7 @@ export class ReportService {
     );
     const report: IReport = await Report.findOne({
       _id: new Types.ObjectId(reportId)
-    })?.lean();
+    });
     if (_.isEmpty(report)) {
       throw new Error('Report does not exist');
     }
@@ -161,7 +161,7 @@ export class ReportService {
     Logger.info('<Service>:<ReportService>:<Update Report status>');
     const report: IReport = await Report.findOne({
       _id: new Types.ObjectId(reportId)
-    })?.lean();
+    });
     if (_.isEmpty(report)) {
       throw new Error('Report does not exist');
     }

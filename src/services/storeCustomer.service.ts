@@ -65,7 +65,7 @@ export class StoreCustomerService {
 
     const storeCustomers: IStoreCustomer[] = await StoreCustomer.find({
       storeId
-    }).lean();
+    });
     Logger.info(
       '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
     );
@@ -80,10 +80,10 @@ export class StoreCustomerService {
       '<Service>:<StoreCustomerService>: <Store Customer Fetch: getting all the store customers by store id>'
     );
 
-    const storeCustomers: IStoreCustomer = await StoreCustomer.find({
+    const storeCustomers: IStoreCustomer = await StoreCustomer.findOne({
       phoneNumber,
       storeId: storeId
-    }).lean();
+    });
     Logger.info(
       '<Service>:<StoreCustomerService>:<Store Customer fetched successfully>'
     );
@@ -99,7 +99,7 @@ export class StoreCustomerService {
     );
     const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({
       _id: new Types.ObjectId(customerId)
-    })?.lean();
+    });
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
@@ -159,7 +159,7 @@ export class StoreCustomerService {
 
     const storeCustomer: IStoreCustomer = await StoreCustomer.findOne({
       _id: new Types.ObjectId(req.body.customerId)
-    })?.lean();
+    });
     if (_.isEmpty(storeCustomer)) {
       throw new Error('Customer does not exist');
     }
@@ -171,10 +171,6 @@ export class StoreCustomerService {
         (vehicle) => vehicle.vehicleNumber === vehicleNumber
       );
     }
-
-    console.log(storeCustomer.storeCustomerVehicleInfo, 'DFWekl');
-
-    console.log(vehicleIndex, 'df;lm');
 
     const files: Array<any> = req.files;
 
@@ -213,7 +209,6 @@ export class StoreCustomerService {
     Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
 
     Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
-    console.log(req.body.vehicleNumber, 'Sdwl');
 
     const updatedVehicle = await StoreCustomer.findOneAndUpdate(
       {
@@ -228,8 +223,6 @@ export class StoreCustomerService {
       },
       { returnDocument: 'after' }
     );
-
-    console.log(updatedVehicle, 'd,l;sf');
 
     return updatedVehicle;
   }

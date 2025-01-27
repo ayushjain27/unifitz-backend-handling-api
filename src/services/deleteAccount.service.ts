@@ -68,7 +68,7 @@ export class DeleteAccountService {
     } else {
       const phoneNumber = requestBody.phoneNumber.slice(-10);
       const customer = await this.customerService.getByPhoneNumber(phoneNumber);
-      params.customerId = customer?._id;
+      params.customerId = String(customer?._id);
     }
 
     const deleteRequest = await DeleteAccount.create(params);
@@ -83,7 +83,7 @@ export class DeleteAccountService {
     const deleteAccountResponse: IDeleteAccount = await DeleteAccount.findOne({
       phoneNumber: `+91${phoneNumber?.slice(-10)}`,
       userRole
-    }).lean();
+    });
     return deleteAccountResponse;
   }
 
@@ -92,12 +92,11 @@ export class DeleteAccountService {
     userRole: string
   ): Promise<IDeleteAccount> {
     Logger.info('<Service>:<DeleteAccountService>:<Get deleted account by id>');
-    const deleteAccountResponse: IDeleteAccount = await DeleteAccount.deleteOne(
-      {
+    const deleteAccountResponse: IDeleteAccount =
+      await DeleteAccount.findOneAndDelete({
         phoneNumber: `+91${phoneNumber?.slice(-10)}`,
         userRole
-      }
-    ).lean();
+      });
     return deleteAccountResponse;
   }
 }

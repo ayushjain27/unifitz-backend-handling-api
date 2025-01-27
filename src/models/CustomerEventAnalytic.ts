@@ -138,7 +138,7 @@ const eventAnalyticSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-eventAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
+// eventAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
 
 const EventAnalyticModel = model<IEventAnalytic & Document>(
   'eventLog',

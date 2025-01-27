@@ -60,6 +60,13 @@ router.post(
 
 router.get('/all', customerController.getAll);
 
+router.get(
+  '/getcustomerDetailsByCustomerId',
+  customerController.validate('getcustomerDetailsByCustomerId'),
+  // validationHandler(),
+  customerController.getcustomerDetailsByCustomerId
+);
+
 router.get('/paginated/all', customerController.getPaginatedAll);
 router.get('/count', customerController.getAllCount);
 

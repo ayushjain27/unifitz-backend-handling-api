@@ -53,7 +53,7 @@ export const catalogMapSchema: Schema = new Schema({
 });
 
 export interface IMarketing extends Document {
-  _id?: Types.ObjectId;
+  _id: Types.ObjectId;
   storeId: string;
   oemUserName: string;
   businessName: string;
@@ -80,6 +80,7 @@ export interface IMarketing extends Document {
   createdAt?: Date;
   updatedAt?: Date;
   status: string;
+  // profileStatus: string;
   employeeId: string;
   employeeUserName: string;
   postType: string;
@@ -87,6 +88,7 @@ export interface IMarketing extends Document {
   description: string;
   displayName: string;
   visitStore: boolean;
+  rejectionReason: string;
 }
 
 const MarketingSchema: Schema = new Schema(
@@ -165,6 +167,9 @@ const MarketingSchema: Schema = new Schema(
     displayName: {
       type: String
     },
+    rejectionReason: {
+      type: String
+    },
     visitStore: {
       type: Boolean
     },
@@ -173,6 +178,11 @@ const MarketingSchema: Schema = new Schema(
       enum: ['ENABLED', 'DISABLED'],
       default: 'DISABLED'
     },
+    // profileStatus: {
+    //   type: String,
+    //   enum: ['DRAFT', 'PENDING', 'ONBOARDED', 'REJECTED', 'COMPLETED'],
+    //   default: 'DRAFT'
+    // },
     fileUrl: { type: { key: String, docURL: String } }
   },
   { timestamps: true }

@@ -23,9 +23,8 @@ export class CustomerController {
   create = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const customerPayload: ICustomer = req.body;
     customerPayload.phoneNumber = appendCodeToPhone(
@@ -119,6 +118,27 @@ export class CustomerController {
     );
     try {
       const result = await this.customerService.getAll();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getcustomerDetailsByCustomerId = async (req: Request, res: Response) => {
+    const customerId = req.query.customerId as string;
+    if (!customerId) {
+      throw new Error('Customer not found');
+    }
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get Customer Details By Customer Id request controller initiated>'
+    );
+    try {
+      const result = await this.customerService.getcustomerDetailsByCustomerId(
+        customerId
+      );
       res.send({
         result
       });
@@ -280,6 +300,10 @@ export class CustomerController {
             .isString(),
           body('clientId', 'Cliend Id does not exist').exists().isString(),
           body('otp', 'OTP does not exist').exists().isString()
+        ];
+      case 'getcustomerDetailsByCustomerId':
+        return [
+          body('customerId', 'Customer Id not Found').exists().isString()
         ];
     }
   };

@@ -22,9 +22,8 @@ export class VehicleInfoController {
   addVehicle = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const addVehicleInfoRequest: IVehiclesInfo = req.body;
     Logger.info(
@@ -46,9 +45,8 @@ export class VehicleInfoController {
   getAllVehicleByUser = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const { userId } = req.body;
     Logger.info(
@@ -69,9 +67,8 @@ export class VehicleInfoController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     const { vehicleId } = req.body;
     Logger.info(
@@ -95,9 +92,8 @@ export class VehicleInfoController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Update or Delete Vehicle Image Vehicle request initiated>'

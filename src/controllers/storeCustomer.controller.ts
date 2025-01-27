@@ -74,11 +74,9 @@ export class StoreCustomerController {
     const storeId = req.query.storeId;
 
     if (!phoneNumber) {
-      res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({
-          errors: { message: 'Customer with same phone number is not present' }
-        });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        errors: { message: 'Customer with same phone number is not present' }
+      });
       return;
     }
     Logger.info(
@@ -101,7 +99,7 @@ export class StoreCustomerController {
   };
 
   createStoreCustomerVehicle = async (req: Request, res: Response) => {
-    const { customerId} = req.body;
+    const { customerId } = req.body;
     Logger.info(
       '<Controller>:<StoreCustomerController>:<Upload Store Customer request initiated>'
     );
@@ -124,9 +122,8 @@ export class StoreCustomerController {
     // Validate the request body
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     Logger.info(
       '<Controller>:<StoreCustomerController>:<Upload Store Customer Vehicle request initiated>'

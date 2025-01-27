@@ -14,7 +14,6 @@ import Customer from '../models/Customer';
 import InterestedBusiness, {
   IInterestedBusiness
 } from '../models/InterestedBusiness';
-import { sendEmail } from '../utils/common';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
 
@@ -40,7 +39,7 @@ export class BusinessService {
     }
     const businessResult: IBusiness = await BusinessModel.findOne({
       _id: new Types.ObjectId(businessId)
-    })?.lean();
+    });
 
     if (_.isEmpty(businessResult)) {
       throw new Error('Business does not exist');
@@ -75,7 +74,7 @@ export class BusinessService {
   async getAllBusiness(): Promise<any> {
     Logger.info('<Service>:<BusinessService>:<get business initiated>');
 
-    const businessResult = await BusinessModel.find()?.lean();
+    const businessResult = await BusinessModel.find();
 
     return businessResult;
   }
@@ -137,7 +136,7 @@ export class BusinessService {
       }
     ]);
 
-    // const businessResult = await BusinessModel.find(query)?.lean();
+    // const businessResult = await BusinessModel.find(query);
 
     return businessResponse;
   }
@@ -147,7 +146,7 @@ export class BusinessService {
 
     const businessResult: IBusiness = await BusinessModel.findOne({
       _id: businessId
-    })?.lean();
+    });
 
     if (_.isEmpty(businessResult)) {
       throw new Error('business does not exist');
@@ -161,7 +160,7 @@ export class BusinessService {
     Logger.info('<Service>:<BusinessService>:<Update business details >');
     const businessResult: IBusiness = await BusinessModel.findOne({
       _id: businessId
-    })?.lean();
+    });
 
     if (_.isEmpty(businessResult)) {
       throw new Error('business does not exist');
@@ -212,14 +211,11 @@ export class BusinessService {
     Logger.info('<Service>:<EventService>:<Update event and offers interest >');
 
     const [store, customer, business] = await Promise.all([
-      Store.findOne(
-        { storeId: reqBody.storeId },
-        { verificationDetails: 0 }
-      ).lean(),
-      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }).lean(),
+      Store.findOne({ storeId: reqBody.storeId }, { verificationDetails: 0 }),
+      Customer.findOne({ _id: new Types.ObjectId(reqBody.customerId) }),
       BusinessModel.findOne({
         _id: new Types.ObjectId(reqBody.businessId)
-      }).lean()
+      })
     ]);
     let newInterest: IInterestedBusiness = reqBody;
     newInterest.userName = store?.basicInfo?.ownerName || customer?.fullName;

@@ -12,15 +12,16 @@ export default function (
   req: Request,
   res: Response,
   next: NextFunction
-): Response {
+): void {
   // Get token from header
   const token = req.header('x-auth-token');
 
   // Check if no token
   if (!token) {
-    return res
+    res
       .status(HttpStatusCodes.UNAUTHORIZED)
       .json({ msg: 'No token, authorization denied' });
+    return;
   }
   // Verify token
   try {
@@ -33,6 +34,7 @@ export default function (
     res
       .status(HttpStatusCodes.UNAUTHORIZED)
       .json({ msg: 'Token is not valid' });
+    return;  
   }
 }
 
@@ -47,7 +49,8 @@ export function validationHandler() {
         message: 'Error while validating request body'
       };
 
-      return res.status(HttpStatusCodes.BAD_REQUEST).json(response);
+      res.status(HttpStatusCodes.BAD_REQUEST).json(response);
+      return;
     }
     next();
   };

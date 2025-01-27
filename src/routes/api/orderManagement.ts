@@ -75,4 +75,24 @@ router.post(
   orderManagementController.updatePaymentStatus
 );
 
+router.post(
+  '/sparePostRequirement/create',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.createSparePostRequirement
+);
+router.post(
+  '/sparePostRequirement/audioUpload',
+  uploadFiles.array('files'),
+  orderManagementController.updateAudio
+);
+router.post(
+  '/sparePostRequirement/imageUpload',
+  uploadFiles.array('files'),
+  orderManagementController.updateImage
+);
+router.get(
+  '/sparePostRequirement/getById',
+  orderManagementController.getSparePostRequirementDetails
+);
+
 export default router;

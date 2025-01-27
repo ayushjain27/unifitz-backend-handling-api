@@ -45,7 +45,7 @@ export const userInfoSchema: Schema = new Schema(
 userInfoSchema.index({ geoLocation: '2dsphere' });
 
 export interface IMarketingAnalytic extends Document {
-  _id?: string;
+  _id: string;
   platform: Platform;
   event: Event;
   userInformation: IUserInfo;
@@ -83,7 +83,7 @@ const marketingAnalyticSchema: Schema = new Schema(
   }
 );
 
-marketingAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
+// marketingAnalyticSchema.index({ 'userInformation.geoLocation': '2dsphere' });
 
 const MarketingAnalyticModel = model<IMarketingAnalytic & Document>(
   'marketinganalytics',

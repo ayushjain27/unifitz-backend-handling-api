@@ -30,7 +30,7 @@ export class BuySellService {
     // Check if user exists
     // const user: IUser = await User.findOne({
     //   _id: new Types.ObjectId(`${userId}`)
-    // }).lean();
+    // });
     // Logger.debug(`user result ${JSON.stringify(user)}`);
     // if (_.isEmpty(user)) {
     //   throw new Error('User not found');
@@ -74,13 +74,13 @@ export class BuySellService {
     if (!_.isEmpty(buySellVehicle?.employeeId) || role === 'EMPLOYEE') {
       employeeDetail = await Admin.findOne({
         userName: buySellVehicle?.employeeId || buySellVehicle?.oemUserName
-      }).lean();
+      });
 
       if (employeeDetail) {
         employeeDetails = await SPEmployee.findOne({
           employeeId: employeeDetail?.employeeId,
           userName: employeeDetail?.oemId
-        }).lean();
+        });
       }
     }
 
@@ -97,45 +97,39 @@ export class BuySellService {
     return result;
   }
 
-  async getAllSellVehicleByUser(getVehicleRequest: { userId: string }) {
-    const { userId } = getVehicleRequest;
-    // Check if user exists
-    Logger.debug(userId, getVehicleRequest, 'result');
-    const user: IUser = await User.findOne({
-      userId: new Types.ObjectId(userId)
-    }).lean();
-    Logger.debug(`user result ${user}`);
-    if (_.isEmpty(user)) {
-      throw new Error('User not found');
-    }
-    const allVehicles: IBuySell = await buySellVehicleInfo
-      .find({
-        userId: new Types.ObjectId(userId)
-      })
-      .lean();
-    return allVehicles;
-  }
+  // async getAllSellVehicleByUser(getVehicleRequest: { userId: string }) {
+  //   const { userId } = getVehicleRequest;
+  //   // Check if user exists
+  //   Logger.debug(userId, getVehicleRequest, 'result');
+  //   const user: IUser = await User.findOne({
+  //     userId: new Types.ObjectId(userId)
+  //   });
+  //   Logger.debug(`user result ${user}`);
+  //   if (_.isEmpty(user)) {
+  //     throw new Error('User not found');
+  //   }
+  //   const allVehicles: IBuySell[] = await buySellVehicleInfo.find({
+  //     userId: new Types.ObjectId(userId)
+  //   });
+  //   return allVehicles;
+  // }
 
-  async getAllBuyVehicleById(getVehicleRequest: { vehicleId: string }) {
-    const { vehicleId } = getVehicleRequest;
+  // async getAllBuyVehicleById(getVehicleRequest: { vehicleId: string }) {
+  //   const { vehicleId } = getVehicleRequest;
 
-    const allVehicles: IBuySell = await buySellVehicleInfo
-      .find({
-        _id: new Types.ObjectId(vehicleId)
-      })
-      .lean();
-    return allVehicles;
-  }
+  //   const allVehicles: IBuySell = await buySellVehicleInfo.findOne({
+  //     _id: new Types.ObjectId(vehicleId)
+  //   });
+  //   return allVehicles;
+  // }
 
   async updateSellVehicle(buySellVehicle?: any) {
     Logger.info('<Service>:<BuySellService>: <Updating Vehicle intiiated>');
     Logger.debug(`vehicle result ${buySellVehicle._id}`);
     // Check if vehicle exists
-    const vehicle: IBuySell = await buySellVehicleInfo
-      .findOne({
-        _id: new Types.ObjectId(buySellVehicle?._id)
-      })
-      .lean();
+    const vehicle: IBuySell = await buySellVehicleInfo.findOne({
+      _id: new Types.ObjectId(buySellVehicle?._id)
+    });
     if (_.isEmpty(vehicle)) {
       throw new Error('Sell Vehicle not found');
     }
@@ -157,7 +151,7 @@ export class BuySellService {
 
     const employeeDetail = await Admin.findOne({
       userName: buySellVehicle?.employeeId
-    }).lean();
+    });
     const employeeDetails = await SPEmployee.findOne({
       employeeId: employeeDetail?.employeeId,
       userName: employeeDetail?.oemId
@@ -340,9 +334,9 @@ export class BuySellService {
         }
       },
       // Ensure sorting before applying pagination
-      {
-        $sort: { distance: 1 } // Sort by distance in ascending order
-      },
+      // {
+      //   $sort: { distance: 1 } // Sort by distance in ascending order
+      // },
       {
         $skip: query.pageNo * query.pageSize
       },
@@ -524,7 +518,7 @@ export class BuySellService {
     );
     const buySellVehicleDetails = await VehicleInfo.findOne({
       _id: new Types.ObjectId(req?.body?.vehicleId)
-    })?.lean();
+    });
     if (_.isEmpty(buySellVehicleDetails)) {
       throw new Error('Vehicle does not exist');
     }
@@ -1137,7 +1131,7 @@ export class BuySellService {
     if (req?.storeId && req?.userType) {
       delete query['userType'];
     }
-    const vehicleResponse: any = await buySellVehicleInfo.count(query);
+    const vehicleResponse: any = await buySellVehicleInfo.countDocuments(query);
     const vehicleResult: any = {
       total: vehicleResponse
     };
@@ -1197,12 +1191,9 @@ export class BuySellService {
     Logger.info(
       '<Service>:<BuySellService>:<Customer Details image uploading>'
     );
-    const customer = await buySellVehicleInfo
-      .findOne({
-        _id: new Types.ObjectId(customerDetailsId)
-      })
-      .lean();
-
+    const customer = await buySellVehicleInfo.findOne({
+      _id: new Types.ObjectId(customerDetailsId)
+    });
     if (_.isEmpty(customer)) {
       throw new Error('Customer does not exist');
     }

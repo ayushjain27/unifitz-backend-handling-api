@@ -32,10 +32,11 @@ export class NotificationController {
     try {
       const result = await this.notificationService.sendNotification(payload);
 
-      return res.json({
+      res.json({
         message: 'Notification Sent Successfully',
         userName: result
       });
+      return;
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

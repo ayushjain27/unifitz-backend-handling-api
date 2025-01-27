@@ -58,12 +58,12 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    const gstVerStores = await Store.count({
+    const gstVerStores = await Store.countDocuments({
       'verificationDetails.documentType': 'GST',
       profileStatus: 'ONBOARDED',
       ...query
     });
-    const aadharVerStores = await Store.count({
+    const aadharVerStores = await Store.countDocuments({
       'verificationDetails.documentType': 'AADHAR',
       profileStatus: 'ONBOARDED',
       ...query
@@ -81,7 +81,7 @@ export class AnalyticService {
     }
     const queryFilter: any = await Admin.find(query, {
       'verificationDetails.verifyObj': 0
-    }).lean();
+    });
     const totalManu = queryFilter.filter(
       (val: any) => val.companyType === 'Manufacturer'
     ).length;
@@ -286,7 +286,7 @@ export class AnalyticService {
     } else {
       userResult = await User.findOne({
         _id: new Types.ObjectId(requestData.userId)
-      })?.lean();
+      });
 
       if (_.isEmpty(userResult)) {
         throw new Error('User does not exist');
@@ -295,7 +295,7 @@ export class AnalyticService {
 
     const customerResponse = await Customer.findOne({
       phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
-    }).lean();
+    });
 
     userData.userId = userResult?._id || requestData.userId;
     userData.fullName = customerResponse?.fullName || '';
@@ -1037,12 +1037,12 @@ export class AnalyticService {
 
     userResult = await User.findOne({
       _id: new Types.ObjectId(requestData.userId)
-    })?.lean();
+    });
 
     if (requestData?.phoneNumber || !_.isEmpty(userResult)) {
       customerResponse = await Customer.findOne({
         phoneNumber: `+91${userResult.phoneNumber.slice(-10)}`
-      }).lean();
+      });
     }
     userData.userId = userResult?._id || requestData.userId || '';
     userData.fullName = customerResponse?.fullName || '';
@@ -1670,10 +1670,10 @@ export class AnalyticService {
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
-    const storeEvent = await EventAnalyticModel.count({
+    const storeEvent = await EventAnalyticModel.countDocuments({
       ...query
     });
-    const bannerEvent = await PlusFeatureAnalyticModel.count();
+    const bannerEvent = await PlusFeatureAnalyticModel.countDocuments();
     return {
       totalStoreImpression: storeEvent,
       totalBannerImpression: bannerEvent
@@ -2638,9 +2638,9 @@ export class AnalyticService {
       event: 'CATEGORY_CLICK',
       moduleInformation: 'Buy/Sell'
     };
-    const combinedResult2 = await EventAnalyticModel.count(query2);
+    const combinedResult2 = await EventAnalyticModel.countDocuments(query2);
     delete query['createdAt'];
-    const combinedResult3 = await EventAnalyticModel.count(query2);
+    const combinedResult3 = await EventAnalyticModel.countDocuments(query2);
 
     const finalVal = [
       ...combinedResult,
@@ -3824,6 +3824,104 @@ export class AnalyticService {
     }
 
     return data;
+  }
+
+  async getMarketingUserByArea(
+    role: string,
+    userName: string,
+    state: string,
+    city: string,
+    firstDate: string,
+    lastDate: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    adminFilterOemId?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${firstDate} ${lastDate} datateee`);
+    // const c_Date = new Date();
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    query = {
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'userInformation.state': state,
+      'userInformation.city': city,
+      // event: 'LOCATION_CHANGE',
+      platform: platform,
+      // moduleInformation: storeId
+      // oemUserName: role
+      oemUserName: adminFilterOemId
+    };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+    if (!firstDate || !lastDate) {
+      delete query['createdAt'];
+    }
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const queryFilter: any = await MarketingAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$userInformation.geoLocation.coordinates',
+          users: {
+            $sum: 1
+          },
+          state: {
+            $first: '$userInformation.state'
+          },
+          city: {
+            $first: '$userInformation.city'
+          },
+          geoLocation: {
+            $first: '$userInformation.geoLocation'
+          }
+        }
+      },
+      {
+        $project: {
+          geoLocation: 1,
+          users: 1,
+          state: 1,
+          city: 1,
+          _id: 0
+        }
+      },
+      { $sort: { users: -1 } }
+      // { $limit: 1000 }
+    ]);
+    return queryFilter;
   }
 
   /// Marketing video analytic creation api end ===========================

@@ -100,54 +100,53 @@ export class BuySellController {
     }
   };
 
-  getAllSellVehicleByUser = async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
-    }
-    const getVehicleRequest: { userId: string } = req.body;
-    Logger.info(
-      '<Controller>:<BuySellController>:<Get All vehicle by user request initiated>'
-    );
-    try {
-      const result = await this.buySellService.getAllSellVehicleByUser(
-        getVehicleRequest
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
+  // getAllSellVehicleByUser = async (req: Request, res: Response) => {
+  //   const errors = validationResult(req);
+  //   if (!errors.isEmpty()) {
+  //     return res
+  //       .status(HttpStatusCodes.BAD_REQUEST)
+  //       .json({ errors: errors.array() });
+  //   }
+  //   const getVehicleRequest: { userId: string } = req.body;
+  //   Logger.info(
+  //     '<Controller>:<BuySellController>:<Get All vehicle by user request initiated>'
+  //   );
+  //   try {
+  //     const result = await this.buySellService.getAllSellVehicleByUser(
+  //       getVehicleRequest
+  //     );
+  //     res.send({
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  //   }
+  // };
 
-  getBuyVehicleById = async (req: Request, res: Response) => {
-    const getVehicleRequest: { vehicleId: string } = req.body;
-    Logger.info(
-      '<Controller>:<BuySellController>:<Get Buy vehicle by Id request initiated>'
-    );
-    try {
-      const result = await this.buySellService.getAllBuyVehicleById(
-        getVehicleRequest
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
+  // getBuyVehicleById = async (req: Request, res: Response) => {
+  //   const getVehicleRequest: { vehicleId: string } = req.body;
+  //   Logger.info(
+  //     '<Controller>:<BuySellController>:<Get Buy vehicle by Id request initiated>'
+  //   );
+  //   try {
+  //     const result = await this.buySellService.getAllBuyVehicleById(
+  //       getVehicleRequest
+  //     );
+  //     res.send({
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  //   }
+  // };
 
   updateSellVehicle = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res
-        .status(HttpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
     }
     // const addVehicleInfoRequest: IVehiclesInfo = req.body;
     Logger.info(

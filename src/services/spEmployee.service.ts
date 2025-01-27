@@ -9,7 +9,6 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
 import Admin, { IAdmin } from '../models/Admin';
-import { sendEmail } from '../utils/common';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { permissions } from '../config/permissions';
 import { StaticIds } from '../models/StaticId';
@@ -196,7 +195,7 @@ export class SPEmployeeService {
     const employee: ISPEmployee = await SPEmployee.findOne({
       employeeId,
       userName
-    })?.lean();
+    });
     Logger.info(
       '<Service>:<SPEmployeeService>:<Employee fetched successfully>'
     );

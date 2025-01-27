@@ -21,6 +21,7 @@ export const s3Config: S3Config = {
   ACCESS_KEY: config.get('ACCESS_KEY'),
   BUCKET_NAME: config.get('BUCKET_NAME'),
   VIDEO_BUCKET_NAME: config.get('VIDEO_BUCKET_NAME'),
+  AUDIO_BUCKET_NAME: config.get('AUDIO_BUCKET_NAME'),
   AWS_REGION: config.get('AWS_REGION')
 };
 
