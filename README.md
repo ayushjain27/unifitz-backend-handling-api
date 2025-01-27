@@ -130,6 +130,12 @@ docker image prune
 docker run -p 8000:3005 -d <image url>
 ```
 
+5. Delete the docker unsued images and containers:
+```
+docker system prune
+```
+
+
 //Catalog migration script, Dont remove
 app.get('/catalog', (req, res) => {
   const node_xj = require('xls-to-json');
