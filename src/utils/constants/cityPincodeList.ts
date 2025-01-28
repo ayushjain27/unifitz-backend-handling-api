@@ -2,6781 +2,6781 @@ export const cityPincodeList = [
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560001
+        "pincode": "560001"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560002
+        "pincode": "560002"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560003
+        "pincode": "560003"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560003
+        "pincode": "560003"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560004
+        "pincode": "560004"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560005
+        "pincode": "560005"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560006
+        "pincode": "560006"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560007
+        "pincode": "560007"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560008
+        "pincode": "560008"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560009
+        "pincode": "560009"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560010
+        "pincode": "560010"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560011
+        "pincode": "560011"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560012
+        "pincode": "560012"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560013
+        "pincode": "560013"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560015
+        "pincode": "560015"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560016
+        "pincode": "560016"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560017
+        "pincode": "560017"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560018
+        "pincode": "560018"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560020
+        "pincode": "560020"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560021
+        "pincode": "560021"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560022
+        "pincode": "560022"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560023
+        "pincode": "560023"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560024
+        "pincode": "560024"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560025
+        "pincode": "560025"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560026
+        "pincode": "560026"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560027
+        "pincode": "560027"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560029
+        "pincode": "560029"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560030
+        "pincode": "560030"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560032
+        "pincode": "560032"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560033
+        "pincode": "560033"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560035
+        "pincode": "560035"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560036
+        "pincode": "560036"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560037
+        "pincode": "560037"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560038
+        "pincode": "560038"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560040
+        "pincode": "560040"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560041
+        "pincode": "560041"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560042
+        "pincode": "560042"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560043
+        "pincode": "560043"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560045
+        "pincode": "560045"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560047
+        "pincode": "560047"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560048
+        "pincode": "560048"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560049
+        "pincode": "560049"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560050
+        "pincode": "560050"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560051
+        "pincode": "560051"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560053
+        "pincode": "560053"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560054
+        "pincode": "560054"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560055
+        "pincode": "560055"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560056
+        "pincode": "560056"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560057
+        "pincode": "560057"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560058
+        "pincode": "560058"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560059
+        "pincode": "560059"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560060
+        "pincode": "560060"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560061
+        "pincode": "560061"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560062
+        "pincode": "560062"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560062
+        "pincode": "560062"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560063
+        "pincode": "560063"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560064
+        "pincode": "560064"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560065
+        "pincode": "560065"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560066
+        "pincode": "560066"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560067
+        "pincode": "560067"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560068
+        "pincode": "560068"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560070
+        "pincode": "560070"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560071
+        "pincode": "560071"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560072
+        "pincode": "560072"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560073
+        "pincode": "560073"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560074
+        "pincode": "560074"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560075
+        "pincode": "560075"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560076
+        "pincode": "560076"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560077
+        "pincode": "560077"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560078
+        "pincode": "560078"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560079
+        "pincode": "560079"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560080
+        "pincode": "560080"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560081
+        "pincode": "560081"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560082
+        "pincode": "560082"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560083
+        "pincode": "560083"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560084
+        "pincode": "560084"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560085
+        "pincode": "560085"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560086
+        "pincode": "560086"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560087
+        "pincode": "560087"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560088
+        "pincode": "560088"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560089
+        "pincode": "560089"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560090
+        "pincode": "560090"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560091
+        "pincode": "560091"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560092
+        "pincode": "560092"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560093
+        "pincode": "560093"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560094
+        "pincode": "560094"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560095
+        "pincode": "560095"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560096
+        "pincode": "560096"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560097
+        "pincode": "560097"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560098
+        "pincode": "560098"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560099
+        "pincode": "560099"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560100
+        "pincode": "560100"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560102
+        "pincode": "560102"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560103
+        "pincode": "560103"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560104
+        "pincode": "560104"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560105
+        "pincode": "560105"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560107
+        "pincode": "560107"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560108
+        "pincode": "560108"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560109
+        "pincode": "560109"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560110
+        "pincode": "560110"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560111
+        "pincode": "560111"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560112
+        "pincode": "560112"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560113
+        "pincode": "560113"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560114
+        "pincode": "560114"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560115
+        "pincode": "560115"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560116
+        "pincode": "560116"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560117
+        "pincode": "560117"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560119
+        "pincode": "560119"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560300
+        "pincode": "560300"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 560500
+        "pincode": "560500"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 561101
+        "pincode": "561101"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 561201
+        "pincode": "561201"
     },
     {
         "statename": "KARNATAKA",
         "district": "TUMAKURU",
-        "pincode": 561202
+        "pincode": "561202"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 561203
+        "pincode": "561203"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 561204
+        "pincode": "561204"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 561205
+        "pincode": "561205"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561206
+        "pincode": "561206"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561207
+        "pincode": "561207"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561208
+        "pincode": "561208"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561209
+        "pincode": "561209"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561210
+        "pincode": "561210"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561211
+        "pincode": "561211"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561212
+        "pincode": "561212"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561213
+        "pincode": "561213"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 561228
+        "pincode": "561228"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 562101
+        "pincode": "562101"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 562102
+        "pincode": "562102"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 562103
+        "pincode": "562103"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 562104
+        "pincode": "562104"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 562105
+        "pincode": "562105"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562106
+        "pincode": "562106"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562107
+        "pincode": "562107"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562108
+        "pincode": "562108"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562109
+        "pincode": "562109"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562110
+        "pincode": "562110"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562111
+        "pincode": "562111"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562112
+        "pincode": "562112"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562114
+        "pincode": "562114"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562117
+        "pincode": "562117"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562119
+        "pincode": "562119"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562120
+        "pincode": "562120"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562121
+        "pincode": "562121"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562122
+        "pincode": "562122"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562123
+        "pincode": "562123"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562125
+        "pincode": "562125"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562126
+        "pincode": "562126"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562127
+        "pincode": "562127"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562128
+        "pincode": "562128"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562129
+        "pincode": "562129"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562130
+        "pincode": "562130"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562131
+        "pincode": "562131"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562132
+        "pincode": "562132"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562135
+        "pincode": "562135"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562138
+        "pincode": "562138"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562149
+        "pincode": "562149"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562157
+        "pincode": "562157"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562159
+        "pincode": "562159"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562160
+        "pincode": "562160"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562161
+        "pincode": "562161"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562162
+        "pincode": "562162"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562163
+        "pincode": "562163"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562164
+        "pincode": "562164"
     },
     {
         "statename": "KARNATAKA",
         "district": "Bengaluru",
-        "pincode": 562165
+        "pincode": "562165"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAMANAGARA",
-        "pincode": 562166
+        "pincode": "562166"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563101
+        "pincode": "563101"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563103
+        "pincode": "563103"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563113
+        "pincode": "563113"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563114
+        "pincode": "563114"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563115
+        "pincode": "563115"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563116
+        "pincode": "563116"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563117
+        "pincode": "563117"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563118
+        "pincode": "563118"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563119
+        "pincode": "563119"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563120
+        "pincode": "563120"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563121
+        "pincode": "563121"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563122
+        "pincode": "563122"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 563123
+        "pincode": "563123"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 563124
+        "pincode": "563124"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563125
+        "pincode": "563125"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563126
+        "pincode": "563126"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563127
+        "pincode": "563127"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 563128
+        "pincode": "563128"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563129
+        "pincode": "563129"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563130
+        "pincode": "563130"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563131
+        "pincode": "563131"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563132
+        "pincode": "563132"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563133
+        "pincode": "563133"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563134
+        "pincode": "563134"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563135
+        "pincode": "563135"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563136
+        "pincode": "563136"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563137
+        "pincode": "563137"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563138
+        "pincode": "563138"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563139
+        "pincode": "563139"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 563146
+        "pincode": "563146"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563147
+        "pincode": "563147"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563157
+        "pincode": "563157"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKABALLAPURA",
-        "pincode": 563159
+        "pincode": "563159"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563160
+        "pincode": "563160"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563161
+        "pincode": "563161"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563162
+        "pincode": "563162"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOLAR",
-        "pincode": 563163
+        "pincode": "563163"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570001
+        "pincode": "570001"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570002
+        "pincode": "570002"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570003
+        "pincode": "570003"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570004
+        "pincode": "570004"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570005
+        "pincode": "570005"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570006
+        "pincode": "570006"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570007
+        "pincode": "570007"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570008
+        "pincode": "570008"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570009
+        "pincode": "570009"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570010
+        "pincode": "570010"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570011
+        "pincode": "570011"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570012
+        "pincode": "570012"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570014
+        "pincode": "570014"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570015
+        "pincode": "570015"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570016
+        "pincode": "570016"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570017
+        "pincode": "570017"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570018
+        "pincode": "570018"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570019
+        "pincode": "570019"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570020
+        "pincode": "570020"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570022
+        "pincode": "570022"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570023
+        "pincode": "570023"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570025
+        "pincode": "570025"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570026
+        "pincode": "570026"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570027
+        "pincode": "570027"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570028
+        "pincode": "570028"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570029
+        "pincode": "570029"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570030
+        "pincode": "570030"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570031
+        "pincode": "570031"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570032
+        "pincode": "570032"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570033
+        "pincode": "570033"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 570034
+        "pincode": "570034"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571101
+        "pincode": "571101"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571102
+        "pincode": "571102"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571103
+        "pincode": "571103"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571104
+        "pincode": "571104"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571105
+        "pincode": "571105"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571106
+        "pincode": "571106"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571107
+        "pincode": "571107"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571108
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571109
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571110
+        "pincode": "571108"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571111
+        "pincode": "571109"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571114
+        "pincode": "571110"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571115
+        "pincode": "571111"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571116
+        "pincode": "571114"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571117
+        "pincode": "571115"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571118
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571119
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571120
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571121
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571122
+        "pincode": "571116"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571123
+        "pincode": "571117"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571124
+        "pincode": "571118"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571125
+        "pincode": "571119"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571120"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571121"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571122"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571126
+        "pincode": "571123"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571124"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571125"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571127
+        "pincode": "571126"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571128
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571129
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571130
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571134
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571187
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571189
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571190
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571201
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571202
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571211
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571212
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571213
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571214
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571215
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571216
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571217
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571218
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571219
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571231
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571232
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571234
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571235
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571236
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571237
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571247
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571248
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571249
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571250
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571251
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571252
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571253
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Madikeri",
-        "pincode": 571254
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571301
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571302
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571311
+        "pincode": "571127"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHAMARAJANAGARA",
-        "pincode": 571312
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571313
+        "pincode": "571128"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571314
+        "pincode": "571129"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571315
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571316
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571320
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571342
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571401
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571402
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571403
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571404
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571405
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571415
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571416
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571417
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571418
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571419
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571421
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571422
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571423
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571424
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571425
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571426
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571427
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571428
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571429
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571430
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571431
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571432
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571433
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571434
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571435
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571436
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571438
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571439
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571440
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571441
+        "pincode": "571130"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571442
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571443
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571444
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571445
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571446
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571448
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571450
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571455
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571457
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571463
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571475
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571476
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571477
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571478
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "CHAMARAJANAGARA",
-        "pincode": 571490
+        "pincode": "571134"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571601
+        "pincode": "571187"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571602
+        "pincode": "571189"
     },
     {
         "statename": "KARNATAKA",
         "district": "MYSURU",
-        "pincode": 571603
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571604
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571605
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571606
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571607
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571610
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MYSURU",
-        "pincode": 571617
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571802
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571807
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571811
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "MANDYA",
-        "pincode": 571812
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572101
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572102
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572103
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572104
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572105
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572106
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572107
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572111
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572112
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572113
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572114
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572115
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572116
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572117
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572118
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572119
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572120
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572121
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572122
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572123
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572124
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572125
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572126
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572127
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572128
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572129
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572130
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572132
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572133
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572134
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572135
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572136
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572137
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572138
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572139
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572140
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572141
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572142
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572168
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572175
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572201
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572211
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572212
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572213
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572214
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572215
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572216
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572217
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572218
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572219
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572220
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572221
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572222
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572223
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572224
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572225
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572226
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572227
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "TUMAKURU",
-        "pincode": 572228
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573101
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573102
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573103
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573111
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573112
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573113
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573115
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573116
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573117
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573118
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573119
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573120
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573121
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573122
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573123
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573124
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573125
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573126
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573127
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573128
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573129
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573130
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573131
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573133
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573134
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573135
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573136
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573137
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573141
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573142
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573144
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573162
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573164
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573165
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573201
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573202
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573210
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573211
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573212
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573213
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573214
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573215
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573216
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573217
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573218
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573219
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573220
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573225
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "HASSAN",
-        "pincode": 573226
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574101
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574102
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574103
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574104
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574105
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574106
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574107
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574108
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574109
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574110
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574111
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574112
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574113
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574114
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574115
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574116
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574117
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574118
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574119
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574122
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574129
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574141
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574142
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574143
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574144
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574145
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574146
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574148
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574150
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574151
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574153
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574154
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574197
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574198
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574199
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574201
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574202
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574203
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574210
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574211
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574212
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574213
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574214
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574216
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574217
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574218
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574219
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574220
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574221
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574222
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574223
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574224
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574225
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574226
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574227
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574228
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574229
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574230
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574231
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574232
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574233
+        "pincode": "571190"
     },
     {
         "statename": "KARNATAKA",
         "district": "Madikeri",
-        "pincode": 574234
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574235
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574236
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574237
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574238
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574239
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574240
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574241
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574242
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574243
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "UDUPI",
-        "pincode": 574244
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574248
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574253
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574259
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574260
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574265
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574267
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574274
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574279
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574285
-    },
-    {
-        "statename": "KARNATAKA",
-        "district": "Mangaluru",
-        "pincode": 574313
+        "pincode": "571201"
     },
     {
         "statename": "KARNATAKA",
         "district": "Madikeri",
-        "pincode": 574314
+        "pincode": "571202"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571211"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571212"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571213"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571214"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571215"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571216"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571217"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571218"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571219"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571231"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571232"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571234"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571235"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571236"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571237"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571247"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571248"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571249"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571250"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571251"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571252"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571253"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "571254"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571301"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571302"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571311"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571312"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571313"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571314"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571315"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571316"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571320"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571342"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571401"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571402"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571403"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571404"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571405"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571415"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571416"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571417"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571418"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571419"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571421"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571422"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571423"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571424"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571425"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571426"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571427"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571428"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571429"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571430"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571431"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571432"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571433"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571434"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571435"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571436"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571438"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571439"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571440"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571441"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571442"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571443"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571444"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571445"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571446"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571448"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571450"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571455"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571457"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571463"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571475"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571476"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571477"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571478"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "CHAMARAJANAGARA",
+        "pincode": "571490"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571601"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571602"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571603"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571604"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571605"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571606"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571607"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571610"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MYSURU",
+        "pincode": "571617"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571802"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571807"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571811"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "MANDYA",
+        "pincode": "571812"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572101"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572102"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572103"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572104"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572105"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572106"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572107"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572111"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572112"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572113"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572114"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572115"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572116"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572117"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572118"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572119"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572120"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572121"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572122"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572123"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572124"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572125"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572126"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572127"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572128"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572129"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572130"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572132"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572133"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572134"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572135"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572136"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572137"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572138"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572139"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572140"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572141"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572142"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572168"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572175"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572201"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572211"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572212"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572213"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572214"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572215"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572216"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572217"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572218"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572219"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572220"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572221"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572222"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572223"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572224"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572225"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572226"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572227"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "TUMAKURU",
+        "pincode": "572228"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573101"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573102"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573103"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573111"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573112"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573113"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573115"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573116"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573117"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573118"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573119"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573120"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573121"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573122"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573123"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573124"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573125"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573126"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573127"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573128"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573129"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573130"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573131"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573133"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573134"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573135"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573136"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573137"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573141"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573142"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573144"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573162"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573164"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573165"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573201"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573202"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573210"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573211"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573212"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573213"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573214"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573215"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573216"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573217"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573218"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573219"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573220"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573225"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "HASSAN",
+        "pincode": "573226"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574101"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574102"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574103"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574104"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574105"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574106"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574107"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574108"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574109"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574110"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574111"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574112"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574113"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574114"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574115"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574116"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574117"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574118"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574119"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574122"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "574129"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574323
+        "pincode": "574141"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574324
+        "pincode": "574142"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574325
+        "pincode": "574143"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574326
+        "pincode": "574144"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574327
+        "pincode": "574145"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574328
+        "pincode": "574146"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 574509
+        "pincode": "574148"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575001
+        "pincode": "574150"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575002
+        "pincode": "574151"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575003
+        "pincode": "574153"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575004
+        "pincode": "574154"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575005
+        "pincode": "574197"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575006
+        "pincode": "574198"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575007
+        "pincode": "574199"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575008
+        "pincode": "574201"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575009
+        "pincode": "574202"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575010
+        "pincode": "574203"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575011
+        "pincode": "574210"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575013
+        "pincode": "574211"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575014
+        "pincode": "574212"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575016
+        "pincode": "574213"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575017
+        "pincode": "574214"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575018
+        "pincode": "574216"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575019
+        "pincode": "574217"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575020
+        "pincode": "574218"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575022
+        "pincode": "574219"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575023
+        "pincode": "574220"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575025
+        "pincode": "574221"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575028
+        "pincode": "574222"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575029
+        "pincode": "574223"
     },
     {
         "statename": "KARNATAKA",
         "district": "Mangaluru",
-        "pincode": 575030
+        "pincode": "574224"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574225"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574226"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574227"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574228"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574229"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574230"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574231"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574232"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574233"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "574234"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574235"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574236"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574237"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574238"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574239"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574240"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574241"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574242"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574243"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576101
+        "pincode": "574244"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574248"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574253"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574259"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574260"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574265"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574267"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574274"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574279"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574285"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574313"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Madikeri",
+        "pincode": "574314"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574323"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574324"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574325"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574326"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574327"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574328"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "574509"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575001"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575002"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575003"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575004"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575005"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575006"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575007"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575008"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575009"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575010"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575011"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575013"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575014"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575016"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575017"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575018"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575019"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575020"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575022"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575023"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575025"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575028"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575029"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "Mangaluru",
+        "pincode": "575030"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576102
+        "pincode": "576101"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576103
+        "pincode": "576102"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576104
+        "pincode": "576103"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576105
+        "pincode": "576104"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576106
+        "pincode": "576105"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576107
+        "pincode": "576106"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576108
+        "pincode": "576107"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576111
+        "pincode": "576108"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576112
+        "pincode": "576111"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576113
+        "pincode": "576112"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576114
+        "pincode": "576113"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576115
+        "pincode": "576114"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576117
+        "pincode": "576115"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576120
+        "pincode": "576117"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576121
+        "pincode": "576120"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576122
+        "pincode": "576121"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576124
+        "pincode": "576122"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576201
+        "pincode": "576124"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576210
+        "pincode": "576201"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576211
+        "pincode": "576210"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576212
+        "pincode": "576211"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576213
+        "pincode": "576212"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576214
+        "pincode": "576213"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576215
+        "pincode": "576214"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576216
+        "pincode": "576215"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576217
+        "pincode": "576216"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576218
+        "pincode": "576217"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576219
+        "pincode": "576218"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576220
+        "pincode": "576219"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576221
+        "pincode": "576220"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576222
+        "pincode": "576221"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576223
+        "pincode": "576222"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576224
+        "pincode": "576223"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576225
+        "pincode": "576224"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576226
+        "pincode": "576225"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576227
+        "pincode": "576226"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576228
+        "pincode": "576227"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576229
+        "pincode": "576228"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576230
+        "pincode": "576229"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576231
+        "pincode": "576230"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576232
+        "pincode": "576231"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576233
+        "pincode": "576232"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576234
+        "pincode": "576233"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576235
+        "pincode": "576234"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576247
+        "pincode": "576235"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576257
+        "pincode": "576247"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576282
+        "pincode": "576257"
     },
     {
         "statename": "KARNATAKA",
         "district": "UDUPI",
-        "pincode": 576283
+        "pincode": "576282"
+    },
+    {
+        "statename": "KARNATAKA",
+        "district": "UDUPI",
+        "pincode": "576283"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577001
+        "pincode": "577001"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577002
+        "pincode": "577002"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577003
+        "pincode": "577003"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577004
+        "pincode": "577004"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577005
+        "pincode": "577005"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577006
+        "pincode": "577006"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577007
+        "pincode": "577007"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577008
+        "pincode": "577008"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577101
+        "pincode": "577101"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577102
+        "pincode": "577102"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577111
+        "pincode": "577111"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577112
+        "pincode": "577112"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577113
+        "pincode": "577113"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577114
+        "pincode": "577114"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577115
+        "pincode": "577115"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577116
+        "pincode": "577116"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577117
+        "pincode": "577117"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577120
+        "pincode": "577120"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577121
+        "pincode": "577121"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577122
+        "pincode": "577122"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577123
+        "pincode": "577123"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577124
+        "pincode": "577124"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577125
+        "pincode": "577125"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577126
+        "pincode": "577126"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577127
+        "pincode": "577127"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577128
+        "pincode": "577128"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577129
+        "pincode": "577129"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577130
+        "pincode": "577130"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577131
+        "pincode": "577131"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577132
+        "pincode": "577132"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577133
+        "pincode": "577133"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577134
+        "pincode": "577134"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577135
+        "pincode": "577135"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577136
+        "pincode": "577136"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577137
+        "pincode": "577137"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577138
+        "pincode": "577138"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577139
+        "pincode": "577139"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577140
+        "pincode": "577140"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577144
+        "pincode": "577144"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577145
+        "pincode": "577145"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577146
+        "pincode": "577146"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577160
+        "pincode": "577160"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577168
+        "pincode": "577168"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577175
+        "pincode": "577175"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577179
+        "pincode": "577179"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577180
+        "pincode": "577180"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577181
+        "pincode": "577181"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577182
+        "pincode": "577182"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577201
+        "pincode": "577201"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577202
+        "pincode": "577202"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577203
+        "pincode": "577203"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577204
+        "pincode": "577204"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577205
+        "pincode": "577205"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577211
+        "pincode": "577211"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577213
+        "pincode": "577213"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577214
+        "pincode": "577214"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577215
+        "pincode": "577215"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577216
+        "pincode": "577216"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577217
+        "pincode": "577217"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577218
+        "pincode": "577218"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577219
+        "pincode": "577219"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577220
+        "pincode": "577220"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577221
+        "pincode": "577221"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577222
+        "pincode": "577222"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577223
+        "pincode": "577223"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577224
+        "pincode": "577224"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577225
+        "pincode": "577225"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577226
+        "pincode": "577226"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577227
+        "pincode": "577227"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577228
+        "pincode": "577228"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577229
+        "pincode": "577229"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577230
+        "pincode": "577230"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577231
+        "pincode": "577231"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577232
+        "pincode": "577232"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577233
+        "pincode": "577233"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577243
+        "pincode": "577243"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577245
+        "pincode": "577245"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577301
+        "pincode": "577301"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577302
+        "pincode": "577302"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577401
+        "pincode": "577401"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577411
+        "pincode": "577411"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577412
+        "pincode": "577412"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577413
+        "pincode": "577413"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577414
+        "pincode": "577414"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577415
+        "pincode": "577415"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577416
+        "pincode": "577416"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577417
+        "pincode": "577417"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577418
+        "pincode": "577418"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577419
+        "pincode": "577419"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577421
+        "pincode": "577421"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577422
+        "pincode": "577422"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577423
+        "pincode": "577423"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577424
+        "pincode": "577424"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577425
+        "pincode": "577425"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577426
+        "pincode": "577426"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577427
+        "pincode": "577427"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577428
+        "pincode": "577428"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577429
+        "pincode": "577429"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577430
+        "pincode": "577430"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577431
+        "pincode": "577431"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577432
+        "pincode": "577432"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577433
+        "pincode": "577433"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577434
+        "pincode": "577434"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577435
+        "pincode": "577435"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577451
+        "pincode": "577451"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577452
+        "pincode": "577452"
     },
     {
         "statename": "KARNATAKA",
         "district": "SHIVAMOGGA",
-        "pincode": 577453
+        "pincode": "577453"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577501
+        "pincode": "577501"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577502
+        "pincode": "577502"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577511
+        "pincode": "577511"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577512
+        "pincode": "577512"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577513
+        "pincode": "577513"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577514
+        "pincode": "577514"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577515
+        "pincode": "577515"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577516
+        "pincode": "577516"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577517
+        "pincode": "577517"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577518
+        "pincode": "577518"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577519
+        "pincode": "577519"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577520
+        "pincode": "577520"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577521
+        "pincode": "577521"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577522
+        "pincode": "577522"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577523
+        "pincode": "577523"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577524
+        "pincode": "577524"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577525
+        "pincode": "577525"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577526
+        "pincode": "577526"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577527
+        "pincode": "577527"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577528
+        "pincode": "577528"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577529
+        "pincode": "577529"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577530
+        "pincode": "577530"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577531
+        "pincode": "577531"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577532
+        "pincode": "577532"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577533
+        "pincode": "577533"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577534
+        "pincode": "577534"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577535
+        "pincode": "577535"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577536
+        "pincode": "577536"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577537
+        "pincode": "577537"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577538
+        "pincode": "577538"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577539
+        "pincode": "577539"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577540
+        "pincode": "577540"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577541
+        "pincode": "577541"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577542
+        "pincode": "577542"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577543
+        "pincode": "577543"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577544
+        "pincode": "577544"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577545
+        "pincode": "577545"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577546
+        "pincode": "577546"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577547
+        "pincode": "577547"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577548
+        "pincode": "577548"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577549
+        "pincode": "577549"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHIKKAMAGALURU",
-        "pincode": 577550
+        "pincode": "577550"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577551
+        "pincode": "577551"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577552
+        "pincode": "577552"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577553
+        "pincode": "577553"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577554
+        "pincode": "577554"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577555
+        "pincode": "577555"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577556
+        "pincode": "577556"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577557
+        "pincode": "577557"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577558
+        "pincode": "577558"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577566
+        "pincode": "577566"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577589
+        "pincode": "577589"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577596
+        "pincode": "577596"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577597
+        "pincode": "577597"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577598
+        "pincode": "577598"
     },
     {
         "statename": "KARNATAKA",
         "district": "CHITRADURGA",
-        "pincode": 577599
+        "pincode": "577599"
     },
     {
         "statename": "KARNATAKA",
         "district": "DAVANGERE",
-        "pincode": 577601
+        "pincode": "577601"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580001
+        "pincode": "580001"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580002
+        "pincode": "580002"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580003
+        "pincode": "580003"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580004
+        "pincode": "580004"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580005
+        "pincode": "580005"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580006
+        "pincode": "580006"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580007
+        "pincode": "580007"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580008
+        "pincode": "580008"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580009
+        "pincode": "580009"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580011
+        "pincode": "580011"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580020
+        "pincode": "580020"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580021
+        "pincode": "580021"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580023
+        "pincode": "580023"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580024
+        "pincode": "580024"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580025
+        "pincode": "580025"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580026
+        "pincode": "580026"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580027
+        "pincode": "580027"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580028
+        "pincode": "580028"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580029
+        "pincode": "580029"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580030
+        "pincode": "580030"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580031
+        "pincode": "580031"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580032
+        "pincode": "580032"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580112
+        "pincode": "580112"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580114
+        "pincode": "580114"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 580118
+        "pincode": "580118"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581101
+        "pincode": "581101"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581102
+        "pincode": "581102"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581103
+        "pincode": "581103"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581104
+        "pincode": "581104"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581105
+        "pincode": "581105"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581106
+        "pincode": "581106"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581107
+        "pincode": "581107"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581108
+        "pincode": "581108"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581109
+        "pincode": "581109"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581110
+        "pincode": "581110"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581111
+        "pincode": "581111"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581112
+        "pincode": "581112"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581113
+        "pincode": "581113"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581115
+        "pincode": "581115"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581116
+        "pincode": "581116"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581117
+        "pincode": "581117"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581118
+        "pincode": "581118"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581119
+        "pincode": "581119"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581120
+        "pincode": "581120"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581121
+        "pincode": "581121"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581123
+        "pincode": "581123"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581126
+        "pincode": "581126"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581128
+        "pincode": "581128"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581129
+        "pincode": "581129"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581145
+        "pincode": "581145"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581148
+        "pincode": "581148"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581186
+        "pincode": "581186"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581187
+        "pincode": "581187"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581193
+        "pincode": "581193"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581195
+        "pincode": "581195"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581196
+        "pincode": "581196"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581198
+        "pincode": "581198"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581199
+        "pincode": "581199"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581201
+        "pincode": "581201"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581202
+        "pincode": "581202"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581203
+        "pincode": "581203"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581204
+        "pincode": "581204"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581205
+        "pincode": "581205"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581206
+        "pincode": "581206"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581207
+        "pincode": "581207"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581208
+        "pincode": "581208"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 581209
+        "pincode": "581209"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581210
+        "pincode": "581210"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581211
+        "pincode": "581211"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581212
+        "pincode": "581212"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581213
+        "pincode": "581213"
     },
     {
         "statename": "KARNATAKA",
         "district": "HAVERI",
-        "pincode": 581237
+        "pincode": "581237"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581301
+        "pincode": "581301"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581302
+        "pincode": "581302"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581303
+        "pincode": "581303"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581304
+        "pincode": "581304"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581306
+        "pincode": "581306"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581307
+        "pincode": "581307"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581308
+        "pincode": "581308"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581314
+        "pincode": "581314"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581315
+        "pincode": "581315"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581316
+        "pincode": "581316"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581317
+        "pincode": "581317"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581318
+        "pincode": "581318"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581319
+        "pincode": "581319"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581320
+        "pincode": "581320"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581321
+        "pincode": "581321"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581322
+        "pincode": "581322"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581323
+        "pincode": "581323"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581324
+        "pincode": "581324"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581325
+        "pincode": "581325"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581326
+        "pincode": "581326"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581327
+        "pincode": "581327"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581328
+        "pincode": "581328"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581329
+        "pincode": "581329"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581330
+        "pincode": "581330"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581331
+        "pincode": "581331"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581332
+        "pincode": "581332"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581333
+        "pincode": "581333"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581334
+        "pincode": "581334"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581335
+        "pincode": "581335"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581336
+        "pincode": "581336"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581337
+        "pincode": "581337"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581338
+        "pincode": "581338"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581339
+        "pincode": "581339"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581340
+        "pincode": "581340"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581341
+        "pincode": "581341"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581342
+        "pincode": "581342"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581343
+        "pincode": "581343"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581344
+        "pincode": "581344"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581345
+        "pincode": "581345"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581346
+        "pincode": "581346"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581347
+        "pincode": "581347"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581348
+        "pincode": "581348"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581349
+        "pincode": "581349"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581350
+        "pincode": "581350"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581351
+        "pincode": "581351"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581352
+        "pincode": "581352"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581353
+        "pincode": "581353"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581354
+        "pincode": "581354"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581355
+        "pincode": "581355"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581356
+        "pincode": "581356"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581357
+        "pincode": "581357"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581358
+        "pincode": "581358"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581359
+        "pincode": "581359"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581360
+        "pincode": "581360"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581361
+        "pincode": "581361"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581362
+        "pincode": "581362"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581363
+        "pincode": "581363"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581365
+        "pincode": "581365"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581384
+        "pincode": "581384"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581396
+        "pincode": "581396"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581400
+        "pincode": "581400"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581401
+        "pincode": "581401"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581402
+        "pincode": "581402"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581403
+        "pincode": "581403"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581411
+        "pincode": "581411"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581412
+        "pincode": "581412"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581421
+        "pincode": "581421"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581423
+        "pincode": "581423"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581440
+        "pincode": "581440"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581450
+        "pincode": "581450"
     },
     {
         "statename": "KARNATAKA",
         "district": "Karwar",
-        "pincode": 581453
+        "pincode": "581453"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582101
+        "pincode": "582101"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582102
+        "pincode": "582102"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582103
+        "pincode": "582103"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582111
+        "pincode": "582111"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582112
+        "pincode": "582112"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582113
+        "pincode": "582113"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582114
+        "pincode": "582114"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582115
+        "pincode": "582115"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582116
+        "pincode": "582116"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582117
+        "pincode": "582117"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582118
+        "pincode": "582118"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582119
+        "pincode": "582119"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582120
+        "pincode": "582120"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 582201
+        "pincode": "582201"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582202
+        "pincode": "582202"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582203
+        "pincode": "582203"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582204
+        "pincode": "582204"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582205
+        "pincode": "582205"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582206
+        "pincode": "582206"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582207
+        "pincode": "582207"
     },
     {
         "statename": "KARNATAKA",
         "district": "DHARWAD",
-        "pincode": 582208
+        "pincode": "582208"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582209
+        "pincode": "582209"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582210
+        "pincode": "582210"
     },
     {
         "statename": "KARNATAKA",
         "district": "GADAG",
-        "pincode": 582211
+        "pincode": "582211"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583101
+        "pincode": "583101"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583102
+        "pincode": "583102"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583103
+        "pincode": "583103"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583104
+        "pincode": "583104"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583105
+        "pincode": "583105"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583111
+        "pincode": "583111"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583112
+        "pincode": "583112"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583113
+        "pincode": "583113"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583114
+        "pincode": "583114"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583115
+        "pincode": "583115"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583116
+        "pincode": "583116"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583117
+        "pincode": "583117"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583118
+        "pincode": "583118"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583119
+        "pincode": "583119"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583120
+        "pincode": "583120"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583121
+        "pincode": "583121"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583122
+        "pincode": "583122"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583123
+        "pincode": "583123"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583124
+        "pincode": "583124"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583125
+        "pincode": "583125"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583126
+        "pincode": "583126"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583127
+        "pincode": "583127"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583128
+        "pincode": "583128"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583129
+        "pincode": "583129"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583130
+        "pincode": "583130"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583131
+        "pincode": "583131"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583132
+        "pincode": "583132"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583134
+        "pincode": "583134"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583135
+        "pincode": "583135"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583136
+        "pincode": "583136"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583137
+        "pincode": "583137"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583152
+        "pincode": "583152"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583153
+        "pincode": "583153"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583154
+        "pincode": "583154"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583155
+        "pincode": "583155"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583201
+        "pincode": "583201"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583203
+        "pincode": "583203"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583211
+        "pincode": "583211"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583212
+        "pincode": "583212"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583213
+        "pincode": "583213"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583214
+        "pincode": "583214"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583215
+        "pincode": "583215"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583216
+        "pincode": "583216"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583217
+        "pincode": "583217"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583218
+        "pincode": "583218"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583219
+        "pincode": "583219"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583220
+        "pincode": "583220"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583221
+        "pincode": "583221"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583222
+        "pincode": "583222"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583223
+        "pincode": "583223"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583224
+        "pincode": "583224"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583225
+        "pincode": "583225"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583226
+        "pincode": "583226"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583227
+        "pincode": "583227"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583228
+        "pincode": "583228"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583229
+        "pincode": "583229"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583230
+        "pincode": "583230"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583231
+        "pincode": "583231"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583232
+        "pincode": "583232"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583233
+        "pincode": "583233"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583234
+        "pincode": "583234"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583235
+        "pincode": "583235"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583236
+        "pincode": "583236"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583237
+        "pincode": "583237"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583238
+        "pincode": "583238"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583239
+        "pincode": "583239"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583268
+        "pincode": "583268"
     },
     {
         "statename": "KARNATAKA",
         "district": "BALLARI",
-        "pincode": 583275
+        "pincode": "583275"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYNAGAR",
-        "pincode": 583276
+        "pincode": "583276"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583277
+        "pincode": "583277"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583278
+        "pincode": "583278"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583279
+        "pincode": "583279"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583280
+        "pincode": "583280"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583281
+        "pincode": "583281"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583282
+        "pincode": "583282"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583283
+        "pincode": "583283"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583284
+        "pincode": "583284"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583285
+        "pincode": "583285"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583286
+        "pincode": "583286"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583287
+        "pincode": "583287"
     },
     {
         "statename": "KARNATAKA",
         "district": "KOPPAL",
-        "pincode": 583288
+        "pincode": "583288"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584101
+        "pincode": "584101"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584102
+        "pincode": "584102"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584103
+        "pincode": "584103"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584104
+        "pincode": "584104"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584111
+        "pincode": "584111"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584113
+        "pincode": "584113"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584115
+        "pincode": "584115"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584116
+        "pincode": "584116"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584118
+        "pincode": "584118"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584120
+        "pincode": "584120"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584122
+        "pincode": "584122"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584123
+        "pincode": "584123"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584124
+        "pincode": "584124"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584125
+        "pincode": "584125"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584126
+        "pincode": "584126"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584127
+        "pincode": "584127"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584128
+        "pincode": "584128"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584129
+        "pincode": "584129"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584132
+        "pincode": "584132"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584133
+        "pincode": "584133"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584134
+        "pincode": "584134"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584135
+        "pincode": "584135"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584136
+        "pincode": "584136"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584138
+        "pincode": "584138"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584139
+        "pincode": "584139"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584140
+        "pincode": "584140"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584143
+        "pincode": "584143"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584167
+        "pincode": "584167"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584170
+        "pincode": "584170"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584202
+        "pincode": "584202"
     },
     {
         "statename": "KARNATAKA",
         "district": "RAICHUR",
-        "pincode": 584203
+        "pincode": "584203"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585101
+        "pincode": "585101"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585102
+        "pincode": "585102"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585103
+        "pincode": "585103"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585104
+        "pincode": "585104"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585105
+        "pincode": "585105"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585106
+        "pincode": "585106"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585107
+        "pincode": "585107"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585201
+        "pincode": "585201"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585202
+        "pincode": "585202"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585210
+        "pincode": "585210"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585211
+        "pincode": "585211"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585212
+        "pincode": "585212"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585213
+        "pincode": "585213"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585214
+        "pincode": "585214"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585215
+        "pincode": "585215"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585216
+        "pincode": "585216"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585217
+        "pincode": "585217"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585218
+        "pincode": "585218"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585219
+        "pincode": "585219"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585220
+        "pincode": "585220"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585221
+        "pincode": "585221"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585222
+        "pincode": "585222"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585223
+        "pincode": "585223"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585224
+        "pincode": "585224"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585225
+        "pincode": "585225"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585226
+        "pincode": "585226"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585227
+        "pincode": "585227"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585228
+        "pincode": "585228"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585229
+        "pincode": "585229"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585236
+        "pincode": "585236"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585237
+        "pincode": "585237"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585265
+        "pincode": "585265"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585287
+        "pincode": "585287"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585290
+        "pincode": "585290"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585291
+        "pincode": "585291"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585292
+        "pincode": "585292"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585301
+        "pincode": "585301"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585302
+        "pincode": "585302"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585303
+        "pincode": "585303"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585304
+        "pincode": "585304"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585305
+        "pincode": "585305"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585306
+        "pincode": "585306"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585307
+        "pincode": "585307"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585308
+        "pincode": "585308"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585309
+        "pincode": "585309"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585310
+        "pincode": "585310"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585311
+        "pincode": "585311"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585312
+        "pincode": "585312"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585313
+        "pincode": "585313"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585314
+        "pincode": "585314"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585315
+        "pincode": "585315"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585316
+        "pincode": "585316"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585317
+        "pincode": "585317"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585318
+        "pincode": "585318"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585319
+        "pincode": "585319"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585320
+        "pincode": "585320"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585321
+        "pincode": "585321"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585322
+        "pincode": "585322"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585323
+        "pincode": "585323"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585324
+        "pincode": "585324"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585325
+        "pincode": "585325"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585326
+        "pincode": "585326"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585327
+        "pincode": "585327"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585328
+        "pincode": "585328"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585329
+        "pincode": "585329"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585330
+        "pincode": "585330"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585331
+        "pincode": "585331"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585353
+        "pincode": "585353"
     },
     {
         "statename": "KARNATAKA",
         "district": "YADGIR",
-        "pincode": 585355
+        "pincode": "585355"
     },
     {
         "statename": "KARNATAKA",
         "district": "KALABURAGI",
-        "pincode": 585367
+        "pincode": "585367"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585401
+        "pincode": "585401"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585402
+        "pincode": "585402"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585403
+        "pincode": "585403"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585404
+        "pincode": "585404"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585411
+        "pincode": "585411"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585412
+        "pincode": "585412"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585413
+        "pincode": "585413"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585414
+        "pincode": "585414"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585416
+        "pincode": "585416"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585417
+        "pincode": "585417"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585418
+        "pincode": "585418"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585419
+        "pincode": "585419"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585421
+        "pincode": "585421"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585436
+        "pincode": "585436"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585437
+        "pincode": "585437"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585443
+        "pincode": "585443"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585444
+        "pincode": "585444"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585445
+        "pincode": "585445"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585446
+        "pincode": "585446"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585447
+        "pincode": "585447"
     },
     {
         "statename": "KARNATAKA",
         "district": "BIDAR",
-        "pincode": 585448
+        "pincode": "585448"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586101
+        "pincode": "586101"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586103
+        "pincode": "586103"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586104
+        "pincode": "586104"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586108
+        "pincode": "586108"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586109
+        "pincode": "586109"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586111
+        "pincode": "586111"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586112
+        "pincode": "586112"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 586113
+        "pincode": "586113"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586114
+        "pincode": "586114"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586115
+        "pincode": "586115"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586116
+        "pincode": "586116"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586117
+        "pincode": "586117"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586118
+        "pincode": "586118"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586119
+        "pincode": "586119"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586120
+        "pincode": "586120"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586121
+        "pincode": "586121"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586122
+        "pincode": "586122"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586123
+        "pincode": "586123"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586124
+        "pincode": "586124"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 586125
+        "pincode": "586125"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586127
+        "pincode": "586127"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586128
+        "pincode": "586128"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586129
+        "pincode": "586129"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586130
+        "pincode": "586130"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586162
+        "pincode": "586162"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586170
+        "pincode": "586170"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586201
+        "pincode": "586201"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586202
+        "pincode": "586202"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586203
+        "pincode": "586203"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586204
+        "pincode": "586204"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586205
+        "pincode": "586205"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586206
+        "pincode": "586206"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586207
+        "pincode": "586207"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586208
+        "pincode": "586208"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586209
+        "pincode": "586209"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586210
+        "pincode": "586210"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586211
+        "pincode": "586211"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586212
+        "pincode": "586212"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586213
+        "pincode": "586213"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586214
+        "pincode": "586214"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586215
+        "pincode": "586215"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586216
+        "pincode": "586216"
     },
     {
         "statename": "KARNATAKA",
         "district": "VIJAYAPURA",
-        "pincode": 586217
+        "pincode": "586217"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587101
+        "pincode": "587101"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587102
+        "pincode": "587102"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587103
+        "pincode": "587103"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587104
+        "pincode": "587104"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587111
+        "pincode": "587111"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587112
+        "pincode": "587112"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587113
+        "pincode": "587113"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587114
+        "pincode": "587114"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587115
+        "pincode": "587115"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587116
+        "pincode": "587116"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587117
+        "pincode": "587117"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587118
+        "pincode": "587118"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587119
+        "pincode": "587119"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587120
+        "pincode": "587120"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587121
+        "pincode": "587121"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587122
+        "pincode": "587122"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587124
+        "pincode": "587124"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587125
+        "pincode": "587125"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587154
+        "pincode": "587154"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587155
+        "pincode": "587155"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587156
+        "pincode": "587156"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587157
+        "pincode": "587157"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587201
+        "pincode": "587201"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587202
+        "pincode": "587202"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587203
+        "pincode": "587203"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587204
+        "pincode": "587204"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587205
+        "pincode": "587205"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587206
+        "pincode": "587206"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587207
+        "pincode": "587207"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587301
+        "pincode": "587301"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587311
+        "pincode": "587311"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587312
+        "pincode": "587312"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587313
+        "pincode": "587313"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587314
+        "pincode": "587314"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587315
+        "pincode": "587315"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587316
+        "pincode": "587316"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587330
+        "pincode": "587330"
     },
     {
         "statename": "KARNATAKA",
         "district": "BAGALKOT",
-        "pincode": 587331
+        "pincode": "587331"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590001
+        "pincode": "590001"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590003
+        "pincode": "590003"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590005
+        "pincode": "590005"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590006
+        "pincode": "590006"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590008
+        "pincode": "590008"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590009
+        "pincode": "590009"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590010
+        "pincode": "590010"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590011
+        "pincode": "590011"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590014
+        "pincode": "590014"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590015
+        "pincode": "590015"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590016
+        "pincode": "590016"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590017
+        "pincode": "590017"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590018
+        "pincode": "590018"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590019
+        "pincode": "590019"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 590020
+        "pincode": "590020"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591101
+        "pincode": "591101"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591102
+        "pincode": "591102"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591103
+        "pincode": "591103"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591104
+        "pincode": "591104"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591106
+        "pincode": "591106"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591107
+        "pincode": "591107"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591108
+        "pincode": "591108"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591109
+        "pincode": "591109"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591110
+        "pincode": "591110"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591111
+        "pincode": "591111"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591112
+        "pincode": "591112"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591113
+        "pincode": "591113"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591114
+        "pincode": "591114"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591115
+        "pincode": "591115"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591117
+        "pincode": "591117"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591118
+        "pincode": "591118"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591119
+        "pincode": "591119"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591120
+        "pincode": "591120"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591121
+        "pincode": "591121"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591122
+        "pincode": "591122"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591123
+        "pincode": "591123"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591124
+        "pincode": "591124"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591125
+        "pincode": "591125"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591126
+        "pincode": "591126"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591127
+        "pincode": "591127"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591128
+        "pincode": "591128"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591129
+        "pincode": "591129"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591130
+        "pincode": "591130"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591131
+        "pincode": "591131"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591136
+        "pincode": "591136"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591143
+        "pincode": "591143"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591147
+        "pincode": "591147"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591153
+        "pincode": "591153"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591156
+        "pincode": "591156"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591173
+        "pincode": "591173"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591201
+        "pincode": "591201"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591211
+        "pincode": "591211"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591212
+        "pincode": "591212"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591213
+        "pincode": "591213"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591214
+        "pincode": "591214"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591215
+        "pincode": "591215"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591216
+        "pincode": "591216"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591217
+        "pincode": "591217"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591218
+        "pincode": "591218"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591219
+        "pincode": "591219"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591220
+        "pincode": "591220"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591221
+        "pincode": "591221"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591222
+        "pincode": "591222"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591223
+        "pincode": "591223"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591224
+        "pincode": "591224"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591225
+        "pincode": "591225"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591226
+        "pincode": "591226"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591227
+        "pincode": "591227"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591228
+        "pincode": "591228"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591229
+        "pincode": "591229"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591230
+        "pincode": "591230"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591231
+        "pincode": "591231"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591232
+        "pincode": "591232"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591233
+        "pincode": "591233"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591234
+        "pincode": "591234"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591235
+        "pincode": "591235"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591236
+        "pincode": "591236"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591237
+        "pincode": "591237"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591238
+        "pincode": "591238"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591239
+        "pincode": "591239"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591240
+        "pincode": "591240"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591241
+        "pincode": "591241"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591242
+        "pincode": "591242"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591243
+        "pincode": "591243"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591244
+        "pincode": "591244"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591246
+        "pincode": "591246"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591247
+        "pincode": "591247"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591248
+        "pincode": "591248"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591254
+        "pincode": "591254"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591263
+        "pincode": "591263"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591265
+        "pincode": "591265"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591287
+        "pincode": "591287"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591301
+        "pincode": "591301"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591302
+        "pincode": "591302"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591303
+        "pincode": "591303"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591304
+        "pincode": "591304"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591305
+        "pincode": "591305"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591306
+        "pincode": "591306"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591307
+        "pincode": "591307"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591308
+        "pincode": "591308"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591309
+        "pincode": "591309"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591310
+        "pincode": "591310"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591311
+        "pincode": "591311"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591312
+        "pincode": "591312"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591313
+        "pincode": "591313"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591314
+        "pincode": "591314"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591315
+        "pincode": "591315"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591316
+        "pincode": "591316"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591317
+        "pincode": "591317"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591340
+        "pincode": "591340"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591344
+        "pincode": "591344"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591345
+        "pincode": "591345"
     },
     {
         "statename": "KARNATAKA",
         "district": "BELAGAVI",
-        "pincode": 591346
+        "pincode": "591346"
     }
 ]

@@ -101,30 +101,15 @@ export interface IState {
   name: string;
 }
 export const stateSchema: Schema = new Schema(
-  {
-    name: {
-      type: String
-    }
-  },
-  {
-    _id: false,
-    strict: false
-  }
+  {name: { type: String }},
+  {_id: false, strict: false }
 );
 
 export const citySchema: Schema = new Schema(
-  {
-    name: {
-      type: String
-    },
-    value: {
-      type: String
-    }
+  { name: { type: String },
+    // value: { type: String }
   },
-  {
-    _id: false,
-    strict: false
-  }
+  { _id: false, strict: false }
 );
 
 export interface ICity {
@@ -136,15 +121,8 @@ export interface IPincode {
   name: string;
 }
 export const pincodeSchema: Schema = new Schema(
-  {
-    name: {
-      type: String
-    }
-  },
-  {
-    _id: false,
-    strict: false
-  }
+  { name: { type: String } },
+  { _id: false, strict: false }
 );
 
 export interface IAdmin {
