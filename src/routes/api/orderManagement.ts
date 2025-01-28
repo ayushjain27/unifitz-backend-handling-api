@@ -90,9 +90,26 @@ router.post(
   uploadFiles.array('files'),
   orderManagementController.updateImage
 );
+router.put('/sparePostRequirement/:sparePostId', orderManagementController.updateSparePost);
+
+
+router.delete(
+  '/sparePostRequirement/delete/:sparePostId',
+  orderManagementController.deleteSparePost
+);
+
 router.get(
   '/sparePostRequirement/getById',
   orderManagementController.getSparePostRequirementDetails
+);
+
+router.get(
+  '/sparePostRequirement/paginated',
+  orderManagementController.getSparePostPaginated
+);
+router.get(
+  '/partner/getAllCount',
+  orderManagementController.getSparePostCount
 );
 
 export default router;

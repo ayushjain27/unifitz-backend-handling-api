@@ -32,6 +32,8 @@ import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
 import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
+// import * as pincodeList from './utils/constants/cityPincodeList.json';
+import { cityPincodeList } from './utils/constants/cityPincodeList'
 import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
@@ -405,6 +407,32 @@ app.post('/brand', async (req, res) => {
 
 app.get('/stateCityList', async (req, res) => {
   res.json(stateCityList);
+});
+
+app.get('/cityPincodeList', async (req, res) => {
+
+  const jsonData: any = cityPincodeList;
+
+  const capitalizeFirstLetter = (str: string) => {
+      return str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
+  };
+  
+  const seen = new Set();
+  const uniqueData = jsonData.filter((item: any) => {
+      const statename = capitalizeFirstLetter(item.statename);
+      const district = capitalizeFirstLetter(item.district);
+      const key = `${statename}-${district}-${item.pincode}`;
+      
+      if (seen.has(key)) {
+          return false;
+      } else {
+          seen.add(key); 
+          item.statename = statename;
+          item.district = district;
+          return true;
+      }
+  });
+  res.json({list: uniqueData});
 });
 
 app.get('/reportQuestions', async (req, res) => {

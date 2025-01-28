@@ -311,19 +311,101 @@ export class OrderManagementController {
     }
   };
 
+  updateSparePost = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OrderManagementController>:<Update sparePost Status>');
+    const sparePostId = req.params.sparePostId;
+    try {
+      const result = await this.orderManagementService.updateSparePost(
+        req.body,
+        sparePostId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteSparePost = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OrderManagementController>:<Delete SparePost>');
+    const sparePostId = req.params.sparePostId;
+    try {
+      const result = await this.orderManagementService.deleteSparePost(
+        sparePostId
+      );
+      res.send({
+        message: 'SparePostRequirement deleted successfully'
+        // result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getSparePostRequirementDetails = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
     try {
       const sparePostId = req.query.sparePostId;
+      const platform = req.query.platform;
       const result =
         await this.orderManagementService.getSparePostRequirementDetails(
-          sparePostId as string
+          sparePostId as string,
+          platform as string
         );
       Logger.info(
         '<Controller>:<OrderManagementController>:<get successfully>'
       );
       res.send({
         message: 'Marketing obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getSparePostPaginated = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Get All request controller initiated>'
+    );
+    try {
+      const pageNo = Number(req.query.pageNo);
+      const pageSize = Number(req.query.pageSize || 10);
+      const storeId = req.query.storeId;
+      const vehicleType = req.query.vehicleType;
+      const result = await this.orderManagementService.getSparePostPaginated(
+        pageNo,
+        pageSize,
+        storeId as string,
+        vehicleType as string
+      );
+      res.send({
+        message: 'SparePostRequirement obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getSparePostCount = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Get All request controller initiated>'
+    );
+    try {
+      const storeId = req.query.storeId;
+      const vehicleType = req.query.vehicleType;
+      const result = await this.orderManagementService.getSparePostCount(
+        storeId as string,
+        vehicleType as string
+      );
+      res.send({
+        message: 'SparePostRequirement obtained successfully',
         result
       });
     } catch (err) {

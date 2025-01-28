@@ -1502,16 +1502,16 @@ export class ProductService {
     if (_.isEmpty(newProd)) {
       throw new Error('Partner product does not exist');
     }
-    const userData = await Admin.findOne({
-      userName: newProd?.oemUserName
-    });
-    const jsonData = {
-      ...newProd,
-      partnerDetail: userData
-    };
+    // const userData = await Admin.findOne({
+    //   userName: newProd?.oemUserName
+    // });
+    // const jsonData = {
+    //   ...newProd,
+    //   partnerDetail: userData
+    // };
     Logger.info('<Service>:<ProductService>:<Upload product successful>');
 
-    return jsonData;
+    return newProd;
   }
 
   async updatePartnerProduct(

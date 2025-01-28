@@ -117,9 +117,9 @@ export const citySchema: Schema = new Schema(
     name: {
       type: String
     },
-    value: {
-      type: String
-    }
+    // value: {
+    //   type: String
+    // }
   },
   {
     _id: false,
@@ -129,8 +129,23 @@ export const citySchema: Schema = new Schema(
 
 export interface ICity {
   name: string;
-  value: string;
+  // value: string;
 }
+
+export interface IPincode {
+  name: string;
+}
+export const pincodeSchema: Schema = new Schema(
+  {
+    name: {
+      type: String
+    }
+  },
+  {
+    _id: false,
+    strict: false
+  }
+);
 
 export interface IAdmin {
   _id?: Types.ObjectId | string;
@@ -202,9 +217,10 @@ export interface IProductCategory {
   category: ICatalog[];
   subCategory: ICatalog[];
   brandName: string;
-  pincode: string;
+  // pincode: string;
   state: IState[];
   city: ICity[];
+  pincodes: IPincode[];
   vehicleType: IVehicleType[];
 }
 
@@ -213,9 +229,10 @@ export const productCategorySchema: Schema = new Schema(
     category: { type: [catalogSchema] },
     subCategory: { type: [catalogSchema] },
     brandName: { type: String },
-    pincode: { type: String },
+    // pincode: { type: String },
     state: { type: [stateSchema] },
     city: { type: [citySchema] },
+    pincodes: { type: [pincodeSchema] },
     vehicleType: { type: [vehicleTypeSchema] }
   },
   {
