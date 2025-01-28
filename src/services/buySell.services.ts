@@ -333,7 +333,7 @@ export class BuySellService {
           distanceMultiplier: 0.001
         }
       },
-      // Ensure sorting before applying pagination
+      // Ensure sorting before applying pagination not necessary
       // {
       //   $sort: { distance: 1 } // Sort by distance in ascending order
       // },

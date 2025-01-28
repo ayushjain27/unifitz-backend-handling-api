@@ -22,6 +22,8 @@ import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from './../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
+import Customer, { ICustomer } from '../models/Customer';
+import Store, { IStore } from './../models/Store';
 import { StaticIds } from '../models/StaticId';
 import { SparePost } from '../models/SparePostRequirement';
 
@@ -1065,20 +1067,111 @@ export class OrderManagementService {
     return res;
   }
 
-  async getSparePostRequirementDetails(sparePostId: string): Promise<any> {
-    Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
-
+  async updateSparePost(reqBody: any, sparePostId: string): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<Update SparePost details >');
     const jsonResult = await SparePost.findOne({
       _id: sparePostId
-    })?.lean();
+    });
 
     if (_.isEmpty(jsonResult)) {
-      throw new Error('SparePost Requirement does not exist');
+      throw new Error('sparePostRequirement does not exist');
     }
-    Logger.info(
-      '<Service>:<OrderManagementService>:<get SparePost successful>'
-    );
+    const query: any = {};
+    query._id = reqBody._id;
+    const res = await SparePost.findOneAndUpdate(query, reqBody, {
+      returnDocument: 'after',
+      projection: { 'verificationDetails.verifyObj': 0 }
+    });
+    return res;
+  }
+
+  async deleteSparePost( sparePostId: string ) {
+    Logger.info('<Service>:<OrderManagementService>:<Delete sparePost >');
+    const jsonResult = await SparePost.findOne({
+      _id: sparePostId
+    });
+
+    if (_.isEmpty(jsonResult)) {
+      throw new Error('sparePostRequirement does not exist');
+    }
+    const res = await SparePost.findOneAndDelete({
+      _id: new Types.ObjectId(sparePostId)
+    });
+    return res;
+  }
+
+  async getSparePostRequirementDetails(sparePostId: string, platform: string): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
+
+    let jsonResult;
+
+    if (platform === 'PARTNER_APP') {
+        const store = await Store.findOne({ storeId: sparePostId }, { verificationDetails: 0 });
+        if (!store) throw new Error('Store not found');
+
+        jsonResult = await SparePost.find({ storeId: sparePostId })?.lean();
+    } else if (platform === 'CUSTOMER_APP') {
+        const user = await Customer.findOne({ _id: new Types.ObjectId(sparePostId) });
+        if (!user) throw new Error('User not found');
+
+        jsonResult = await SparePost.find({ customerId: sparePostId })?.lean();
+    }
+
+    if (!jsonResult) throw new Error('SparePost Requirement does not exist');
+
+    Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
 
     return jsonResult;
+}
+
+  async getSparePostPaginated(
+    pageNo?: number,
+    pageSize?: number,
+    storeId?: string,
+    vehicleType?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
+    const query: any = {
+      'storeId': storeId,
+      'vehicleType': vehicleType
+    };
+
+    if (!storeId) delete query['storeId'];
+    if (!vehicleType) delete query['vehicleType'];
+    console.log(query, 'queryJson');
+    
+    const sparePostLists = await SparePost.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return sparePostLists;
+  }
+
+  async getSparePostCount(
+    storeId?: string,
+    vehicleType?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
+    const query: any = {
+      'storeId': storeId,
+      'vehicleType': vehicleType
+    };
+
+    if (!storeId) delete query['storeId'];
+    if (!vehicleType) delete query['vehicleType'];
+
+    const reults = await SparePost.countDocuments(query)
+    const sparePostCounts = {
+      total: reults || 0
+    }
+    return sparePostCounts;
   }
 }
