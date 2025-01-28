@@ -117,9 +117,9 @@ export const citySchema: Schema = new Schema(
     name: {
       type: String
     },
-    // value: {
-    //   type: String
-    // }
+    value: {
+      type: String
+    }
   },
   {
     _id: false,
@@ -129,7 +129,7 @@ export const citySchema: Schema = new Schema(
 
 export interface ICity {
   name: string;
-  // value: string;
+  value: string;
 }
 
 export interface IPincode {
