@@ -519,14 +519,14 @@ export class ProductService {
     let product: IProduct;
     if (productId) {
       product = await Product.findOne({
-        productId: new Types.ObjectId(productId)
+        _id: new Types.ObjectId(productId)
       });
     }
     if (!product) {
       Logger.error(
         '<Service>:<ProductService>:<Product not found with that product Id>'
       );
-      throw new Error('Store not found');
+      throw new Error('Product not found');
     }
     if (storeId) {
       store = await Store.findOne({ storeId }, { verificationDetails: 0 });
