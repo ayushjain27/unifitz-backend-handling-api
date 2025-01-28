@@ -1100,7 +1100,11 @@ export class OrderManagementService {
     return res;
   }
 
-  async getSparePostRequirementDetails(sparePostId: string, platform: string): Promise<any> {
+  async getSparePostRequirementDetails(    
+    pageNo?: number,
+    pageSize?: number,
+    sparePostId?: string, 
+    platform?: string): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
 
     let jsonResult;
@@ -1109,12 +1113,32 @@ export class OrderManagementService {
         const store = await Store.findOne({ storeId: sparePostId }, { verificationDetails: 0 });
         if (!store) throw new Error('Store not found');
 
-        jsonResult = await SparePost.find({ storeId: sparePostId })?.lean();
+        jsonResult = await SparePost.aggregate([
+          {
+            $match: { storeId: sparePostId }
+          },
+          {
+            $skip: pageNo * pageSize
+          },
+          {
+            $limit: pageSize
+          }
+        ]);
     } else if (platform === 'CUSTOMER_APP') {
         const user = await Customer.findOne({ _id: new Types.ObjectId(sparePostId) });
         if (!user) throw new Error('User not found');
 
-        jsonResult = await SparePost.find({ customerId: sparePostId })?.lean();
+        jsonResult = await SparePost.aggregate([
+          {
+            $match: { customerId: sparePostId }
+          },
+          {
+            $skip: pageNo * pageSize
+          },
+          {
+            $limit: pageSize
+          }
+        ]);
     }
 
     if (!jsonResult) throw new Error('SparePost Requirement does not exist');

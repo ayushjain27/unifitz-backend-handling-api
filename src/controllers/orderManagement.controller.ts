@@ -350,8 +350,12 @@ export class OrderManagementController {
     try {
       const sparePostId = req.query.sparePostId;
       const platform = req.query.platform;
+      const pageNo = Number(req.query.pageNo);
+      const pageSize = Number(req.query.pageSize || 10);
       const result =
         await this.orderManagementService.getSparePostRequirementDetails(
+          pageNo,
+          pageSize,
           sparePostId as string,
           platform as string
         );
