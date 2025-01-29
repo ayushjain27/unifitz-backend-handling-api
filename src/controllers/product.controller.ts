@@ -734,6 +734,7 @@ export class ProductController {
       const searchQuery = req.query.searchQuery;
       const category = req?.query?.category;
       const subCategory = req?.query?.subCategory;
+      const employeeId = req?.query?.employeeId;
       const result = await this.productService.getAllProductByPaginated(
         userName,
         role,
@@ -742,7 +743,8 @@ export class ProductController {
         pageSize,
         searchQuery as string,
         category as string,
-        subCategory as string
+        subCategory as string,
+        employeeId as string
       );
       res.send({
         message: 'Partner Product obtained successfully',
@@ -765,13 +767,16 @@ export class ProductController {
       const searchQuery = req.query.searchQuery;
       const category = req?.query?.category;
       const subCategory = req?.query?.subCategory;
+      const employeeId = req?.query?.employeeId;
+      
       const result = await this.productService.getAllPartnerProductCount(
         userName,
         role,
         oemId as string,
         searchQuery as string,
         category as string,
-        subCategory as string
+        subCategory as string,
+        employeeId as string
       );
       res.send({
         message: 'Partner Product obtained successfully',

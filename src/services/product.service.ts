@@ -1048,14 +1048,16 @@ export class ProductService {
     pageSize?: number,
     searchQuery?: string,
     category?: string,
-    subCategory?: string
+    subCategory?: string,
+    employeeId?: string,
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
       'productCategory.catalogName': { $in: [category] },
-      'productSubCategory.catalogName': { $in: [subCategory] }
+      'productSubCategory.catalogName': { $in: [subCategory] },
+      'employeeId': employeeId
     };
-
+    if (!employeeId) delete query['employeeId'];
     if (!category) delete query['productCategory.catalogName'];
     if (!subCategory) delete query['productSubCategory.catalogName'];
 
@@ -1074,7 +1076,8 @@ export class ProductService {
       query.$or = [
         { oemUserName: searchQuery },
         { manufactureName: searchQuery },
-        { productSuggest: searchQuery }
+        { productSuggest: searchQuery },
+        { employeeId: searchQuery }
       ];
     }
     const product = await PartnersPoduct.aggregate([
@@ -1098,14 +1101,16 @@ export class ProductService {
     oemId?: string,
     searchQuery?: string,
     category?: string,
-    subCategory?: string
+    subCategory?: string,
+    employeeId?: string,
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
       'productCategory.catalogName': { $in: [category] },
-      'productSubCategory.catalogName': { $in: [subCategory] }
+      'productSubCategory.catalogName': { $in: [subCategory] },
+      'employeeId': employeeId
     };
-
+    if (!employeeId) delete query['employeeId'];
     if (!category) delete query['productCategory.catalogName'];
     if (!subCategory) delete query['productSubCategory.catalogName'];
 
@@ -1121,7 +1126,7 @@ export class ProductService {
       delete query['oemUserName'];
     }
     if (searchQuery) {
-      query.$or = [{ oemUserName: searchQuery }];
+      query.$or = [{ oemUserName: searchQuery},{ employeeId: searchQuery }];
     }
     const product = await PartnersPoduct.aggregate([
       {

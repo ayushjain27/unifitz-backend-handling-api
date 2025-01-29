@@ -176,6 +176,7 @@ export interface IB2BPartnersProduct {
   targetedAudience: ITargetedAudience;
   discount?: number;
   colorCodeList: IProductColorList[];
+  employeeId?: string;
 }
 
 export enum ProductStatus {
@@ -364,6 +365,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     colorCodeList: {
       type: [ProductColorListSchema]
+    },
+    employeeId: {
+      type: String
     }
   },
   { timestamps: true }
