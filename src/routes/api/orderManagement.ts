@@ -112,4 +112,9 @@ router.get(
   orderManagementController.getSparePostCount
 );
 
+router.get(
+  '/sparePostRequirement/getSpareRequirementId',
+  orderManagementController.getSparePostRequirementDetailById
+);
+
 export default router;

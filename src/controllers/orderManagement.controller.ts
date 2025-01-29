@@ -418,6 +418,30 @@ export class OrderManagementController {
     }
   };
 
+  getSparePostRequirementDetailById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
+    try {
+      const spareRequirementId = req.query.spareRequirementId;
+      if(!spareRequirementId){
+        throw new Error('Id is required')
+      }
+      const result =
+        await this.orderManagementService.getSparePostRequirementDetailById(
+          spareRequirementId as string
+        );
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<get successfully>'
+      );
+      res.send({
+        message: 'Marketing obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createOrder':

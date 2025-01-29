@@ -1198,4 +1198,22 @@ export class OrderManagementService {
     }
     return sparePostCounts;
   }
+
+  async getSparePostRequirementDetailById(spareRequirementId: string): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>');
+    try {
+      const spareRequirementDetail = await SparePost.findOne({
+          _id: new Types.ObjectId(spareRequirementId)
+      });
+
+      if (!spareRequirementDetail) {
+          throw new Error('Detail not found');
+      }
+      
+      return spareRequirementDetail;
+  } catch (error) {
+      Logger.error(`Error fetching spare requirement: ${error.message}`);
+      throw new Error(`Error retrieving spare post requirement details. ${error.message}`);
+  }
+  }
 }
