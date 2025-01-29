@@ -55,15 +55,15 @@ export class CreateInvoiceService {
       additionalItemsPayload.additionalItems.map((item: any) => {
         if (item.operation === 'discount') {
           if (item.format === 'percentage') {
-            amount -= (amount * item.value) / 100;
+            amount -= Number((amount * item.value) / 100);
           } else {
-            amount -= item.value;
+            amount -= Number(item.value);
           }
         } else {
           if (item.format === 'percentage') {
-            amount += (amount * item.value) / 100;
+            amount += Number((amount * item.value) / 100);
           } else {
-            amount += item.value;
+            amount += Number(item.value);
           }
         }
       });
