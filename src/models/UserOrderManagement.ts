@@ -133,8 +133,6 @@ export interface IUserOrderManagement {
   storeId: string;
   customerId: string;
   customerOrderId: string;
-  state: string;
-  city: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -179,12 +177,6 @@ const orderSchema: Schema = new Schema(
     customerOrderId: {
       type: String,
       required: true
-    },
-    state: {
-      type: String
-    },
-    city: {
-      type: String
     }
   },
   { timestamps: true }
