@@ -42,6 +42,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    SPARE_POST_REQUIREMENT: {
+      STATUS: 'ADMIN & EMPLOYEE',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     CUSTOMER: {
       STATUS: 'ADMIN & EMPLOYEE',
       CREATE: false,

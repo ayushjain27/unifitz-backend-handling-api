@@ -177,6 +177,8 @@ export interface IB2BPartnersProduct {
   discount?: number;
   colorCodeList: IProductColorList[];
   employeeId?: string;
+  LastModifyEmployeeId?: string;
+  LastModifyDate?: Date
 }
 
 export enum ProductStatus {
@@ -368,6 +370,12 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     employeeId: {
       type: String
+    },
+    LastModifyEmployeeId: {
+      type: String
+    },
+    LastModifyDate: {
+      type: Date
     }
   },
   { timestamps: true }

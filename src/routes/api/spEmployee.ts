@@ -47,5 +47,6 @@ router.delete('/', spEmployeeController.deleteEmployee);
 router.get('/resetPassword', spEmployeeController.resetPassword);
 
 router.put('/updatePermission', spEmployeeController.updatePermission);
+router.put('/updateUserPermission', spEmployeeController.updateUserPermission);
 
 export default router;

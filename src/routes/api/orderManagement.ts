@@ -108,7 +108,7 @@ router.get(
   orderManagementController.getSparePostPaginated
 );
 router.get(
-  '/partner/getAllCount',
+  '/sparePostRequirement/count',
   orderManagementController.getSparePostCount
 );
 

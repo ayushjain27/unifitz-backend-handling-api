@@ -175,4 +175,25 @@ export class SPEmployeeController {
         .json({ message: err.message });
     }
   };
+
+  updateUserPermission = async (req: Request, res: Response) => {
+    const employeeRequest = req.body;
+    Logger.info(
+      '<Controller>:<SPEmployeeController>:<Onboarding request controller initiated>'
+    );
+    try {
+      const result = await this.spEmployeeService.updateUserPermission(
+        employeeRequest
+      );
+      res.send({
+        message: 'Employee Updation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

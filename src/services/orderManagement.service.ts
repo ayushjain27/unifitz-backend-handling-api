@@ -1168,6 +1168,7 @@ export class OrderManagementService {
       {
         $match: query
       },
+      { $sort: { createdAt: -1 } },
       {
         $skip: pageNo * pageSize
       },

@@ -376,4 +376,43 @@ export class SPEmployeeService {
     );
     return updatedAdmin;
   }
+
+  async updateUserPermission(employeePayload: any): Promise<ISPEmployee> {
+    Logger.info('<Service>:<SPEmployeeService>:<Update employee initiated>');
+    const { userName, role } = employeePayload;
+
+    Logger.info(
+      '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
+    );
+    const query: any = {
+      userName,
+      role
+    };
+
+    let permissionList: any = {};
+    permissionList = {
+      $set: {
+        'accessList.SPARE_POST_REQUIREMENT': {
+          STATUS: 'ADMIN & EMPLOYEE',
+          CREATE: true,
+          READ: true,
+          UPDATE: true,
+          DELETE: true
+        },
+      }
+    };
+
+    const updatedAdmin: any = await Admin.findOneAndUpdate(
+      query,
+      permissionList,
+      {
+        returnDocument: 'after'
+      }
+    );
+
+    Logger.info(
+      '<Service>:<SPEmployeeService>: <Employee: update employee successfully>'
+    );
+    return updatedAdmin;
+  }
 }

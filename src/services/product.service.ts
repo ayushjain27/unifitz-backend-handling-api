@@ -1055,7 +1055,7 @@ export class ProductService {
     const query: any = {
       'productCategory.catalogName': { $in: [category] },
       'productSubCategory.catalogName': { $in: [subCategory] },
-      'employeeId': employeeId
+      // 'employeeId': employeeId
     };
     if (!employeeId) delete query['employeeId'];
     if (!category) delete query['productCategory.catalogName'];
@@ -1108,7 +1108,7 @@ export class ProductService {
     const query: any = {
       'productCategory.catalogName': { $in: [category] },
       'productSubCategory.catalogName': { $in: [subCategory] },
-      'employeeId': employeeId
+      // 'employeeId': employeeId
     };
     if (!employeeId) delete query['employeeId'];
     if (!category) delete query['productCategory.catalogName'];
