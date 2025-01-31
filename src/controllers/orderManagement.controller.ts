@@ -363,7 +363,7 @@ export class OrderManagementController {
         '<Controller>:<OrderManagementController>:<get successfully>'
       );
       res.send({
-        message: 'Marketing obtained successfully',
+        message: 'Details obtained successfully',
         result
       });
     } catch (err) {
@@ -434,6 +434,41 @@ export class OrderManagementController {
       );
       res.send({
         message: 'Marketing obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createSparePostStatus = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<create SparePost request controller initiated>'
+      );
+      const result =
+        await this.orderManagementService.createSparePostStatus(req.body);
+      res.send({
+        result,
+        created: 'successful'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getSparePostStatusDetails = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
+    try {
+      const sparePostId = req.query.sparePostId;
+      const result =
+        await this.orderManagementService.getSparePostStatusDetails(
+          sparePostId as string
+        );
+      res.send({
+        message: 'Details obtained successfully',
         result
       });
     } catch (err) {

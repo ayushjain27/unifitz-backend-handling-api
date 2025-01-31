@@ -26,6 +26,7 @@ import Customer, { ICustomer } from '../models/Customer';
 import Store, { IStore } from './../models/Store';
 import { StaticIds } from '../models/StaticId';
 import { SparePost } from '../models/SparePostRequirement';
+import { SparePostStatus } from '../models/SparePostStatus';
 
 @injectable()
 export class OrderManagementService {
@@ -1085,7 +1086,7 @@ export class OrderManagementService {
     return res;
   }
 
-  async deleteSparePost( sparePostId: string ) {
+  async deleteSparePost(sparePostId: string) {
     Logger.info('<Service>:<OrderManagementService>:<Delete sparePost >');
     const jsonResult = await SparePost.findOne({
       _id: sparePostId
@@ -1100,45 +1101,45 @@ export class OrderManagementService {
     return res;
   }
 
-  async getSparePostRequirementDetails(    
+  async getSparePostRequirementDetails(
     pageNo?: number,
     pageSize?: number,
-    sparePostId?: string, 
+    sparePostId?: string,
     platform?: string): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
 
     let jsonResult;
 
     if (platform === 'PARTNER_APP') {
-        const store = await Store.findOne({ storeId: sparePostId }, { verificationDetails: 0 });
-        if (!store) throw new Error('Store not found');
+      const store = await Store.findOne({ storeId: sparePostId }, { verificationDetails: 0 });
+      if (!store) throw new Error('Store not found');
 
-        jsonResult = await SparePost.aggregate([
-          {
-            $match: { storeId: sparePostId }
-          },
-          {
-            $skip: pageNo * pageSize
-          },
-          {
-            $limit: pageSize
-          }
-        ]);
+      jsonResult = await SparePost.aggregate([
+        {
+          $match: { storeId: sparePostId }
+        },
+        {
+          $skip: pageNo * pageSize
+        },
+        {
+          $limit: pageSize
+        }
+      ]);
     } else if (platform === 'CUSTOMER_APP') {
-        const user = await Customer.findOne({ _id: new Types.ObjectId(sparePostId) });
-        if (!user) throw new Error('User not found');
+      const user = await Customer.findOne({ _id: new Types.ObjectId(sparePostId) });
+      if (!user) throw new Error('User not found');
 
-        jsonResult = await SparePost.aggregate([
-          {
-            $match: { customerId: sparePostId }
-          },
-          {
-            $skip: pageNo * pageSize
-          },
-          {
-            $limit: pageSize
-          }
-        ]);
+      jsonResult = await SparePost.aggregate([
+        {
+          $match: { customerId: sparePostId }
+        },
+        {
+          $skip: pageNo * pageSize
+        },
+        {
+          $limit: pageSize
+        }
+      ]);
     }
 
     if (!jsonResult) throw new Error('SparePost Requirement does not exist');
@@ -1146,7 +1147,7 @@ export class OrderManagementService {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
 
     return jsonResult;
-}
+  }
 
   async getSparePostPaginated(
     pageNo?: number,
@@ -1163,7 +1164,7 @@ export class OrderManagementService {
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
     console.log(query, 'queryJson');
-    
+
     const sparePostLists = await SparePost.aggregate([
       {
         $match: query
@@ -1204,17 +1205,40 @@ export class OrderManagementService {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>');
     try {
       const spareRequirementDetail = await SparePost.findOne({
-          _id: new Types.ObjectId(spareRequirementId)
+        _id: new Types.ObjectId(spareRequirementId)
       });
 
       if (!spareRequirementDetail) {
-          throw new Error('Detail not found');
+        throw new Error('Detail not found');
       }
-      
+
       return spareRequirementDetail;
-  } catch (error) {
+    } catch (error) {
       Logger.error(`Error fetching spare requirement: ${error.message}`);
       throw new Error(`Error retrieving spare post requirement details. ${error.message}`);
+    }
   }
+
+  async createSparePostStatus(sparePostList?: any) {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<create sparePosts service initiated>'
+    );
+    const query = sparePostList;
+
+    const result = await SparePostStatus.create(query);
+    return result;
+  }
+
+  async getSparePostStatusDetails(sparePostId?: string): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
+
+    const sparePost = await SparePost.findOne({ _id: sparePostId }, { verificationDetails: 0 });
+    if (!sparePost) throw new Error('SparePost not found');
+
+    const jsonResult = await SparePostStatus.find({ sparePostId: sparePostId });
+
+    Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
+
+    return jsonResult;
   }
 }

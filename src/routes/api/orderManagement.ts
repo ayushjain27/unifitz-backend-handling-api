@@ -117,4 +117,15 @@ router.get(
   orderManagementController.getSparePostRequirementDetailById
 );
 
+router.post(
+  '/sparePostStatus/create',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.createSparePostStatus
+);
+
+router.get(
+  '/sparePostStatus/getById',
+  orderManagementController.getSparePostStatusDetails
+);
+
 export default router;
