@@ -157,8 +157,16 @@ export class ProductService {
       'productCategory.catalogName': { $in: [category] },
       'productSubCategory.catalogName': { $in: [subCategory] }
     };
+    // if (searchQuery) {
+    //   query.$or = [{ storeId: searchQuery }, { itemName: searchQuery }];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ storeId: searchQuery }, { itemName: searchQuery }];
+      query.$or = [
+        { itemName: { $regex: regexQuery } },
+        { storeId: { $regex: regexQuery } }
+      ];
     }
     if (!category) {
       delete query['productCategory.catalogName'];
@@ -233,9 +241,18 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    // if (searchQuery) {
+    //   query.$or = [{ itemName: searchQuery }, { storeId: searchQuery }];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ itemName: searchQuery }, { storeId: searchQuery }];
+      query.$or = [
+        { itemName: { $regex: regexQuery } },
+        { storeId: { $regex: regexQuery } }
+      ];
     }
+
     const product = await Product.aggregate([
       {
         $match: query
@@ -278,12 +295,25 @@ export class ProductService {
       // oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
+    // if (searchReqBody?.searchQuery) {
+    //   query.$or = [
+    //     { itemName: searchReqBody?.searchQuery },
+    //     { offerType: searchReqBody?.searchQuery }
+    //   ];
+    // }
+
+    const regexQuery = new RegExp(searchReqBody?.searchQuery, 'i');
+
     if (searchReqBody?.searchQuery) {
       query.$or = [
-        { itemName: searchReqBody?.searchQuery },
-        { offerType: searchReqBody?.searchQuery }
+        { itemName: { $regex: regexQuery } },
+        { productDescription: { $regex: regexQuery } },
+        { productBrand: { $regex: regexQuery } },
+        { 'productCategory.catalogName': { $regex: regexQuery } },
+        { 'productSubCategory.catalogName': { $regex: regexQuery } }
       ];
     }
+    
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
     }
@@ -349,10 +379,21 @@ export class ProductService {
       // oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
+    // if (searchReqBody?.searchQuery) {
+    //   query.$or = [
+    //     { itemName: searchReqBody?.searchQuery },
+    //     { offerType: searchReqBody?.searchQuery }
+    //   ];
+    // }
+    const regexQuery = new RegExp(searchReqBody?.searchQuery, 'i');
+
     if (searchReqBody?.searchQuery) {
       query.$or = [
-        { itemName: searchReqBody?.searchQuery },
-        { offerType: searchReqBody?.searchQuery }
+        { itemName: { $regex: regexQuery } },
+        { productDescription: { $regex: regexQuery } },
+        { productBrand: { $regex: regexQuery } },
+        { 'productCategory.catalogName': { $regex: regexQuery } },
+        { 'productSubCategory.catalogName': { $regex: regexQuery } }
       ];
     }
     if (searchReqBody.role === AdminRole.OEM) {
@@ -1072,12 +1113,26 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    // if (searchQuery) {
+    //   query.$or = [
+    //     { oemUserName: searchQuery },
+    //     { manufactureName: searchQuery },
+    //     { productSuggest: searchQuery },
+    //     { employeeId: searchQuery }
+    //   ];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
       query.$or = [
-        { oemUserName: searchQuery },
-        { manufactureName: searchQuery },
-        { productSuggest: searchQuery },
-        { employeeId: searchQuery }
+        { makeType: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        { employeeId: { $regex: regexQuery } },
+        { manufactureName: { $regex: regexQuery } },
+        { productSuggest: { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemBrand': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemModel.value': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.variants': { $regex: regexQuery } }
       ];
     }
     const product = await PartnersPoduct.aggregate([
@@ -1125,8 +1180,22 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    // if (searchQuery) {
+    //   query.$or = [{ oemUserName: searchQuery},{ employeeId: searchQuery }];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ oemUserName: searchQuery},{ employeeId: searchQuery }];
+      query.$or = [
+        { makeType: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        // { employeeId: { $regex: regexQuery } },
+        { manufactureName: { $regex: regexQuery } },
+        { productSuggest: { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemBrand': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemModel.value': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.variants': { $regex: regexQuery } }
+      ];
     }
     const product = await PartnersPoduct.aggregate([
       {

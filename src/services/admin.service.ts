@@ -809,11 +809,18 @@ export class AdminService {
     if (!selectType) {
       delete query['selectType'];
     }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
       query.$or = [
-        { storeId: searchQuery },
-        { oemUserName: searchQuery },
-        { phoneNumber: searchQuery }
+        { storeId: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        { phoneNumber: { $regex: regexQuery } },
+        { postType: { $regex: regexQuery } },
+        { userType: { $regex: regexQuery } },
+        { 'category.name': { $regex: regexQuery } },
+        { 'subCategory.name': { $regex: regexQuery } },
+        { 'brand.name': { $regex: regexQuery } }
       ];
     }
     if (role === AdminRole.OEM) {
@@ -898,11 +905,26 @@ export class AdminService {
     if (!selectType) {
       delete query['selectType'];
     }
+    // if (searchQuery) {
+    //   query.$or = [
+    //     { storeId: searchQuery },
+    //     { oemUserName: searchQuery },
+    //     { phoneNumber: searchQuery }
+    //   ];
+    // }
+
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
       query.$or = [
-        { storeId: searchQuery },
-        { oemUserName: searchQuery },
-        { phoneNumber: searchQuery }
+        { storeId: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        { phoneNumber: { $regex: regexQuery } },
+        { postType: { $regex: regexQuery } },
+        { userType: { $regex: regexQuery } },
+        { 'category.name': { $regex: regexQuery } },
+        { 'subCategory.name': { $regex: regexQuery } },
+        { 'brand.name': { $regex: regexQuery } }
       ];
     }
 
@@ -1460,11 +1482,25 @@ export class AdminService {
     if (!selectType) {
       delete query['selectType'];
     }
+    // if (searchQuery) {
+    //   query.$or = [
+    //     { storeId: searchQuery },
+    //     { oemUserName: searchQuery },
+    //     { phoneNumber: searchQuery }
+    //   ];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
       query.$or = [
-        { storeId: searchQuery },
-        { oemUserName: searchQuery },
-        { phoneNumber: searchQuery }
+        { storeId: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        { phoneNumber: { $regex: regexQuery } },
+        { postType: { $regex: regexQuery } },
+        { userType: { $regex: regexQuery } },
+        { 'category.name': { $regex: regexQuery } },
+        { 'subCategory.name': { $regex: regexQuery } },
+        { 'brand.name': { $regex: regexQuery } }
       ];
     }
 

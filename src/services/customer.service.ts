@@ -134,8 +134,13 @@ export class CustomerService {
     if (!city) {
       delete query['contactInfo.city'];
     }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+      query.$or = [
+        { customerId: { $regex: regexQuery } },
+        { 'contactInfo.address': { $regex: regexQuery } }
+      ]
     }
     const customerResponse: any = await Customer.countDocuments(query);
     const result = {
@@ -163,8 +168,17 @@ export class CustomerService {
     if (!city) {
       delete query['contactInfo.city'];
     }
+    // if (searchQuery) {
+    //   query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+    // }
+
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ fullName: searchQuery }, { email: searchQuery }];
+      query.$or = [
+        { customerId: { $regex: regexQuery } },
+        { 'contactInfo.address': { $regex: regexQuery } }
+      ]
     }
     const customerResponse = await Customer.aggregate([
       {
