@@ -383,7 +383,13 @@ export class OrderManagementService {
       overallStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
     } else if (
       itemStatuses.some(
-        (status) => status === 'PROCESSING' || status === 'SHIPPED'
+        (status) => status === 'SHIPPED'
+      )
+    ) {
+      overallStatus = 'SHIPPED'; // If any item is PROCESSING, the order is PROCESSING
+    } else if (
+      itemStatuses.some(
+        (status) => status === 'PROCESSING'
       )
     ) {
       overallStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
@@ -417,7 +423,13 @@ export class OrderManagementService {
       overallOrderStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
     } else if (
       ordersItemStatuses.some(
-        (status) => status === 'PROCESSING' || status === 'SHIPPED'
+        (status) => status === 'SHIPPED'
+      )
+    ) {
+      overallOrderStatus = 'SHIPPED'; // If any item is PROCESSING, the order is PROCESSING
+    } else if (
+      ordersItemStatuses.some(
+        (status) => status === 'PROCESSING'
       )
     ) {
       overallOrderStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
@@ -624,6 +636,7 @@ export class OrderManagementService {
     const userRoleType = userType === 'OEM' ? true : false;
     let pending: any = 0;
     let processing: any = 0;
+    let shipped: any = 0;
     let partialDelivered: any = 0;
     let delivered: any = 0;
     let cancelled: any = 0;
@@ -686,6 +699,12 @@ export class OrderManagementService {
         ...query
       });
     }
+    if (status === 'SHIPPED' || !status) {
+      shipped = await DistributorOrder.countDocuments({
+        status: 'SHIPPED',
+        ...query
+      });
+    }
     if (status === 'PARTIAL DELIVERED' || !status) {
       partialDelivered = await DistributorOrder.countDocuments({
         status: 'PARTIAL DELIVERED',
@@ -709,6 +728,7 @@ export class OrderManagementService {
       total,
       pending,
       processing,
+      shipped,
       partialDelivered,
       delivered,
       cancelled
