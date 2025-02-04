@@ -43,7 +43,7 @@ export const permissions: any = {
       DELETE: false
     },
     SPARE_POST_REQUIREMENT: {
-      STATUS: 'ADMIN & EMPLOYEE',
+      STATUS: 'ADMIN AND OEM',
       CREATE: false,
       READ: false,
       UPDATE: false,

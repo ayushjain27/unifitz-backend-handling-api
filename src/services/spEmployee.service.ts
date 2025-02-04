@@ -393,7 +393,7 @@ export class SPEmployeeService {
     permissionList = {
       $set: {
         'accessList.SPARE_POST_REQUIREMENT': {
-          STATUS: 'ADMIN & EMPLOYEE',
+          STATUS: 'ADMIN AND OEM',
           CREATE: true,
           READ: true,
           UPDATE: true,
