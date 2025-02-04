@@ -1588,6 +1588,28 @@ export class ProductService {
     return newProd;
   }
 
+  async getPartnerProductDetailById(partnerProductId: string): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get event initiated>');
+
+    const newProd: IB2BPartnersProduct = await PartnersPoduct.findOne({
+      _id: partnerProductId
+    });
+
+    if (_.isEmpty(newProd)) {
+      throw new Error('Partner product does not exist');
+    }
+    const userData = await Admin.findOne({
+      userName: newProd?.oemUserName
+    });
+    const jsonData = {
+      ...newProd,
+      partnerDetail: userData
+    };
+    Logger.info('<Service>:<ProductService>:<Upload product successful>');
+
+    return newProd;
+  }
+
   async updatePartnerProduct(
     reqBody: IB2BPartnersProduct,
     partnerProductId: string
