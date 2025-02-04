@@ -109,4 +109,10 @@ router.post(
   buySellController.uploadPanAadharImage
 );
 
+router.post(
+  '/getBuyVehicleList',
+  // roleAuth(ACL.STORE_GET_ALL),
+  buySellController.getBuyVehicleList
+);
+
 export default router;

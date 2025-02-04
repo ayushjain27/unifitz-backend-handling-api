@@ -868,4 +868,43 @@ export class NewVehicleInfoService {
 
     return vehicleResult;
   }
+
+  async getVehicleList(query: any): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Get all vehhicle List initiated>'
+    );
+    const { vehicleType, brands, pageNo, pageSize, minPrice, maxPrice } = query;
+    const filterParams: any = {
+      status: 'ONBOARDED',
+      fuelType: "ELECTRIC",
+      vehicle: { $in: vehicleType ? vehicleType : [] },
+      brand: { $in: brands ? brands : [] },
+      'numericPrice': { $gte: minPrice, $lte: maxPrice },
+    };
+
+    if (!brands || _.isEmpty(brands)) delete filterParams['brand'];
+    if (!vehicleType || _.isEmpty(vehicleType)) delete filterParams['vehicle'];
+    if (!minPrice || !maxPrice) delete filterParams['vehicleInfo.expectedPrice'];
+
+    console.log(query, filterParams);
+
+    const result = await NewVehicle.aggregate([
+      {
+        $addFields: {
+          numericPrice: { $toDouble: "$price" }
+        }
+      },
+      {
+        $match: filterParams
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return result;
+  }
 }

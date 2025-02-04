@@ -1220,4 +1220,92 @@ export class BuySellService {
 
     return res;
   }
+
+  async getBuyVehicleList(query: any): Promise<any> {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
+    );
+    const { vehicleType, brands, years, fuelType, coordinates, pageNo, pageSize, minPrice, maxPrice } = query;
+    const filterParams: any = { 
+      status: 'ACTIVE',
+      vehType: vehicleType,
+      brandName: { $in: brands ? brands : [] },
+      fuelType:  { $in: fuelType ? fuelType : [] }
+    };
+
+    if (!vehicleType) delete filterParams['vehType'];
+    if (!brands || _.isEmpty(brands)) delete filterParams['brandName'];
+    if (!fuelType || _.isEmpty(fuelType)) delete filterParams['fuelType'];
+
+    const priceQuery: any = {
+      'vehicleInfo.expectedPrice': { $gte: minPrice, $lte: maxPrice },
+      'vehicleInfo.manufactureYear': { $in: years ? years : [] }
+    }
+
+    if (!minPrice || !maxPrice) delete priceQuery['vehicleInfo.expectedPrice'];
+    if (!years || _.isEmpty(years)) delete priceQuery['vehicleInfo.manufactureYear'];
+
+    // console.log(query, priceQuery, filterParams);
+
+    const result = await buySellVehicleInfo.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: coordinates
+          },
+          key: 'location',
+          spherical: true,
+          query: filterParams,
+          distanceField: 'distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      },
+      {
+        $set: { VehicleInfo: { $toObjectId: '$vehicleId' } }
+      },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      {
+        $unwind: { path: '$vehicleInfo' }
+      },
+      { $match: priceQuery },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeInfo',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          $or: [
+            { 'storeInfo.profileStatus': StoreProfileStatus.ONBOARDED },
+            { sellerDetails: { $exists: true } }
+          ]
+        }
+      }
+    ]);
+
+    return result;
+  }
 }
