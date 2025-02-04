@@ -1591,23 +1591,44 @@ export class ProductService {
   async getPartnerProductDetailById(partnerProductId: string): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get event initiated>');
 
-    const newProd: IB2BPartnersProduct = await PartnersPoduct.findOne({
-      _id: partnerProductId
-    });
+    let query = {
+      _id: new Types.ObjectId(partnerProductId)
+    }
+
+    console.log(query,"drmkfk")
+
+    const newProd = await PartnersPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'userName',
+          foreignField: 'oemUserName',
+          as: 'partnerDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$partnerDetail'
+        }
+      }]);
+
 
     if (_.isEmpty(newProd)) {
       throw new Error('Partner product does not exist');
     }
-    const userData = await Admin.findOne({
-      userName: newProd?.oemUserName
-    });
-    const jsonData = {
-      ...newProd,
-      partnerDetail: userData
-    };
+    // const userData = await Admin.findOne({
+    //   userName: newProd?.oemUserName
+    // });
+    // const jsonData = {
+    //   newProd,
+    //   partnerDetail: userData
+    // };
     Logger.info('<Service>:<ProductService>:<Upload product successful>');
 
-    return newProd;
+    return newProd[0];
   }
 
   async updatePartnerProduct(
