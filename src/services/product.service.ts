@@ -1604,8 +1604,8 @@ export class ProductService {
       {
         $lookup: {
           from: 'admin_users',
-          localField: 'userName',
-          foreignField: 'oemUserName',
+          localField: 'oemUserName',
+          foreignField: 'userName',
           as: 'partnerDetail'
         }
       },
