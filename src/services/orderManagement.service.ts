@@ -457,7 +457,13 @@ export class OrderManagementService {
     oemId?: string,
     pageNo?: number,
     pageSize?: number,
-    employeeId?: string
+    employeeId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter distributors orders service initiated>'
@@ -465,6 +471,37 @@ export class OrderManagementService {
     const query: any = {
       status: status
     };
+
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const queryTwo: any = {
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'storeDetails.storeId': storeId,
+      'oemUserName': adminFilterOemId,
+      'storeDetails.contactInfo.state': state,
+      'storeDetails.contactInfo.city': city,
+    }
+    if (firstDate === null || lastDate === null) {
+      delete queryTwo['createdAt'];
+    }
+    if (!storeId) {
+      delete queryTwo['storeDetails.storeId'];
+    }
+    if (!adminFilterOemId) {
+      delete queryTwo['oemUserName'];
+    }
+    if (!state) {
+      delete queryTwo['storeDetails.contactInfo.state'];
+    }
+    if (!city) {
+      delete queryTwo['storeDetails.contactInfo.city'];
+    }
     const userRoleType = userType === 'OEM' ? true : false;
 
     if (role === AdminRole.ADMIN) {
@@ -594,6 +631,7 @@ export class OrderManagementService {
           preserveNullAndEmptyArrays: true
         }
       },
+      { $match: queryTwo },
       // {
       //   $lookup: {
       //     from: 'admin_users', // Collection name for oemusers
@@ -627,7 +665,13 @@ export class OrderManagementService {
     userType?: string,
     status?: string,
     verifiedStore?: string,
-    employeeId?: string
+    employeeId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter orders count service initiated>'
@@ -686,52 +730,168 @@ export class OrderManagementService {
       // }
     }
 
-    const total = await DistributorOrder.countDocuments({ ...overallStatus });
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const queryTwo: any = {
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'storeDetails.storeId': storeId,
+      'oemUserName': adminFilterOemId,
+      'storeDetails.contactInfo.state': state,
+      'storeDetails.contactInfo.city': city,
+    }
+    if (!firstDate || !lastDate) {
+      delete queryTwo['createdAt'];
+    }
+    if (!storeId) {
+      delete queryTwo['storeDetails.storeId'];
+    }
+    if (!adminFilterOemId) {
+      delete queryTwo['oemUserName'];
+    }
+    if (!state) {
+      delete queryTwo['storeDetails.contactInfo.state'];
+    }
+    if (!city) {
+      delete queryTwo['storeDetails.contactInfo.city'];
+    }
+
+    const aggregatedFilter = [{
+      $lookup: {
+        from: 'orders',
+        localField: 'customerOrderId',
+        foreignField: '_id',
+        as: 'customerOrderDetails'
+      }
+    },
+    {
+      $unwind: {
+        path: '$customerOrderDetails',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: 'stores',
+        localField: 'customerOrderDetails.storeId',
+        foreignField: 'storeId',
+        as: 'storeDetails'
+      }
+    },
+    {
+      $unwind: {
+        path: '$storeDetails',
+        preserveNullAndEmptyArrays: true
+      }
+    }];
+
+    const total = await DistributorOrder.aggregate(
+      [
+        {
+          $match: { ...overallStatus }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'totalCount' }
+      ]);
+
     if (status === 'PENDING' || !status) {
-      pending = await DistributorOrder.countDocuments({
-        status: 'PENDING',
-        ...query
-      });
+      pending = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'PENDING',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'pendingCount' }
+      ]);
     }
     if (status === 'PROCESSING' || !status) {
-      processing = await DistributorOrder.countDocuments({
-        status: 'PROCESSING',
-        ...query
-      });
+      processing = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'PROCESSING',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'processingCount' }
+        ]);
     }
     if (status === 'SHIPPED' || !status) {
-      shipped = await DistributorOrder.countDocuments({
-        status: 'SHIPPED',
-        ...query
-      });
+      shipped = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'SHIPPED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'shippedCount' }
+        ]);
     }
     if (status === 'PARTIAL DELIVERED' || !status) {
-      partialDelivered = await DistributorOrder.countDocuments({
-        status: 'PARTIAL DELIVERED',
-        ...query
-      });
+      partialDelivered = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'PARTIAL DELIVERED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'partialCount' }
+        ]);
     }
     if (status === 'DELIVERED' || !status) {
-      delivered = await DistributorOrder.countDocuments({
-        status: 'DELIVERED',
-        ...query
-      });
+      delivered = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'DELIVERED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'deliveredCount' }
+        ]);
     }
     if (status === 'CANCELLED' || !status) {
-      cancelled = await DistributorOrder.countDocuments({
-        status: 'CANCELLED',
-        ...query
-      });
+      cancelled = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'CANCELLED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'cancelledCount' }
+        ]);
     }
 
     const totalCounts = {
-      total,
-      pending,
-      processing,
-      shipped,
-      partialDelivered,
-      delivered,
-      cancelled
+      total: total.length > 0 ? total[0].totalCount : 0,
+      pending: pending.length > 0 ? pending[0].pendingCount : 0,
+      shipped: shipped.length > 0 ? shipped[0].shippedCount : 0,
+      processing: processing.length > 0 ? processing[0].processingCount : 0,
+      partialDelivered: partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0,
+      delivered: delivered.length > 0 ? delivered[0].deliveredCount : 0,
+      cancelled: cancelled.length > 0 ? cancelled[0].cancelledCount : 0
     };
 
     return totalCounts;

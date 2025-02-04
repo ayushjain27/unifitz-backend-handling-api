@@ -126,7 +126,9 @@ export class OrderManagementController {
   getAllDistributorsOrdersPaginated = async (req: Request, res: Response) => {
     const userName = req.userId;
     const role = req?.role;
-    const { userType, status, pageNo, pageSize, oemId, employeeId } = req.body;
+    const { userType, status, pageNo, pageSize, oemId, employeeId, firstDate, lastDate,
+      storeId, adminFilterOemId, state, city
+    } = req.body;
     Logger.info(
       '<Controller>:<OrderManagementController>:<Search and Filter Distributors orders pagination request controller initiated>'
     );
@@ -140,7 +142,13 @@ export class OrderManagementController {
           oemId,
           pageNo,
           pageSize,
-          employeeId
+          employeeId,
+          firstDate,
+          lastDate,
+          storeId,
+          adminFilterOemId,
+          state,
+          city
         );
       res.send({
         result
@@ -161,6 +169,12 @@ export class OrderManagementController {
     const userType = req?.query?.userType;
     const verifiedStore = req?.query?.verifiedStore;
     const employeeId = req?.query?.employeeId;
+    const firstDate = req?.query?.firstDate;
+    const lastDate = req?.query?.lastDate;
+    const storeId = req?.query?.storeId;
+    const adminFilterOemId = req?.query?.adminFilterOemId;
+    const state = req?.query?.state;
+    const city = req?.query?.city;
 
     Logger.info(
       '<Controller>:<OrderManagementController>:<Search and Filter Orders count request controller initiated>'
@@ -177,7 +191,13 @@ export class OrderManagementController {
           userType as string,
           status as string,
           verifiedStore as string,
-          employeeId as string
+          employeeId as string,
+          firstDate as string,
+          lastDate as string,
+          storeId as string,
+          adminFilterOemId as string,
+          state as string,
+          city as string
         );
       res.send({
         result
@@ -422,7 +442,7 @@ export class OrderManagementController {
     Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
     try {
       const spareRequirementId = req.query.spareRequirementId;
-      if(!spareRequirementId){
+      if (!spareRequirementId) {
         throw new Error('Id is required')
       }
       const result =

@@ -502,4 +502,23 @@ export class NewVehicleInfoController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getVehicleList = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<VehicleController>:<Get All aggregation request controller initiated>'
+      );
+      const result = await this.vehicleInfoService.getVehicleList(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

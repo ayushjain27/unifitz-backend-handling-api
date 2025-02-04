@@ -3741,37 +3741,44 @@ export class AnalyticService {
 
     const data = [];
     const hourMap: any = {};
-
+    
     if (dateDifference <= 15) {
-      for (let day = lastDate.getDate(); day <= firstDate.getDate(); day++) {
+      let currentDate = new Date(lastDate);
+      let firstDateTime = firstDate.getTime();
+      
+      while (currentDate.getTime() <= firstDateTime) {
         for (let hour = 0; hour < 24; hour++) {
           const hourData = result.find(
-            (r) => r._id.day === day && r._id.hour === hour
+            (r) => r._id.day === currentDate.getDate() && r._id.hour === hour
           );
-          hourMap[`${day}-${hour}`] = hourData ? hourData.uniqueUsers : 0;
+          hourMap[`${currentDate.getDate()}-${hour}`] = hourData ? hourData.uniqueUsers : 0;
         }
+      
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-
-      for (let day = lastDate.getDate(); day <= firstDate.getDate(); day++) {
+      
+      currentDate = new Date(lastDate);
+      while (currentDate.getTime() <= firstDateTime) {
         for (let hour = 0; hour < 24; hour += 2) {
-          const hour1 = `${day}-${hour}`;
-          const hour2 = `${day}-${hour + 1}`;
-
+          const hour1 = `${currentDate.getDate()}-${hour}`;
+          const hour2 = `${currentDate.getDate()}-${hour + 1}`;
+      
           const uniqueUsersInFirstHour = hourMap[hour1] || 0;
           const uniqueUsersInSecondHour = hourMap[hour2] || 0;
-
-          const totalUniqueUsers =
-            uniqueUsersInFirstHour + uniqueUsersInSecondHour;
-
+      
+          const totalUniqueUsers = uniqueUsersInFirstHour + uniqueUsersInSecondHour;
+      
           data.push({
-            day,
-            month: result.find((r) => r._id.day === day)
-              ? result.find((r) => r._id.day === day)._id.month
+            day: currentDate.getDate(),
+            month: result.find((r) => r._id.day === currentDate.getDate())
+              ? result.find((r) => r._id.day === currentDate.getDate())._id.month
               : firstDate.getMonth() + 1,
             x: `${hour}-${hour + 2}`,
             y: totalUniqueUsers
           });
         }
+      
+        currentDate.setDate(currentDate.getDate() + 1);
       }
     } else {
       const monthMap: any = {};
