@@ -1333,21 +1333,96 @@ export class OrderManagementService {
     pageNo?: number,
     pageSize?: number,
     storeId?: string,
-    vehicleType?: string
+    vehicleType?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    adminFilterOemId?: string
   ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
     const query: any = {
       'storeId': storeId,
-      'vehicleType': vehicleType
+      'vehicleType': vehicleType,
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
     };
 
+    const queryTwo: any = {};
+
+    if(adminFilterOemId) {
+      queryTwo.$or = [
+        { 'lastStatus.oemUserName': adminFilterOemId },
+        { 'lastStatus.createdOemUser': adminFilterOemId }
+      ];
+    }
+
+    let filterQuery: any = {};
+    if (firstDate === 'Invalid Date' ||  !firstDate  || lastDate === 'Invalid Date' || !lastDate) {
+      delete query['createdAt'];
+    }
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
-    console.log(query, 'queryJson');
+    let aggregateQuery: any = [];
+
+    if(role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
+     aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+      { $project: { 'statusDetails': 0 } },
+      { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+     ];
+    }
+    if(role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
+      const user = role === 'OEM' ? userName : oemId;
+       filterQuery.$or = [
+        { 'lastStatus.createdOemUser': { $in: [user] } },
+        { 'lastStatus.oemUserName': { $in: [user] } },
+      ];
+      aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+       { $match: filterQuery},
+       { $project: { 'statusDetails': 0 } },
+       { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+      ];
+     }
+    console.log(query, 'queryJson', role);
 
     const sparePostLists = await SparePost.aggregate([
       {
         $match: query
+      },
+      {
+        $set: {
+          postKey: { $toObjectId: '$_id' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'spares',
+          let: { postKey: '$postKey' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toObjectId: '$sparePostId' }, '$$postKey']
+                }
+              }
+            }
+          ],
+          as: 'statusDetails'
+        }
+      },
+      ...aggregateQuery,
+      {
+        $match: queryTwo
       },
       { $sort: { createdAt: -1 } },
       {
@@ -1363,21 +1438,109 @@ export class OrderManagementService {
 
   async getSparePostCount(
     storeId?: string,
-    vehicleType?: string
+    vehicleType?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    adminFilterOemId?: string
   ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
+
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
     const query: any = {
       'storeId': storeId,
-      'vehicleType': vehicleType
+      'vehicleType': vehicleType,
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
     };
 
+    const queryTwo: any = {};
+
+    if(adminFilterOemId) {
+      queryTwo.$or = [
+        { 'lastStatus.oemUserName': adminFilterOemId },
+        { 'lastStatus.createdOemUser': adminFilterOemId }
+      ];
+    }
+
+    let filterQuery: any = {};
+    if (firstDate === null || lastDate === null) {
+      delete query['createdAt'];
+    }
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
+    let aggregateQuery: any = [];
 
-    const reults = await SparePost.countDocuments(query)
-    const sparePostCounts = {
-      total: reults || 0
+    if(role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
+     aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+      { $project: { 'statusDetails': 0 } },
+      { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+     ];
     }
+    if(role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
+      const user = role === 'OEM' ? userName : oemId;
+       filterQuery.$or = [
+        { 'lastStatus.createdOemUser': { $in: [user] } },
+        { 'lastStatus.oemUserName': { $in: [user] } },
+      ];
+      aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+       { $match: filterQuery},
+       { $project: { 'statusDetails': 0 } },
+       { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+      ];
+     }
+    // console.log(query, 'queryJson', role);
+
+    const totalCountQuery = await SparePost.aggregate([
+      {
+        $match: query
+      },
+      {
+        $set: {
+          postKey: { $toObjectId: '$_id' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'spares',
+          let: { postKey: '$postKey' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toObjectId: '$sparePostId' }, '$$postKey']
+                }
+              }
+            }
+          ],
+          as: 'statusDetails'
+        }
+      },
+      ...aggregateQuery,
+      {
+        $match: queryTwo
+      },
+      {
+        $count: "totalCount"
+      }
+    ]);
+    
+    const totalCount = totalCountQuery.length > 0 ? totalCountQuery[0].totalCount : 0;
+    
+    const sparePostCounts = {
+      total: totalCount || 0
+    }
+    
     return sparePostCounts;
   }
 
@@ -1399,23 +1562,44 @@ export class OrderManagementService {
     }
   }
 
-  async createSparePostStatus(sparePostList?: any) {
+  async createSparePostStatus(sparePostList?: any, userName?: any, role?: any) {
     Logger.info(
       '<Service>:<OrderManagementService>:<create sparePosts service initiated>'
     );
     const query = sparePostList;
-
+    if (role === AdminRole.OEM || (role === 'EMPLOYEE' && sparePostList?.oemId !== 'SERVICEPLUG')) {
+      const user = role === 'OEM' ? userName : sparePostList?.oemId;
+      query.createdOemUser = user;
+    }
     const result = await SparePostStatus.create(query);
     return result;
   }
 
-  async getSparePostStatusDetails(sparePostId?: string): Promise<any> {
+  async getSparePostStatusDetails(sparePostId?: string, userName?: string, role?: string, oemId?: string): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
 
     const sparePost = await SparePost.findOne({ _id: sparePostId }, { verificationDetails: 0 });
     if (!sparePost) throw new Error('SparePost not found');
 
-    const jsonResult = await SparePostStatus.find({ sparePostId: sparePostId });
+    let query: any = { sparePostId: sparePostId };
+    if (role === AdminRole.OEM) {
+      query.$or = [
+        { 'createdOemUser': { $in: [userName] } },
+        { 'oemUserName': { $in: [userName] } },
+      ];
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.$or = [
+        { 'createdOemUser': { $in: [oemId] } },
+        { 'oemUserName': { $in: [oemId] } },
+      ];
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const jsonResult = await SparePostStatus.find(query);
 
     Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
 

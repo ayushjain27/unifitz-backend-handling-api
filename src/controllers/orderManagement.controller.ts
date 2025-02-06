@@ -397,15 +397,28 @@ export class OrderManagementController {
       '<Controller>:<OrderManagementController>:<Get All request controller initiated>'
     );
     try {
+      const userName = req?.userId;
+      const role = req?.role;
       const pageNo = Number(req.query.pageNo);
       const pageSize = Number(req.query.pageSize || 10);
       const storeId = req.query.storeId;
       const vehicleType = req.query.vehicleType;
+      const oemId = req?.query?.oemId;
+      const firstDate = req?.query?.firstDate;
+      const lastDate = req?.query?.lastDate;
+      const adminFilterOemId = req?.query?.adminFilterOemId;
+      
       const result = await this.orderManagementService.getSparePostPaginated(
         pageNo,
         pageSize,
         storeId as string,
-        vehicleType as string
+        vehicleType as string,
+        userName as string,
+        role as string,
+        oemId as string,
+        firstDate as string,
+        lastDate as string,
+        adminFilterOemId as string,
       );
       res.send({
         message: 'SparePostRequirement obtained successfully',
@@ -424,9 +437,22 @@ export class OrderManagementController {
     try {
       const storeId = req.query.storeId;
       const vehicleType = req.query.vehicleType;
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
+      const firstDate = req?.query?.firstDate;
+      const lastDate = req?.query?.lastDate;
+      const adminFilterOemId = req?.query?.adminFilterOemId;
+
       const result = await this.orderManagementService.getSparePostCount(
         storeId as string,
-        vehicleType as string
+        vehicleType as string,
+        userName as string,
+        role as string,
+        oemId as string,
+        firstDate as string,
+        lastDate as string,
+        adminFilterOemId as string,
       );
       res.send({
         message: 'SparePostRequirement obtained successfully',
@@ -467,8 +493,10 @@ export class OrderManagementController {
       Logger.info(
         '<Controller>:<OrderManagementController>:<create SparePost request controller initiated>'
       );
+      const userName = req?.userId;
+      const role = req?.role;
       const result =
-        await this.orderManagementService.createSparePostStatus(req.body);
+        await this.orderManagementService.createSparePostStatus(req.body, userName, role);
       res.send({
         result,
         created: 'successful'
@@ -483,9 +511,15 @@ export class OrderManagementController {
     Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
     try {
       const sparePostId = req.query.sparePostId;
+      const userName = req?.userId;
+      const role = req?.role;
+      const oemId = req?.query?.oemId;
       const result =
         await this.orderManagementService.getSparePostStatusDetails(
-          sparePostId as string
+          sparePostId as string,
+          userName,
+          role,
+          oemId as string
         );
       res.send({
         message: 'Details obtained successfully',
