@@ -261,6 +261,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    SPARE_POST_REQUIREMENT: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     VIDEOUPLOAD: {
       STATUS: 'ALL',
       CREATE: false,
@@ -464,6 +471,13 @@ export const permissions: any = {
       DELETE: false
     },
     PRODUCT_AND_SERVICES: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    SPARE_POST_REQUIREMENT: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
