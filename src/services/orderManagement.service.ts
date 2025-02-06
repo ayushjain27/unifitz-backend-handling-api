@@ -790,15 +790,15 @@ export class OrderManagementService {
       }
     }];
 
-    const total = await DistributorOrder.aggregate(
-      [
-        {
-          $match: { ...overallStatus }
-        },
-        ...aggregatedFilter,
-        { $match: queryTwo },
-        { $count: 'totalCount' }
-      ]);
+    // const total = await DistributorOrder.aggregate(
+    //   [
+    //     {
+    //       $match: { ...overallStatus }
+    //     },
+    //     ...aggregatedFilter,
+    //     { $match: queryTwo },
+    //     { $count: 'totalCount' }
+    //   ]);
 
     if (status === 'PENDING' || !status) {
       pending = await DistributorOrder.aggregate([
@@ -885,7 +885,6 @@ export class OrderManagementService {
     }
 
     const totalCounts = {
-      total: total.length > 0 ? total[0].totalCount : 0,
       pending: pending.length > 0 ? pending[0].pendingCount : 0,
       shipped: shipped.length > 0 ? shipped[0].shippedCount : 0,
       processing: processing.length > 0 ? processing[0].processingCount : 0,
@@ -893,8 +892,10 @@ export class OrderManagementService {
       delivered: delivered.length > 0 ? delivered[0].deliveredCount : 0,
       cancelled: cancelled.length > 0 ? cancelled[0].cancelledCount : 0
     };
-
-    return totalCounts;
+    const totalRes = { ...totalCounts, total: Object.values(totalCounts).reduce((total, count) => total + count, 0)}
+console.log((pending.length > 0 ? pending[0].pendingCount : 0, shipped.length > 0 ? shipped[0].shippedCount : 0, processing.length > 0 ? processing[0].processingCount : 0, partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0, delivered.length > 0 ? delivered[0].deliveredCount : 0, cancelled.length > 0 ? cancelled[0].cancelledCount : 0), 'numbersss');
+console.log(totalRes, 'totalRes');
+    return totalRes;
   }
 
   async getDistributorOrderById(id?: string): Promise<any> {
@@ -1472,7 +1473,7 @@ export class OrderManagementService {
     }
 
     let filterQuery: any = {};
-    if (firstDate === null || lastDate === null) {
+    if (firstDate === 'Invalid Date' ||  !firstDate  || lastDate === 'Invalid Date' || !lastDate) {
       delete query['createdAt'];
     }
     if (!storeId) delete query['storeId'];

@@ -385,7 +385,6 @@ export class SPEmployeeService {
       '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
     );
     const query: any = {
-      userName,
       role
     };
 
@@ -394,20 +393,17 @@ export class SPEmployeeService {
       $set: {
         'accessList.SPARE_POST_REQUIREMENT': {
           STATUS: 'ALL',
-          CREATE: true,
-          READ: true,
-          UPDATE: true,
-          DELETE: true
+          CREATE: false,
+          READ: false,
+          UPDATE: false,
+          DELETE: false
         },
       }
     };
 
-    const updatedAdmin: any = await Admin.findOneAndUpdate(
+    const updatedAdmin: any = await Admin.updateMany(
       query,
-      permissionList,
-      {
-        returnDocument: 'after'
-      }
+      permissionList
     );
 
     Logger.info(
