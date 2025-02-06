@@ -33,6 +33,7 @@ import { StoreService } from './store.service';
 import ProductOrderAddress, {
   IProductOrderAddress
 } from '../models/ProductOrderAddress';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class ProductService {
@@ -1604,8 +1605,8 @@ export class ProductService {
       {
         $lookup: {
           from: 'admin_users',
-          localField: 'userName',
-          foreignField: 'oemUserName',
+          localField: 'oemUserName',
+          foreignField: 'userName',
           as: 'partnerDetail'
         }
       },
@@ -1941,6 +1942,14 @@ export class ProductService {
         Number(productPayload?.qty) * Number(productPayload?.price);
     }
     newProd.status = 'ACTIVE';
+    const lastCreatedProductOrderId = await StaticIds.find({}).limit(1).exec();
+
+    const newProductOrderId = String(
+      parseInt(lastCreatedProductOrderId[0].productOrderId) + 1
+    );
+
+    await StaticIds.findOneAndUpdate({}, { productOrderId: newProductOrderId });
+    newProd.productOrderId = newProductOrderId;
     const productResult = await ProductCartModel.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product added successfully>');
     return productResult;
