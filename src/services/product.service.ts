@@ -2203,4 +2203,29 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Address uppdated successfully>');
     return updatedAddr;
   }
+
+async updateProductLocation(
+  userName: string,
+  state?: any,
+  city?: any
+): Promise<any> {
+  Logger.info('<Service>:<ProductService>:<get product initiated>');
+  const query: any = {};
+  if (userName) {
+    query.oemUserName = userName;
+  }
+
+  let updateData: any = {};
+  updateData = {
+    $set: {
+      'state': state,
+      'city': city,
+    }
+  };
+
+  const product = await PartnersPoduct.updateMany(query, updateData);
+
+  return product;
+}
+
 }

@@ -31,6 +31,7 @@ import Marketing from '../models/Marketing';
 import { permissions } from '../config/permissions';
 import { SQSService } from './sqs.service';
 import { StoreService } from './store.service';
+import { ProductService } from './product.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 
 @injectable()
@@ -41,6 +42,8 @@ export class AdminService {
     TYPES.SurepassService
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
+  private productService = container.get<ProductService>(TYPES.ProductService);
+
 
   async create(reqBody: any): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
@@ -159,7 +162,32 @@ export class AdminService {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
+    if (reqBody?.role === 'OEM' && reqBody?.companyType === 'Distributer') {
+      const newStore = await this.updateProductLocation(reqBody);
+    }
     return res;
+  }
+
+  async updateProductLocation(jsonResult: any) {
+    const userName = jsonResult?.userName;
+    const locationList = jsonResult?.productCategoryLists;
+    const state = locationList.reduce((acc: any, item: any) => {
+      item.state.forEach((state: any) => acc.push({ name: state.name }));
+      return acc;
+    }, []);
+
+    const city = locationList.reduce((acc: any, item: any) => {
+      item.city.forEach((city: any) => acc.push({ name: city.name }));
+      return acc;
+    }, []);
+    
+    const updateLocatioon = await this.productService.updateProductLocation(
+      userName,
+      state,
+      city
+    );
+
+    return updateLocatioon;
   }
 
   async uploadAdminImage(userId: string, req: Request | any): Promise<any> {
