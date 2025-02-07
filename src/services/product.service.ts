@@ -33,6 +33,7 @@ import { StoreService } from './store.service';
 import ProductOrderAddress, {
   IProductOrderAddress
 } from '../models/ProductOrderAddress';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class ProductService {
@@ -157,8 +158,16 @@ export class ProductService {
       'productCategory.catalogName': { $in: [category] },
       'productSubCategory.catalogName': { $in: [subCategory] }
     };
+    // if (searchQuery) {
+    //   query.$or = [{ storeId: searchQuery }, { itemName: searchQuery }];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ storeId: searchQuery }, { itemName: searchQuery }];
+      query.$or = [
+        { itemName: { $regex: regexQuery } },
+        { storeId: { $regex: regexQuery } }
+      ];
     }
     if (!category) {
       delete query['productCategory.catalogName'];
@@ -233,9 +242,18 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    // if (searchQuery) {
+    //   query.$or = [{ itemName: searchQuery }, { storeId: searchQuery }];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ itemName: searchQuery }, { storeId: searchQuery }];
+      query.$or = [
+        { itemName: { $regex: regexQuery } },
+        { storeId: { $regex: regexQuery } }
+      ];
     }
+
     const product = await Product.aggregate([
       {
         $match: query
@@ -278,12 +296,25 @@ export class ProductService {
       // oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
+    // if (searchReqBody?.searchQuery) {
+    //   query.$or = [
+    //     { itemName: searchReqBody?.searchQuery },
+    //     { offerType: searchReqBody?.searchQuery }
+    //   ];
+    // }
+
+    const regexQuery = new RegExp(searchReqBody?.searchQuery, 'i');
+
     if (searchReqBody?.searchQuery) {
       query.$or = [
-        { itemName: searchReqBody?.searchQuery },
-        { offerType: searchReqBody?.searchQuery }
+        { itemName: { $regex: regexQuery } },
+        { productDescription: { $regex: regexQuery } },
+        { productBrand: { $regex: regexQuery } },
+        { 'productCategory.catalogName': { $regex: regexQuery } },
+        { 'productSubCategory.catalogName': { $regex: regexQuery } }
       ];
     }
+    
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
     }
@@ -349,10 +380,21 @@ export class ProductService {
       // oemUserName: searchReqBody?.userName
       // profileStatus: 'ONBOARDED'
     };
+    // if (searchReqBody?.searchQuery) {
+    //   query.$or = [
+    //     { itemName: searchReqBody?.searchQuery },
+    //     { offerType: searchReqBody?.searchQuery }
+    //   ];
+    // }
+    const regexQuery = new RegExp(searchReqBody?.searchQuery, 'i');
+
     if (searchReqBody?.searchQuery) {
       query.$or = [
-        { itemName: searchReqBody?.searchQuery },
-        { offerType: searchReqBody?.searchQuery }
+        { itemName: { $regex: regexQuery } },
+        { productDescription: { $regex: regexQuery } },
+        { productBrand: { $regex: regexQuery } },
+        { 'productCategory.catalogName': { $regex: regexQuery } },
+        { 'productSubCategory.catalogName': { $regex: regexQuery } }
       ];
     }
     if (searchReqBody.role === AdminRole.OEM) {
@@ -1072,12 +1114,26 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    // if (searchQuery) {
+    //   query.$or = [
+    //     { oemUserName: searchQuery },
+    //     { manufactureName: searchQuery },
+    //     { productSuggest: searchQuery },
+    //     { employeeId: searchQuery }
+    //   ];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
       query.$or = [
-        { oemUserName: searchQuery },
-        { manufactureName: searchQuery },
-        { productSuggest: searchQuery },
-        { employeeId: searchQuery }
+        { makeType: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        { employeeId: { $regex: regexQuery } },
+        { manufactureName: { $regex: regexQuery } },
+        { productSuggest: { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemBrand': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemModel.value': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.variants': { $regex: regexQuery } }
       ];
     }
     const product = await PartnersPoduct.aggregate([
@@ -1125,8 +1181,22 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    // if (searchQuery) {
+    //   query.$or = [{ oemUserName: searchQuery},{ employeeId: searchQuery }];
+    // }
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     if (searchQuery) {
-      query.$or = [{ oemUserName: searchQuery},{ employeeId: searchQuery }];
+      query.$or = [
+        { makeType: { $regex: regexQuery } },
+        { oemUserName: { $regex: regexQuery } },
+        // { employeeId: { $regex: regexQuery } },
+        { manufactureName: { $regex: regexQuery } },
+        { productSuggest: { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemBrand': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.oemModel.value': { $regex: regexQuery } },
+        { 'colorCodeList.oemList.variants': { $regex: regexQuery } }
+      ];
     }
     const product = await PartnersPoduct.aggregate([
       {
@@ -1519,6 +1589,49 @@ export class ProductService {
     return newProd;
   }
 
+  async getPartnerProductDetailById(partnerProductId: string): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get event initiated>');
+
+    let query = {
+      _id: new Types.ObjectId(partnerProductId)
+    }
+
+    console.log(query,"drmkfk")
+
+    const newProd = await PartnersPoduct.aggregate([
+      {
+        $match: query
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$partnerDetail'
+        }
+      }]);
+
+
+    if (_.isEmpty(newProd)) {
+      throw new Error('Partner product does not exist');
+    }
+    // const userData = await Admin.findOne({
+    //   userName: newProd?.oemUserName
+    // });
+    // const jsonData = {
+    //   newProd,
+    //   partnerDetail: userData
+    // };
+    Logger.info('<Service>:<ProductService>:<Upload product successful>');
+
+    return newProd[0];
+  }
+
   async updatePartnerProduct(
     reqBody: IB2BPartnersProduct,
     partnerProductId: string
@@ -1829,6 +1942,14 @@ export class ProductService {
         Number(productPayload?.qty) * Number(productPayload?.price);
     }
     newProd.status = 'ACTIVE';
+    const lastCreatedProductOrderId = await StaticIds.find({}).limit(1).exec();
+
+    const newProductOrderId = String(
+      parseInt(lastCreatedProductOrderId[0].productOrderId) + 1
+    );
+
+    await StaticIds.findOneAndUpdate({}, { productOrderId: newProductOrderId });
+    newProd.productOrderId = newProductOrderId;
     const productResult = await ProductCartModel.create(newProd);
     Logger.info('<Service>:<ProductService>:<Product added successfully>');
     return productResult;
@@ -2082,4 +2203,29 @@ export class ProductService {
     Logger.info('<Service>:<ProductService>:<Address uppdated successfully>');
     return updatedAddr;
   }
+
+async updateProductLocation(
+  userName: string,
+  state?: any,
+  city?: any
+): Promise<any> {
+  Logger.info('<Service>:<ProductService>:<get product initiated>');
+  const query: any = {};
+  if (userName) {
+    query.oemUserName = userName;
+  }
+
+  let updateData: any = {};
+  updateData = {
+    $set: {
+      'state': state,
+      'city': city,
+    }
+  };
+
+  const product = await PartnersPoduct.updateMany(query, updateData);
+
+  return product;
+}
+
 }

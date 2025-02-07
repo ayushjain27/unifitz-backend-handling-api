@@ -92,4 +92,9 @@ router.get(
   newVehicleController.getTestDriveDetailsById
 );
 
+router.post(
+  '/getEvVehicleList',
+  newVehicleController.getVehicleList
+);
+
 export default router;

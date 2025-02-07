@@ -155,6 +155,7 @@ const orderSchema: Schema = new Schema(
       enum: [
         'PENDING',
         'PROCESSING',
+        'SHIPPED',
         'PARTIAL DELIVERED',
         'DELIVERED',
         'CANCELLED'

@@ -33,13 +33,47 @@ export class CategoryService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     const query: any = {};
     if (searchQuery) {
-      query.$or = [{ catalogName: searchQuery }, { catalogType: searchQuery }];
+      query.$or = [
+        { catalogName: { $regex: regexQuery } },
+        { catalogType: { $regex: regexQuery } }
+      ];
     }
+    
     const result = await Catalog.aggregate([
       {
-        $match: query
+        $match: query 
+      },
+      {
+        $addFields: {
+          matchedFieldCatalogName: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$catalogName' },
+                  regex: regexQuery
+                }
+              },
+              then: ['$catalogName'],
+              else: []
+            }
+          },
+          matchedFieldCatalogType: {
+            $cond: {
+              if: {
+                $regexMatch: {
+                  input: { $toString: '$catalogType' },
+                  regex: regexQuery
+                }
+              },
+              then: ['$catalogType'],
+              else: []
+            }
+          }
+        }
       },
       {
         $skip: pageNo * pageSize
@@ -48,6 +82,7 @@ export class CategoryService {
         $limit: pageSize
       }
     ]);
+    
     return result;
   }
 
@@ -55,9 +90,14 @@ export class CategoryService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
+    const regexQuery = new RegExp(searchQuery, 'i');
+
     const query: any = {};
     if (searchQuery) {
-      query.$or = [{ catalogName: searchQuery }, { catalogType: searchQuery }];
+      query.$or = [
+        { catalogName: { $regex: regexQuery } },
+        { catalogType: { $regex: regexQuery } }
+      ];
     }
     const result = await Catalog.countDocuments(query);
     const jsonRes = {

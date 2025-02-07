@@ -27,6 +27,7 @@ export interface IProductCart {
   bulkPrice: boolean;
   totalAmount: number;
   status: string;
+  productOrderId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -72,6 +73,9 @@ const productCartSchema: Schema = new Schema(
     },
     bulkPrice: {
       type: Boolean
+    },
+    productOrderId: {
+      type: String
     },
     status: {
       type: String,

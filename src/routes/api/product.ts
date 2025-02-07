@@ -215,6 +215,8 @@ router.get(
 
 router.get('/partner/productId', productController.getPartnerProductById);
 
+router.get('/partner/getProductDetailByProductId/productId', productController.getPartnerProductDetailById);
+
 router.put(
   '/partner/update/:partnerProductId',
   productController.updatePartnerProduct

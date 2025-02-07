@@ -958,6 +958,24 @@ export class ProductController {
     }
   };
 
+  getPartnerProductDetailById = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<ProductController>:<Getting banner ID>');
+    try {
+      const partnerProductId = req.query.partnerProductId;
+      const result = await this.productService.getPartnerProductDetailById(
+        partnerProductId as string
+      );
+      Logger.info('<Controller>:<ProductController>:<get successfully>');
+      res.send({
+        message: 'Partner Product obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   updatePartnerProduct = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<ProductController>:<Update Product Status>');
     // Validate the request body

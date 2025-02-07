@@ -1,6 +1,7 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema, Types } from 'mongoose';
 
 export interface ISparePostRequirement {
+  _id?: Types.ObjectId;
   storeId: string;
   vehicleType: string;
   sparePartImage: { key: string; docURL: string };

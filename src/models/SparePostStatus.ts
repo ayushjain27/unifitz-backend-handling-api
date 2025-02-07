@@ -5,6 +5,8 @@ export interface ISparePostStatus {
   comment: string;
   oemUserName: string;
   sparePostId: string;
+  employeeId?: string;
+  createdOemUser?: string;
 }
 
 const sparePostStatus: Schema = new Schema<ISparePostStatus>(
@@ -19,13 +21,19 @@ const sparePostStatus: Schema = new Schema<ISparePostStatus>(
       type: String
     },
     comment: {
-        type: String
-      }
+      type: String
+    },
+    employeeId: {
+      type: String
+    },
+    createdOemUser: {
+      type: String
+    }
   },
   { timestamps: true }
 );
 
 export const SparePostStatus = model<ISparePostStatus>(
-  'sparepoststatus',
+  'spares',
   sparePostStatus
 );

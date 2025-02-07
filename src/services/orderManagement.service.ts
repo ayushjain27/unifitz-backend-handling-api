@@ -383,7 +383,13 @@ export class OrderManagementService {
       overallStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
     } else if (
       itemStatuses.some(
-        (status) => status === 'PROCESSING' || status === 'SHIPPED'
+        (status) => status === 'SHIPPED'
+      )
+    ) {
+      overallStatus = 'SHIPPED'; // If any item is PROCESSING, the order is PROCESSING
+    } else if (
+      itemStatuses.some(
+        (status) => status === 'PROCESSING'
       )
     ) {
       overallStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
@@ -417,7 +423,13 @@ export class OrderManagementService {
       overallOrderStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
     } else if (
       ordersItemStatuses.some(
-        (status) => status === 'PROCESSING' || status === 'SHIPPED'
+        (status) => status === 'SHIPPED'
+      )
+    ) {
+      overallOrderStatus = 'SHIPPED'; // If any item is PROCESSING, the order is PROCESSING
+    } else if (
+      ordersItemStatuses.some(
+        (status) => status === 'PROCESSING'
       )
     ) {
       overallOrderStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
@@ -445,7 +457,13 @@ export class OrderManagementService {
     oemId?: string,
     pageNo?: number,
     pageSize?: number,
-    employeeId?: string
+    employeeId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter distributors orders service initiated>'
@@ -453,6 +471,37 @@ export class OrderManagementService {
     const query: any = {
       status: status
     };
+
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const queryTwo: any = {
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'storeDetails.storeId': storeId,
+      'oemUserName': adminFilterOemId,
+      'storeDetails.contactInfo.state': state,
+      'storeDetails.contactInfo.city': city,
+    }
+    if (firstDate === null || lastDate === null) {
+      delete queryTwo['createdAt'];
+    }
+    if (!storeId) {
+      delete queryTwo['storeDetails.storeId'];
+    }
+    if (!adminFilterOemId) {
+      delete queryTwo['oemUserName'];
+    }
+    if (!state) {
+      delete queryTwo['storeDetails.contactInfo.state'];
+    }
+    if (!city) {
+      delete queryTwo['storeDetails.contactInfo.city'];
+    }
     const userRoleType = userType === 'OEM' ? true : false;
 
     if (role === AdminRole.ADMIN) {
@@ -582,6 +631,7 @@ export class OrderManagementService {
           preserveNullAndEmptyArrays: true
         }
       },
+      { $match: queryTwo },
       // {
       //   $lookup: {
       //     from: 'admin_users', // Collection name for oemusers
@@ -615,7 +665,13 @@ export class OrderManagementService {
     userType?: string,
     status?: string,
     verifiedStore?: string,
-    employeeId?: string
+    employeeId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter orders count service initiated>'
@@ -624,6 +680,7 @@ export class OrderManagementService {
     const userRoleType = userType === 'OEM' ? true : false;
     let pending: any = 0;
     let processing: any = 0;
+    let shipped: any = 0;
     let partialDelivered: any = 0;
     let delivered: any = 0;
     let cancelled: any = 0;
@@ -673,48 +730,172 @@ export class OrderManagementService {
       // }
     }
 
-    const total = await DistributorOrder.countDocuments({ ...overallStatus });
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const queryTwo: any = {
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
+      'storeDetails.storeId': storeId,
+      'oemUserName': adminFilterOemId,
+      'storeDetails.contactInfo.state': state,
+      'storeDetails.contactInfo.city': city,
+    }
+    if (!firstDate || !lastDate) {
+      delete queryTwo['createdAt'];
+    }
+    if (!storeId) {
+      delete queryTwo['storeDetails.storeId'];
+    }
+    if (!adminFilterOemId) {
+      delete queryTwo['oemUserName'];
+    }
+    if (!state) {
+      delete queryTwo['storeDetails.contactInfo.state'];
+    }
+    if (!city) {
+      delete queryTwo['storeDetails.contactInfo.city'];
+    }
+
+    const aggregatedFilter = [{
+      $lookup: {
+        from: 'orders',
+        localField: 'customerOrderId',
+        foreignField: '_id',
+        as: 'customerOrderDetails'
+      }
+    },
+    {
+      $unwind: {
+        path: '$customerOrderDetails',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: 'stores',
+        localField: 'customerOrderDetails.storeId',
+        foreignField: 'storeId',
+        as: 'storeDetails'
+      }
+    },
+    {
+      $unwind: {
+        path: '$storeDetails',
+        preserveNullAndEmptyArrays: true
+      }
+    }];
+
+    // const total = await DistributorOrder.aggregate(
+    //   [
+    //     {
+    //       $match: { ...overallStatus }
+    //     },
+    //     ...aggregatedFilter,
+    //     { $match: queryTwo },
+    //     { $count: 'totalCount' }
+    //   ]);
+
     if (status === 'PENDING' || !status) {
-      pending = await DistributorOrder.countDocuments({
-        status: 'PENDING',
-        ...query
-      });
+      pending = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'PENDING',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'pendingCount' }
+      ]);
     }
     if (status === 'PROCESSING' || !status) {
-      processing = await DistributorOrder.countDocuments({
-        status: 'PROCESSING',
-        ...query
-      });
+      processing = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'PROCESSING',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'processingCount' }
+        ]);
+    }
+    if (status === 'SHIPPED' || !status) {
+      shipped = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'SHIPPED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'shippedCount' }
+        ]);
     }
     if (status === 'PARTIAL DELIVERED' || !status) {
-      partialDelivered = await DistributorOrder.countDocuments({
-        status: 'PARTIAL DELIVERED',
-        ...query
-      });
+      partialDelivered = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'PARTIAL DELIVERED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'partialCount' }
+        ]);
     }
     if (status === 'DELIVERED' || !status) {
-      delivered = await DistributorOrder.countDocuments({
-        status: 'DELIVERED',
-        ...query
-      });
+      delivered = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'DELIVERED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'deliveredCount' }
+        ]);
     }
     if (status === 'CANCELLED' || !status) {
-      cancelled = await DistributorOrder.countDocuments({
-        status: 'CANCELLED',
-        ...query
-      });
+      cancelled = await DistributorOrder.aggregate(
+        [
+          {
+            $match: {
+              status: 'CANCELLED',
+              ...query
+            }
+          },
+          ...aggregatedFilter,
+          { $match: queryTwo },
+          { $count: 'cancelledCount' }
+        ]);
     }
 
     const totalCounts = {
-      total,
-      pending,
-      processing,
-      partialDelivered,
-      delivered,
-      cancelled
+      pending: pending.length > 0 ? pending[0].pendingCount : 0,
+      shipped: shipped.length > 0 ? shipped[0].shippedCount : 0,
+      processing: processing.length > 0 ? processing[0].processingCount : 0,
+      partialDelivered: partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0,
+      delivered: delivered.length > 0 ? delivered[0].deliveredCount : 0,
+      cancelled: cancelled.length > 0 ? cancelled[0].cancelledCount : 0
     };
-
-    return totalCounts;
+    const totalRes = { ...totalCounts, total: Object.values(totalCounts).reduce((total, count) => total + count, 0)}
+console.log((pending.length > 0 ? pending[0].pendingCount : 0, shipped.length > 0 ? shipped[0].shippedCount : 0, processing.length > 0 ? processing[0].processingCount : 0, partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0, delivered.length > 0 ? delivered[0].deliveredCount : 0, cancelled.length > 0 ? cancelled[0].cancelledCount : 0), 'numbersss');
+console.log(totalRes, 'totalRes');
+    return totalRes;
   }
 
   async getDistributorOrderById(id?: string): Promise<any> {
@@ -1153,21 +1334,96 @@ export class OrderManagementService {
     pageNo?: number,
     pageSize?: number,
     storeId?: string,
-    vehicleType?: string
+    vehicleType?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    adminFilterOemId?: string
   ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
     const query: any = {
       'storeId': storeId,
-      'vehicleType': vehicleType
+      'vehicleType': vehicleType,
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
     };
 
+    const queryTwo: any = {};
+
+    if(adminFilterOemId) {
+      queryTwo.$or = [
+        { 'lastStatus.oemUserName': adminFilterOemId },
+        { 'lastStatus.createdOemUser': adminFilterOemId }
+      ];
+    }
+
+    let filterQuery: any = {};
+    if (firstDate === 'Invalid Date' ||  !firstDate  || lastDate === 'Invalid Date' || !lastDate) {
+      delete query['createdAt'];
+    }
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
-    console.log(query, 'queryJson');
+    let aggregateQuery: any = [];
+
+    if(role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
+     aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+      { $project: { 'statusDetails': 0 } },
+      { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+     ];
+    }
+    if(role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
+      const user = role === 'OEM' ? userName : oemId;
+       filterQuery.$or = [
+        { 'lastStatus.createdOemUser': { $in: [user] } },
+        { 'lastStatus.oemUserName': { $in: [user] } },
+      ];
+      aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+       { $match: filterQuery},
+       { $project: { 'statusDetails': 0 } },
+       { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+      ];
+     }
+    console.log(query, 'queryJson', role);
 
     const sparePostLists = await SparePost.aggregate([
       {
         $match: query
+      },
+      {
+        $set: {
+          postKey: { $toObjectId: '$_id' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'spares',
+          let: { postKey: '$postKey' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toObjectId: '$sparePostId' }, '$$postKey']
+                }
+              }
+            }
+          ],
+          as: 'statusDetails'
+        }
+      },
+      ...aggregateQuery,
+      {
+        $match: queryTwo
       },
       { $sort: { createdAt: -1 } },
       {
@@ -1183,21 +1439,109 @@ export class OrderManagementService {
 
   async getSparePostCount(
     storeId?: string,
-    vehicleType?: string
+    vehicleType?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    adminFilterOemId?: string
   ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
+
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
     const query: any = {
       'storeId': storeId,
-      'vehicleType': vehicleType
+      'vehicleType': vehicleType,
+      'createdAt': {
+        $gte: firstDay,
+        $lte: nextDate
+      },
     };
 
+    const queryTwo: any = {};
+
+    if(adminFilterOemId) {
+      queryTwo.$or = [
+        { 'lastStatus.oemUserName': adminFilterOemId },
+        { 'lastStatus.createdOemUser': adminFilterOemId }
+      ];
+    }
+
+    let filterQuery: any = {};
+    if (firstDate === 'Invalid Date' ||  !firstDate  || lastDate === 'Invalid Date' || !lastDate) {
+      delete query['createdAt'];
+    }
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
+    let aggregateQuery: any = [];
 
-    const reults = await SparePost.countDocuments(query)
-    const sparePostCounts = {
-      total: reults || 0
+    if(role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
+     aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+      { $project: { 'statusDetails': 0 } },
+      { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+     ];
     }
+    if(role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
+      const user = role === 'OEM' ? userName : oemId;
+       filterQuery.$or = [
+        { 'lastStatus.createdOemUser': { $in: [user] } },
+        { 'lastStatus.oemUserName': { $in: [user] } },
+      ];
+      aggregateQuery = [
+      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
+       { $match: filterQuery},
+       { $project: { 'statusDetails': 0 } },
+       { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+      ];
+     }
+    // console.log(query, 'queryJson', role);
+
+    const totalCountQuery = await SparePost.aggregate([
+      {
+        $match: query
+      },
+      {
+        $set: {
+          postKey: { $toObjectId: '$_id' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'spares',
+          let: { postKey: '$postKey' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toObjectId: '$sparePostId' }, '$$postKey']
+                }
+              }
+            }
+          ],
+          as: 'statusDetails'
+        }
+      },
+      ...aggregateQuery,
+      {
+        $match: queryTwo
+      },
+      {
+        $count: "totalCount"
+      }
+    ]);
+    
+    const totalCount = totalCountQuery.length > 0 ? totalCountQuery[0].totalCount : 0;
+    
+    const sparePostCounts = {
+      total: totalCount || 0
+    }
+    
     return sparePostCounts;
   }
 
@@ -1219,23 +1563,44 @@ export class OrderManagementService {
     }
   }
 
-  async createSparePostStatus(sparePostList?: any) {
+  async createSparePostStatus(sparePostList?: any, userName?: any, role?: any) {
     Logger.info(
       '<Service>:<OrderManagementService>:<create sparePosts service initiated>'
     );
     const query = sparePostList;
-
+    if (role === AdminRole.OEM || (role === 'EMPLOYEE' && sparePostList?.oemId !== 'SERVICEPLUG')) {
+      const user = role === 'OEM' ? userName : sparePostList?.oemId;
+      query.createdOemUser = user;
+    }
     const result = await SparePostStatus.create(query);
     return result;
   }
 
-  async getSparePostStatusDetails(sparePostId?: string): Promise<any> {
+  async getSparePostStatusDetails(sparePostId?: string, userName?: string, role?: string, oemId?: string): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
 
     const sparePost = await SparePost.findOne({ _id: sparePostId }, { verificationDetails: 0 });
     if (!sparePost) throw new Error('SparePost not found');
 
-    const jsonResult = await SparePostStatus.find({ sparePostId: sparePostId });
+    let query: any = { sparePostId: sparePostId };
+    if (role === AdminRole.OEM) {
+      query.$or = [
+        { 'createdOemUser': { $in: [userName] } },
+        { 'oemUserName': { $in: [userName] } },
+      ];
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.$or = [
+        { 'createdOemUser': { $in: [oemId] } },
+        { 'oemUserName': { $in: [oemId] } },
+      ];
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+    const jsonResult = await SparePostStatus.find(query);
 
     Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
 

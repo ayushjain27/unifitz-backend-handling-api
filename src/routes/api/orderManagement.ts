@@ -105,10 +105,12 @@ router.get(
 
 router.get(
   '/sparePostRequirement/paginated',
+  roleAuth(ACL.STORE_CREATE),
   orderManagementController.getSparePostPaginated
 );
 router.get(
   '/sparePostRequirement/count',
+  roleAuth(ACL.STORE_CREATE),
   orderManagementController.getSparePostCount
 );
 
@@ -125,6 +127,7 @@ router.post(
 
 router.get(
   '/sparePostStatus/getById',
+  roleAuth(ACL.STORE_CREATE),
   orderManagementController.getSparePostStatusDetails
 );
 
