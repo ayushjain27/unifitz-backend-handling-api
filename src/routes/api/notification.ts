@@ -12,7 +12,7 @@ const notificationController = container.get<NotificationController>(
 );
 // @route   POST api/customer
 // @access  Private
-router.post(
+router.get(
   '/send',
   // roleAuth(ACL.NOTIFICATION_SEND),
   notificationController.sendNotification
