@@ -20,7 +20,7 @@ export class SQSService {
         QueueUrl: this.queueUrl,
         MessageBody: message
       });
-      console.log(command,"dkm")
+      // console.log(command,"dkm")
       await this.client.send(command);
     } catch (err) {
       throw new Error('There is some problem with sending message');

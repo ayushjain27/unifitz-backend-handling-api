@@ -124,6 +124,32 @@ export class OrderManagementService {
     );
     console.log(sqsMessage, 'Message');
 
+    let userDetailsForNotification = {};
+    if(requestBody.userRole === 'STORE_OWNER'){
+    userDetailsForNotification = await this.storeService.getStoreByUserId(user._id);
+    }else{
+    const phoneNumber = requestBody.phoneNumber.slice(-10);
+    userDetailsForNotification = await this.customerService.getByPhoneNumber(phoneNumber);
+    }
+
+    const result = JSON.stringify(userDetailsForNotification);
+    const dataSend = JSON.parse(result);
+    // console.log(customerDetails,"fmerkmdf")
+
+    const data = {
+      title: `Order Created! #ORD${newOrderId}`,
+      body: 'You have created a new order. Your Order is in Pending State.',
+      phoneNumber: requestBody.userRole === 'STORE_OWNER' ? dataSend?.contactInfo?.phoneNumber?.primary : dataSend?.phoneNumber,
+      role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
+      type: 'ORDER_STATUS',
+    };
+    console.log(data,"data send");
+    const notificationMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
+    );
+    console.log(notificationMessage,"fjdnfiei")
+
     // if (!isEmpty(userOrderRequest)) {
 
     // const groupedData = groupBy(requestBody.items, 'oemUserName');
