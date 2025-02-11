@@ -47,6 +47,7 @@ import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
 import errorHandler from './routes/middleware/errorHandler';
+import { SESClient, CreateTemplateCommand } from '@aws-sdk/client-ses';
 // import cron from 'node-cron';
 
 const app = express();
@@ -635,86 +636,71 @@ app.get('/slug', async (req, res) => {
 // const sqs = new AWS.SQS();
 // const ses = new AWS.SES();
 const path = require('path');
+const sesClient = new SESClient({ region: 'ap-south-1' });
 
-// app.get('/createTemplate', async (req, res) => {
-//   const params = {
-//     Template: {
-//       TemplateName: 'NewVehicleEnquiryOemUserPartner',
-//       SubjectPart: '🚗 New Vehicle Enquiry 🚗', // Use a placeholder for dynamic subject
-//       HtmlPart: `<!DOCTYPE html>
-//       <html lang="en">
-//       <head>
-//         <meta charset="UTF-8">
-//         <style>
-//           body {
-//             font-family: Arial, sans-serif;
-//             background-color: #f4f4f4;
-//             margin: 0;
-//             padding: 0;
-//           }
-//           .container {
-//             max-width: 600px;
-//             margin: 0 auto;
-//             padding: 20px;
-//             background-color: #fff;
-//             border-radius: 8px;
-//             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-//           }
-//           h1 {
-//             color: #333;
-//           }
-//           p {
-//             color: #666;
-//           }
-//           .cta-button {
-//             display: inline-block;
-//             padding: 10px 20px;
-//             background-color: #ff6600;
-//             color: #fff;
-//             text-decoration: none;
-//             border-radius: 4px;
-//           }
-//         </style>
-//       </head>
-//       <body>
-//         <div class="container">
-//       <p style="font-size: 20px; text-align: center;">🚗 New Vehicle Enquiry 🚗</p>
-//           <p style="font-size: 16px; color: blue;">User Details</p>
-//           <p>UserName : {{userName}}</p>
-//           <p>Phone Number : {{phoneNumber}}</p>
-//           <p>Email : {{email}}</p>
-//           <p>State : {{userState}}</p>
-//           <p>City : {{userCity}}</p>
-//           <p style="font-size: 17px; color: blue">Vehicle Details</p>
-//           <P>Vehicle Name : {{vehicleName}}</p>
-//           <p>Brand : {{brand}}</p>
-//           <p>Model Name : {{model}}</p>
-//           <p style="font-size: 17px; color: blue">Nearby Store Details</p>
-//           <P>Dealer Name : {{dealerName}}</p>
-//           <P>Store Id : {{storeId}}</p>
-//           <p>State : {{storeState}}</p>
-//           <p>City : {{storeCity}}</p>
-
-//           <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
-//         </div>
-//       </body>
-//       </html>`,
-//       TextPart: 'Plain text content goes here'
-//     }
-//   };
+app.get('/createTemplate', async (req, res) => {
+  const params = {
+    Template: {
+      TemplateName: 'NewOrder',
+      SubjectPart: '🚗 New Order Created #ORD{{orderId}} 🚗', // Use a placeholder for dynamic subject
+      HtmlPart: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+          h1 {
+            color: #333;
+          }
+          p {
+            color: #666;
+          }
+          .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ff6600;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+      <p style="font-size: 20px; text-align: center;">🚗 New Order Created #ORD{{orderId}} 🚗</p>
+          <p style="font-size: 16px; color: blue;">Dear {{name}}, your new order #ORD{{orderId}} is created and currently pending. Track the order in the app.</p>
+         
+          <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+        </div>
+      </body>
+      </html>`,
+      TextPart: 'Plain text content goes here'
+    }
+  };
 //   // console.log(params);
 
-//   ses.createTemplate(params, (err, data) => {
-//     if (err) {
-//       console.log(err, 'wdk');
-//       // console.log('Error creating email template: ', err);
-//       res.status(500).send({ error: 'Failed to create email template' });
-//     } else {
-//       // console.log('Email template created ', data);
-//       res.send(data);
-//     }
-//   });
-// });
+try {
+  const command = new CreateTemplateCommand(params);
+  const data = await sesClient.send(command);
+  res.send(data);
+} catch (error) {
+  console.error('Error creating email template: ', error);
+  res.status(500).send({ error: 'Failed to create email template' });
+}
+});
 
 // cron.schedule('0 0 * * *', async () => {
 //   console.log('Running cron job to update vehicle status');

@@ -148,7 +148,24 @@ export class OrderManagementService {
       SQSEvent.NOTIFICATION,
       data
     );
-    console.log(notificationMessage,"fjdnfiei")
+
+    let email = requestBody.userRole === 'STORE_OWNER' ? dataSend?.contactInfo?.email : dataSend?.email;
+    if(!isEmpty(email)){
+      const templateData = {
+        orderId: newOrderId,
+        name: dataSend?.basicInfo?.ownerName
+      };
+    const emailNotificationData = {
+      to: email,
+      templateData: templateData,
+      templateName: 'NewOrder'
+    };
+
+    const emailNotification = await this.sqsService.createMessage(
+      SQSEvent.EMAIL_NOTIFICATION,
+      emailNotificationData
+    );
+  }
 
     // if (!isEmpty(userOrderRequest)) {
 
