@@ -6,6 +6,7 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { NotificationService } from '../services/notification.service';
 import Request from '../types/request';
+import { body } from 'express-validator';
 
 @injectable()
 export class NotificationController {
@@ -17,17 +18,10 @@ export class NotificationController {
   }
 
   sendNotification = async (req: Request, res: Response) => {
-    // const errors = validationResult(req);
-    // if (!errors.isEmpty()) {
-    //   return res
-    //     .status(HttpStatusCodes.BAD_REQUEST)
-    //     .json({ errors: errors.array() });
-    // }
-
     const payload = req.body;
 
     Logger.info(
-      '<Controller>:<NotificationController>:<Send notification controller initiated>'
+      '<Controller>:<NotificationController>:<Create notification controller initiated>'
     );
     try {
       const result = await this.notificationService.sendNotification(payload);
@@ -40,6 +34,80 @@ export class NotificationController {
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createNotification = async (req: Request, res: Response) => {
+    const payload = req.body;
+
+    Logger.info(
+      '<Controller>:<NotificationController>:<Create notification controller initiated>'
+    );
+    try {
+      const result = await this.notificationService.createNotification(payload);
+
+      res.json({
+        message: 'Notification Created Successfully',
+        userName: result
+      });
+      return;
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateNotificationStatus = async (req: Request, res: Response) => {
+    const payload = req.body;
+
+    Logger.info(
+      '<Controller>:<NotificationController>:<Update notification status controller initiated>'
+    );
+    try {
+      const result = await this.notificationService.updateNotificationStatus(payload);
+
+      res.json({
+        message: 'Notification Status Updated Successfully',
+        userName: result
+      });
+      return;
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  countTotalNotification = async (req: Request, res: Response) => {
+    const payload = req.query;
+
+    Logger.info(
+      '<Controller>:<NotificationController>:<Count notification controller initiated>'
+    );
+    try {
+      const result = await this.notificationService.countTotalNotification(payload);
+
+      res.json({
+        message: 'Notification Count Successfully',
+        userName: result
+      });
+      return;
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  validate = (method: string) => {
+    switch (method) {
+      case 'createNotification':
+        return [
+          // body('storeId', 'Store Id does not exist').exists().isString(),
+          body('title', 'Title does not exists').exists().isString(),
+          body('body', 'Body does not exists').exists().isString(),
+          body('phoneNumber', 'Phone Number does not exists')
+            .exists()
+            .isString()
+        ];
     }
   };
 }

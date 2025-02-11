@@ -12,6 +12,8 @@ import Store from '../models/Store';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import Customer from '../models/Customer';
+import Notification, { INotification } from '../models/Notification';
+import { isEmpty } from 'lodash';
 const FCM = require('fcm-node');
 // import Customer, { ICustomer } from './../models/Customer';
 
@@ -75,6 +77,63 @@ export class NotificationService {
           data
         );
       }
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async createNotification(params: any): Promise<INotification> {
+    Logger.info(
+      '<Service>:<NotificationService>: <Creating notification: creating notfication to user>'
+    );
+    let payload = params;
+    try {
+      let createNotification = Notification.create(payload);
+      return createNotification;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updateNotificationStatus(params: any): Promise<any> {
+    Logger.info(
+      '<Service>:<NotificationService>: <Updating notification status: updating notfication status to user>'
+    );
+    let payload = params;
+    try {
+      let notification = await Notification.findOne({
+        _id: payload.notificationId
+      })
+      if(!isEmpty(notification)){
+        let response = await Notification.findOneAndUpdate({
+          _id: payload.notificationId,
+          $set: {status: 'INACTIVE'}
+        })
+        return response;
+      }
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async countTotalNotification(params: any): Promise<any> {
+    Logger.info(
+      '<Service>:<NotificationService>: <Counting notification: counting notfication status to user>'
+    );
+    let payload = params;
+    let count: any = 0
+    let query: any = {
+        status: 'ACTIVE'
+    }
+    if(payload.storeId){
+      query.storeId = payload.storeId;
+    }
+    if(payload.customerId){
+      query.customerId = payload.customerId;
+    }
+    try {
+      count = await Notification.countDocuments(query);
+      return count;
     } catch (err) {
       throw new Error(err);
     }
