@@ -88,7 +88,7 @@ export class NotificationController {
 
       res.json({
         message: 'Notification Count Successfully',
-        userName: result
+        result: result
       });
       return;
     } catch (err) {
