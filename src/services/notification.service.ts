@@ -97,24 +97,26 @@ export class NotificationService {
 
   async updateNotificationStatus(params: any): Promise<any> {
     Logger.info(
-      '<Service>:<NotificationService>: <Updating notification status: updating notfication status to user>'
+      '<Service>:<NotificationService>: <Updating notification status: updating notification status to user>'
     );
-    let payload = params;
+    
     try {
-      let notification = await Notification.findOne({
-        _id: payload.notificationId
-      })
-      if(!isEmpty(notification)){
-        let response = await Notification.findOneAndUpdate({
-          _id: payload.notificationId,
-          $set: {status: 'INACTIVE'}
-        })
+      let notification = await Notification.findOne({ _id: params.notificationId });
+      console.log(params, "dlfrmf");
+  
+      if (!isEmpty(notification)) {
+        let response = await Notification.findOneAndUpdate(
+          { _id: params.notificationId }, // Query
+          { $set: { status: 'INACTIVE' } }, // Correct placement of $set
+          { new: true } // Returns the updated document
+        );
         return response;
       }
     } catch (err) {
-      throw new Error(err);
+      throw new Error(err.message); // Ensure the error message is properly formatted
     }
   }
+  
 
   async countTotalNotification(params: any): Promise<any> {
     Logger.info(
