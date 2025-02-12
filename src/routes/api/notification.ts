@@ -37,11 +37,10 @@ router.get(
   notificationController.countTotalNotification
 );
 
-// router.post(
-//   '/get-all-orders',
-//   roleAuth(ACL.STORE_GET_ALL),
-//   validationHandler(),
-//   orderManagementController.getUserAllOrdersPaginated
-// );
+router.post(
+  '/get-all-notifications',
+  validationHandler(),
+  notificationController.getUserAllNotificationsPaginated
+);
 
 export default router;

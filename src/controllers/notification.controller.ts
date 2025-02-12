@@ -97,6 +97,31 @@ export class NotificationController {
     }
   };
 
+  getUserAllNotificationsPaginated = async (req: any, res: Response) => {
+    Logger.info(
+      '<Controller>:<NotificationController>:<Request notifications controller initiated>'
+    );
+    try {
+      const storeId = req.body?.storeId;
+      const customerId = req.body?.customerId;
+      const result = await this.notificationService.getUserAllNotificationsPaginated(
+        storeId,
+        customerId,
+        req.body.pageNo,
+        req.body.pageSize
+      );
+      res.send({
+        message: 'Get All Orders Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createNotification':

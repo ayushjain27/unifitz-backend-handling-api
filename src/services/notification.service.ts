@@ -138,4 +138,37 @@ export class NotificationService {
       throw new Error(err);
     }
   }
+
+  async getUserAllNotificationsPaginated(
+    storeId: string,
+    customerId: string,
+    pageNo: number,
+    pageSize: number
+  ): Promise<INotification[]> {
+    let query: any = {}
+    if(!isEmpty(storeId)){
+      query.storeId = storeId
+    }
+    if(!isEmpty(customerId)){
+      query.customerId = customerId
+    }
+      Logger.info(
+      '<Service>:<NotificationService>:<Get user all notifications by id>'
+    );
+
+    const notificationResponse: any = await Notification.aggregate([
+      {
+        $match: query
+      },
+      { $sort: { createdAt: -1 } }, // 1 for ascending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return notificationResponse;
+  }
 }
