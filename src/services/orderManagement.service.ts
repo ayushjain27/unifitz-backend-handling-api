@@ -27,6 +27,7 @@ import Store, { IStore } from './../models/Store';
 import { StaticIds } from '../models/StaticId';
 import { SparePost } from '../models/SparePostRequirement';
 import { SparePostStatus } from '../models/SparePostStatus';
+import { NotificationService } from './notification.service';
 
 @injectable()
 export class OrderManagementService {
@@ -38,6 +39,9 @@ export class OrderManagementService {
   );
   private spEmployeeService = container.get<SPEmployeeService>(
     TYPES.SPEmployeeService
+  );
+  private notificationService = container.get<NotificationService>(
+    TYPES.NotificationService
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
 
@@ -155,26 +159,39 @@ export class OrderManagementService {
       data
     );
 
-    let email =
-      requestBody.userRole === 'STORE_OWNER'
-        ? dataSend?.contactInfo?.email
-        : dataSend?.email;
-    if (!isEmpty(email)) {
-      const templateData = {
-        orderId: newOrderId,
-        name: dataSend?.basicInfo?.ownerName
-      };
-      const emailNotificationData = {
-        to: email,
-        templateData: templateData,
-        templateName: 'NewOrder'
-      };
-
-      const emailNotification = await this.sqsService.createMessage(
-        SQSEvent.EMAIL_NOTIFICATION,
-        emailNotificationData
-      );
+    const notificationData = {
+      title: `Order Created! #ORD${newOrderId}`,
+      body: 'Your new Order has created.Your order is pending and will be processed shortly. We appreciate your patience.',
+      phoneNumber: requestBody.userRole === 'STORE_OWNER'
+      ? dataSend?.contactInfo?.phoneNumber?.primary
+      : dataSend?.phoneNumber,
+      type: "ORDER_STATUS",
+      role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
+      storeId: dataSend?.storeId
     }
+
+    let notification = await this.notificationService.createNotification(notificationData)
+
+    // let email =
+    //   requestBody.userRole === 'STORE_OWNER'
+    //     ? dataSend?.contactInfo?.email
+    //     : dataSend?.email;
+    // if (!isEmpty(email)) {
+    //   const templateData = {
+    //     orderId: newOrderId,
+    //     name: dataSend?.basicInfo?.ownerName
+    //   };
+    //   const emailNotificationData = {
+    //     to: email,
+    //     templateData: templateData,
+    //     templateName: 'NewOrder'
+    //   };
+
+    //   const emailNotification = await this.sqsService.createMessage(
+    //     SQSEvent.EMAIL_NOTIFICATION,
+    //     emailNotificationData
+    //   );
+    // }
 
     // if (!isEmpty(userOrderRequest)) {
 
@@ -482,6 +499,18 @@ export class OrderManagementService {
         SQSEvent.NOTIFICATION,
         data
       );
+
+      const notificationData = {
+        title: `Product Status! #PRD${cartDetails.productOrderId}`,
+        body: body,
+        phoneNumber: !isEmpty(updatedOrderStatus?.storeId) &&
+        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        type: "ORDER_STATUS",
+        role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
+        storeId: storeDetails[0]?.storeId
+      }
+  
+      let notification = await this.notificationService.createNotification(notificationData)
     }
     let overallOrderStatus = 'PENDING'; // Default to PENDING if no other status is found
 
@@ -544,6 +573,18 @@ export class OrderManagementService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: `Order Status! #ORD${updatedOrderStatus.customerOrderId}`,
+      body: body,
+      phoneNumber:  !isEmpty(updatedOrderStatus?.storeId) &&
+      storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+      type: "ORDER_STATUS",
+      role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
+      storeId: 'ORDER_STATUS'
+    }
+
+    let notification = await this.notificationService.createNotification(notificationData)
+
 
     return updatedOrder;
   }
@@ -1198,6 +1239,19 @@ export class OrderManagementService {
         SQSEvent.NOTIFICATION,
         data
       );
+
+      const notificationData = {
+        title: `Payment Status Update for Order #ORD${checkUserOrder?.customerOrderId}`,
+        body: 'Kindly review the payment status for your recent order. Please contact support if you need assistance.',
+        phoneNumber:   !isEmpty(checkUserOrder?.storeId) &&
+        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        type: "ORDER_STATUS",
+        role: !isEmpty(checkUserOrder?.storeId) ? 'STORE_OWNER' : 'USER',
+        storeId: 'ORDER_STATUS'
+      }
+  
+      let notification = await this.notificationService.createNotification(notificationData)
+  
 
       return distributorOrderPaymentPayload;
     } catch (error) {

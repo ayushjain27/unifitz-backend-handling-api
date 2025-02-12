@@ -14,6 +14,7 @@ import { SurepassService } from './surepass.service';
 import Store from '../models/Store';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
+import { NotificationService } from './notification.service';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -22,6 +23,9 @@ export class NewVehicleInfoService {
     TYPES.SurepassService
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
+  private notificationService = container.get<NotificationService>(
+    TYPES.NotificationService
+  );
 
   async create(vehicleStore: INewVehicle, userName?: string, role?: string) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
@@ -483,10 +487,23 @@ export class NewVehicleInfoService {
           role: 'STORE_OWNER',
           type: 'NEW_VEHICLE'
         };
+  
         const sqsMessage = await this.sqsService.createMessage(
           SQSEvent.NOTIFICATION,
           data
         );
+
+        const notificationData = {
+          title: 'New Enquiry',
+          body: `You've received a new inquiry`,
+          phoneNumber:storeDetails?.contactInfo?.phoneNumber?.primary,
+          type: "NEW_VEHICLE",
+          role: "STORE_OWNER",
+          storeId: reqBody?.storeDetails?.storeId
+        }
+    
+        let notification = await this.notificationService.createNotification(notificationData)
+        
         if (!_.isEmpty(storeDetails?.oemUserName)) {
           const adminDetails = await Admin.findOne({
             userName: storeDetails?.oemUserName
@@ -584,6 +601,17 @@ export class NewVehicleInfoService {
         SQSEvent.NOTIFICATION,
         data
       );
+      const notificationData = {
+        title: 'New Enquiry',
+        body: `You've received a new inquiry`,
+        phoneNumber:storeDetails?.contactInfo?.phoneNumber?.primary,
+        type: "NEW_VEHICLE",
+        role: "STORE_OWNER",
+        storeId: reqBody?.storeDetails?.storeId
+      }
+  
+      let notification = await this.notificationService.createNotification(notificationData)
+  
       return newTestDrive;
     }
     const lastTestDrive = await TestDrive.find({

@@ -131,6 +131,17 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+
+    const notificationData = {
+      title: 'Store Created',
+      body: `Your store has created. It is under review`,
+      phoneNumber: phoneNumber,
+      type: "NEW_STORE",
+      role: "STORE_OWNER",
+      storeId: newStoreId
+    }
+
+    let notification = await this.notificationService.createNotification(notificationData)
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -177,6 +188,18 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+
+    const notificationData = {
+      title: 'Store Updated',
+      body: `Your store has updated. It is under review`,
+      phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
+      type: "NEW_STORE",
+      role: "STORE_OWNER",
+      storeId: storePayload?.storeId
+    }
+
+    let notification = await this.notificationService.createNotification(notificationData)
+
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
   }
@@ -298,6 +321,28 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Store Onboarded'
+          : 'Store Rejected'
+      }`,
+      body: `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Congratulations 😊'
+          : 'Sorry 😞'
+      } Your store has been ${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'onboarded'
+          : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      }`,
+      phoneNumber: phoneNumber,
+      type: "STORE_STATUS",
+      role: "STORE_OWNER",
+      storeId: statusRequest.storeId
+    }
+
+    let notification = await this.notificationService.createNotification(notificationData)
     return updatedStore;
   }
 
@@ -751,6 +796,17 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: 'Store Review',
+      body: `Store Review`,
+      phoneNumber: phoneNumber,
+      type: "NEW_STORE",
+      role: "STORE_OWNER",
+      storeId: store?.storeId
+    }
+
+    let notification = await this.notificationService.createNotification(notificationData)
+
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
   }
@@ -1199,6 +1255,16 @@ export class StoreService {
         SQSEvent.NOTIFICATION,
         data
       );
+      const notificationData = {
+        title: 'Store Updated',
+        body: `Your store has updated. It is under review`,
+        phoneNumber: phoneNumber,
+        type: "STORE_UPDATED",
+        role: "STORE_OWNER",
+        storeId: store?.storeId
+      }
+  
+      let notification = await this.notificationService.createNotification(notificationData)
       Logger.info(
         '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
       );
@@ -1223,6 +1289,17 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: 'Store Created',
+      body: `Your store has created. It is under review`,
+      phoneNumber: phoneNumber,
+      type: "STORE_CREATED",
+      role: "STORE_OWNER",
+      storeId: store?.storeId
+    }
+
+    let notification = await this.notificationService.createNotification(notificationData)
+
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
