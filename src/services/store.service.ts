@@ -136,12 +136,13 @@ export class StoreService {
       title: 'Store Created',
       body: `Your store has created. It is under review`,
       phoneNumber: phoneNumber,
-      type: "NEW_STORE",
-      role: "STORE_OWNER",
+      type: 'NEW_STORE',
+      role: 'STORE_OWNER',
       storeId: newStoreId
-    }
+    };
 
-    let notification = await this.notificationService.createNotification(notificationData)
+    let notification =
+      await this.notificationService.createNotification(notificationData);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -193,12 +194,13 @@ export class StoreService {
       title: 'Store Updated',
       body: `Your store has updated. It is under review`,
       phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
-      type: "NEW_STORE",
-      role: "STORE_OWNER",
+      type: 'NEW_STORE',
+      role: 'STORE_OWNER',
       storeId: storePayload?.storeId
-    }
+    };
 
-    let notification = await this.notificationService.createNotification(notificationData)
+    let notification =
+      await this.notificationService.createNotification(notificationData);
 
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
@@ -337,12 +339,13 @@ export class StoreService {
           : `rejected due to this reason: ${statusRequest.rejectionReason}`
       }`,
       phoneNumber: phoneNumber,
-      type: "STORE_STATUS",
-      role: "STORE_OWNER",
+      type: 'STORE_STATUS',
+      role: 'STORE_OWNER',
       storeId: statusRequest.storeId
-    }
+    };
 
-    let notification = await this.notificationService.createNotification(notificationData)
+    let notification =
+      await this.notificationService.createNotification(notificationData);
     return updatedStore;
   }
 
@@ -800,12 +803,13 @@ export class StoreService {
       title: 'Store Review',
       body: `Store Review`,
       phoneNumber: phoneNumber,
-      type: "RATING_REVIEW",
-      role: "STORE_OWNER",
+      type: 'RATING_REVIEW',
+      role: 'STORE_OWNER',
       storeId: store?.storeId
-    }
+    };
 
-    let notification = await this.notificationService.createNotification(notificationData)
+    let notification =
+      await this.notificationService.createNotification(notificationData);
 
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
@@ -869,9 +873,9 @@ export class StoreService {
   ): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
     const storeReviews = await StoreReview.find({ storeId })
+      .sort({ createdAt: -1 })
       .skip(pageNo * pageSize)
-      .limit(pageSize)
-      ;
+      .limit(pageSize);
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
@@ -1041,8 +1045,8 @@ export class StoreService {
               documentType === 'GST'
                 ? String(verifyResult?.address)
                 : String(
-                  `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
-                ),
+                    `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
+                  ),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
@@ -1259,12 +1263,13 @@ export class StoreService {
         title: 'Store Updated',
         body: `Your store has updated. It is under review`,
         phoneNumber: phoneNumber,
-        type: "STORE_UPDATED",
-        role: "STORE_OWNER",
+        type: 'STORE_UPDATED',
+        role: 'STORE_OWNER',
         storeId: store?.storeId
-      }
-  
-      let notification = await this.notificationService.createNotification(notificationData)
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
       Logger.info(
         '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
       );
@@ -1293,12 +1298,13 @@ export class StoreService {
       title: 'Store Created',
       body: `Your store has created. It is under review`,
       phoneNumber: phoneNumber,
-      type: "STORE_CREATED",
-      role: "STORE_OWNER",
+      type: 'STORE_CREATED',
+      role: 'STORE_OWNER',
       storeId: store?.storeId
-    }
+    };
 
-    let notification = await this.notificationService.createNotification(notificationData)
+    let notification =
+      await this.notificationService.createNotification(notificationData);
 
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
@@ -1314,7 +1320,7 @@ export class StoreService {
     oemId?: string,
     filterOemUser?: string,
     userType?: string,
-    category?: string,
+    category?: string
   ): Promise<any> {
     Logger.info('<Route>:<StoreService>: <StoreService : store get initiated>');
     let query: any = {};
@@ -1324,7 +1330,7 @@ export class StoreService {
       'contactInfo.city': city,
       profileStatus: 'ONBOARDED',
       oemUserName: filterOemUser,
-      'basicInfo.category.name': { $in: [category]}
+      'basicInfo.category.name': { $in: [category] }
     };
     if (!category) {
       delete query['basicInfo.category.name'];
