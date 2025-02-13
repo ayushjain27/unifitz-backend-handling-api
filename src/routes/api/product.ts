@@ -203,6 +203,12 @@ router.post(
 );
 
 router.get(
+  '/partner/getAllCategoriesAndSubCategories',
+  roleAuth(ACL.STORE_GET_ALL),
+  productController.getAllCategoriesAndSubCategories
+);
+
+router.get(
   '/partner/similar',
   roleAuth(ACL.STORE_GET_ALL),
   productController.similarPartnerProduct

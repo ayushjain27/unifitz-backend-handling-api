@@ -878,6 +878,28 @@ export class ProductController {
     }
   };
 
+  getAllCategoriesAndSubCategories = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const storeId = req?.query?.storeId;
+      const userType = req?.query?.userType;
+      console.log(userType,"efrk", storeId)
+      const result = await this.productService.getAllCategoriesAndSubCategories(
+        storeId as string,
+        userType as string,
+      );
+      res.send({
+        message: 'Partner Product Category And SubCategory obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   similarPartnerProduct = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<ProductController>:<Get All request controller initiated>'
