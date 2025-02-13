@@ -800,7 +800,7 @@ export class StoreService {
       title: 'Store Review',
       body: `Store Review`,
       phoneNumber: phoneNumber,
-      type: "NEW_STORE",
+      type: "RATING_REVIEW",
       role: "STORE_OWNER",
       storeId: store?.storeId
     }
