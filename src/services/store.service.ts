@@ -122,7 +122,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Created',
-      body: `Your store has created. It is under review`,
+      body: `Your store is created. It is under review`,
       phoneNumber: phoneNumber,
       role: 'STORE_OWNER',
       type: 'NEW_STORE'
@@ -134,7 +134,7 @@ export class StoreService {
 
     const notificationData = {
       title: 'Store Created',
-      body: `Your store has created. It is under review`,
+      body: `Your store is created. It is under review`,
       phoneNumber: phoneNumber,
       type: 'NEW_STORE',
       role: 'STORE_OWNER',
@@ -180,7 +180,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Updated',
-      body: `Your store has updated. It is under review`,
+      body: `Your store is updated. It is under review`,
       phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
       role: 'STORE_OWNER',
       type: 'UPDATED_STORE'
@@ -192,7 +192,7 @@ export class StoreService {
 
     const notificationData = {
       title: 'Store Updated',
-      body: `Your store has updated. It is under review`,
+      body: `Your store is updated. It is under review`,
       phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
       type: 'NEW_STORE',
       role: 'STORE_OWNER',
@@ -333,7 +333,7 @@ export class StoreService {
         statusRequest.profileStatus === 'ONBOARDED'
           ? 'Congratulations 😊'
           : 'Sorry 😞'
-      } Your store has been ${
+      } your store has been ${
         statusRequest.profileStatus === 'ONBOARDED'
           ? 'onboarded'
           : `rejected due to this reason: ${statusRequest.rejectionReason}`
@@ -1011,6 +1011,29 @@ export class StoreService {
         storeDetails as IStore
       );
 
+      const data = {
+        title: 'Store Verified',
+        body: `Your store is verified with ${payload.documentType}`,
+        phoneNumber: phoneNumber,
+        role: role,
+        type: 'STORE_CREATED'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+      const notificationData = {
+        title: 'Store Verified',
+        body: `Your store is verified with ${payload.documentType}`,
+        phoneNumber: phoneNumber,
+        type: 'STORE_CREATED',
+        role: 'STORE_OWNER',
+        storeId: storeDetails?.storeId
+      };
+  
+      let notification =
+        await this.notificationService.createNotification(notificationData);
+
       return updatedStore;
     } catch (err) {
       if (err.response) {
@@ -1105,6 +1128,29 @@ export class StoreService {
         gstAdhaarNumber,
         storeDetails as IStore
       );
+
+      const data = {
+        title: 'Store Verified',
+        body: `Your store is verified with Aadhar`,
+        phoneNumber: phoneNumber,
+        role: role,
+        type: 'STORE_CREATED'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+      const notificationData = {
+        title: 'Store Verified',
+        body: `Your store is verified with Aadhar`,
+        phoneNumber: phoneNumber,
+        type: 'STORE_CREATED',
+        role: 'STORE_OWNER',
+        storeId: storeDetails?.storeId
+      };
+  
+      let notification =
+        await this.notificationService.createNotification(notificationData);
 
       return updatedStore;
     } catch (err) {
@@ -1261,7 +1307,7 @@ export class StoreService {
       );
       const notificationData = {
         title: 'Store Updated',
-        body: `Your store has updated. It is under review`,
+        body: `Your store is updated. It is under review`,
         phoneNumber: phoneNumber,
         type: 'STORE_UPDATED',
         role: 'STORE_OWNER',
@@ -1285,7 +1331,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Created',
-      body: `Your store has created. It is under review`,
+      body: `Your store is created. It is under review`,
       phoneNumber: phoneNumber,
       role: role,
       type: 'STORE_CREATED'
@@ -1296,7 +1342,7 @@ export class StoreService {
     );
     const notificationData = {
       title: 'Store Created',
-      body: `Your store has created. It is under review`,
+      body: `Your store is created. It is under review`,
       phoneNumber: phoneNumber,
       type: 'STORE_CREATED',
       role: 'STORE_OWNER',

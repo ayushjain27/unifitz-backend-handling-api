@@ -10,6 +10,7 @@ export interface INotification {
   storeId: string;
   customerId: string;
   status: string;
+  dataId: string;
 }
 
 const notificationSchema: Schema = new Schema<INotification>(
@@ -41,6 +42,9 @@ const notificationSchema: Schema = new Schema<INotification>(
     status: {
       type: String,
       default: 'ACTIVE'
+    },
+    dataId: {
+      type: String
     }
   },
   { timestamps: true, strict: false }

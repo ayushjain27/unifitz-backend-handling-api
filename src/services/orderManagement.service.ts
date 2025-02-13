@@ -122,55 +122,60 @@ export class OrderManagementService {
       );
     });
 
-    const sqsMessage = await this.sqsService.createMessage(
-      SQSEvent.CREATE_DISTRIBUTOR_ORDER,
-      userOrderRequest?._id
-    );
-    console.log(sqsMessage, 'Message');
-
-    let userDetailsForNotification = {};
-    if (requestBody.userRole === 'STORE_OWNER') {
-      userDetailsForNotification = await this.storeService.getStoreByUserId(
-        user._id
+    if (userOrderRequest?._id) {
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.CREATE_DISTRIBUTOR_ORDER,
+        userOrderRequest?._id
       );
-    } else {
-      const phoneNumber = requestBody.phoneNumber.slice(-10);
-      userDetailsForNotification =
-        await this.customerService.getByPhoneNumber(phoneNumber);
+      console.log(sqsMessage, 'Message');
+
+      let userDetailsForNotification = {};
+      if (requestBody.userRole === 'STORE_OWNER') {
+        userDetailsForNotification = await this.storeService.getStoreByUserId(
+          user._id
+        );
+      } else {
+        const phoneNumber = requestBody.phoneNumber.slice(-10);
+        userDetailsForNotification =
+          await this.customerService.getByPhoneNumber(phoneNumber);
+      }
+
+      const result = JSON.stringify(userDetailsForNotification);
+      const dataSend = JSON.parse(result);
+      // console.log(customerDetails,"fmerkmdf")
+
+      const data = {
+        title: `Order Created! #ORD${newOrderId}`,
+        body: 'Your new Order has created.Your order is pending and will be processed shortly. We appreciate your patience.',
+        phoneNumber:
+          requestBody.userRole === 'STORE_OWNER'
+            ? dataSend?.contactInfo?.phoneNumber?.primary
+            : dataSend?.phoneNumber,
+        role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
+        type: 'ORDER_STATUS',
+      };
+      console.log(data, 'data send');
+      const notificationMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+
+      const notificationData = {
+        title: `Order Created! (#ORD${newOrderId})`,
+        body: 'Your new order has been created.Your order is pending and will be processed shortly. We appreciate your patience.',
+        phoneNumber:
+          requestBody.userRole === 'STORE_OWNER'
+            ? dataSend?.contactInfo?.phoneNumber?.primary
+            : dataSend?.phoneNumber,
+        type: 'ORDER_STATUS',
+        role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
+        storeId: dataSend?.storeId,
+        dataId: userOrderRequest?._id
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
     }
-
-    const result = JSON.stringify(userDetailsForNotification);
-    const dataSend = JSON.parse(result);
-    // console.log(customerDetails,"fmerkmdf")
-
-    const data = {
-      title: `Order Created! #ORD${newOrderId}`,
-      body: 'Your new Order has created.Your order is pending and will be processed shortly. We appreciate your patience.',
-      phoneNumber:
-        requestBody.userRole === 'STORE_OWNER'
-          ? dataSend?.contactInfo?.phoneNumber?.primary
-          : dataSend?.phoneNumber,
-      role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
-      type: 'ORDER_STATUS'
-    };
-    console.log(data, 'data send');
-    const notificationMessage = await this.sqsService.createMessage(
-      SQSEvent.NOTIFICATION,
-      data
-    );
-
-    const notificationData = {
-      title: `Order Created! #ORD${newOrderId}`,
-      body: 'Your new Order has created.Your order is pending and will be processed shortly. We appreciate your patience.',
-      phoneNumber: requestBody.userRole === 'STORE_OWNER'
-      ? dataSend?.contactInfo?.phoneNumber?.primary
-      : dataSend?.phoneNumber,
-      type: "ORDER_STATUS",
-      role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
-      storeId: dataSend?.storeId
-    }
-
-    let notification = await this.notificationService.createNotification(notificationData)
 
     // let email =
     //   requestBody.userRole === 'STORE_OWNER'
@@ -501,16 +506,19 @@ export class OrderManagementService {
       );
 
       const notificationData = {
-        title: `Product Status! #PRD${cartDetails.productOrderId}`,
+        title: `Product Status! (#PRD${cartDetails.productOrderId})`,
         body: body,
-        phoneNumber: !isEmpty(updatedOrderStatus?.storeId) &&
-        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
-        type: "ORDER_STATUS",
+        phoneNumber:
+          !isEmpty(updatedOrderStatus?.storeId) &&
+          storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        type: 'ORDER_STATUS',
         role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
-        storeId: storeDetails[0]?.storeId
-      }
-  
-      let notification = await this.notificationService.createNotification(notificationData)
+        storeId: storeDetails[0]?.storeId,
+        dataId: updatedOrderStatus?._id
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
     }
     let overallOrderStatus = 'PENDING'; // Default to PENDING if no other status is found
 
@@ -574,17 +582,19 @@ export class OrderManagementService {
       data
     );
     const notificationData = {
-      title: `Order Status! #ORD${updatedOrderStatus.customerOrderId}`,
+      title: `Order Status! (#ORD${updatedOrderStatus.customerOrderId})`,
       body: body,
-      phoneNumber:  !isEmpty(updatedOrderStatus?.storeId) &&
-      storeDetails[0]?.contactInfo?.phoneNumber?.primary,
-      type: "ORDER_STATUS",
+      phoneNumber:
+        !isEmpty(updatedOrderStatus?.storeId) &&
+        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+      type: 'ORDER_STATUS',
       role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
-      storeId: 'ORDER_STATUS'
-    }
+      storeId: 'ORDER_STATUS',
+      dataId: updatedOrderStatus?._id
+    };
 
-    let notification = await this.notificationService.createNotification(notificationData)
-
+    let notification =
+      await this.notificationService.createNotification(notificationData);
 
     return updatedOrder;
   }
@@ -1068,27 +1078,27 @@ export class OrderManagementService {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter orders total amount service initiated>'
     );
-    
+
     const query: any = {};
     const userRoleType = userType === 'OEM' ? true : false;
-  
+
     if (role === AdminRole.ADMIN) query.oemUserName = { $exists: userRoleType };
     if (!userType) delete query['oemUserName'];
     if (role === AdminRole.OEM) query.oemUserName = userName;
     if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
     if (oemId === 'SERVICEPLUG') delete query['oemUserName'];
-  
+
     const overallStatus = { status: status };
     if (!status) {
       delete query['status'];
       delete overallStatus['status'];
     }
-  
+
     const firstDay = new Date(firstDate);
     const lastDay = new Date(lastDate);
     const nextDate = new Date(lastDay);
     nextDate.setDate(lastDay.getDate() + 1);
-  
+
     const queryTwo: any = {
       createdAt: { $gte: firstDay, $lte: nextDate },
       'storeDetails.storeId': storeId,
@@ -1096,13 +1106,13 @@ export class OrderManagementService {
       'storeDetails.contactInfo.state': state,
       'storeDetails.contactInfo.city': city
     };
-  
+
     if (!firstDate || !lastDate) delete queryTwo['createdAt'];
     if (!storeId) delete queryTwo['storeDetails.storeId'];
     if (!adminFilterOemId) delete queryTwo['oemUserName'];
     if (!state) delete queryTwo['storeDetails.contactInfo.state'];
     if (!city) delete queryTwo['storeDetails.contactInfo.city'];
-  
+
     const aggregatedFilter = [
       {
         $lookup: {
@@ -1133,7 +1143,7 @@ export class OrderManagementService {
         }
       }
     ];
-  
+
     // Helper function to get total amount for a given status
     const getTotalAmount = async (status: string) => {
       const result = await DistributorOrder.aggregate([
@@ -1143,25 +1153,33 @@ export class OrderManagementService {
         {
           $group: {
             _id: null,
-            totalAmount: { $sum: { $toDouble: '$customerOrderDetails.totalAmount' } }
+            totalAmount: {
+              $sum: { $toDouble: '$customerOrderDetails.totalAmount' }
+            }
           }
         }
       ]);
-  
+
       return result.length > 0 ? result[0].totalAmount : 0;
     };
-  
+
     // Get total amounts for each status
-    const [pending, processing, shipped, partialDelivered, delivered, cancelled] =
-      await Promise.all([
-        getTotalAmount('PENDING'),
-        getTotalAmount('PROCESSING'),
-        getTotalAmount('SHIPPED'),
-        getTotalAmount('PARTIAL DELIVERED'),
-        getTotalAmount('DELIVERED'),
-        getTotalAmount('CANCELLED')
-      ]);
-  
+    const [
+      pending,
+      processing,
+      shipped,
+      partialDelivered,
+      delivered,
+      cancelled
+    ] = await Promise.all([
+      getTotalAmount('PENDING'),
+      getTotalAmount('PROCESSING'),
+      getTotalAmount('SHIPPED'),
+      getTotalAmount('PARTIAL DELIVERED'),
+      getTotalAmount('DELIVERED'),
+      getTotalAmount('CANCELLED')
+    ]);
+
     // Final response object
     const totalAmounts = {
       pending,
@@ -1170,14 +1188,19 @@ export class OrderManagementService {
       partialDelivered,
       delivered,
       cancelled,
-      total: pending + shipped + processing + partialDelivered + delivered + cancelled
+      total:
+        pending +
+        shipped +
+        processing +
+        partialDelivered +
+        delivered +
+        cancelled
     };
-  
+
     console.log(totalAmounts, 'Total Amounts');
-  
+
     return totalAmounts;
   }
-  
 
   async getDistributorOrderById(id?: string): Promise<any> {
     Logger.info(
@@ -1370,17 +1393,19 @@ export class OrderManagementService {
       );
 
       const notificationData = {
-        title: `Payment Status Update for Order #ORD${checkUserOrder?.customerOrderId}`,
+        title: `Payment Status Update for Order (#ORD${checkUserOrder?.customerOrderId})`,
         body: 'Kindly review the payment status for your recent order. Please contact support if you need assistance.',
-        phoneNumber:   !isEmpty(checkUserOrder?.storeId) &&
-        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
-        type: "ORDER_STATUS",
+        phoneNumber:
+          !isEmpty(checkUserOrder?.storeId) &&
+          storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        type: 'ORDER_STATUS',
         role: !isEmpty(checkUserOrder?.storeId) ? 'STORE_OWNER' : 'USER',
-        storeId: 'ORDER_STATUS'
-      }
-  
-      let notification = await this.notificationService.createNotification(notificationData)
-  
+        storeId: 'ORDER_STATUS',
+        dataId: checkUserOrder?._id
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
 
       return distributorOrderPaymentPayload;
     } catch (error) {
