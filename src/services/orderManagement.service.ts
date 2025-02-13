@@ -1050,6 +1050,135 @@ export class OrderManagementService {
     return totalRes;
   }
 
+  async countAllDistributorTotalAmount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string,
+    employeeId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    state?: string,
+    city?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Search and Filter orders total amount service initiated>'
+    );
+    
+    const query: any = {};
+    const userRoleType = userType === 'OEM' ? true : false;
+  
+    if (role === AdminRole.ADMIN) query.oemUserName = { $exists: userRoleType };
+    if (!userType) delete query['oemUserName'];
+    if (role === AdminRole.OEM) query.oemUserName = userName;
+    if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
+    if (oemId === 'SERVICEPLUG') delete query['oemUserName'];
+  
+    const overallStatus = { status: status };
+    if (!status) {
+      delete query['status'];
+      delete overallStatus['status'];
+    }
+  
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+  
+    const queryTwo: any = {
+      createdAt: { $gte: firstDay, $lte: nextDate },
+      'storeDetails.storeId': storeId,
+      oemUserName: adminFilterOemId,
+      'storeDetails.contactInfo.state': state,
+      'storeDetails.contactInfo.city': city
+    };
+  
+    if (!firstDate || !lastDate) delete queryTwo['createdAt'];
+    if (!storeId) delete queryTwo['storeDetails.storeId'];
+    if (!adminFilterOemId) delete queryTwo['oemUserName'];
+    if (!state) delete queryTwo['storeDetails.contactInfo.state'];
+    if (!city) delete queryTwo['storeDetails.contactInfo.city'];
+  
+    const aggregatedFilter = [
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'customerOrderId',
+          foreignField: '_id',
+          as: 'customerOrderDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$customerOrderDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'customerOrderDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ];
+  
+    // Helper function to get total amount for a given status
+    const getTotalAmount = async (status: string) => {
+      const result = await DistributorOrder.aggregate([
+        { $match: { status, ...query } },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: { $toDouble: '$customerOrderDetails.totalAmount' } }
+          }
+        }
+      ]);
+  
+      return result.length > 0 ? result[0].totalAmount : 0;
+    };
+  
+    // Get total amounts for each status
+    const [pending, processing, shipped, partialDelivered, delivered, cancelled] =
+      await Promise.all([
+        getTotalAmount('PENDING'),
+        getTotalAmount('PROCESSING'),
+        getTotalAmount('SHIPPED'),
+        getTotalAmount('PARTIAL DELIVERED'),
+        getTotalAmount('DELIVERED'),
+        getTotalAmount('CANCELLED')
+      ]);
+  
+    // Final response object
+    const totalAmounts = {
+      pending,
+      shipped,
+      processing,
+      partialDelivered,
+      delivered,
+      cancelled,
+      total: pending + shipped + processing + partialDelivered + delivered + cancelled
+    };
+  
+    console.log(totalAmounts, 'Total Amounts');
+  
+    return totalAmounts;
+  }
+  
+
   async getDistributorOrderById(id?: string): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>:<Get Order Details Fetching>'

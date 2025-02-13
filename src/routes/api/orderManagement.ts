@@ -57,6 +57,12 @@ router.get(
 );
 
 router.get(
+  '/countAllDistributorTotalAmount',
+  roleAuth(ACL.STORE_CREATE),
+  orderManagementController.countAllDistributorTotalAmount
+);
+
+router.get(
   '/getDistributorOrderById',
   roleAuth(ACL.STORE_CREATE),
   orderManagementController.getDistributorOrderById
