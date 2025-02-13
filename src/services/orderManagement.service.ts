@@ -589,7 +589,7 @@ export class OrderManagementService {
         storeDetails[0]?.contactInfo?.phoneNumber?.primary,
       type: 'ORDER_STATUS',
       role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
-      storeId: 'ORDER_STATUS',
+      storeId: storeDetails[0]?.storeId,
       dataId: updatedOrderStatus?._id
     };
 
@@ -1400,7 +1400,7 @@ export class OrderManagementService {
           storeDetails[0]?.contactInfo?.phoneNumber?.primary,
         type: 'ORDER_STATUS',
         role: !isEmpty(checkUserOrder?.storeId) ? 'STORE_OWNER' : 'USER',
-        storeId: 'ORDER_STATUS',
+        storeId:  storeDetails[0]?.storeId,
         dataId: checkUserOrder?._id
       };
 
