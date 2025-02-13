@@ -550,7 +550,7 @@ export class OrderManagementService {
     );
 
     let body;
-    if (overallOrderStatus === 'Cancelled') {
+    if (overallOrderStatus === 'CANCELLED') {
       body =
         'We regret to inform you that your order has been cancelled. If you have any questions or require further assistance, please contact our support team.';
     } else if (overallOrderStatus === 'DELIVERED') {
