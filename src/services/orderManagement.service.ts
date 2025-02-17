@@ -27,6 +27,7 @@ import Store, { IStore } from './../models/Store';
 import { StaticIds } from '../models/StaticId';
 import { SparePost } from '../models/SparePostRequirement';
 import { SparePostStatus } from '../models/SparePostStatus';
+import { NotificationService } from './notification.service';
 
 @injectable()
 export class OrderManagementService {
@@ -38,6 +39,9 @@ export class OrderManagementService {
   );
   private spEmployeeService = container.get<SPEmployeeService>(
     TYPES.SPEmployeeService
+  );
+  private notificationService = container.get<NotificationService>(
+    TYPES.NotificationService
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
 
@@ -118,37 +122,89 @@ export class OrderManagementService {
       );
     });
 
-    const sqsMessage = await this.sqsService.createMessage(
-      SQSEvent.CREATE_DISTRIBUTOR_ORDER,
-      userOrderRequest?._id
-    );
-    console.log(sqsMessage, 'Message');
+    if (userOrderRequest?._id) {
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.CREATE_DISTRIBUTOR_ORDER,
+        userOrderRequest?._id
+      );
+      console.log(sqsMessage, 'Message');
 
-    let userDetailsForNotification = {};
-    if(requestBody.userRole === 'STORE_OWNER'){
-    userDetailsForNotification = await this.storeService.getStoreByUserId(user._id);
-    }else{
-    const phoneNumber = requestBody.phoneNumber.slice(-10);
-    userDetailsForNotification = await this.customerService.getByPhoneNumber(phoneNumber);
+      let userDetailsForNotification = {};
+      if (requestBody.userRole === 'STORE_OWNER') {
+        userDetailsForNotification = await this.storeService.getStoreByUserId(
+          user._id
+        );
+      } else {
+        const phoneNumber = requestBody.phoneNumber.slice(-10);
+        userDetailsForNotification =
+          await this.customerService.getByPhoneNumber(phoneNumber);
+      }
+
+      const result = JSON.stringify(userDetailsForNotification);
+      const dataSend = JSON.parse(result);
+      // console.log(customerDetails,"fmerkmdf")
+
+      const data = {
+        title: `Order Created! #ORD${newOrderId}`,
+        body: 'Your new Order has created.Your order is pending and will be processed shortly. We appreciate your patience.',
+        phoneNumber:
+          requestBody.userRole === 'STORE_OWNER'
+            ? dataSend?.contactInfo?.phoneNumber?.primary
+            : dataSend?.phoneNumber,
+        role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
+        type: 'ORDER_STATUS'
+      };
+      console.log(data, 'data send');
+      const notificationMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+
+      const notificationData = {
+        title: `Order Created! (#ORD${newOrderId})`,
+        body: 'Your new order has been created.Your order is pending and will be processed shortly. We appreciate your patience.',
+        phoneNumber:
+          requestBody.userRole === 'STORE_OWNER'
+            ? dataSend?.contactInfo?.phoneNumber?.primary
+            : dataSend?.phoneNumber,
+        type: 'ORDER_STATUS',
+        role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
+        storeId: dataSend?.storeId,
+        dataId: userOrderRequest?._id
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
+
+      // if (
+      //   requestBody.userRole === 'STORE_OWNER'
+      //     ? dataSend?.contactInfo?.email
+      //     : dataSend?.email
+      // ) {
+      //   let email =
+      //     requestBody.userRole === 'STORE_OWNER'
+      //       ? dataSend?.contactInfo?.email
+      //       : dataSend?.email;
+
+      //       console.log(email,"dlemrfn")
+      //   if (!isEmpty(email)) {
+      //     const templateData = {
+      //       orderId: newOrderId,
+      //       name: dataSend?.basicInfo?.ownerName
+      //     };
+      //     const emailNotificationData = {
+      //       to: email,
+      //       templateData: templateData,
+      //       templateName: 'NewOrderCreation'
+      //     };
+
+      //     const emailNotification = await this.sqsService.createMessage(
+      //       SQSEvent.EMAIL_NOTIFICATION,
+      //       emailNotificationData
+      //     );
+      //   }
+      // }
     }
-
-    const result = JSON.stringify(userDetailsForNotification);
-    const dataSend = JSON.parse(result);
-    // console.log(customerDetails,"fmerkmdf")
-
-    const data = {
-      title: `Order Created! #ORD${newOrderId}`,
-      body: 'You have created a new order. Your Order is in Pending State.',
-      phoneNumber: requestBody.userRole === 'STORE_OWNER' ? dataSend?.contactInfo?.phoneNumber?.primary : dataSend?.phoneNumber,
-      role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
-      type: 'ORDER_STATUS',
-    };
-    console.log(data,"data send");
-    const notificationMessage = await this.sqsService.createMessage(
-      SQSEvent.NOTIFICATION,
-      data
-    );
-    console.log(notificationMessage,"fjdnfiei")
 
     // if (!isEmpty(userOrderRequest)) {
 
@@ -386,12 +442,6 @@ export class OrderManagementService {
       }
     );
 
-    if (updatedOrder.modifiedCount > 0) {
-      console.log('Item updated successfully');
-    } else {
-      console.log('No matching item found for the given cartId');
-    }
-
     const updatedDistributorOrderStatus = await DistributorOrder.findOne({
       _id: new Types.ObjectId(requestBody?.distributorId)
     });
@@ -407,17 +457,9 @@ export class OrderManagementService {
       overallStatus = 'DELIVERED'; // If all items are DELIVERED, the order is DELIVERED
     } else if (itemStatuses.some((status) => status === 'DELIVERED')) {
       overallStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
-    } else if (
-      itemStatuses.some(
-        (status) => status === 'SHIPPED'
-      )
-    ) {
+    } else if (itemStatuses.some((status) => status === 'SHIPPED')) {
       overallStatus = 'SHIPPED'; // If any item is PROCESSING, the order is PROCESSING
-    } else if (
-      itemStatuses.some(
-        (status) => status === 'PROCESSING'
-      )
-    ) {
+    } else if (itemStatuses.some((status) => status === 'PROCESSING')) {
       overallStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
     } else {
       overallStatus = 'PENDING'; // Otherwise, the order remains PENDING
@@ -435,6 +477,57 @@ export class OrderManagementService {
     const updatedOrderStatus = await UserOrder.findOne({
       _id: new Types.ObjectId(requestBody?.orderId)
     });
+
+    const storeDetails = await this.storeService.getById({
+      storeId: updatedOrderStatus?.storeId,
+      lat: '',
+      long: ''
+    });
+
+    const cartDetails = await ProductCartModel.findOne({
+      _id: new Types.ObjectId(requestBody?.cartId)
+    });
+
+    if (!isEmpty(cartDetails)) {
+      let body;
+      if (requestBody.status === 'CANCELLED') {
+        body = `We regret to inform you that your order whose product Id is #PRD${cartDetails.productOrderId} has been cancelled. If you have any questions or require further assistance, please contact our support team.`;
+      } else if (requestBody.status === 'DELIVERED') {
+        body = `Great news! Your order whose product Id is #PRD${cartDetails.productOrderId} has been successfully delivered. We hope you enjoy your purchase.`;
+      } else if (requestBody.status === 'SHIPPED') {
+        body = `Your order whose product Id is #PRD${cartDetails.productOrderId} has been shipped and is on its way to you. You can track the status through your account.`;
+      } else if (requestBody.status === 'PROCESSING') {
+        body = `Your order whose product Id is #PRD${cartDetails.productOrderId} is currently being processed. We'll notify you once it is shipped.`;
+      }
+      const data = {
+        title: `Product Status! #PRD${cartDetails.productOrderId}`,
+        body: body,
+        phoneNumber:
+          !isEmpty(updatedOrderStatus?.storeId) &&
+          storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
+        type: 'ORDER_STATUS'
+      };
+      const notificationMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+
+      const notificationData = {
+        title: `Product Status! (#PRD${cartDetails.productOrderId})`,
+        body: body,
+        phoneNumber:
+          !isEmpty(updatedOrderStatus?.storeId) &&
+          storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        type: 'ORDER_STATUS',
+        role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
+        storeId: storeDetails[0]?.storeId,
+        dataId: updatedOrderStatus?._id
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
+    }
     let overallOrderStatus = 'PENDING'; // Default to PENDING if no other status is found
 
     const ordersItemStatuses = updatedOrderStatus.items.map(
@@ -447,17 +540,9 @@ export class OrderManagementService {
       overallOrderStatus = 'DELIVERED'; // If all items are DELIVERED, the order is DELIVERED
     } else if (ordersItemStatuses.some((status) => status === 'DELIVERED')) {
       overallOrderStatus = 'PARTIAL DELIVERED'; // If any item is SHIPPED, the order is SHIPPED
-    } else if (
-      ordersItemStatuses.some(
-        (status) => status === 'SHIPPED'
-      )
-    ) {
+    } else if (ordersItemStatuses.some((status) => status === 'SHIPPED')) {
       overallOrderStatus = 'SHIPPED'; // If any item is PROCESSING, the order is PROCESSING
-    } else if (
-      ordersItemStatuses.some(
-        (status) => status === 'PROCESSING'
-      )
-    ) {
+    } else if (ordersItemStatuses.some((status) => status === 'PROCESSING')) {
       overallOrderStatus = 'PROCESSING'; // If any item is PROCESSING, the order is PROCESSING
     } else {
       overallOrderStatus = 'PENDING'; // Otherwise, the order remains PENDING
@@ -471,6 +556,53 @@ export class OrderManagementService {
         }
       }
     );
+
+    let body;
+    if (overallOrderStatus === 'CANCELLED') {
+      body =
+        'We regret to inform you that your order has been cancelled. If you have any questions or require further assistance, please contact our support team.';
+    } else if (overallOrderStatus === 'DELIVERED') {
+      body =
+        'Great news! Your order has been successfully delivered. We hope you enjoy your purchase.';
+    } else if (overallOrderStatus === 'PARTIAL DELIVERED') {
+      body =
+        'Your order has been partially delivered. The remaining items will be delivered soon. Thank you for your patience.';
+    } else if (overallOrderStatus === 'SHIPPED') {
+      body =
+        'Your order has been shipped and is on its way to you. You can track the status through your account.';
+    } else if (overallOrderStatus === 'PROCESSING') {
+      body =
+        "Your order is currently being processed. We'll notify you once it is shipped.";
+    }
+
+    console.log(storeDetails, 'storeDetails');
+    const data = {
+      title: `Order Status! #ORD${updatedOrderStatus.customerOrderId}`,
+      body: body,
+      phoneNumber:
+        !isEmpty(updatedOrderStatus?.storeId) &&
+        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+      role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
+      type: 'ORDER_STATUS'
+    };
+    const notificationMessage = await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      data
+    );
+    const notificationData = {
+      title: `Order Status! (#ORD${updatedOrderStatus.customerOrderId})`,
+      body: body,
+      phoneNumber:
+        !isEmpty(updatedOrderStatus?.storeId) &&
+        storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+      type: 'ORDER_STATUS',
+      role: !isEmpty(updatedOrderStatus?.storeId) ? 'STORE_OWNER' : 'USER',
+      storeId: storeDetails[0]?.storeId,
+      dataId: updatedOrderStatus?._id
+    };
+
+    let notification =
+      await this.notificationService.createNotification(notificationData);
 
     return updatedOrder;
   }
@@ -504,15 +636,15 @@ export class OrderManagementService {
     nextDate.setDate(lastDay.getDate() + 1);
 
     const queryTwo: any = {
-      'createdAt': {
+      createdAt: {
         $gte: firstDay,
         $lte: nextDate
       },
       'storeDetails.storeId': storeId,
-      'oemUserName': adminFilterOemId,
+      oemUserName: adminFilterOemId,
       'storeDetails.contactInfo.state': state,
-      'storeDetails.contactInfo.city': city,
-    }
+      'storeDetails.contactInfo.city': city
+    };
     if (firstDate === null || lastDate === null) {
       delete queryTwo['createdAt'];
     }
@@ -762,15 +894,15 @@ export class OrderManagementService {
     nextDate.setDate(lastDay.getDate() + 1);
 
     const queryTwo: any = {
-      'createdAt': {
+      createdAt: {
         $gte: firstDay,
         $lte: nextDate
       },
       'storeDetails.storeId': storeId,
-      'oemUserName': adminFilterOemId,
+      oemUserName: adminFilterOemId,
       'storeDetails.contactInfo.state': state,
-      'storeDetails.contactInfo.city': city,
-    }
+      'storeDetails.contactInfo.city': city
+    };
     if (!firstDate || !lastDate) {
       delete queryTwo['createdAt'];
     }
@@ -787,34 +919,36 @@ export class OrderManagementService {
       delete queryTwo['storeDetails.contactInfo.city'];
     }
 
-    const aggregatedFilter = [{
-      $lookup: {
-        from: 'orders',
-        localField: 'customerOrderId',
-        foreignField: '_id',
-        as: 'customerOrderDetails'
+    const aggregatedFilter = [
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'customerOrderId',
+          foreignField: '_id',
+          as: 'customerOrderDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$customerOrderDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'customerOrderDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
       }
-    },
-    {
-      $unwind: {
-        path: '$customerOrderDetails',
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $lookup: {
-        from: 'stores',
-        localField: 'customerOrderDetails.storeId',
-        foreignField: 'storeId',
-        as: 'storeDetails'
-      }
-    },
-    {
-      $unwind: {
-        path: '$storeDetails',
-        preserveNullAndEmptyArrays: true
-      }
-    }];
+    ];
 
     // const total = await DistributorOrder.aggregate(
     //   [
@@ -840,88 +974,240 @@ export class OrderManagementService {
       ]);
     }
     if (status === 'PROCESSING' || !status) {
-      processing = await DistributorOrder.aggregate(
-        [
-          {
-            $match: {
-              status: 'PROCESSING',
-              ...query
-            }
-          },
-          ...aggregatedFilter,
-          { $match: queryTwo },
-          { $count: 'processingCount' }
-        ]);
+      processing = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'PROCESSING',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'processingCount' }
+      ]);
     }
     if (status === 'SHIPPED' || !status) {
-      shipped = await DistributorOrder.aggregate(
-        [
-          {
-            $match: {
-              status: 'SHIPPED',
-              ...query
-            }
-          },
-          ...aggregatedFilter,
-          { $match: queryTwo },
-          { $count: 'shippedCount' }
-        ]);
+      shipped = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'SHIPPED',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'shippedCount' }
+      ]);
     }
     if (status === 'PARTIAL DELIVERED' || !status) {
-      partialDelivered = await DistributorOrder.aggregate(
-        [
-          {
-            $match: {
-              status: 'PARTIAL DELIVERED',
-              ...query
-            }
-          },
-          ...aggregatedFilter,
-          { $match: queryTwo },
-          { $count: 'partialCount' }
-        ]);
+      partialDelivered = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'PARTIAL DELIVERED',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'partialCount' }
+      ]);
     }
     if (status === 'DELIVERED' || !status) {
-      delivered = await DistributorOrder.aggregate(
-        [
-          {
-            $match: {
-              status: 'DELIVERED',
-              ...query
-            }
-          },
-          ...aggregatedFilter,
-          { $match: queryTwo },
-          { $count: 'deliveredCount' }
-        ]);
+      delivered = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'DELIVERED',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'deliveredCount' }
+      ]);
     }
     if (status === 'CANCELLED' || !status) {
-      cancelled = await DistributorOrder.aggregate(
-        [
-          {
-            $match: {
-              status: 'CANCELLED',
-              ...query
-            }
-          },
-          ...aggregatedFilter,
-          { $match: queryTwo },
-          { $count: 'cancelledCount' }
-        ]);
+      cancelled = await DistributorOrder.aggregate([
+        {
+          $match: {
+            status: 'CANCELLED',
+            ...query
+          }
+        },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        { $count: 'cancelledCount' }
+      ]);
     }
 
     const totalCounts = {
       pending: pending.length > 0 ? pending[0].pendingCount : 0,
       shipped: shipped.length > 0 ? shipped[0].shippedCount : 0,
       processing: processing.length > 0 ? processing[0].processingCount : 0,
-      partialDelivered: partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0,
+      partialDelivered:
+        partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0,
       delivered: delivered.length > 0 ? delivered[0].deliveredCount : 0,
       cancelled: cancelled.length > 0 ? cancelled[0].cancelledCount : 0
     };
-    const totalRes = { ...totalCounts, total: Object.values(totalCounts).reduce((total, count) => total + count, 0)}
-console.log((pending.length > 0 ? pending[0].pendingCount : 0, shipped.length > 0 ? shipped[0].shippedCount : 0, processing.length > 0 ? processing[0].processingCount : 0, partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0, delivered.length > 0 ? delivered[0].deliveredCount : 0, cancelled.length > 0 ? cancelled[0].cancelledCount : 0), 'numbersss');
-console.log(totalRes, 'totalRes');
+    const totalRes = {
+      ...totalCounts,
+      total: Object.values(totalCounts).reduce(
+        (total, count) => total + count,
+        0
+      )
+    };
+    console.log(
+      (pending.length > 0 ? pending[0].pendingCount : 0,
+      shipped.length > 0 ? shipped[0].shippedCount : 0,
+      processing.length > 0 ? processing[0].processingCount : 0,
+      partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0,
+      delivered.length > 0 ? delivered[0].deliveredCount : 0,
+      cancelled.length > 0 ? cancelled[0].cancelledCount : 0),
+      'numbersss'
+    );
+    console.log(totalRes, 'totalRes');
     return totalRes;
+  }
+
+  async countAllDistributorTotalAmount(
+    userName?: string,
+    role?: string,
+    oemId?: string,
+    userType?: string,
+    status?: string,
+    verifiedStore?: string,
+    employeeId?: string,
+    firstDate?: string,
+    lastDate?: string,
+    storeId?: string,
+    adminFilterOemId?: string,
+    state?: string,
+    city?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Search and Filter orders total amount service initiated>'
+    );
+
+    const query: any = {};
+    const userRoleType = userType === 'OEM' ? true : false;
+
+    if (role === AdminRole.ADMIN) query.oemUserName = { $exists: userRoleType };
+    if (!userType) delete query['oemUserName'];
+    if (role === AdminRole.OEM) query.oemUserName = userName;
+    if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
+    if (oemId === 'SERVICEPLUG') delete query['oemUserName'];
+
+    const overallStatus = { status: status };
+    if (!status) {
+      delete query['status'];
+      delete overallStatus['status'];
+    }
+
+    const firstDay = new Date(firstDate);
+    const lastDay = new Date(lastDate);
+    const nextDate = new Date(lastDay);
+    nextDate.setDate(lastDay.getDate() + 1);
+
+    const queryTwo: any = {
+      createdAt: { $gte: firstDay, $lte: nextDate },
+      'storeDetails.storeId': storeId,
+      oemUserName: adminFilterOemId,
+      'storeDetails.contactInfo.state': state,
+      'storeDetails.contactInfo.city': city
+    };
+
+    if (!firstDate || !lastDate) delete queryTwo['createdAt'];
+    if (!storeId) delete queryTwo['storeDetails.storeId'];
+    if (!adminFilterOemId) delete queryTwo['oemUserName'];
+    if (!state) delete queryTwo['storeDetails.contactInfo.state'];
+    if (!city) delete queryTwo['storeDetails.contactInfo.city'];
+
+    const aggregatedFilter = [
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'customerOrderId',
+          foreignField: '_id',
+          as: 'customerOrderDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$customerOrderDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'customerOrderDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ];
+
+    // Helper function to get total amount for a given status
+    const getTotalAmount = async (status: string) => {
+      const result = await DistributorOrder.aggregate([
+        { $match: { status, ...query } },
+        ...aggregatedFilter,
+        { $match: queryTwo },
+        {
+          $group: {
+            _id: null,
+            totalAmount: {
+              $sum: { $toDouble: '$customerOrderDetails.totalAmount' }
+            }
+          }
+        }
+      ]);
+
+      return result.length > 0 ? result[0].totalAmount : 0;
+    };
+
+    // Get total amounts for each status
+    const [
+      pending,
+      processing,
+      shipped,
+      partialDelivered,
+      delivered,
+      cancelled
+    ] = await Promise.all([
+      getTotalAmount('PENDING'),
+      getTotalAmount('PROCESSING'),
+      getTotalAmount('SHIPPED'),
+      getTotalAmount('PARTIAL DELIVERED'),
+      getTotalAmount('DELIVERED'),
+      getTotalAmount('CANCELLED')
+    ]);
+
+    // Final response object
+    const totalAmounts = {
+      pending,
+      shipped,
+      processing,
+      partialDelivered,
+      delivered,
+      cancelled,
+      total:
+        pending +
+        shipped +
+        processing +
+        partialDelivered +
+        delivered +
+        cancelled
+    };
+
+    console.log(totalAmounts, 'Total Amounts');
+
+    return totalAmounts;
   }
 
   async getDistributorOrderById(id?: string): Promise<any> {
@@ -1093,6 +1379,41 @@ console.log(totalRes, 'totalRes');
           { $push: { paymentMode: userOrderPayload } }
         );
       }
+
+      const storeDetails = await this.storeService.getById({
+        storeId: checkUserOrder?.storeId,
+        lat: '',
+        long: ''
+      });
+
+      const data = {
+        title: `Payment Status Update for Order #ORD${checkUserOrder?.customerOrderId}`,
+        body: 'Kindly review the payment status for your recent order. Please contact support if you need assistance.',
+        phoneNumber:
+          !isEmpty(checkUserOrder?.storeId) &&
+          storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        role: !isEmpty(checkUserOrder?.storeId) ? 'STORE_OWNER' : 'USER',
+        type: 'ORDER_STATUS'
+      };
+      const notificationMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+
+      const notificationData = {
+        title: `Payment Status Update for Order (#ORD${checkUserOrder?.customerOrderId})`,
+        body: 'Kindly review the payment status for your recent order. Please contact support if you need assistance.',
+        phoneNumber:
+          !isEmpty(checkUserOrder?.storeId) &&
+          storeDetails[0]?.contactInfo?.phoneNumber?.primary,
+        type: 'ORDER_STATUS',
+        role: !isEmpty(checkUserOrder?.storeId) ? 'STORE_OWNER' : 'USER',
+        storeId: storeDetails[0]?.storeId,
+        dataId: checkUserOrder?._id
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
 
       return distributorOrderPaymentPayload;
     } catch (error) {
@@ -1276,7 +1597,9 @@ console.log(totalRes, 'totalRes');
   }
 
   async updateSparePost(reqBody: any, sparePostId: string): Promise<any> {
-    Logger.info('<Service>:<OrderManagementService>:<Update SparePost details >');
+    Logger.info(
+      '<Service>:<OrderManagementService>:<Update SparePost details >'
+    );
     const jsonResult = await SparePost.findOne({
       _id: sparePostId
     });
@@ -1312,13 +1635,17 @@ console.log(totalRes, 'totalRes');
     pageNo?: number,
     pageSize?: number,
     sparePostId?: string,
-    platform?: string): Promise<any> {
+    platform?: string
+  ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
 
     let jsonResult;
 
     if (platform === 'PARTNER_APP') {
-      const store = await Store.findOne({ storeId: sparePostId }, { verificationDetails: 0 });
+      const store = await Store.findOne(
+        { storeId: sparePostId },
+        { verificationDetails: 0 }
+      );
       if (!store) throw new Error('Store not found');
 
       jsonResult = await SparePost.aggregate([
@@ -1333,7 +1660,9 @@ console.log(totalRes, 'totalRes');
         }
       ]);
     } else if (platform === 'CUSTOMER_APP') {
-      const user = await Customer.findOne({ _id: new Types.ObjectId(sparePostId) });
+      const user = await Customer.findOne({
+        _id: new Types.ObjectId(sparePostId)
+      });
       if (!user) throw new Error('User not found');
 
       jsonResult = await SparePost.aggregate([
@@ -1351,7 +1680,9 @@ console.log(totalRes, 'totalRes');
 
     if (!jsonResult) throw new Error('SparePost Requirement does not exist');
 
-    Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
+    Logger.info(
+      '<Service>:<OrderManagementService>:<get SparePost successful>'
+    );
 
     return jsonResult;
   }
@@ -1375,17 +1706,17 @@ console.log(totalRes, 'totalRes');
     nextDate.setDate(lastDay.getDate() + 1);
 
     const query: any = {
-      'storeId': storeId,
-      'vehicleType': vehicleType,
-      'createdAt': {
+      storeId: storeId,
+      vehicleType: vehicleType,
+      createdAt: {
         $gte: firstDay,
         $lte: nextDate
-      },
+      }
     };
 
     const queryTwo: any = {};
 
-    if(adminFilterOemId) {
+    if (adminFilterOemId) {
       queryTwo.$or = [
         { 'lastStatus.oemUserName': adminFilterOemId },
         { 'lastStatus.createdOemUser': adminFilterOemId }
@@ -1393,33 +1724,42 @@ console.log(totalRes, 'totalRes');
     }
 
     let filterQuery: any = {};
-    if (firstDate === 'Invalid Date' ||  !firstDate  || lastDate === 'Invalid Date' || !lastDate) {
+    if (
+      firstDate === 'Invalid Date' ||
+      !firstDate ||
+      lastDate === 'Invalid Date' ||
+      !lastDate
+    ) {
       delete query['createdAt'];
     }
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
     let aggregateQuery: any = [];
 
-    if(role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
-     aggregateQuery = [
-      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
-      { $project: { 'statusDetails': 0 } },
-      { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
-     ];
+    if (role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
+      aggregateQuery = [
+        {
+          $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] } }
+        },
+        { $project: { statusDetails: 0 } },
+        { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } }
+      ];
     }
-    if(role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
+    if (role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
       const user = role === 'OEM' ? userName : oemId;
-       filterQuery.$or = [
+      filterQuery.$or = [
         { 'lastStatus.createdOemUser': { $in: [user] } },
-        { 'lastStatus.oemUserName': { $in: [user] } },
+        { 'lastStatus.oemUserName': { $in: [user] } }
       ];
       aggregateQuery = [
-      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
-       { $match: filterQuery},
-       { $project: { 'statusDetails': 0 } },
-       { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+        {
+          $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] } }
+        },
+        { $match: filterQuery },
+        { $project: { statusDetails: 0 } },
+        { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } }
       ];
-     }
+    }
     console.log(query, 'queryJson', role);
 
     const sparePostLists = await SparePost.aggregate([
@@ -1481,17 +1821,17 @@ console.log(totalRes, 'totalRes');
     nextDate.setDate(lastDay.getDate() + 1);
 
     const query: any = {
-      'storeId': storeId,
-      'vehicleType': vehicleType,
-      'createdAt': {
+      storeId: storeId,
+      vehicleType: vehicleType,
+      createdAt: {
         $gte: firstDay,
         $lte: nextDate
-      },
+      }
     };
 
     const queryTwo: any = {};
 
-    if(adminFilterOemId) {
+    if (adminFilterOemId) {
       queryTwo.$or = [
         { 'lastStatus.oemUserName': adminFilterOemId },
         { 'lastStatus.createdOemUser': adminFilterOemId }
@@ -1499,33 +1839,42 @@ console.log(totalRes, 'totalRes');
     }
 
     let filterQuery: any = {};
-    if (firstDate === 'Invalid Date' ||  !firstDate  || lastDate === 'Invalid Date' || !lastDate) {
+    if (
+      firstDate === 'Invalid Date' ||
+      !firstDate ||
+      lastDate === 'Invalid Date' ||
+      !lastDate
+    ) {
       delete query['createdAt'];
     }
     if (!storeId) delete query['storeId'];
     if (!vehicleType) delete query['vehicleType'];
     let aggregateQuery: any = [];
 
-    if(role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
-     aggregateQuery = [
-      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
-      { $project: { 'statusDetails': 0 } },
-      { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
-     ];
+    if (role === 'ADMIN' || (role === 'EMPLOYEE' && oemId === 'SERVICEPLUG')) {
+      aggregateQuery = [
+        {
+          $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] } }
+        },
+        { $project: { statusDetails: 0 } },
+        { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } }
+      ];
     }
-    if(role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
+    if (role === 'OEM' || (role === 'EMPLOYEE' && oemId !== 'SERVICEPLUG')) {
       const user = role === 'OEM' ? userName : oemId;
-       filterQuery.$or = [
+      filterQuery.$or = [
         { 'lastStatus.createdOemUser': { $in: [user] } },
-        { 'lastStatus.oemUserName': { $in: [user] } },
+        { 'lastStatus.oemUserName': { $in: [user] } }
       ];
       aggregateQuery = [
-      { $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] }}},
-       { $match: filterQuery},
-       { $project: { 'statusDetails': 0 } },
-       { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } },
+        {
+          $addFields: { lastStatus: { $arrayElemAt: ['$statusDetails', -1] } }
+        },
+        { $match: filterQuery },
+        { $project: { statusDetails: 0 } },
+        { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } }
       ];
-     }
+    }
     // console.log(query, 'queryJson', role);
 
     const totalCountQuery = await SparePost.aggregate([
@@ -1558,21 +1907,26 @@ console.log(totalRes, 'totalRes');
         $match: queryTwo
       },
       {
-        $count: "totalCount"
+        $count: 'totalCount'
       }
     ]);
-    
-    const totalCount = totalCountQuery.length > 0 ? totalCountQuery[0].totalCount : 0;
-    
+
+    const totalCount =
+      totalCountQuery.length > 0 ? totalCountQuery[0].totalCount : 0;
+
     const sparePostCounts = {
       total: totalCount || 0
-    }
-    
+    };
+
     return sparePostCounts;
   }
 
-  async getSparePostRequirementDetailById(spareRequirementId: string): Promise<any> {
-    Logger.info('<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>');
+  async getSparePostRequirementDetailById(
+    spareRequirementId: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>'
+    );
     try {
       const spareRequirementDetail = await SparePost.findOne({
         _id: new Types.ObjectId(spareRequirementId)
@@ -1585,7 +1939,9 @@ console.log(totalRes, 'totalRes');
       return spareRequirementDetail;
     } catch (error) {
       Logger.error(`Error fetching spare requirement: ${error.message}`);
-      throw new Error(`Error retrieving spare post requirement details. ${error.message}`);
+      throw new Error(
+        `Error retrieving spare post requirement details. ${error.message}`
+      );
     }
   }
 
@@ -1594,7 +1950,10 @@ console.log(totalRes, 'totalRes');
       '<Service>:<OrderManagementService>:<create sparePosts service initiated>'
     );
     const query = sparePostList;
-    if (role === AdminRole.OEM || (role === 'EMPLOYEE' && sparePostList?.oemId !== 'SERVICEPLUG')) {
+    if (
+      role === AdminRole.OEM ||
+      (role === 'EMPLOYEE' && sparePostList?.oemId !== 'SERVICEPLUG')
+    ) {
       const user = role === 'OEM' ? userName : sparePostList?.oemId;
       query.createdOemUser = user;
     }
@@ -1602,24 +1961,32 @@ console.log(totalRes, 'totalRes');
     return result;
   }
 
-  async getSparePostStatusDetails(sparePostId?: string, userName?: string, role?: string, oemId?: string): Promise<any> {
+  async getSparePostStatusDetails(
+    sparePostId?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string
+  ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get SparePost initiated>');
 
-    const sparePost = await SparePost.findOne({ _id: sparePostId }, { verificationDetails: 0 });
+    const sparePost = await SparePost.findOne(
+      { _id: sparePostId },
+      { verificationDetails: 0 }
+    );
     if (!sparePost) throw new Error('SparePost not found');
 
     let query: any = { sparePostId: sparePostId };
     if (role === AdminRole.OEM) {
       query.$or = [
-        { 'createdOemUser': { $in: [userName] } },
-        { 'oemUserName': { $in: [userName] } },
+        { createdOemUser: { $in: [userName] } },
+        { oemUserName: { $in: [userName] } }
       ];
     }
 
     if (role === AdminRole.EMPLOYEE) {
       query.$or = [
-        { 'createdOemUser': { $in: [oemId] } },
-        { 'oemUserName': { $in: [oemId] } },
+        { createdOemUser: { $in: [oemId] } },
+        { oemUserName: { $in: [oemId] } }
       ];
     }
 
@@ -1628,7 +1995,9 @@ console.log(totalRes, 'totalRes');
     }
     const jsonResult = await SparePostStatus.find(query);
 
-    Logger.info('<Service>:<OrderManagementService>:<get SparePost successful>');
+    Logger.info(
+      '<Service>:<OrderManagementService>:<get SparePost successful>'
+    );
 
     return jsonResult;
   }

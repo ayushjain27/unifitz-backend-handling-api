@@ -12,6 +12,8 @@ import Store from '../models/Store';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import Customer from '../models/Customer';
+import Notification, { INotification } from '../models/Notification';
+import { isEmpty } from 'lodash';
 const FCM = require('fcm-node');
 // import Customer, { ICustomer } from './../models/Customer';
 
@@ -78,5 +80,97 @@ export class NotificationService {
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  async createNotification(params: any): Promise<INotification> {
+    Logger.info(
+      '<Service>:<NotificationService>: <Creating notification: creating notfication to user>'
+    );
+    let payload = params;
+    try {
+      let createNotification = Notification.create(payload);
+      return createNotification;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async updateNotificationStatus(params: any): Promise<any> {
+    Logger.info(
+      '<Service>:<NotificationService>: <Updating notification status: updating notification status to user>'
+    );
+    
+    try {
+      let notification = await Notification.findOne({ _id: params.notificationId });
+      console.log(params, "dlfrmf");
+  
+      if (!isEmpty(notification)) {
+        let response = await Notification.findOneAndUpdate(
+          { _id: params.notificationId }, // Query
+          { $set: { status: 'INACTIVE' } }, // Correct placement of $set
+          { new: true } // Returns the updated document
+        );
+        return response;
+      }
+    } catch (err) {
+      throw new Error(err.message); // Ensure the error message is properly formatted
+    }
+  }
+  
+
+  async countTotalNotification(params: any): Promise<any> {
+    Logger.info(
+      '<Service>:<NotificationService>: <Counting notification: counting notfication status to user>'
+    );
+    let payload = params;
+    let count: any = 0
+    let query: any = {
+        status: 'ACTIVE'
+    }
+    if(payload.storeId){
+      query.storeId = payload.storeId;
+    }
+    if(payload.customerId){
+      query.customerId = payload.customerId;
+    }
+    try {
+      count = await Notification.countDocuments(query);
+      return count;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async getUserAllNotificationsPaginated(
+    storeId: string,
+    customerId: string,
+    pageNo: number,
+    pageSize: number
+  ): Promise<INotification[]> {
+    let query: any = {}
+    if(!isEmpty(storeId)){
+      query.storeId = storeId
+    }
+    if(!isEmpty(customerId)){
+      query.customerId = customerId
+    }
+      Logger.info(
+      '<Service>:<NotificationService>:<Get user all notifications by id>'
+    );
+
+    const notificationResponse: any = await Notification.aggregate([
+      {
+        $match: query
+      },
+      { $sort: { createdAt: -1 } }, // 1 for ascending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    return notificationResponse;
   }
 }

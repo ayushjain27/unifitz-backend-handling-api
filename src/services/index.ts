@@ -31,3 +31,4 @@ export * from './storeLead.service';
 export * from './orderManagement.service';
 export * from './sqs.service';
 export * from './smcInsurance.service';
+export * from './reportRoadAccident.service';

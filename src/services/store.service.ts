@@ -122,7 +122,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Created',
-      body: `Your store has created. It is under review`,
+      body: `Your store is created. It is under review`,
       phoneNumber: phoneNumber,
       role: 'STORE_OWNER',
       type: 'NEW_STORE'
@@ -131,6 +131,18 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+
+    const notificationData = {
+      title: 'Store Created',
+      body: `Your store is created. It is under review`,
+      phoneNumber: phoneNumber,
+      type: 'NEW_STORE',
+      role: 'STORE_OWNER',
+      storeId: newStoreId
+    };
+
+    let notification =
+      await this.notificationService.createNotification(notificationData);
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -168,7 +180,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Updated',
-      body: `Your store has updated. It is under review`,
+      body: `Your store is updated. It is under review`,
       phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
       role: 'STORE_OWNER',
       type: 'UPDATED_STORE'
@@ -177,6 +189,19 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+
+    const notificationData = {
+      title: 'Store Updated',
+      body: `Your store is updated. It is under review`,
+      phoneNumber: storePayload?.contactInfo?.phoneNumber?.primary,
+      type: 'NEW_STORE',
+      role: 'STORE_OWNER',
+      storeId: storePayload?.storeId
+    };
+
+    let notification =
+      await this.notificationService.createNotification(notificationData);
+
     Logger.info('<Service>:<StoreService>: <Store: update store successfully>');
     return updatedStore;
   }
@@ -298,6 +323,29 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Store Onboarded'
+          : 'Store Rejected'
+      }`,
+      body: `${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'Congratulations 😊'
+          : 'Sorry 😞'
+      } your store has been ${
+        statusRequest.profileStatus === 'ONBOARDED'
+          ? 'onboarded'
+          : `rejected due to this reason: ${statusRequest.rejectionReason}`
+      }`,
+      phoneNumber: phoneNumber,
+      type: 'STORE_STATUS',
+      role: 'STORE_OWNER',
+      storeId: statusRequest.storeId
+    };
+
+    let notification =
+      await this.notificationService.createNotification(notificationData);
     return updatedStore;
   }
 
@@ -751,6 +799,18 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: 'Store Review',
+      body: `Store Review`,
+      phoneNumber: phoneNumber,
+      type: 'RATING_REVIEW',
+      role: 'STORE_OWNER',
+      storeId: store?.storeId
+    };
+
+    let notification =
+      await this.notificationService.createNotification(notificationData);
+
     Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
     return newStoreReview;
   }
@@ -813,9 +873,9 @@ export class StoreService {
   ): Promise<any[]> {
     Logger.info('<Service>:<StoreService>:<Get Store Ratings initiate>');
     const storeReviews = await StoreReview.find({ storeId })
+      .sort({ createdAt: -1 })
       .skip(pageNo * pageSize)
-      .limit(pageSize)
-      ;
+      .limit(pageSize);
     Logger.info(
       '<Service>:<StoreService>:<Get Ratings performed successfully>'
     );
@@ -951,6 +1011,29 @@ export class StoreService {
         storeDetails as IStore
       );
 
+      const data = {
+        title: 'Store Verified',
+        body: `Your store is verified with ${payload.documentType}`,
+        phoneNumber: phoneNumber,
+        role: role,
+        type: 'STORE_CREATED'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+      const notificationData = {
+        title: 'Store Verified',
+        body: `Your store is verified with ${payload.documentType}`,
+        phoneNumber: phoneNumber,
+        type: 'STORE_CREATED',
+        role: 'STORE_OWNER',
+        storeId: storeDetails?.storeId
+      };
+  
+      let notification =
+        await this.notificationService.createNotification(notificationData);
+
       return updatedStore;
     } catch (err) {
       if (err.response) {
@@ -985,8 +1068,8 @@ export class StoreService {
               documentType === 'GST'
                 ? String(verifyResult?.address)
                 : String(
-                  `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
-                ),
+                    `${verifyResult?.address?.house} ${verifyResult?.address?.landmark} ${verifyResult?.address?.street} ${verifyResult?.address?.vtc} ${verifyResult?.address?.state} - ${verifyResult?.zip}`
+                  ),
             verifyObj: verifyResult,
             gstAdhaarNumber
           }
@@ -1045,6 +1128,29 @@ export class StoreService {
         gstAdhaarNumber,
         storeDetails as IStore
       );
+
+      const data = {
+        title: 'Store Verified',
+        body: `Your store is verified with Aadhar`,
+        phoneNumber: phoneNumber,
+        role: role,
+        type: 'STORE_CREATED'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+      const notificationData = {
+        title: 'Store Verified',
+        body: `Your store is verified with Aadhar`,
+        phoneNumber: phoneNumber,
+        type: 'STORE_CREATED',
+        role: 'STORE_OWNER',
+        storeId: storeDetails?.storeId
+      };
+  
+      let notification =
+        await this.notificationService.createNotification(notificationData);
 
       return updatedStore;
     } catch (err) {
@@ -1199,6 +1305,17 @@ export class StoreService {
         SQSEvent.NOTIFICATION,
         data
       );
+      const notificationData = {
+        title: 'Store Updated',
+        body: `Your store is updated. It is under review`,
+        phoneNumber: phoneNumber,
+        type: 'STORE_UPDATED',
+        role: 'STORE_OWNER',
+        storeId: store?.storeId
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
       Logger.info(
         '<Service>:<StoreService>: <Store onboarding: updated store successfully>'
       );
@@ -1214,7 +1331,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Created',
-      body: `Your store has created. It is under review`,
+      body: `Your store is created. It is under review`,
       phoneNumber: phoneNumber,
       role: role,
       type: 'STORE_CREATED'
@@ -1223,6 +1340,18 @@ export class StoreService {
       SQSEvent.NOTIFICATION,
       data
     );
+    const notificationData = {
+      title: 'Store Created',
+      body: `Your store is created. It is under review`,
+      phoneNumber: phoneNumber,
+      type: 'STORE_CREATED',
+      role: 'STORE_OWNER',
+      storeId: store?.storeId
+    };
+
+    let notification =
+      await this.notificationService.createNotification(notificationData);
+
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -1237,7 +1366,7 @@ export class StoreService {
     oemId?: string,
     filterOemUser?: string,
     userType?: string,
-    category?: string,
+    category?: string
   ): Promise<any> {
     Logger.info('<Route>:<StoreService>: <StoreService : store get initiated>');
     let query: any = {};
@@ -1247,7 +1376,7 @@ export class StoreService {
       'contactInfo.city': city,
       profileStatus: 'ONBOARDED',
       oemUserName: filterOemUser,
-      'basicInfo.category.name': { $in: [category]}
+      'basicInfo.category.name': { $in: [category] }
     };
     if (!category) {
       delete query['basicInfo.category.name'];
