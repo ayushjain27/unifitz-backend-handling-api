@@ -38,6 +38,7 @@ import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
+import reportRoadAccident from './routes/api/reportRoadAccident'
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
@@ -129,6 +130,7 @@ app.use('/schoolofAuto', schoolofAuto);
 app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer);
 app.use('/spEmployee', spEmployee);
+app.use('/reportRoadAccident', reportRoadAccident);
 app.use('/account', deleteAccount);
 app.use('/orderManagement', orderManagement);
 app.use('/smcInsurance', smcInsurance);
