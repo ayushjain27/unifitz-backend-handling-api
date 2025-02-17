@@ -790,7 +790,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Review',
-      body: `Congratulations! You got na new review`,
+      body: `Congratulations! You got an new review`,
       phoneNumber: phoneNumber,
       role: 'STORE_OWNER',
       type: 'RATING_REVIEW'
@@ -801,7 +801,7 @@ export class StoreService {
     );
     const notificationData = {
       title: 'Store Review',
-      body: `Congratulations! You got na new review`,
+      body: `Congratulations! You got an new review`,
       phoneNumber: phoneNumber,
       type: 'RATING_REVIEW',
       role: 'STORE_OWNER',
