@@ -33,7 +33,7 @@ import buysell from './routes/api/buySell.route';
 import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
 // import * as pincodeList from './utils/constants/cityPincodeList.json';
-import { cityPincodeList } from './utils/constants/cityPincodeList'
+import { cityPincodeList } from './utils/constants/cityPincodeList';
 import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
@@ -143,8 +143,8 @@ app.get('/category', async (req, res) => {
       a.displayOrder > b.displayOrder
         ? 1
         : b.displayOrder > a.displayOrder
-        ? -1
-        : 0
+          ? -1
+          : 0
     )
     .map(
       ({
@@ -182,8 +182,8 @@ app.get('/productCategory', async (req: any, res: any) => {
       a.displayOrder > b.displayOrder
         ? 1
         : b.displayOrder > a.displayOrder
-        ? -1
-        : 0
+          ? -1
+          : 0
     )
     .map(
       ({
@@ -273,8 +273,8 @@ app.post('/subCategory', async (req, res) => {
       a.displayOrder > b.displayOrder
         ? 1
         : b.displayOrder > a.displayOrder
-        ? -1
-        : 0
+          ? -1
+          : 0
     )
     .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
       return { _id, catalogName, tree, parent, catalogType, catalogIcon };
@@ -306,8 +306,8 @@ app.post('/productSubCategory', async (req, res) => {
       a.displayOrder > b.displayOrder
         ? 1
         : b.displayOrder > a.displayOrder
-        ? -1
-        : 0
+          ? -1
+          : 0
     )
     .map(({ _id, catalogName, tree, parent, catalogType, catalogIcon }) => {
       return { _id, catalogName, tree, parent, catalogType, catalogIcon };
@@ -411,33 +411,32 @@ app.get('/stateCityList', async (req, res) => {
 });
 
 app.get('/cityPincodeList', async (req, res) => {
-
   const jsonData: any = cityPincodeList;
 
   const capitalizeFirstLetter = (str: string) => {
-      // return str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
-      return str
+    // return str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
+    return str
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
-  
+
   const seen = new Set();
   const uniqueData = jsonData.filter((item: any) => {
-      const statename = capitalizeFirstLetter(item.statename);
-      const district = capitalizeFirstLetter(item.district);
-      const key = `${statename}-${district}-${item.pincode}`;
-      
-      if (seen.has(key)) {
-          return false;
-      } else {
-          seen.add(key); 
-          item.statename = statename;
-          item.district = district;
-          return true;
-      }
+    const statename = capitalizeFirstLetter(item.statename);
+    const district = capitalizeFirstLetter(item.district);
+    const key = `${statename}-${district}-${item.pincode}`;
+
+    if (seen.has(key)) {
+      return false;
+    } else {
+      seen.add(key);
+      item.statename = statename;
+      item.district = district;
+      return true;
+    }
   });
-  res.json({list: uniqueData});
+  res.json({ list: uniqueData });
 });
 
 app.get('/reportQuestions', async (req, res) => {
@@ -567,12 +566,12 @@ async function updateSlug() {
       customers[0].customerId = String(baseId); // Increment customerId
       await customers[0].save(); // Save each updated document
     }
-    return "Done"
-      // console.log(customers[0]?._id)
-      // await Admin.findOneAndUpdate(// Only update documents that have storeId
-      //   { userName: 'SERVICEPLUG' },
-      //   { $set: { accessList: permissions.OEM } },
-      // );
+    return 'Done';
+    // console.log(customers[0]?._id)
+    // await Admin.findOneAndUpdate(// Only update documents that have storeId
+    //   { userName: 'SERVICEPLUG' },
+    //   { $set: { accessList: permissions.OEM } },
+    // );
     // }
 
     console.log('All documents have been updated with slugs.');
@@ -641,8 +640,8 @@ const sesClient = new SESClient({ region: 'ap-south-1' });
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewOrder',
-      SubjectPart: '🚗 New Order Created #ORD{{orderId}} 🚗', // Use a placeholder for dynamic subject
+      TemplateName: 'NewOrderCreation',
+      SubjectPart: 'New Order', // Use a placeholder for dynamic subject
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -680,26 +679,25 @@ app.get('/createTemplate', async (req, res) => {
       </head>
       <body>
         <div class="container">
-      <p style="font-size: 20px; text-align: center;">🚗 New Order Created #ORD{{orderId}} 🚗</p>
-          <p style="font-size: 16px; color: blue;">Dear {{name}}, your new order #ORD{{orderId}} is created and currently pending. Track the order in the app.</p>
-         
-          <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+        <p style="font-size: 20px; text-align: center;"> New Order Created #ORD{{orderId}} </p>
+        <p style="font-size: 16px; color: blue;">Dear {{name}}, your new order has been successfully created and is currently pending. You can track its status in the app.</p>
+        <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
         </div>
       </body>
       </html>`,
       TextPart: 'Plain text content goes here'
     }
   };
-//   // console.log(params);
+  //   // console.log(params);
 
-try {
-  const command = new CreateTemplateCommand(params);
-  const data = await sesClient.send(command);
-  res.send(data);
-} catch (error) {
-  console.error('Error creating email template: ', error);
-  res.status(500).send({ error: 'Failed to create email template' });
-}
+  try {
+    const command = new CreateTemplateCommand(params);
+    const data = await sesClient.send(command);
+    res.send(data);
+  } catch (error) {
+    console.error('Error creating email template: ', error);
+    res.status(500).send({ error: 'Failed to create email template' });
+  }
 });
 
 // cron.schedule('0 0 * * *', async () => {

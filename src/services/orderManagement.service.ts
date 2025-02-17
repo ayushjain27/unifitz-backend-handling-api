@@ -152,7 +152,7 @@ export class OrderManagementService {
             ? dataSend?.contactInfo?.phoneNumber?.primary
             : dataSend?.phoneNumber,
         role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
-        type: 'ORDER_STATUS',
+        type: 'ORDER_STATUS'
       };
       console.log(data, 'data send');
       const notificationMessage = await this.sqsService.createMessage(
@@ -175,28 +175,36 @@ export class OrderManagementService {
 
       let notification =
         await this.notificationService.createNotification(notificationData);
+
+      // if (
+      //   requestBody.userRole === 'STORE_OWNER'
+      //     ? dataSend?.contactInfo?.email
+      //     : dataSend?.email
+      // ) {
+      //   let email =
+      //     requestBody.userRole === 'STORE_OWNER'
+      //       ? dataSend?.contactInfo?.email
+      //       : dataSend?.email;
+
+      //       console.log(email,"dlemrfn")
+      //   if (!isEmpty(email)) {
+      //     const templateData = {
+      //       orderId: newOrderId,
+      //       name: dataSend?.basicInfo?.ownerName
+      //     };
+      //     const emailNotificationData = {
+      //       to: email,
+      //       templateData: templateData,
+      //       templateName: 'NewOrderCreation'
+      //     };
+
+      //     const emailNotification = await this.sqsService.createMessage(
+      //       SQSEvent.EMAIL_NOTIFICATION,
+      //       emailNotificationData
+      //     );
+      //   }
+      // }
     }
-
-    // let email =
-    //   requestBody.userRole === 'STORE_OWNER'
-    //     ? dataSend?.contactInfo?.email
-    //     : dataSend?.email;
-    // if (!isEmpty(email)) {
-    //   const templateData = {
-    //     orderId: newOrderId,
-    //     name: dataSend?.basicInfo?.ownerName
-    //   };
-    //   const emailNotificationData = {
-    //     to: email,
-    //     templateData: templateData,
-    //     templateName: 'NewOrder'
-    //   };
-
-    //   const emailNotification = await this.sqsService.createMessage(
-    //     SQSEvent.EMAIL_NOTIFICATION,
-    //     emailNotificationData
-    //   );
-    // }
 
     // if (!isEmpty(userOrderRequest)) {
 
@@ -1400,7 +1408,7 @@ export class OrderManagementService {
           storeDetails[0]?.contactInfo?.phoneNumber?.primary,
         type: 'ORDER_STATUS',
         role: !isEmpty(checkUserOrder?.storeId) ? 'STORE_OWNER' : 'USER',
-        storeId:  storeDetails[0]?.storeId,
+        storeId: storeDetails[0]?.storeId,
         dataId: checkUserOrder?._id
       };
 

@@ -1458,7 +1458,9 @@ export class ProductService {
     userType?: string,
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
-    let query: any = {};
+    let query: any = {
+      status: "ACTIVE"
+    };
     if (userType === 'Distributer') {
       query.$or = [
         {
