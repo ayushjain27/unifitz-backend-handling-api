@@ -466,4 +466,18 @@ export class VehicleInfoService {
     ]);
     return vehicleResponse;
   }
+
+  async getAllOwnedVehicles(
+    vehicleNumber: string
+  ): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
+
+  const query = {
+    purpose: { $in: ['OWNED', 'OWNED_BUY_SELL'] }, // Fixed logical error
+    vehicleNumber
+  };
+
+    const vehicleResponse = await VehicleInfo.findOne(query);
+    return vehicleResponse;
+  }
 }
