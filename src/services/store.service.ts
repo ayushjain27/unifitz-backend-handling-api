@@ -790,7 +790,7 @@ export class StoreService {
     // );
     const data = {
       title: 'Store Review',
-      body: `Store Review`,
+      body: `Congratulations! You got na new review`,
       phoneNumber: phoneNumber,
       role: 'STORE_OWNER',
       type: 'RATING_REVIEW'
@@ -801,7 +801,7 @@ export class StoreService {
     );
     const notificationData = {
       title: 'Store Review',
-      body: `Store Review`,
+      body: `Congratulations! You got na new review`,
       phoneNumber: phoneNumber,
       type: 'RATING_REVIEW',
       role: 'STORE_OWNER',
@@ -1030,7 +1030,7 @@ export class StoreService {
         role: 'STORE_OWNER',
         storeId: storeDetails?.storeId
       };
-  
+
       let notification =
         await this.notificationService.createNotification(notificationData);
 
@@ -1148,7 +1148,7 @@ export class StoreService {
         role: 'STORE_OWNER',
         storeId: storeDetails?.storeId
       };
-  
+
       let notification =
         await this.notificationService.createNotification(notificationData);
 
