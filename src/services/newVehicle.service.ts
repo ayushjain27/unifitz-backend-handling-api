@@ -3,7 +3,7 @@
 import NewVehicle, { INewVehicle } from '../models/NewVehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -487,7 +487,7 @@ export class NewVehicleInfoService {
           role: 'STORE_OWNER',
           type: 'NEW_VEHICLE'
         };
-  
+
         const sqsMessage = await this.sqsService.createMessage(
           SQSEvent.NOTIFICATION,
           data
@@ -496,14 +496,39 @@ export class NewVehicleInfoService {
         const notificationData = {
           title: 'New Enquiry',
           body: `You've received a new inquiry`,
-          phoneNumber:storeDetails?.contactInfo?.phoneNumber?.primary,
-          type: "NEW_VEHICLE",
-          role: "STORE_OWNER",
-          storeId: reqBody?.storeDetails?.storeId
+          phoneNumber: storeDetails?.contactInfo?.phoneNumber?.primary,
+          type: 'NEW_VEHICLE',
+          role: 'STORE_OWNER',
+          storeId: storeDetails?.storeId
+        };
+
+        let notification =
+          await this.notificationService.createNotification(notificationData);
+
+        if (!isEmpty(storeDetails?.storeId)) {
+          let email = storeDetails?.contactInfo?.email;
+
+          console.log(email, 'dlemrfn');
+          if (!isEmpty(email)) {
+            const templateData = {
+              storeId: storeDetails?.storeId,
+              customerName: storeDetails?.basicInfo?.ownerName,
+              body: `You've received a new inquiry`
+            };
+            console.log(templateData, 'fewfrefe');
+            const emailNotificationData = {
+              to: email,
+              templateData: templateData,
+              templateName: 'VehicleEnquiry'
+            };
+
+            const emailNotification = await this.sqsService.createMessage(
+              SQSEvent.EMAIL_NOTIFICATION,
+              emailNotificationData
+            );
+          }
         }
-    
-        let notification = await this.notificationService.createNotification(notificationData)
-        
+
         if (!_.isEmpty(storeDetails?.oemUserName)) {
           const adminDetails = await Admin.findOne({
             userName: storeDetails?.oemUserName
@@ -604,14 +629,39 @@ export class NewVehicleInfoService {
       const notificationData = {
         title: 'New Enquiry',
         body: `You've received a new inquiry`,
-        phoneNumber:storeDetails?.contactInfo?.phoneNumber?.primary,
-        type: "NEW_VEHICLE",
-        role: "STORE_OWNER",
-        storeId: reqBody?.storeDetails?.storeId
+        phoneNumber: storeDetails?.contactInfo?.phoneNumber?.primary,
+        type: 'NEW_VEHICLE',
+        role: 'STORE_OWNER',
+        storeId: storeDetails?.storeId
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
+
+      if (!isEmpty(storeDetails?.storeId)) {
+        let email = storeDetails?.contactInfo?.email;
+
+        console.log(email, 'dlemrfn');
+        if (!isEmpty(email)) {
+          const templateData = {
+            storeId: storeDetails?.storeId,
+            customerName: storeDetails?.basicInfo?.ownerName,
+            body: `You've received a new inquiry`
+          };
+          console.log(templateData, 'fewfrefe');
+          const emailNotificationData = {
+            to: email,
+            templateData: templateData,
+            templateName: 'VehicleEnquiry'
+          };
+
+          const emailNotification = await this.sqsService.createMessage(
+            SQSEvent.EMAIL_NOTIFICATION,
+            emailNotificationData
+          );
+        }
       }
-  
-      let notification = await this.notificationService.createNotification(notificationData)
-  
+
       return newTestDrive;
     }
     const lastTestDrive = await TestDrive.find({
@@ -898,28 +948,27 @@ export class NewVehicleInfoService {
   }
 
   async getVehicleList(query: any): Promise<any> {
-    Logger.info(
-      '<Service>:<VehicleService>:<Get all vehhicle List initiated>'
-    );
+    Logger.info('<Service>:<VehicleService>:<Get all vehhicle List initiated>');
     const { vehicleType, brands, pageNo, pageSize, minPrice, maxPrice } = query;
     const filterParams: any = {
       status: 'ONBOARDED',
-      fuelType: "ELECTRIC",
+      fuelType: 'ELECTRIC',
       vehicle: { $in: vehicleType ? vehicleType : [] },
       brand: { $in: brands ? brands : [] },
-      'numericPrice': { $gte: minPrice, $lte: maxPrice },
+      numericPrice: { $gte: minPrice, $lte: maxPrice }
     };
 
     if (!brands || _.isEmpty(brands)) delete filterParams['brand'];
     if (!vehicleType || _.isEmpty(vehicleType)) delete filterParams['vehicle'];
-    if (!minPrice || !maxPrice) delete filterParams['vehicleInfo.expectedPrice'];
+    if (!minPrice || !maxPrice)
+      delete filterParams['vehicleInfo.expectedPrice'];
 
     console.log(query, filterParams);
 
     const result = await NewVehicle.aggregate([
       {
         $addFields: {
-          numericPrice: { $toDouble: "$price" }
+          numericPrice: { $toDouble: '$price' }
         }
       },
       {

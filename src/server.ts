@@ -38,7 +38,7 @@ import questions from './utils/constants/reportQuestions.json';
 import report from './routes/api/report';
 import storeCustomer from './routes/api/storeCustomer';
 import spEmployee from './routes/api/spEmployee';
-import reportRoadAccident from './routes/api/reportRoadAccident'
+import reportRoadAccident from './routes/api/reportRoadAccident';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
@@ -642,8 +642,8 @@ const sesClient = new SESClient({ region: 'ap-south-1' });
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'NewOrderCreation',
-      SubjectPart: 'New Order', // Use a placeholder for dynamic subject
+      TemplateName: 'VehicleEnquiry',
+      SubjectPart: 'New Vehicle Enquiry', // Dynamic order number
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -663,11 +663,16 @@ app.get('/createTemplate', async (req, res) => {
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           }
-          h1 {
+          h1, h2 {
             color: #333;
           }
           p {
             color: #666;
+          }
+          .order-details {
+            font-size: 16px;
+            color: #000;
+            margin-top: 20px;
           }
           .cta-button {
             display: inline-block;
@@ -676,21 +681,40 @@ app.get('/createTemplate', async (req, res) => {
             color: #fff;
             text-decoration: none;
             border-radius: 4px;
+            margin-top: 20px;
+          }
+          .footer {
+            font-size: 14px;
+            color: #666;
+            margin-top: 30px;
           }
         </style>
       </head>
       <body>
-        <div class="container">
-        <p style="font-size: 20px; text-align: center;"> New Order Created #ORD{{orderId}} </p>
-        <p style="font-size: 16px; color: blue;">Dear {{name}}, your new order has been successfully created and is currently pending. You can track its status in the app.</p>
-        <p style="color: black;">Regards, <br> Team - ServicePlug  </p> <!-- Escape $ character for the subject -->
+        <div>
+          <p style="font-size: 16px;">Dear {{customerName}},</p>
+          <p style="font-size: 16px;">{{body}}</p>
+          
+          <p>For any questions, feel free to contact our support team at <a href="mailto:support@serviceplug.in" style="color: #007bff;">support@serviceplug.in</a>.</p>
+
+          <p class="footer">
+            Best Regards,<br>
+            <strong>Team - ServicePlug</strong><br>
+            <br>
+            Shreedhar P<br>
+            9945 300 700<br>
+            <br>
+            <strong>ServicePlug Technology Pvt Ltd</strong><br>
+            Automobile Sales and Service hyper-local connecting Platforms<br>
+            <a href="https://play.google.com/store/apps/details?id=com.serviceplug" style="color: #007bff;">Android ServicePlug App</a> | 
+            <a href="https://apps.apple.com/us/app/serviceplug/id123456789" style="color: #007bff;">iOS ServicePlug App</a>
+          </p>
         </div>
       </body>
       </html>`,
       TextPart: 'Plain text content goes here'
     }
   };
-  //   // console.log(params);
 
   try {
     const command = new CreateTemplateCommand(params);

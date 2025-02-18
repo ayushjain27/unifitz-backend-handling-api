@@ -176,34 +176,37 @@ export class OrderManagementService {
       let notification =
         await this.notificationService.createNotification(notificationData);
 
-      // if (
-      //   requestBody.userRole === 'STORE_OWNER'
-      //     ? dataSend?.contactInfo?.email
-      //     : dataSend?.email
-      // ) {
-      //   let email =
-      //     requestBody.userRole === 'STORE_OWNER'
-      //       ? dataSend?.contactInfo?.email
-      //       : dataSend?.email;
+      if (
+        requestBody.userRole === 'STORE_OWNER'
+          ? dataSend?.contactInfo?.email
+          : dataSend?.email
+      ) {
+        let email =
+          requestBody.userRole === 'STORE_OWNER'
+            ? dataSend?.contactInfo?.email
+            : dataSend?.email;
 
-      //       console.log(email,"dlemrfn")
-      //   if (!isEmpty(email)) {
-      //     const templateData = {
-      //       orderId: newOrderId,
-      //       name: dataSend?.basicInfo?.ownerName
-      //     };
-      //     const emailNotificationData = {
-      //       to: email,
-      //       templateData: templateData,
-      //       templateName: 'NewOrderCreation'
-      //     };
+        console.log(email, 'dlemrfn');
+        if (!isEmpty(email)) {
+          const templateData = {
+            orderId: newOrderId,
+            customerName: dataSend?.basicInfo?.ownerName,
+            amount: userOrderRequest?.totalAmount,
+            itemsOrdered: userOrderRequest?.items?.length
+          };
+          console.log(templateData, 'emfkmrk');
+          const emailNotificationData = {
+            to: email,
+            templateData: templateData,
+            templateName: 'NewOrderCreatingTemplate'
+          };
 
-      //     const emailNotification = await this.sqsService.createMessage(
-      //       SQSEvent.EMAIL_NOTIFICATION,
-      //       emailNotificationData
-      //     );
-      //   }
-      // }
+          const emailNotification = await this.sqsService.createMessage(
+            SQSEvent.EMAIL_NOTIFICATION,
+            emailNotificationData
+          );
+        }
+      }
     }
 
     // if (!isEmpty(userOrderRequest)) {
@@ -527,6 +530,36 @@ export class OrderManagementService {
 
       let notification =
         await this.notificationService.createNotification(notificationData);
+
+      if (
+        !isEmpty(updatedOrderStatus?.storeId) &&
+        storeDetails[0]?.contactInfo?.email
+      ) {
+        let email = storeDetails[0]?.contactInfo?.email;
+
+        console.log(email, 'dlemrfn');
+        if (!isEmpty(email)) {
+          const templateData = {
+            productId: cartDetails.productOrderId,
+            orderId: updatedOrderStatus?.customerOrderId,
+            customerName: storeDetails[0]?.basicInfo?.ownerName,
+            amount: cartDetails?.totalAmount,
+            quantity: cartDetails?.qty,
+            body: body
+          };
+          console.log(templateData, 'emjnfwejknfjkefkmrk');
+          const emailNotificationData = {
+            to: email,
+            templateData: templateData,
+            templateName: 'ProductStatusUpdateTemplates'
+          };
+
+          const emailNotification = await this.sqsService.createMessage(
+            SQSEvent.EMAIL_NOTIFICATION,
+            emailNotificationData
+          );
+        }
+      }
     }
     let overallOrderStatus = 'PENDING'; // Default to PENDING if no other status is found
 
@@ -600,6 +633,35 @@ export class OrderManagementService {
       storeId: storeDetails[0]?.storeId,
       dataId: updatedOrderStatus?._id
     };
+
+    if (
+      !isEmpty(updatedOrderStatus?.storeId) &&
+      storeDetails[0]?.contactInfo?.email
+    ) {
+      let email = storeDetails[0]?.contactInfo?.email;
+
+      console.log(email, 'dlemrfn');
+      if (!isEmpty(email)) {
+        const templateData = {
+          orderId: updatedOrderStatus?.customerOrderId,
+          customerName: storeDetails[0]?.basicInfo?.ownerName,
+          amount: updatedOrderStatus?.totalAmount,
+          quantity: updatedOrderStatus?.items?.length,
+          body: body
+        };
+        console.log(templateData, 'kdjfwenkjfbkewb');
+        const emailNotificationData = {
+          to: email,
+          templateData: templateData,
+          templateName: 'OrderStatusUpdateTemplate'
+        };
+
+        const emailNotification = await this.sqsService.createMessage(
+          SQSEvent.EMAIL_NOTIFICATION,
+          emailNotificationData
+        );
+      }
+    }
 
     let notification =
       await this.notificationService.createNotification(notificationData);
@@ -1411,6 +1473,33 @@ export class OrderManagementService {
         storeId: storeDetails[0]?.storeId,
         dataId: checkUserOrder?._id
       };
+
+      if (
+        !isEmpty(checkUserOrder?.storeId) &&
+        storeDetails[0]?.contactInfo?.email
+      ) {
+        let email = storeDetails[0]?.contactInfo?.email;
+
+        console.log(email, 'dlemrfn');
+        if (!isEmpty(email)) {
+          const templateData = {
+            orderId: checkUserOrder?.customerOrderId,
+            customerName: storeDetails[0]?.basicInfo?.ownerName,
+            body: 'Kindly review the payment status for your recent order. Please contact support if you need assistance.'
+          };
+          console.log(templateData, 'fewfrefe');
+          const emailNotificationData = {
+            to: email,
+            templateData: templateData,
+            templateName: 'PaymentStatusTemplate'
+          };
+
+          const emailNotification = await this.sqsService.createMessage(
+            SQSEvent.EMAIL_NOTIFICATION,
+            emailNotificationData
+          );
+        }
+      }
 
       let notification =
         await this.notificationService.createNotification(notificationData);

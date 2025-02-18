@@ -143,6 +143,29 @@ export class StoreService {
 
     let notification =
       await this.notificationService.createNotification(notificationData);
+
+    if (!isEmpty(newStore?.storeId)) {
+      let email = newStore?.contactInfo?.email;
+
+      console.log(email, 'dlemrfn');
+      if (!isEmpty(email)) {
+        const templateData = {
+          storeId: newStore?.storeId,
+          customerName: newStore?.basicInfo?.ownerName
+        };
+        console.log(templateData, 'fewfrefe');
+        const emailNotificationData = {
+          to: email,
+          templateData: templateData,
+          templateName: 'StoreCreated'
+        };
+
+        const emailNotification = await this.sqsService.createMessage(
+          SQSEvent.EMAIL_NOTIFICATION,
+          emailNotificationData
+        );
+      }
+    }
     Logger.info(
       '<Service>:<StoreService>: <Store onboarding: created new store successfully>'
     );
@@ -198,6 +221,29 @@ export class StoreService {
       role: 'STORE_OWNER',
       storeId: storePayload?.storeId
     };
+
+    if (!isEmpty(updatedStore?.storeId)) {
+      let email = updatedStore?.contactInfo?.email;
+
+      console.log(email, 'dlemrfn');
+      if (!isEmpty(email)) {
+        const templateData = {
+          storeId: updatedStore?.storeId,
+          customerName: updatedStore?.basicInfo?.ownerName
+        };
+        console.log(templateData, 'fewfrefe');
+        const emailNotificationData = {
+          to: email,
+          templateData: templateData,
+          templateName: 'StoreUpdated'
+        };
+
+        const emailNotification = await this.sqsService.createMessage(
+          SQSEvent.EMAIL_NOTIFICATION,
+          emailNotificationData
+        );
+      }
+    }
 
     let notification =
       await this.notificationService.createNotification(notificationData);
@@ -346,6 +392,38 @@ export class StoreService {
 
     let notification =
       await this.notificationService.createNotification(notificationData);
+
+    if (!isEmpty(updatedStore?.storeId)) {
+      let email = updatedStore?.contactInfo?.email;
+
+      console.log(email, 'dlemrfn');
+      if (!isEmpty(email)) {
+        const templateData = {
+          storeId: updatedStore?.storeId,
+          customerName: updatedStore?.basicInfo?.ownerName,
+          body: `${
+            statusRequest.profileStatus === 'ONBOARDED'
+              ? 'Congratulations 😊'
+              : 'Sorry 😞'
+          } your store has been ${
+            statusRequest.profileStatus === 'ONBOARDED'
+              ? 'onboarded'
+              : `rejected due to this reason: ${statusRequest.rejectionReason}`
+          }`
+        };
+        console.log(templateData, 'fewfrefe');
+        const emailNotificationData = {
+          to: email,
+          templateData: templateData,
+          templateName: 'StoreStatus'
+        };
+
+        const emailNotification = await this.sqsService.createMessage(
+          SQSEvent.EMAIL_NOTIFICATION,
+          emailNotificationData
+        );
+      }
+    }
     return updatedStore;
   }
 
@@ -801,12 +879,36 @@ export class StoreService {
     );
     const notificationData = {
       title: 'Store Review',
-      body: `Congratulations! You got an new review`,
+      body: `Congratulations! You got a new review`,
       phoneNumber: phoneNumber,
       type: 'RATING_REVIEW',
       role: 'STORE_OWNER',
       storeId: store?.storeId
     };
+
+    if (!isEmpty(store?.storeId)) {
+      let email = store?.contactInfo?.email;
+
+      console.log(email, 'dlemrfn');
+      if (!isEmpty(email)) {
+        const templateData = {
+          storeId: store?.storeId,
+          customerName: store?.basicInfo?.ownerName,
+          body: `Congratulations! You got a new review`,
+        };
+        console.log(templateData, 'fewfrefe');
+        const emailNotificationData = {
+          to: email,
+          templateData: templateData,
+          templateName: 'StoreReview'
+        };
+
+        const emailNotification = await this.sqsService.createMessage(
+          SQSEvent.EMAIL_NOTIFICATION,
+          emailNotificationData
+        );
+      }
+    }
 
     let notification =
       await this.notificationService.createNotification(notificationData);
@@ -1034,6 +1136,30 @@ export class StoreService {
       let notification =
         await this.notificationService.createNotification(notificationData);
 
+        if (!isEmpty(storeDetails?.storeId)) {
+          let email = storeDetails?.contactInfo?.email;
+    
+          console.log(email, 'dlemrfn');
+          if (!isEmpty(email)) {
+            const templateData = {
+              storeId: storeDetails?.storeId,
+              customerName: storeDetails?.basicInfo?.ownerName,
+              body: `Your store is verified with ${payload.documentType}`,
+            };
+            console.log(templateData, 'fewfrefe');
+            const emailNotificationData = {
+              to: email,
+              templateData: templateData,
+              templateName: 'StoreVerify'
+            };
+    
+            const emailNotification = await this.sqsService.createMessage(
+              SQSEvent.EMAIL_NOTIFICATION,
+              emailNotificationData
+            );
+          }
+        }
+
       return updatedStore;
     } catch (err) {
       if (err.response) {
@@ -1151,6 +1277,30 @@ export class StoreService {
 
       let notification =
         await this.notificationService.createNotification(notificationData);
+        
+        if (!isEmpty(storeDetails?.storeId)) {
+          let email = storeDetails?.contactInfo?.email;
+    
+          console.log(email, 'dlemrfn');
+          if (!isEmpty(email)) {
+            const templateData = {
+              storeId: storeDetails?.storeId,
+              customerName: storeDetails?.basicInfo?.ownerName,
+              body: `Your store is verified with Aadhar`,
+            };
+            console.log(templateData, 'fewfrefe');
+            const emailNotificationData = {
+              to: email,
+              templateData: templateData,
+              templateName: 'StoreVerify'
+            };
+    
+            const emailNotification = await this.sqsService.createMessage(
+              SQSEvent.EMAIL_NOTIFICATION,
+              emailNotificationData
+            );
+          }
+        }
 
       return updatedStore;
     } catch (err) {
