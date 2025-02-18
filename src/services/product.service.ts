@@ -1521,6 +1521,15 @@ export class ProductService {
     // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
       {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {
         $match: matchStage
       },
     ])
