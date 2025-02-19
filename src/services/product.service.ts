@@ -1370,6 +1370,12 @@ export class ProductService {
       console.log(stateFilter, 'Dekm');
       cityFilter = store[0]?.contactInfo?.city || null;
       console.log(cityFilter, 'Dekm');
+      query['partnerDetail.category.name'] = {
+        $in: store[0]?.basicInfo?.category.map((category) => category.name)
+      };
+      query['partnerDetail.subCategory.name'] = {
+        $in: store[0]?.basicInfo?.subCategory.map((subCategory) => subCategory.name)
+      };
     }
 
     // Remove unused filters if their values are not provided
@@ -1481,6 +1487,12 @@ export class ProductService {
       });
       stateFilter = store[0]?.contactInfo?.state || null;
       cityFilter = store[0]?.contactInfo?.city || null;
+      query['partnerDetail.category.name'] = {
+        $in: store[0]?.basicInfo?.category.map((category) => category.name)
+      };
+      query['partnerDetail.subCategory.name'] = {
+        $in: store[0]?.basicInfo?.subCategory.map((subCategory) => subCategory.name)
+      };
     }
 
     console.log(stateFilter,"rmfkmrkf",cityFilter)
