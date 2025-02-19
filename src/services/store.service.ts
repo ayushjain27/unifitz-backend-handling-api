@@ -775,30 +775,73 @@ export class StoreService {
     }
     Logger.debug(query);
 
-    let stores: any = await Store.aggregate([
+    let aggregationPipeline: any[] = [
       {
         $geoNear: {
           near: {
             type: 'Point',
             coordinates: searchReqBody.coordinates as [number, number]
           },
-          // key: 'contactInfo.geoLocation',
           spherical: true,
           query: query,
           distanceField: 'contactInfo.distance',
           distanceMultiplier: 0.001
         }
-      },
-      {
-        $skip: searchReqBody.pageNo * searchReqBody.pageSize
-      },
-      {
-        $limit: searchReqBody.pageSize
-      },
-      {
-        $project: { 'verificationDetails.verifyObj': 0 }
       }
-    ]);
+    ];
+    
+    // Only modify if `pageNo === 0`
+    if (searchReqBody.pageNo === 0) {
+      aggregationPipeline.push({
+        $facet: {
+          preferredStores: [
+            { $match: { preferredServicePlugStore: true, 'contactInfo.distance': { $lte: 1 } } },
+            { $sort: { 'contactInfo.distance': 1 } }
+          ],
+          otherStores: [
+            { $match: { preferredServicePlugStore: { $ne: true } } },
+            { $sort: { 'contactInfo.distance': 1 } },
+            { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
+            { $limit: searchReqBody.pageSize }
+          ]
+        }
+      });
+    
+      aggregationPipeline.push({
+        $project: {
+          stores: {
+            $concatArrays: [
+              { 
+                $cond: { 
+                  if: { $gt: [{ $size: '$preferredStores' }, 0] }, 
+                  then: [{ $arrayElemAt: ['$preferredStores', 0] }], 
+                  else: [] 
+                } 
+              },
+              { 
+                $cond: { 
+                  if: { $gt: [{ $size: '$preferredStores' }, 1] }, 
+                  then: { $slice: ['$preferredStores', 1, { $subtract: [{ $size: '$preferredStores' }, 1] }] }, 
+                  else: [] 
+                } 
+              },
+              '$otherStores'
+            ]
+          }
+        }
+      });
+    
+      aggregationPipeline.push({ $unwind: '$stores' }, { $replaceRoot: { newRoot: '$stores' } });
+    } else {
+      // Standard pagination for other pages
+      aggregationPipeline.push(
+        { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
+        { $limit: searchReqBody.pageSize }
+      );
+    }
+    
+    let stores: any = await Store.aggregate(aggregationPipeline);    
+
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service 2222222222>'
     );
