@@ -449,6 +449,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    B2B_DISTRIBUTORS: {
+      STATUS: 'OEM & EMPLOYEE',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   PARTNER_EMPLOYEE: {

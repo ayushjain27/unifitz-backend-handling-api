@@ -1353,6 +1353,7 @@ export class ProductService {
 
     let stateFilter: string | null = null;
     let cityFilter: string | null = null;
+    let pincodeFilter: string | null = null;
 
     if (!isEmpty(storeId)) {
       const store = await this.storeService.getById({
@@ -1370,6 +1371,7 @@ export class ProductService {
       console.log(stateFilter, 'Dekm');
       cityFilter = store[0]?.contactInfo?.city || null;
       console.log(cityFilter, 'Dekm');
+      pincodeFilter = store[0]?.contactInfo?.pincode || null;
     }
 
     // Remove unused filters if their values are not provided
@@ -1400,32 +1402,34 @@ export class ProductService {
     const matchStage: any = { ...query };
 
     // Dynamically build the $expr for state and city filters
-    if (stateFilter && cityFilter) {
-      // Both state and city filters are present
-      matchStage.$expr = {
-        $and: [
-          {
-            $or: [
-              { $eq: [{ $size: '$state' }, 0] },
-              { $in: [stateFilter, '$state.name'] }
-            ]
-          },
-          {
-            $or: [
-              { $eq: [{ $size: '$city' }, 0] },
-              { $in: [cityFilter, '$city.name'] }
-            ]
-          }
-        ]
-      };
-    } else if (stateFilter) {
-      // Only state filter is present
-      matchStage.$expr = {
+    const filters = [];
+    if (stateFilter) {
+      filters.push({
         $or: [
           { $eq: [{ $size: '$state' }, 0] },
           { $in: [stateFilter, '$state.name'] }
         ]
-      };
+      });
+    }
+    if (cityFilter) {
+      filters.push({
+        $or: [
+          { $eq: [{ $size: '$city' }, 0] },
+          { $in: [cityFilter, '$city.name'] }
+        ]
+      });
+    }
+    if (pincodeFilter) {
+      filters.push({
+        $or: [
+          { $eq: [{ $size: '$pincode' }, 0] },
+          { $in: [pincodeFilter, '$pincode.name'] }
+        ]
+      });
+    }
+    
+    if (filters.length > 0) {
+      matchStage.$expr = { $and: filters };
     }
 
     // Build the aggregation pipeline
@@ -1646,11 +1650,31 @@ export class ProductService {
     }
     const query: any = {};
     query._id = reqBody._id;
-    const numVal =
-      (reqBody?.priceDetail?.mrp - reqBody?.priceDetail?.sellingPrice) /
-      reqBody?.priceDetail?.mrp;
-    reqBody.discount = numVal * 100;
-    const res = await PartnersPoduct.findOneAndUpdate(query, reqBody, {
+
+    if (
+      reqBody?.priceDetail?.mrp !== null &&
+      reqBody?.priceDetail?.sellingPrice !== null
+    ) {
+      const numVal =
+        (reqBody?.priceDetail?.mrp -
+          reqBody?.priceDetail?.sellingPrice) /
+        reqBody?.priceDetail?.mrp;
+
+        reqBody.discount = numVal * 100;
+    }
+    let finalResult: any = reqBody;
+    if (
+      reqBody?.priceDetail?.mrp === null &&
+      reqBody?.priceDetail?.sellingPrice === null
+    ) {
+       delete reqBody['discount'];
+       finalResult.$unset = { discount: "" };
+       finalResult = reqBody;
+    }
+
+    console.log(finalResult, 'finalResultfinalResult');
+    
+    const res = await PartnersPoduct.findOneAndUpdate(query, finalResult, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
     });
@@ -2207,7 +2231,8 @@ export class ProductService {
 async updateProductLocation(
   userName: string,
   state?: any,
-  city?: any
+  city?: any,
+  pincode?: any
 ): Promise<any> {
   Logger.info('<Service>:<ProductService>:<get product initiated>');
   const query: any = {};
@@ -2220,6 +2245,7 @@ async updateProductLocation(
     $set: {
       'state': state,
       'city': city,
+      'pincode': pincode
     }
   };
 

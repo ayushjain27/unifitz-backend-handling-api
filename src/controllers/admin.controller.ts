@@ -138,6 +138,8 @@ export class AdminController {
   getAll = async (req: Request, res: Response) => {
     const roleBase = req.query.roleBase;
     const oemId = req.query.oemId;
+    const createdOemUser = req.query.createdOemUser;
+
     Logger.info(
       '<Controller>:<AdminController>:<Get All request controller initiated>'
     );
@@ -148,7 +150,8 @@ export class AdminController {
       // }
       const result = await this.adminService.getAll(
         roleBase as string,
-        oemId as string
+        oemId as string,
+        createdOemUser as string
       );
       res.send({
         result
@@ -315,6 +318,29 @@ export class AdminController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+    }
+  };
+
+  deleteOemUser = async (req: Request, res: Response) => {
+    const oemId = req.params.oemId;
+    Logger.info(
+      '<Controller>:<AdminController>:<Delete request controller initiated>'
+    );
+    try {
+      let result;
+      if (!oemId) {
+        throw new Error('oemId required');
+      } else {
+        result = await this.adminService.deleteOemUser(
+          oemId as string
+        );
+      }
+      res.send({
+        message: 'deleted successfully'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
 
@@ -725,6 +751,45 @@ export class AdminController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+    }
+  };
+
+  createInviteRetailer = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<adminService>:<request controller initiated>'
+      );
+      const userName = req?.userId;
+      const role = req?.role;
+      const result =
+        await this.adminService.createInviteRetailer(req.body, userName, role);
+      res.send({
+        result,
+        created: 'successful'
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getInviteRetailer = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<adminService>:<Getting ID>');
+    try {
+      const userName = req?.userId;
+      const role = req?.role;
+      const result =
+        await this.adminService.getInviteRetailer(
+          userName,
+          role
+        );
+      res.send({
+        message: 'Details obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
 

@@ -106,6 +106,14 @@ export interface ICity {
   value: string;
 }
 
+export interface IPincode {
+  name: string;
+}
+export const pincodeSchema: Schema = new Schema(
+  { name: { type: String } },
+  { _id: false, strict: false }
+);
+
 export interface ITargetedAudience {
   distributor: boolean;
   dealerRetailer: boolean;
@@ -169,6 +177,7 @@ export interface IB2BPartnersProduct {
   shippingIndex: number;
   state?: IState[];
   city?: ICity[];
+  pincode?: IPincode[];
   // distributor?: boolean;
   // dealer?: boolean;
   selectAllStateAndCity?: boolean;
@@ -341,6 +350,9 @@ const partnersProductSchema: Schema = new Schema<IB2BPartnersProduct>(
     },
     city: {
       type: [citySchema]
+    },
+    pincode: {
+      type: [pincodeSchema]
     },
     // distributor: {
     //   type: Boolean,
