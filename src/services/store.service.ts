@@ -791,7 +791,7 @@ export class StoreService {
     ];
     
     // Only modify if `pageNo === 0`
-    // if (searchReqBody.pageNo === 0) {
+    if (searchReqBody.pageNo === 0) {
       aggregationPipeline.push({
         $facet: {
           preferredStores: [
@@ -832,13 +832,13 @@ export class StoreService {
       });
     
       aggregationPipeline.push({ $unwind: '$stores' }, { $replaceRoot: { newRoot: '$stores' } });
-    // } else {
-    //   // Standard pagination for other pages
-    //   aggregationPipeline.push(
-    //     { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
-    //     { $limit: searchReqBody.pageSize }
-    //   );
-    // }
+    } else {
+      // Standard pagination for other pages
+      aggregationPipeline.push(
+        { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
+        { $limit: searchReqBody.pageSize }
+      );
+    }
     
     let stores: any = await Store.aggregate(aggregationPipeline);    
 
