@@ -1331,7 +1331,8 @@ export class ProductService {
       discount: {
         $gte: discountStart,
         $lte: discountEnd
-      }
+      },
+      'partnerDetail.status' : "ACTIVE"
     };
 
     if (userType === 'Distributer') {
@@ -1465,7 +1466,8 @@ export class ProductService {
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     let query: any = {
-      status: "ACTIVE"
+      status: "ACTIVE",
+      'partnerDetail.status' : "ACTIVE"
     };
     if (userType === 'Distributer') {
       query.$or = [
