@@ -1638,7 +1638,26 @@ export class AdminService {
       query.oemUserName = userName;
     }
     const result = await InviteRetailerModel.create(query);
-    return result;
+    const templateData = {
+      contactName: postList?.contactName,
+      shopName: postList?.shopName,
+      userName: userName,
+      phoneNumber: postList?.phoneNumber
+    };
+
+    if (!_.isEmpty(postList?.email)) {
+      const data = {
+        to: postList?.email,
+        templateData: templateData,
+        templateName: 'InviteRetailer'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
+      );
+      console.log(sqsMessage, 'Message');
+    }
+    return 'Email sent';
   }
 
   async getInviteRetailer(userName?: string, role?: string): Promise<any> {

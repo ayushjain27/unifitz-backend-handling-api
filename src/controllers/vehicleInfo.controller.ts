@@ -272,6 +272,32 @@ export class VehicleInfoController {
     }
   };
 
+  getAllOwnedVehicles = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+
+    Logger.info(
+      '<Controller>:<VehicleController>:<Vehicle controller initiated>'
+    );
+    const vehicleNumber =req.query.vehicleNumber;
+
+    try {
+      const result = await this.vehicleInfoService.getAllOwnedVehicles(
+        vehicleNumber as string
+      );
+      res.send({
+        message: 'New Vehicles Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':

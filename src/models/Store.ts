@@ -256,6 +256,7 @@ export interface IStore {
   overAllRating?: any;
   isVerified?: boolean;
   missingItem?: string;
+  preferredServicePlugStore?: boolean;
   verificationDetails?: IVerificationDetails;
 }
 
@@ -300,6 +301,9 @@ const storeSchema: Schema = new Schema<IStore>(
     },
     missingItem: {
       type: String
+    },
+    preferredServicePlugStore: {
+      type: Boolean
     },
     slug: {
       type: String

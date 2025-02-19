@@ -210,6 +210,55 @@ export class OrderManagementController {
     }
   };
 
+  countAllDistributorTotalAmount = async (req: Request, res: Response) => {
+    const userName = req.userId;
+    const role = req?.role;
+    const oemId = req?.query?.oemId;
+    const status = req?.query?.status;
+    const userType = req?.query?.userType;
+    const verifiedStore = req?.query?.verifiedStore;
+    const employeeId = req?.query?.employeeId;
+    const firstDate = req?.query?.firstDate;
+    const lastDate = req?.query?.lastDate;
+    const storeId = req?.query?.storeId;
+    const adminFilterOemId = req?.query?.adminFilterOemId;
+    const state = req?.query?.state;
+    const city = req?.query?.city;
+
+    Logger.info(
+      '<Controller>:<OrderManagementController>:<Search and Filter Orders count request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<OrderManagementController>:<Search and Filter Orders count ination request controller initiated>'
+      );
+      const result =
+        await this.orderManagementService.countAllDistributorTotalAmount(
+          userName,
+          role,
+          oemId as string,
+          userType as string,
+          status as string,
+          verifiedStore as string,
+          employeeId as string,
+          firstDate as string,
+          lastDate as string,
+          storeId as string,
+          adminFilterOemId as string,
+          state as string,
+          city as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   getDistributorOrderById = async (req: Request, res: Response) => {
     const id = req?.query?.id;
 

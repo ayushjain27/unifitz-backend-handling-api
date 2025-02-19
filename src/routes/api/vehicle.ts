@@ -79,4 +79,10 @@ router.post(
   vehicleInfoController.getAllCount
 );
 
+router.get(
+  '/getAllOwnedVehicles',
+  roleAuth(ACL.GET_VEHICLE),
+  vehicleInfoController.getAllOwnedVehicles
+)
+
 export default router;

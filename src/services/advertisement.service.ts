@@ -15,11 +15,15 @@ import { AdminRole } from './../models/Admin';
 import Customer from '../models/Customer';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
+import { NotificationService } from './notification.service';
 
 @injectable()
 export class AdvertisementService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   private sqsService = container.get<SQSService>(TYPES.SQSService);
+  private notificationService = container.get<NotificationService>(
+    TYPES.NotificationService
+  );
 
   async uploadBannerImage(bannerId: string, req: Request | any): Promise<any> {
     Logger.info('<Service>:<AdvertisementService>:<Into the upload banner >');
@@ -96,7 +100,7 @@ export class AdvertisementService {
         }
       ]);
 
-      await storeResponse.map((item, index) => {
+      await storeResponse.map(async(item, index) => {
         // sendNotification(
         //   addBanner.title,
         //   addBanner.description,
@@ -111,10 +115,21 @@ export class AdvertisementService {
           role: 'STORE_OWNER',
           type: 'NEW_BANNERS'
         };
-        const sqsMessage = this.sqsService.createMessage(
+        const sqsMessage = await this.sqsService.createMessage(
           SQSEvent.NOTIFICATION,
           data
         );
+        const notificationData = {
+          title:  addBanner.title,
+          body: addBanner.description,
+          phoneNumber: item?.contactInfo?.phoneNumber?.primary,
+          type: "NEW_BANNERS",
+          role: "STORE_OWNER",
+          storeId: item?.storeId
+        }
+    
+        let notification = await this.notificationService.createNotification(notificationData)
+        
       });
     } else {
       // console.log('Dwrlkjj');
@@ -163,7 +178,7 @@ export class AdvertisementService {
 
       // console.log(customerResponse, 'sad;lkwm');
 
-      await customerResponse.forEach((customer) => {
+      await customerResponse.forEach(async(customer) => {
         // sendNotification(
         //   addBanner.title,
         //   addBanner.description,
@@ -174,7 +189,7 @@ export class AdvertisementService {
         const data = {
           title: addBanner.title,
           body: addBanner.description,
-          phoneNumber: customer?.primary,
+          phoneNumber: customer?.phoneNumber,
           role: 'USER',
           type: 'NEW_BANNERS'
         };
@@ -182,6 +197,16 @@ export class AdvertisementService {
           SQSEvent.NOTIFICATION,
           data
         );
+        const notificationData = {
+          title:  addBanner.title,
+          body: addBanner.description,
+          phoneNumber: customer?.phoneNumber,
+          type: "NEW_BANNERS",
+          role: "STORE_OWNER",
+          storeId: customer?.customerId
+        }
+    
+        let notification = await this.notificationService.createNotification(notificationData)
       });
     }
     return createdBanner;

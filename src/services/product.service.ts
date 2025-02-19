@@ -20,7 +20,7 @@ import {
   OverallStoreRatingResponse,
   PartnersProductStoreRatingResponse
 } from '../interfaces';
-import Admin, { AdminRole } from '../models/Admin';
+import Admin, { AdminRole, productCategorySchema, productSubCateoryMapSchema } from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
 import ProductCartModel from '../models/ProductCart';
@@ -1331,7 +1331,8 @@ export class ProductService {
       discount: {
         $gte: discountStart,
         $lte: discountEnd
-      }
+      },
+      'partnerDetail.status' : "ACTIVE"
     };
 
     if (userType === 'Distributer') {
@@ -1372,6 +1373,12 @@ export class ProductService {
       cityFilter = store[0]?.contactInfo?.city || null;
       console.log(cityFilter, 'Dekm');
       pincodeFilter = store[0]?.contactInfo?.pincode || null;
+      query['partnerDetail.category.name'] = {
+        $in: store[0]?.basicInfo?.category.map((category) => category.name)
+      };
+      query['partnerDetail.subCategory.name'] = {
+        $in: store[0]?.basicInfo?.subCategory.map((subCategory) => subCategory.name)
+      };
     }
 
     // Remove unused filters if their values are not provided
@@ -1455,6 +1462,118 @@ export class ProductService {
     ]);
 
     return product;
+  }
+
+  async getAllCategoriesAndSubCategories(
+    storeId?: string,
+    userType?: string,
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    let query: any = {
+      status: "ACTIVE",
+      'partnerDetail.status' : "ACTIVE"
+    };
+    if (userType === 'Distributer') {
+      query.$or = [
+        {
+          'partnerDetail.companyType': 'Distributer'
+        },
+        { 'targetedAudience.distributor': true }
+      ];
+    }
+
+    let stateFilter: string | null = null;
+    let cityFilter: string | null = null;
+
+    if (!isEmpty(storeId)) {
+      const store = await this.storeService.getById({
+        storeId: storeId,
+        lat: '',
+        long: ''
+      });
+      stateFilter = store[0]?.contactInfo?.state || null;
+      cityFilter = store[0]?.contactInfo?.city || null;
+      query['partnerDetail.category.name'] = {
+        $in: store[0]?.basicInfo?.category.map((category) => category.name)
+      };
+      query['partnerDetail.subCategory.name'] = {
+        $in: store[0]?.basicInfo?.subCategory.map((subCategory) => subCategory.name)
+      };
+    }
+
+    console.log(stateFilter,"rmfkmrkf",cityFilter)
+
+    const matchStage: any = { ...query };
+
+    // Dynamically build the $expr for state and city filters
+    if (stateFilter && cityFilter) {
+      // Both state and city filters are present
+      matchStage.$expr = {
+        $and: [
+          {
+            $or: [
+              { $eq: [{ $size: '$state' }, 0] },
+              { $in: [stateFilter, '$state.name'] }
+            ]
+          },
+          {
+            $or: [
+              { $eq: [{ $size: '$city' }, 0] },
+              { $in: [cityFilter, '$city.name'] }
+            ]
+          }
+        ]
+      };
+    } else if (stateFilter) {
+      // Only state filter is present
+      query.$expr = {
+        $or: [
+          { $eq: [{ $size: '$state' }, 0] },
+          { $in: [stateFilter, '$state.name'] }
+        ]
+      };
+    }
+
+    console.log(query, "frjfrkm",matchStage)
+
+    // Build the aggregation pipeline
+    const product = await PartnersPoduct.aggregate([
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'oemUserName',
+          foreignField: 'userName',
+          as: 'partnerDetail'
+        }
+      },
+      { $unwind: { path: '$partnerDetail' } },
+      {
+        $match: matchStage
+      },
+    ])
+
+    const categorySet = new Set<string>();
+    const subCategorySet = new Set<string>();
+
+    product.forEach(product => {
+        product.productCategory?.forEach((category: { catalogName: string; }) => categorySet.add(category.catalogName));
+        product.productSubCategory?.forEach((subCategory: { catalogName: string; }) => subCategorySet.add(subCategory.catalogName));
+    });
+
+    const uniqueCategories = Array.from(categorySet);
+    const uniqueSubCategories = Array.from(subCategorySet);
+
+    console.log(uniqueCategories,"femrkrk")
+    console.log(uniqueSubCategories,"feejrmrkrk")
+
+    const total = {
+      uniqueProductCategory: uniqueCategories,
+      uniqueProductSubCateory: uniqueSubCategories
+    }
+
+    // console.log(product,"products")
+
+    return total;
   }
 
   async similarPartnerProduct(

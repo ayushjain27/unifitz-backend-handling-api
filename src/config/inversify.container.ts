@@ -33,7 +33,8 @@ import {
   DeleteAccountController,
   StoreLeadController,
   OrderManagementController,
-  SmcInsuranceController
+  SmcInsuranceController,
+  ReportRoadAccidentController
 } from '../controllers';
 import {
   StoreService,
@@ -68,7 +69,8 @@ import {
   UserService,
   StoreLeadService,
   OrderManagementService,
-  SmcInsuranceService
+  SmcInsuranceService,
+  ReportRoadAccidentService
 } from '../services';
 
 const container = new Container();
@@ -269,5 +271,12 @@ container
 container
   .bind<SmcInsuranceController>(TYPES.SmcInsuranceController)
   .to(SmcInsuranceController);
+
+container
+  .bind<ReportRoadAccidentService>(TYPES.ReportRoadAccidentService)
+  .to(ReportRoadAccidentService);
+container
+  .bind<ReportRoadAccidentController>(TYPES.ReportRoadAccidentController)
+  .to(ReportRoadAccidentController);
 
 export default container;
