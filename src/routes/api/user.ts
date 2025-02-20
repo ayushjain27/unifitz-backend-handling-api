@@ -23,6 +23,7 @@ import UserOtp from '../../models/UserOtp';
 import { S3Service } from '../../services';
 import { UserRole } from '../../enum/user-role.enum';
 import { ErrorCode } from '../../enum/error-code.enum';
+import FcmToken from '../../models/FcmToken';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -359,6 +360,26 @@ router.get(
     }
   }
 );
+
+router.post(
+  '/createFcmToken',
+  async (req, res) => {
+    try {
+      const userPayload = req.body;
+      Logger.info('<Router>:<UserService>:<User creation initiated>');
+
+      const result = await FcmToken.create(userPayload);
+      res.json({
+        message: 'Fcm Token obtained successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
+);
+
 
 // router.post('/deleteImage', async (req, res) => {
 //   try {
