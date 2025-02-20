@@ -642,8 +642,8 @@ const sesClient = new SESClient({ region: 'ap-south-1' });
 app.get('/createTemplate', async (req, res) => {
   const params = {
     Template: {
-      TemplateName: 'VehicleEnquiry',
-      SubjectPart: 'New Vehicle Enquiry', // Dynamic order number
+      TemplateName: 'InviteLinkTemplate',
+      SubjectPart: 'Join ServicePlug as a Partner', // Dynamic order number
       HtmlPart: `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -692,8 +692,10 @@ app.get('/createTemplate', async (req, res) => {
       </head>
       <body>
         <div>
-          <p style="font-size: 16px;">Dear {{customerName}},</p>
-          <p style="font-size: 16px;">{{body}}</p>
+          <p style="font-size: 16px;">Dear {{contactName}},</p>
+          <p style="font-size: 16px;">{{shopName}}, {{phoneNumber}}</p>
+          <p style="font-size: 16px;">I hope you're doing well! ✨</p>
+          <p style="font-size: 16px;">We’re excited to invite you to join the  ServicePlug, and be part of India’s fastest-growing automobile aftermarket platform.  ✨</p>
           
           <p>For any questions, feel free to contact our support team at <a href="mailto:support@serviceplug.in" style="color: #007bff;">support@serviceplug.in</a>.</p>
 
