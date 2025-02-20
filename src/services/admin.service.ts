@@ -33,6 +33,7 @@ import { SQSService } from './sqs.service';
 import { StoreService } from './store.service';
 import { ProductService } from './product.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
+import { InviteRetailerModel } from './../models/inviteRetailer';
 
 @injectable()
 export class AdminService {
@@ -180,11 +181,17 @@ export class AdminService {
       item.city.forEach((city: any) => acc.push({ name: city.name }));
       return acc;
     }, []);
+
+    const pincode = locationList.reduce((acc: any, item: any) => {
+      item.pincodes.forEach((pincodes: any) => acc.push({ name: pincodes.name }));
+      return acc;
+    }, []);
     
     const updateLocatioon = await this.productService.updateProductLocation(
       userName,
       state,
-      city
+      city,
+      pincode
     );
 
     return updateLocatioon;
@@ -265,10 +272,11 @@ export class AdminService {
     return { user: admin[0], token };
   }
 
-  async getAll(roleBase: string, oemId: string): Promise<IAdmin[]> {
+  async getAll(roleBase: string, oemId: string, createdOemUser: string): Promise<IAdmin[]> {
     const query = {
       role: roleBase,
-      oemId: oemId
+      oemId: oemId,
+      createdOemUser: createdOemUser
     };
     if (!roleBase) {
       delete query['role'];
@@ -276,6 +284,11 @@ export class AdminService {
     if (!oemId) {
       delete query['oemId'];
     }
+    if (!createdOemUser) {
+      delete query['createdOemUser'];
+    }
+    console.log(query, createdOemUser, 'createdOemUser');
+    
     const admin: IAdmin[] = await Admin.find(query);
 
     return admin;
@@ -496,6 +509,16 @@ export class AdminService {
       );
     }
     return distributedPartners;
+  }
+
+  async deleteOemUser(oemId: string): Promise<any> {
+    Logger.info(
+      '<Service>:<AdminService>:<Delete Id service initiated>'
+    );
+    const query: any = {};
+    query.userName = oemId;
+    const res = await Admin.findOneAndDelete(query);
+    return res;
   }
 
   async addReview(
@@ -1604,5 +1627,50 @@ export class AdminService {
     );
 
     return finalResult;
+  }
+
+  async createInviteRetailer(postList?: any, userName?: any, role?: any) {
+    Logger.info(
+      '<Service>:<AdminService>:<create service initiated>'
+    );
+    const query = postList;
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const result = await InviteRetailerModel.create(query);
+    const templateData = {
+      contactName: postList?.contactName,
+      shopName: postList?.shopName,
+      userName: userName,
+      phoneNumber: postList?.phoneNumber
+    };
+
+    if (!_.isEmpty(postList?.email)) {
+      const data = {
+        to: postList?.email,
+        templateData: templateData,
+        templateName: 'InviteRetailer'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        data
+      );
+      console.log(sqsMessage, 'Message');
+    }
+    return 'Email sent';
+  }
+
+  async getInviteRetailer(userName?: string, role?: string): Promise<any> {
+    Logger.info('<Service>:<AdminService>:<get data initiated>');
+
+    let query: any = {};
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+    const jsonResult = await InviteRetailerModel.find(query);
+
+    Logger.info('<Service>:<AdminService>:<get data successful>');
+
+    return jsonResult;
   }
 }

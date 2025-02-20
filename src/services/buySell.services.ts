@@ -1245,7 +1245,7 @@ export class BuySellService {
     if (!minPrice || !maxPrice) delete priceQuery['vehicleInfo.expectedPrice'];
     if (!years || _.isEmpty(years)) delete priceQuery['vehicleInfo.manufactureYear'];
 
-    // console.log(query, priceQuery, filterParams);
+    console.log(query, priceQuery, filterParams);
 
     const result = await buySellVehicleInfo.aggregate([
       {

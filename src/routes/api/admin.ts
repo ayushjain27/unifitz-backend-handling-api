@@ -18,7 +18,7 @@ const adminController = container.get<AdminController>(TYPES.AdminController);
 // @access  Private
 router.post(
   '/',
-  roleAuth(ACL.ADMIN_USER_CREATE),
+  // roleAuth(ACL.ADMIN_USER_CREATE),
   adminController.validate('createUser'),
   adminController.create
 );
@@ -94,6 +94,11 @@ router.post(
   adminController.searchDistributorsPartnersPaginated
 );
 
+router.delete(
+  '/:oemId',
+  adminController.deleteOemUser
+);
+
 router.post('/review', adminController.addStoreReview);
 
 router.get('/:userName/ratings', adminController.getOverallStoreRatings);
@@ -136,6 +141,7 @@ router.delete(
   '/videoUpload/delete/:marketingId',
   adminController.deleteVideoUpload
 );
+
 router.get('/videoUpload/getById', adminController.getVideoUploadDetails);
 router.put('/videoUpload/:marketingId', adminController.updateVideoUpload);
 
@@ -151,6 +157,18 @@ router.post(
   '/updateVideoStatus',
   roleAuth(ACL.STORE_CREATE),
   adminController.updateVideoStatus
+);
+
+router.post(
+  '/inviteRetailer/send',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.createInviteRetailer
+);
+
+router.get(
+  '/inviteRetailer/all',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.getInviteRetailer
 );
 
 export default router;
