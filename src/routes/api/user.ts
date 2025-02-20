@@ -366,9 +366,40 @@ router.post(
   async (req, res) => {
     try {
       const userPayload = req.body;
+      userPayload.phoneNumber = `+91${userPayload?.phoneNumber?.slice(-10)}`;
       Logger.info('<Router>:<UserService>:<User creation initiated>');
 
       const result = await FcmToken.create(userPayload);
+      res.json({
+        message: 'Fcm Token created successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
+);
+
+router.get(
+  '/getFcmToken',
+  async (req, res) => {
+    try {
+      const phoneNumber = req.query.phoneNumber as string;
+      const role = req.query.role as string;
+      Logger.info('<Router>:<UserService>:<User creation initiated>');
+
+      const userPhoneNumber = `+91${phoneNumber.slice(-10)}`
+      const result = await FcmToken.findOne({
+        phoneNumber: userPhoneNumber,
+        role: role
+      });
+      if(isEmpty(result)){
+        res.json({
+          message: 'Error Found',
+          result: null
+        })
+      }
       res.json({
         message: 'Fcm Token obtained successful',
         result
