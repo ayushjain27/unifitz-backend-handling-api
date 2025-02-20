@@ -1413,7 +1413,7 @@ export class ProductService {
     if (stateFilter) {
       filters.push({
         $or: [
-          { $eq: [{ $size: '$state' }, 0] },
+          { $eq: [{ $size: { $ifNull: ['$state', []] } }, 0] }, // ✅ Ensures '$state' is always an array
           { $in: [stateFilter, '$state.name'] }
         ]
       });
@@ -1421,7 +1421,7 @@ export class ProductService {
     if (cityFilter) {
       filters.push({
         $or: [
-          { $eq: [{ $size: '$city' }, 0] },
+          { $eq: [{ $size: { $ifNull: ['$city', []] } }, 0] }, // ✅ Handles missing 'city'
           { $in: [cityFilter, '$city.name'] }
         ]
       });
@@ -1429,11 +1429,12 @@ export class ProductService {
     if (pincodeFilter) {
       filters.push({
         $or: [
-          { $eq: [{ $size: '$pincode' }, 0] },
+          { $eq: [{ $size: { $ifNull: ['$pincode', []] } }, 0] }, // ✅ Ensures '$pincode' is always an array
           { $in: [pincodeFilter, '$pincode.name'] }
         ]
       });
     }
+    
     
     if (filters.length > 0) {
       matchStage.$expr = { $and: filters };
@@ -1512,13 +1513,13 @@ export class ProductService {
         $and: [
           {
             $or: [
-              { $eq: [{ $size: '$state' }, 0] },
+              { $eq: [{ $size: { $ifNull: ['$state', []] } }, 0] }, // ✅ Handles missing 'state'
               { $in: [stateFilter, '$state.name'] }
             ]
           },
           {
             $or: [
-              { $eq: [{ $size: '$city' }, 0] },
+              { $eq: [{ $size: { $ifNull: ['$city', []] } }, 0] }, // ✅ Handles missing 'city'
               { $in: [cityFilter, '$city.name'] }
             ]
           }
@@ -1528,7 +1529,7 @@ export class ProductService {
       // Only state filter is present
       query.$expr = {
         $or: [
-          { $eq: [{ $size: '$state' }, 0] },
+          { $eq: [{ $size: { $ifNull: ['$city', []] } }, 0] }, // ✅ Handles missing 'state'
           { $in: [stateFilter, '$state.name'] }
         ]
       };

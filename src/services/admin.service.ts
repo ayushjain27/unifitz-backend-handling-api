@@ -1166,13 +1166,13 @@ export class AdminService {
         $and: [
           {
             $or: [
-              { $eq: [{ $size: '$state' }, 0] },
+              { $eq: [{ $size: { $ifNull: ['$state', []] } }, 0] }, // ✅ Handles missing 'state'
               { $in: [stateFilter, '$state.name'] }
             ]
           },
           {
             $or: [
-              { $eq: [{ $size: '$city' }, 0] },
+              { $eq: [{ $size: { $ifNull: ['$city', []] } }, 0] }, // ✅ Handles missing 'city'
               { $in: [cityFilter, '$city.name'] }
             ]
           }
@@ -1181,7 +1181,7 @@ export class AdminService {
     } else if (stateFilter) {
       matchLocation.$expr = {
         $or: [
-          { $eq: [{ $size: '$state' }, 0] },
+          { $eq: [{ $size: { $ifNull: ['$state', []] } }, 0] }, // ✅ Handles missing 'state'
           { $in: [stateFilter, '$state.name'] }
         ]
       };
