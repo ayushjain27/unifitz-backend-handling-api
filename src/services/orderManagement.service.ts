@@ -1750,7 +1750,7 @@ export class OrderManagementService {
       ]);
     } else if (platform === 'CUSTOMER_APP') {
       const user = await Customer.findOne({
-        _id: new Types.ObjectId(sparePostId)
+        customerId: sparePostId
       });
       if (!user) throw new Error('User not found');
 
