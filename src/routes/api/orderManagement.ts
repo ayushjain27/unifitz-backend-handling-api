@@ -83,7 +83,7 @@ router.post(
 
 router.post(
   '/sparePostRequirement/create',
-  roleAuth(ACL.STORE_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   orderManagementController.createSparePostRequirement
 );
 router.post(
