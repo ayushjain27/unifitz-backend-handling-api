@@ -369,7 +369,11 @@ router.post(
       userPayload.phoneNumber = `+91${userPayload?.phoneNumber?.slice(-10)}`;
       Logger.info('<Router>:<UserService>:<User creation initiated>');
 
-      const result = await FcmToken.create(userPayload);
+      const result =await FcmToken.findOneAndUpdate(
+        { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role, fcmToken: userPayload?.fcmToken },
+        { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role, fcmToken: userPayload?.fcmToken },
+        { upsert: true, new: true }
+      );
       res.json({
         message: 'Fcm Token created successful',
         result

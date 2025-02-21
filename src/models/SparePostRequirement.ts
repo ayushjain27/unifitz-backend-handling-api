@@ -8,6 +8,7 @@ export interface ISparePostRequirement {
   description: string;
   customerId: string;
   audioUrl: { key: string; docURL: string };
+  platform: string
 }
 
 const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
@@ -26,7 +27,10 @@ const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
       type: String
     },
     sparePartImage: { type: { key: String, docURL: String } },
-    audioUrl: { type: { key: String, docURL: String } }
+    audioUrl: { type: { key: String, docURL: String } },
+    platform: {
+      type: String
+    }
   },
   { timestamps: true }
 );
