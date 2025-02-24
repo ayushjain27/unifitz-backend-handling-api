@@ -23,6 +23,7 @@ import UserOtp from '../../models/UserOtp';
 import { S3Service } from '../../services';
 import { UserRole } from '../../enum/user-role.enum';
 import { ErrorCode } from '../../enum/error-code.enum';
+import FcmToken from '../../models/FcmToken';
 
 const router: Router = Router();
 const twilioCLient = container.get<TwilioService>(TYPES.TwilioService);
@@ -359,6 +360,61 @@ router.get(
     }
   }
 );
+
+router.post(
+  '/createFcmToken',
+  async (req, res) => {
+    try {
+      const userPayload = req.body;
+      userPayload.phoneNumber = `+91${userPayload?.phoneNumber?.slice(-10)}`;
+      Logger.info('<Router>:<UserService>:<User creation initiated>');
+
+      const result =await FcmToken.findOneAndUpdate(
+        { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role, fcmToken: userPayload?.fcmToken },
+        { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role, fcmToken: userPayload?.fcmToken },
+        { upsert: true, new: true }
+      );
+      res.json({
+        message: 'Fcm Token created successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
+);
+
+router.get(
+  '/getFcmToken',
+  async (req, res) => {
+    try {
+      const phoneNumber = req.query.phoneNumber as string;
+      const role = req.query.role as string;
+      Logger.info('<Router>:<UserService>:<User creation initiated>');
+
+      const userPhoneNumber = `+91${phoneNumber.slice(-10)}`
+      const result = await FcmToken.findOne({
+        phoneNumber: userPhoneNumber,
+        role: role
+      });
+      if(isEmpty(result)){
+        res.json({
+          message: 'Error Found',
+          result: null
+        })
+      }
+      res.json({
+        message: 'Fcm Token obtained successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  }
+);
+
 
 // router.post('/deleteImage', async (req, res) => {
 //   try {

@@ -162,6 +162,7 @@ export interface IAdmin {
   loginDate?: Date;
   productState?: IState[];
   productCity?: ICity[];
+  createdOemUser?: string;
 }
 
 export interface IDocumentImage {
@@ -429,6 +430,9 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     productCity: {
       type: [citySchema]
+    },
+    createdOemUser: {
+      type: String
     }
   },
   { timestamps: true, strict: false }

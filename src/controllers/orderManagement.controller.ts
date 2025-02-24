@@ -456,6 +456,7 @@ export class OrderManagementController {
       const firstDate = req?.query?.firstDate;
       const lastDate = req?.query?.lastDate;
       const adminFilterOemId = req?.query?.adminFilterOemId;
+      const platform = req?.query?.platform;
       
       const result = await this.orderManagementService.getSparePostPaginated(
         pageNo,
@@ -468,6 +469,7 @@ export class OrderManagementController {
         firstDate as string,
         lastDate as string,
         adminFilterOemId as string,
+        platform as string
       );
       res.send({
         message: 'SparePostRequirement obtained successfully',
@@ -478,7 +480,7 @@ export class OrderManagementController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
-
+  
   getSparePostCount = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<OrderManagementController>:<Get All request controller initiated>'
@@ -492,7 +494,8 @@ export class OrderManagementController {
       const firstDate = req?.query?.firstDate;
       const lastDate = req?.query?.lastDate;
       const adminFilterOemId = req?.query?.adminFilterOemId;
-
+      const platform = req?.query?.platform;
+      
       const result = await this.orderManagementService.getSparePostCount(
         storeId as string,
         vehicleType as string,
@@ -502,6 +505,7 @@ export class OrderManagementController {
         firstDate as string,
         lastDate as string,
         adminFilterOemId as string,
+        platform as string
       );
       res.send({
         message: 'SparePostRequirement obtained successfully',
@@ -516,6 +520,7 @@ export class OrderManagementController {
   getSparePostRequirementDetailById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
     try {
+      console.log("demkfmk")
       const spareRequirementId = req.query.spareRequirementId;
       if (!spareRequirementId) {
         throw new Error('Id is required')

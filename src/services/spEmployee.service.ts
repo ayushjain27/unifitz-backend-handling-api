@@ -385,14 +385,15 @@ export class SPEmployeeService {
       '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
     );
     const query: any = {
-      role
+      role,
+      companyType: userName
     };
 
     let permissionList: any = {};
     permissionList = {
       $set: {
-        'accessList.SPARE_POST_REQUIREMENT': {
-          STATUS: 'ALL',
+        'accessList.B2B_DISTRIBUTORS': {
+          STATUS: 'OEM & EMPLOYEE',
           CREATE: false,
           READ: false,
           UPDATE: false,
