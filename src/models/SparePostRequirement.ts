@@ -21,7 +21,7 @@ export interface ISparePostRequirement {
 const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
   {
     storeId: {
-      type: String
+      type: String,
     },
     customerId: {
       type: String
