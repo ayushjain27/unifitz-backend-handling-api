@@ -42,6 +42,8 @@ import reportRoadAccident from './routes/api/reportRoadAccident';
 import deleteAccount from './routes/api/deleteAccount';
 import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
+import Customer from './models/Customer';
+import StatePermission from './models/StatePermission';
 import { API_VERSION, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
@@ -53,7 +55,6 @@ import { SESClient, CreateTemplateCommand } from '@aws-sdk/client-ses';
 
 const app = express();
 import cron from 'node-cron';
-import Customer from './models/Customer';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -441,8 +442,28 @@ app.get('/cityPincodeList', async (req, res) => {
   res.json({ list: uniqueData });
 });
 
+
+
 app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
+});
+
+app.post("/state-permission", async (req, res) => {
+  try {
+    const newPermission = await StatePermission.create(req.body);
+    res.status(201).json(newPermission);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/state-permission", async (req, res) => {
+  try {
+    const permissions = await StatePermission.find({});
+    res.status(200).json(permissions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.use(errorHandler as any);
