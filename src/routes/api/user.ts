@@ -370,7 +370,7 @@ router.post(
       Logger.info('<Router>:<UserService>:<User creation initiated>');
 
       const result =await FcmToken.findOneAndUpdate(
-        { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role, fcmToken: userPayload?.fcmToken },
+        { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role },
         { phoneNumber: userPayload?.phoneNumber, role: userPayload?.role, fcmToken: userPayload?.fcmToken },
         { upsert: true, new: true }
       );
