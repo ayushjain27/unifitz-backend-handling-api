@@ -3864,7 +3864,7 @@ export class AnalyticService {
       'userInformation.state': state,
       'userInformation.city': city,
       // event: 'LOCATION_CHANGE',
-      platform: platform,
+      // platform: platform,
       // moduleInformation: storeId
       // oemUserName: role
       oemUserName: adminFilterOemId
@@ -3881,8 +3881,15 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    if (!platform) {
-      delete query['platform'];
+    // if (!platform) {
+    //   delete query['platform'];
+    // }
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query['platform'] = {
+        $in: [`${platformPrefix}_ANDROID`, `${platformPrefix}_IOS`]
+      };
     }
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
@@ -3895,6 +3902,8 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    console.log(query, 'queryyyyyy');
+    
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       {
         $match: query

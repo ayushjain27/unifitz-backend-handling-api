@@ -72,7 +72,23 @@ export class AdminService {
     upAdminFields.userName = `SP${String(userId).slice(-4)}`;
     upAdminFields.role = 'OEM';
     upAdminFields.isFirstTimeLoggedIn = true;
-    upAdminFields.accessList = permissions.OEM;
+    let permissionResult: any;
+
+    if (reqBody?.companyType === 'Manufacturer') {
+      permissionResult = { ...permissions, OEM: { ...permissions.OEM, 
+        B2B_DISTRIBUTORS: {
+        STATUS: 'OEM & EMPLOYEE',
+        CREATE: false,
+        READ: false,
+        UPDATE: false,
+        DELETE: false
+      }} };
+    } else {
+      const jsonData = { ...permissions };
+      delete jsonData.OEM?.B2B_DISTRIBUTORS;
+      permissionResult = jsonData;
+    }
+    upAdminFields.accessList = permissionResult.OEM;
 
     if (reqBody?.documents?.gstData?.business_name) {
       upAdminFields.documents.gstData.businessName =
@@ -186,7 +202,7 @@ export class AdminService {
       item.pincodes.forEach((pincodes: any) => acc.push({ name: pincodes.name }));
       return acc;
     }, []);
-    
+
     const updateLocatioon = await this.productService.updateProductLocation(
       userName,
       state,
@@ -288,7 +304,7 @@ export class AdminService {
       delete query['createdOemUser'];
     }
     console.log(query, createdOemUser, 'createdOemUser');
-    
+
     const admin: IAdmin[] = await Admin.find(query);
 
     return admin;
