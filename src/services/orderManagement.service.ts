@@ -1750,7 +1750,7 @@ export class OrderManagementService {
       ]);
     } else if (platform === 'CUSTOMER_APP') {
       const user = await Customer.findOne({
-        _id: new Types.ObjectId(sparePostId)
+        customerId: sparePostId
       });
       if (!user) throw new Error('User not found');
 
@@ -1786,7 +1786,8 @@ export class OrderManagementService {
     oemId?: string,
     firstDate?: string,
     lastDate?: string,
-    adminFilterOemId?: string
+    adminFilterOemId?: string,
+    platform?: string
   ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
     const firstDay = new Date(firstDate);
@@ -1802,6 +1803,16 @@ export class OrderManagementService {
         $lte: nextDate
       }
     };
+
+    console.log(platform, 'de ms');
+
+    if (platform === 'partner app') {
+      query.platform = { $in: ['PARTNER_APP_ANDROID', 'PARTNER_APP_IOS'] };
+    } else if (platform === 'customer app') {
+      query.platform = { $in: ['CUSTOMER_APP_ANDROID', 'CUSTOMER_APP_IOS'] };
+    }
+
+    console.log(query, 'frmkml');
 
     const queryTwo: any = {};
 
@@ -1900,7 +1911,8 @@ export class OrderManagementService {
     oemId?: string,
     firstDate?: string,
     lastDate?: string,
-    adminFilterOemId?: string
+    adminFilterOemId?: string,
+    platform?: string
   ): Promise<any> {
     Logger.info('<Service>:<OrderManagementService>:<get sparePost initiated>');
 
@@ -1917,6 +1929,14 @@ export class OrderManagementService {
         $lte: nextDate
       }
     };
+
+    console.log(platform, ';mfkermk');
+
+    if (platform === 'partner app') {
+      query.platform = { $in: ['PARTNER_APP_ANDROID', 'PARTNER_APP_IOS'] };
+    } else if (platform === 'customer app') {
+      query.platform = { $in: ['CUSTOMER_APP_ANDROID', 'CUSTOMER_APP_IOS'] };
+    }
 
     const queryTwo: any = {};
 
@@ -2016,16 +2036,48 @@ export class OrderManagementService {
     Logger.info(
       '<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>'
     );
+
+    console.log(spareRequirementId,"frmk")
     try {
-      const spareRequirementDetail = await SparePost.findOne({
-        _id: new Types.ObjectId(spareRequirementId)
-      });
+      const spareRequirementDetail = await SparePost.aggregate([
+        {
+          $match: { _id: new Types.ObjectId(spareRequirementId) },
+        },
+        {
+          $lookup: {
+            from: "stores", // Matches your Store collection
+            localField: "storeId", // `storeId` from SparePost
+            foreignField: "storeId", // Matching field in Stores (as per schema)
+            as: "storeDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$storeDetails",
+            preserveNullAndEmptyArrays: true, // If no store found, keep the document
+          },
+        },
+        {
+          $lookup: {
+            from: "customers",
+            localField: "customerId",
+            foreignField: "customerId",
+            as: "customerDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$customerDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
 
       if (!spareRequirementDetail) {
         throw new Error('Detail not found');
       }
 
-      return spareRequirementDetail;
+      return spareRequirementDetail[0];
     } catch (error) {
       Logger.error(`Error fetching spare requirement: ${error.message}`);
       throw new Error(

@@ -8,12 +8,20 @@ export interface ISparePostRequirement {
   description: string;
   customerId: string;
   audioUrl: { key: string; docURL: string };
+  platform: string;
+  geoLocation: {
+    // kind: string;
+    type: string;
+    coordinates: number[];
+  };
+  state: string;
+  city: string;
 }
 
 const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
   {
     storeId: {
-      type: String
+      type: String,
     },
     customerId: {
       type: String
@@ -26,7 +34,21 @@ const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
       type: String
     },
     sparePartImage: { type: { key: String, docURL: String } },
-    audioUrl: { type: { key: String, docURL: String } }
+    audioUrl: { type: { key: String, docURL: String } },
+    platform: {
+      type: String
+    },
+     geoLocation: {
+      // kind: String,
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
+    },
+    state: {
+      type: String
+    },
+    city: {
+      type: String
+    }
   },
   { timestamps: true }
 );
