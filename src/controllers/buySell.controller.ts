@@ -359,6 +359,24 @@ export class BuySellController {
     }
   };
 
+  getBuySellDetailsById = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
+    );
+    try {
+      const vehicleId = req.query.vehicleId;
+      const result = await this.buySellService.getBuySellDetailsById(
+        vehicleId as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   deleteVehicle = async (req: Request, res: Response) => {
     const vehicleId = req.params.vehicleId;
     Logger.info(

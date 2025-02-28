@@ -16,6 +16,7 @@ export interface ISparePostRequirement {
   };
   state: string;
   city: string;
+  brand: string;
 }
 
 const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
@@ -47,6 +48,9 @@ const sparePostRequirement: Schema = new Schema<ISparePostRequirement>(
       type: String
     },
     city: {
+      type: String
+    },
+    brand: {
       type: String
     }
   },
