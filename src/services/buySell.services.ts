@@ -1143,7 +1143,7 @@ export class BuySellService {
 
     const vehicleResponse: IBuySell = await buySellVehicleInfo
       .findOne({
-        _id: vehicleId
+        vehicleId
       })
       .populate('vehicleInfo');
     return vehicleResponse;
