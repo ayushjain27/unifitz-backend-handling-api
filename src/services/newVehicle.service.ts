@@ -362,10 +362,11 @@ export class NewVehicleInfoService {
     if (brand) {
       query.brand = brand;
     }
-    const productReviews = await NewVehicle.aggregate([
+    const newVehicles = await NewVehicle.aggregate([
       {
         $match: query
       },
+      { $sample: { size: 1000 } },
       {
         $skip: pageNo * pageSize
       },
@@ -373,7 +374,7 @@ export class NewVehicleInfoService {
         $limit: pageSize
       }
     ]);
-    return productReviews;
+    return newVehicles;
   }
 
   async getById(vehicleID: string): Promise<any> {
