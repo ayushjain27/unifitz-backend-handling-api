@@ -92,6 +92,11 @@ router.get(
   buySellController.getBuySellDetailsByVehicleId
 );
 
+router.get(
+  '/getBuySellDetailsById',
+  buySellController.getBuySellDetailsById
+);
+
 router.delete(
   '/:vehicleId',
   roleAuth(ACL.STORE_CREATE),

@@ -1149,6 +1149,17 @@ export class BuySellService {
     return vehicleResponse;
   }
 
+  async getBuySellDetailsById(vehicleId: string): Promise<any> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    const vehicleResponse: IBuySell = await buySellVehicleInfo
+      .findOne({
+        _id: vehicleId
+      })
+      .populate('vehicleInfo');
+    return vehicleResponse;
+  }
+
   async deleteVehicle(vehicleId: string): Promise<any> {
     Logger.info(
       '<Service>:<BuySellService>:<Delete vehicle by Id service initiated>'

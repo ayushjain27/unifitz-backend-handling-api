@@ -177,7 +177,9 @@ export class CustomerService {
     if (searchQuery) {
       query.$or = [
         { customerId: { $regex: regexQuery } },
-        { 'contactInfo.address': { $regex: regexQuery } }
+        { 'contactInfo.address': { $regex: regexQuery } },
+        { phoneNumber: { $regex: regexQuery }},
+        { fullName: { $regex: regexQuery }}
       ]
     }
     const customerResponse = await Customer.aggregate([

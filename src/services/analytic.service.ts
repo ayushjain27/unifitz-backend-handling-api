@@ -578,77 +578,81 @@ export class AnalyticService {
         $match: query
       },
       {
-        $addFields: {
-          month: { $month: '$createdAt' },
-          day: { $dayOfMonth: '$createdAt' }
+        $project: {
+          createdAt: 1,
+          groupId: {
+            $dateFromParts: {
+              year: {
+                $year: '$createdAt'
+              },
+              month: {
+                $month: '$createdAt'
+              },
+              day: {
+                $dayOfMonth: '$createdAt'
+              },
+              hour: {
+                $cond: [
+                  {
+                    $gte: [
+                      {
+                        $dateDiff: {
+                          startDate: firstDay,
+                          endDate: lastDay,
+                          unit: 'day'
+                        }
+                      },
+                      1
+                    ]
+                  },
+                  0,
+                  {
+                    $hour: '$createdAt'
+                  }
+                ]
+              }
+            }
+          },
+          moduleInformation: 1,
+          module: 1,
+          event: 1
         }
       },
       {
         $group: {
           _id: {
-            day: '$day',
-            month: '$month'
-          },
-          views: { $sum: 1 }
+            createdAt: '$createdAt',
+            groupId: '$groupId',
+            eventId: '$moduleInformation',
+            moduleName: '$module',
+            eventName: '$event'
+          }
         }
       },
       {
         $group: {
-          _id: '$_id.day',
-          viewsByMonth: {
-            $push: {
-              month: '$_id.month',
-              views: '$views'
-            }
+          _id: '$_id.groupId',
+          views: {
+            $sum: 1
           }
         }
       },
       {
         $project: {
-          date: '$_id',
-          views: {
-            $arrayToObject: {
-              $map: {
-                input: '$viewsByMonth',
-                as: 'item',
-                in: {
-                  k: {
-                    $switch: {
-                      branches: [
-                        { case: { $eq: ['$$item.month', 1] }, then: 'Jan' },
-                        { case: { $eq: ['$$item.month', 2] }, then: 'Feb' },
-                        { case: { $eq: ['$$item.month', 3] }, then: 'Mar' },
-                        { case: { $eq: ['$$item.month', 4] }, then: 'Apr' },
-                        { case: { $eq: ['$$item.month', 5] }, then: 'May' },
-                        { case: { $eq: ['$$item.month', 6] }, then: 'Jun' },
-                        { case: { $eq: ['$$item.month', 7] }, then: 'Jul' },
-                        { case: { $eq: ['$$item.month', 8] }, then: 'Aug' },
-                        { case: { $eq: ['$$item.month', 9] }, then: 'Sep' },
-                        { case: { $eq: ['$$item.month', 10] }, then: 'Oct' },
-                        { case: { $eq: ['$$item.month', 11] }, then: 'Nov' },
-                        { case: { $eq: ['$$item.month', 12] }, then: 'Dec' }
-                      ],
-                      default: 'Unknown'
-                    }
-                  },
-                  v: '$$item.views'
-                }
-              }
-            }
-          }
+          date: {
+            $toString: '$_id'
+          },
+          views: 1,
+          _id: 0
         }
       },
       {
-        $sort: { date: 1 }
-      }
+        $unset: ['_id']
+      },
+      { $sort: { date: 1 } }
     ]);
 
-    const formattedResults = queryFilter.map((item) => ({
-      ...item.views,
-      date: item.date
-    }));
-
-    return formattedResults;
+    return queryFilter;
   }
 
   async getActiveUser(
@@ -3864,7 +3868,7 @@ export class AnalyticService {
       'userInformation.state': state,
       'userInformation.city': city,
       // event: 'LOCATION_CHANGE',
-      platform: platform,
+      // platform: platform,
       // moduleInformation: storeId
       // oemUserName: role
       oemUserName: adminFilterOemId
@@ -3881,8 +3885,15 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    if (!platform) {
-      delete query['platform'];
+    // if (!platform) {
+    //   delete query['platform'];
+    // }
+    if (platform === 'PARTNER' || platform === 'CUSTOMER') {
+      const platformPrefix =
+        platform === 'PARTNER' ? 'PARTNER_APP' : 'CUSTOMER_APP';
+      query['platform'] = {
+        $in: [`${platformPrefix}_ANDROID`, `${platformPrefix}_IOS`]
+      };
     }
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
@@ -3895,6 +3906,8 @@ export class AnalyticService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+    console.log(query, 'queryyyyyy');
+    
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       {
         $match: query

@@ -10,6 +10,7 @@ export interface IStaticIds {
   customerOrderId: string;
   productOrderId: string;
   distributorOrderId: string;
+  newVehicleOrderNo: number;
 }
 
 const staticIdsSchema: Schema = new Schema<IStaticIds>(
@@ -46,6 +47,11 @@ const staticIdsSchema: Schema = new Schema<IStaticIds>(
     },
     distributorOrderId: {
       type: String,
+      required: true,
+      unique: true
+    },
+    newVehicleOrderNo: {
+      type: Number,
       required: true,
       unique: true
     }
