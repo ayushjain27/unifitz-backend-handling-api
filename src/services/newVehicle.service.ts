@@ -15,6 +15,7 @@ import Store from '../models/Store';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { SQSService } from './sqs.service';
 import { NotificationService } from './notification.service';
+import { StaticIds } from '../models/StaticId';
 
 @injectable()
 export class NewVehicleInfoService {
@@ -35,6 +36,12 @@ export class NewVehicleInfoService {
       vehicleInfo.oemUserName = userName;
     }
     vehicleInfo.status = 'DRAFT';
+
+    const lastCreatedNewVehicleId = await StaticIds.find({}).limit(1).exec();
+    const newVehicleNo = (lastCreatedNewVehicleId[0].newVehicleOrderNo) + 1;
+
+    await StaticIds.findOneAndUpdate({}, { newVehicleOrderNo: newVehicleNo });
+    vehicleInfo.orderNo = newVehicleNo;
 
     const vehicleDetails = await NewVehicle.create(vehicleInfo);
 

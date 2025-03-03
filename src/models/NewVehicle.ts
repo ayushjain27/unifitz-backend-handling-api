@@ -122,6 +122,7 @@ export interface INewVehicle {
   subDealer: boolean;
   postType: string;
   youtubeUrl: string;
+  orderNo?: number 
 }
 
 const newVehicleSchema: Schema = new Schema<INewVehicle>(
@@ -304,6 +305,9 @@ const newVehicleSchema: Schema = new Schema<INewVehicle>(
     },
     subDealer: {
       type: Boolean
+    },
+    orderNo: {
+      type: Number
     }
   },
   { timestamps: true, strict: false }

@@ -55,6 +55,7 @@ import { SESClient, CreateTemplateCommand } from '@aws-sdk/client-ses';
 
 const app = express();
 import cron from 'node-cron';
+import NewVehicle from './models/NewVehicle';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -651,9 +652,51 @@ async function updateSlug() {
 //   }
 // }
 
-app.get('/slug', async (req, res) => {
-  updateSlug();
+// app.get('/slug', async (req, res) => {
+//   updateSlug();
+// });
+
+// import mongoose from 'mongoose';
+// import NewVehicle from './models/NewVehicle'; // Adjust path as needed
+
+async function shuffleOrderNumbers() {
+  try {
+    const vehicles = await NewVehicle.find({}, 'orderNo'); // Get only `orderNo`
+    
+    if (vehicles.length === 0) {
+      console.log('No vehicles found.');
+      return;
+    }
+
+    // Extract only order numbers
+    const orderNumbers = vehicles.map(vehicle => vehicle.orderNo);
+
+    // Fisher-Yates shuffle algorithm for better randomness
+    for (let i = orderNumbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [orderNumbers[i], orderNumbers[j]] = [orderNumbers[j], orderNumbers[i]];
+    }
+
+    // Assign shuffled order numbers back
+    for (let i = 0; i < vehicles.length; i++) {
+      vehicles[i].orderNo = orderNumbers[i];
+      await vehicles[i].save(); // Save updated document
+    }
+
+    console.log('Order numbers shuffled successfully.');
+  } catch (err) {
+    console.error('Error while shuffling order numbers:', err);
+  }
+}
+
+// Run shuffle every hour
+// setInterval(shuffleOrderNumbers, 60 * 60 * 1000); // 1 hour
+// Run the function every hour
+cron.schedule('0 * * * *', () => {
+  console.log('⏳ Running hourly orderNo reshuffle...');
+  shuffleOrderNumbers();
 });
+
 
 // const sqs = new AWS.SQS();
 // const ses = new AWS.SES();
