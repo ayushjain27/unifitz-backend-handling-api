@@ -8,6 +8,7 @@ import { inject, injectable } from 'inversify';
 import { VehicleInfoService } from '../services/vehicle.service';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
+import { IParkAssistVehicle } from '../models/ParkAssistVehicles';
 
 @injectable()
 export class VehicleInfoController {
@@ -181,9 +182,8 @@ export class VehicleInfoController {
       '<Controller>:<VehicleInfoController>:<Get vehicles by vehicle id controller initiated>'
     );
     try {
-      const result = await this.vehicleInfoService.getVehicleByVehicleId(
-        vehicleId
-      );
+      const result =
+        await this.vehicleInfoService.getVehicleByVehicleId(vehicleId);
       res.send({
         message: 'Vehicle Fetch Successful',
         result
@@ -282,7 +282,7 @@ export class VehicleInfoController {
     Logger.info(
       '<Controller>:<VehicleController>:<Vehicle controller initiated>'
     );
-    const vehicleNumber =req.query.vehicleNumber;
+    const vehicleNumber = req.query.vehicleNumber;
 
     try {
       const result = await this.vehicleInfoService.getAllOwnedVehicles(
@@ -290,6 +290,155 @@ export class VehicleInfoController {
       );
       res.send({
         message: 'New Vehicles Fetched Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createParkAssistVehicle = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const addVehicleInfoRequest: IParkAssistVehicle = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Add vehicle info request initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.createParkAssistVehicle(
+        addVehicleInfoRequest
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  uploadParkAssistVehicleImages = async (req: Request, res: Response) => {
+    // Validate the request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const { vehicleId } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
+    );
+    try {
+      const result =
+        await this.vehicleInfoService.uploadParkAssistVehicleImages(
+          vehicleId,
+          req
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  updateParkAssistVehicle = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const vehicleId = req.params.vehicleId;
+    if (!vehicleId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Vehicle Id is not present' } });
+      return;
+    }
+    const vehRequest = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Update vehicle controller initiated>'
+    );
+
+    try {
+      const result = await this.vehicleInfoService.updateParkAssistVehicle(
+        vehRequest,
+        vehicleId
+      );
+      res.send({
+        message: 'Vehicle Update Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getParkAssistVehicleByVehicleId = async (req: Request, res: Response) => {
+    const vehicleId = req.params.vehicleId;
+
+    if (!vehicleId) {
+      res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ errors: { message: 'Vehicle Id is not present' } });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get vehicles by vehicle id controller initiated>'
+    );
+    try {
+      const result =
+        await this.vehicleInfoService.getParkAssistVehicleByVehicleId(
+          vehicleId
+        );
+      res.send({
+        message: 'Vehicle Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllParkAsistVehiclesById = async (req: Request, res: Response) => {
+    const userId = req.query.userId;
+    const platform = req.query.platform;
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get vehicles by vehicle id controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAllParkAsistVehiclesById(
+        userId as string,
+        platform as string
+      );
+      res.send({
+        message: 'Vehicle Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteParkAssistVehicle = async (req: Request, res: Response) => {
+    const vehicleId = req.params.vehicleId;
+    Logger.info(
+      '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.deleteParkAssistVehicle(
+        vehicleId as string
+      );
+      res.send({
         result
       });
     } catch (err) {
