@@ -7,7 +7,7 @@ import VehicleInfo, {
 } from './../models/Vehicle';
 import { Types } from 'mongoose';
 import { injectable } from 'inversify';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { TYPES } from '../config/inversify.types';
@@ -17,6 +17,11 @@ import { AdminRole } from './../models/Admin';
 import User, { IUser } from './../models/User';
 import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from '../models/Customer';
+import ParkAssistVehicle, {
+  IParkAssistVehicle
+} from '../models/ParkAssistVehicles';
+import { CustomerService } from './customer.service';
+import { StoreService } from './store.service';
 
 @injectable()
 export class VehicleInfoService {
@@ -24,6 +29,10 @@ export class VehicleInfoService {
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
+  private customerService = container.get<CustomerService>(
+    TYPES.CustomerService
+  );
+  private storeService = container.get<StoreService>(TYPES.StoreService);
 
   async addVehicle(vehicleStore: IVehiclesInfo) {
     Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
@@ -277,9 +286,8 @@ export class VehicleInfoService {
     }
     try {
       // get the store data
-      const vehicleDetails = await this.surepassService.getRcDetails(
-        vehicleNumber
-      );
+      const vehicleDetails =
+        await this.surepassService.getRcDetails(vehicleNumber);
       return vehicleDetails;
     } catch (err) {
       throw new Error(err);
@@ -467,17 +475,179 @@ export class VehicleInfoService {
     return vehicleResponse;
   }
 
-  async getAllOwnedVehicles(
-    vehicleNumber: string
-  ): Promise<any> {
+  async getAllOwnedVehicles(vehicleNumber: string): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Get all vehicles>');
 
-  const query = {
-    purpose: { $in: ['OWNED', 'OWNED_BUY_SELL'] }, // Fixed logical error
-    vehicleNumber
-  };
+    const query = {
+      purpose: { $in: ['OWNED', 'OWNED_BUY_SELL'] }, // Fixed logical error
+      vehicleNumber
+    };
 
     const vehicleResponse = await VehicleInfo.findOne(query);
     return vehicleResponse;
+  }
+
+  async createParkAssistVehicle(vehicleStore: IParkAssistVehicle) {
+    Logger.info('<Service>:<VehicleService>: <Adding Vehicle intiiated>');
+
+    // Check if user exists
+    if (vehicleStore?.customerId) {
+      const customerId = vehicleStore?.customerId;
+      const customer =
+        await this.customerService.getcustomerDetailsByCustomerId(customerId);
+      if (_.isEmpty(customer)) {
+        throw new Error('User not found');
+      }
+    }
+    if (vehicleStore?.partnerId) {
+      const storeId = vehicleStore?.partnerId;
+      const store = await this.storeService.getById({
+        storeId,
+        lat: '',
+        long: ''
+      });
+      if (_.isEmpty(store)) {
+        throw new Error('Store not found');
+      }
+    }
+    const vehicleDetails = await ParkAssistVehicle.findOne({
+      vehicleNumber: vehicleStore?.vehicleNumber
+    });
+    let vehicleResult;
+    if (!isEmpty(vehicleDetails)) {
+      return {
+        message: `This vehicle is already registered if you like to list same vehicles please contact our Support team 6360586465 or support@serviceplug.in`,
+        isPresent: true
+      };
+    } else {
+      vehicleResult = ParkAssistVehicle.create(vehicleStore);
+    }
+
+    Logger.info('<Service>:<VehicleService>:<Vehicle created successfully>');
+    return vehicleResult;
+  }
+
+  async uploadParkAssistVehicleImages(
+    vehicleId: string,
+    req: Request | any
+  ): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Upload Vehicle Images initiated>');
+
+    const vehicle: IParkAssistVehicle = await ParkAssistVehicle.findOne({
+      _id: new Types.ObjectId(vehicleId)
+    });
+    if (_.isEmpty(vehicle)) {
+      throw new Error('Vehicle does not exist');
+    }
+
+    const files: Array<any> = req.files;
+
+    const vehicleImageList: Partial<IVehicleImageList> | any =
+      vehicle.vehicleImageList || {
+        rcFrontView: {},
+        rcBackView: {}
+      };
+
+    if (!files) {
+      throw new Error('Files not found');
+    }
+    for (const file of files) {
+      const fileName: 'rcFrontView' | 'rcBackView' = req.body.fileName || 'rcFrontView';
+      const { key, url } = await this.s3Client.uploadFile(
+        vehicleId,
+        fileName,
+        file.buffer
+      );
+      vehicleImageList[fileName] = { key, docURL: url };
+    }
+
+    Logger.info(`<Service>:<VehicleService>:<Upload all images - successful>`);
+
+    Logger.info(`<Service>:<VehicleService>:<Updating the vehicle info>`);
+
+    const updatedVehicle = await ParkAssistVehicle.findOneAndUpdate(
+      {
+        _id: vehicleId
+      },
+      {
+        $set: {
+          vehicleImageList: vehicleImageList
+        }
+      },
+      { returnDocument: 'after' }
+    );
+
+    return updatedVehicle;
+  }
+
+  async updateParkAssistVehicle(
+    vehiclePayload: IParkAssistVehicle,
+    vehicleId: string
+  ): Promise<IParkAssistVehicle> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Update: updating vehicle>'
+    );
+
+    // check if user exist
+    let vehicle: IParkAssistVehicle;
+    if (vehicleId) {
+      vehicle = await ParkAssistVehicle.findOne({
+        _id: new Types.ObjectId(vehicleId)
+      });
+    }
+    if (!vehicle) {
+      Logger.error(
+        '<Service>:<updatedVehicle>:<Vehicle not found with that vehicle Id>'
+      );
+    }
+
+    let updatedVehicle: IParkAssistVehicle = vehiclePayload;
+
+    updatedVehicle = await ParkAssistVehicle.findOneAndUpdate(
+      { _id: new Types.ObjectId(vehicleId) },
+      updatedVehicle,
+      { returnDocument: 'after' }
+    );
+    Logger.info('<Service>:<VehicleService>:<Vehicle updated successfully>');
+    return updatedVehicle;
+  }
+
+  async getParkAssistVehicleByVehicleId(vehicleId: string): Promise<IParkAssistVehicle> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
+    );
+    const vehicle: IParkAssistVehicle = await ParkAssistVehicle.findOne({
+      _id: new Types.ObjectId(vehicleId)
+    });
+    return vehicle;
+  }
+
+  async getAllParkAsistVehiclesById(userId: string, platform: string): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
+    );
+
+    if(!userId){
+      throw new Error('User Id not found')
+    }
+    let vehicles;
+    if(platform === 'CUSTOMER'){
+      vehicles = await ParkAssistVehicle.find({ customerId: userId });
+    }else{
+      vehicles = await ParkAssistVehicle.find({ storeId: userId });
+    }
+    return vehicles;
+  }
+
+  async deleteParkAssistVehicle(
+    vehicleId: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
+    );
+    const res = await ParkAssistVehicle.findOneAndDelete({
+      _id: new Types.ObjectId(vehicleId)
+    });
+    return res;
   }
 }

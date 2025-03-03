@@ -24,8 +24,6 @@ export interface IVehiclesInfo extends Document {
   expectedPrice?: number;
   noOfSeats?: number;
   oemUserName?: string;
-  emergencyName?: string;
-  emergencyPhoneNumber?: string;
 }
 
 export interface IVehicleImage {
@@ -143,12 +141,6 @@ export const vehicleInfoSchema: Schema = new Schema(
     expectedPrice: { type: Number },
     noOfSeats: { type: Number },
     oemUserName: {
-      type: String
-    },
-    emergencyName: {
-      type: String
-    },
-    emergencyPhoneNumber: {
       type: String
     }
   },
