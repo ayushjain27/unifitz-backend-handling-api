@@ -9,6 +9,7 @@ import { VehicleInfoService } from '../services/vehicle.service';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { IParkAssistVehicle } from '../models/ParkAssistVehicles';
+import { IEmergencyContactDetails } from '../models/EmergencyContactDetails';
 
 @injectable()
 export class VehicleInfoController {
@@ -432,13 +433,71 @@ export class VehicleInfoController {
   deleteParkAssistVehicle = async (req: Request, res: Response) => {
     const vehicleId = req.params.vehicleId;
     Logger.info(
-      '<Controller>:<StoreController>:<Delete store by storeID request controller initiated>'
+      '<Controller>:<VehicleInfoController>:<Delete vehicle by vehicleId request controller initiated>'
     );
     try {
       const result = await this.vehicleInfoService.deleteParkAssistVehicle(
         vehicleId as string
       );
       res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  createEmergencyContactDetails = async (req: Request, res: Response) => {
+    const request: IEmergencyContactDetails = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Create users emergency contact Details request controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.createEmergencyContactDetails(
+        request
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteEmergencyContactDetail = async (req: Request, res: Response) => {
+    const emergencyContactDetailId = req.params.emergencyContactDetailId;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Delete users emergency contact Details request controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.deleteEmergencyContactDetail(
+        emergencyContactDetailId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllEmergencyDetailsByUserId = async (req: Request, res: Response) => {
+    const userId = req.query.userId;
+    const platform = req.query.platform;
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get vehicles by vehicle id controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAllEmergencyDetailsByUserId(
+        userId as string,
+        platform as string
+      );
+      res.send({
+        message: 'Vehicle Fetch Successful',
         result
       });
     } catch (err) {

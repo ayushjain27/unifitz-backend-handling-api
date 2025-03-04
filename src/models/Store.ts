@@ -1,5 +1,6 @@
 import { model, ObjectId, Schema, Types } from 'mongoose';
 import { DocType } from '../enum/docType.enum';
+import { emergencyContactDetailsSchema, IEmergencyContactDetails } from './EmergencyContactDetails';
 export interface ICatalogMap {
   _id?: ObjectId;
   name: string;
@@ -258,6 +259,7 @@ export interface IStore {
   missingItem?: string;
   preferredServicePlugStore?: boolean;
   verificationDetails?: IVerificationDetails;
+  emergencyDetails?: IEmergencyContactDetails[];
 }
 
 const storeSchema: Schema = new Schema<IStore>(
@@ -307,6 +309,9 @@ const storeSchema: Schema = new Schema<IStore>(
     },
     slug: {
       type: String
+    },
+    emergencyDetails: {
+      type: [emergencyContactDetailsSchema]
     }
   },
   { timestamps: true, strict: false }
