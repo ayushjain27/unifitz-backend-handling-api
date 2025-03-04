@@ -22,6 +22,9 @@ import ParkAssistVehicle, {
 } from '../models/ParkAssistVehicles';
 import { CustomerService } from './customer.service';
 import { StoreService } from './store.service';
+import EmergencyContactDetails, {
+  IEmergencyContactDetails
+} from '../models/EmergencyContactDetails';
 
 @injectable()
 export class VehicleInfoService {
@@ -552,7 +555,8 @@ export class VehicleInfoService {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName: 'rcFrontView' | 'rcBackView' = req.body.fileName || 'rcFrontView';
+      const fileName: 'rcFrontView' | 'rcBackView' =
+        req.body.fileName || 'rcFrontView';
       const { key, url } = await this.s3Client.uploadFile(
         vehicleId,
         fileName,
@@ -612,7 +616,9 @@ export class VehicleInfoService {
     return updatedVehicle;
   }
 
-  async getParkAssistVehicleByVehicleId(vehicleId: string): Promise<IParkAssistVehicle> {
+  async getParkAssistVehicleByVehicleId(
+    vehicleId: string
+  ): Promise<IParkAssistVehicle> {
     Logger.info(
       '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
     );
@@ -622,26 +628,27 @@ export class VehicleInfoService {
     return vehicle;
   }
 
-  async getAllParkAsistVehiclesById(userId: string, platform: string): Promise<any> {
+  async getAllParkAsistVehiclesById(
+    userId: string,
+    platform: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
     );
 
-    if(!userId){
-      throw new Error('User Id not found')
+    if (!userId) {
+      throw new Error('User Id not found');
     }
     let vehicles;
-    if(platform === 'CUSTOMER'){
+    if (platform === 'CUSTOMER') {
       vehicles = await ParkAssistVehicle.find({ customerId: userId });
-    }else{
+    } else {
       vehicles = await ParkAssistVehicle.find({ storeId: userId });
     }
     return vehicles;
   }
 
-  async deleteParkAssistVehicle(
-    vehicleId: string
-  ): Promise<any> {
+  async deleteParkAssistVehicle(vehicleId: string): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
     );
@@ -650,4 +657,43 @@ export class VehicleInfoService {
     });
     return res;
   }
+
+  // async createEmergencyContactDetails(
+  //   requestPayload: IEmergencyContactDetails
+  // ): Promise<any> {
+  //   Logger.info(
+  //     '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
+  //   );
+  //   if (requestPayload.customerId) {
+  //     const customer =
+  //       await this.customerService.getcustomerDetailsByCustomerId(
+  //         requestPayload.customerId
+  //       );
+  //     if (_.isEmpty(customer)) {
+  //       throw new Error('Customer Not Found');
+  //     }
+  //     if (customer.emergencyDetails) {
+  //       const isPhoneNumberExists = customer.emergencyDetails.some(
+  //         (contact: any) => contact.phoneNumber === requestPayload.phoneNumber
+  //       );
+  //       if (isPhoneNumberExists) {
+  //         return {
+  //           message: `This Phone number already exists in emergency contact details`,
+  //           isPresent: true
+  //         };
+  //       } else {
+  //         let createEmergencyDetails =
+  //           await EmergencyContactDetails.create(requestPayload);
+  //         let customers = await Customer.findOneAndUpdate(
+  //           {
+  //             customerId: requestPayload.customerId
+  //           },
+  //           { $push: { emergencyDetails: requestPayload } },
+  //           { returnDocument: 'after' }
+  //         );
+  //         return createEmergencyDetails;
+  //       }
+  //     }
+  //   }
+  // }
 }
