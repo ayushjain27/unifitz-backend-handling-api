@@ -1249,9 +1249,14 @@ export class BuySellService {
     if (!fuelType || _.isEmpty(fuelType)) delete filterParams['fuelType'];
 
     const priceQuery: any = {
-      'vehicleInfo.expectedPrice': { $gte: minPrice, $lte: maxPrice },
+      $expr: {
+        $and: [
+          { $gte: [{ $toDouble: "$vehicleInfo.expectedPrice" }, parseFloat(minPrice)] },
+          { $lte: [{ $toDouble: "$vehicleInfo.expectedPrice" }, parseFloat(maxPrice)] }
+        ]
+      },
       'vehicleInfo.manufactureYear': { $in: years ? years : [] }
-    }
+    };
 
     if (!minPrice || !maxPrice) delete priceQuery['vehicleInfo.expectedPrice'];
     if (!years || _.isEmpty(years)) delete priceQuery['vehicleInfo.manufactureYear'];
