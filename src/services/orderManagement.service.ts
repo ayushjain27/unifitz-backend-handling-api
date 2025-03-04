@@ -1758,6 +1758,7 @@ export class OrderManagementService {
         {
           $match: { customerId: sparePostId }
         },
+        { $sort: { createdAt: -1 } },
         {
           $skip: pageNo * pageSize
         },
