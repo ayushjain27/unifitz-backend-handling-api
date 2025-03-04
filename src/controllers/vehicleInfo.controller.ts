@@ -448,23 +448,63 @@ export class VehicleInfoController {
     }
   };
 
-  // createEmergencyContactDetails = async (req: Request, res: Response) => {
-  //   const request: IEmergencyContactDetails = req.body;
-  //   Logger.info(
-  //     '<Controller>:<VehicleInfoController>:<Create users emergency contact Details request controller initiated>'
-  //   );
-  //   try {
-  //     const result = await this.vehicleInfoService.createEmergencyContactDetails(
-  //       request
-  //     );
-  //     res.send({
-  //       result
-  //     });
-  //   } catch (err) {
-  //     Logger.error(err.message);
-  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-  //   }
-  // };
+  createEmergencyContactDetails = async (req: Request, res: Response) => {
+    const request: IEmergencyContactDetails = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Create users emergency contact Details request controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.createEmergencyContactDetails(
+        request
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  deleteEmergencyContactDetail = async (req: Request, res: Response) => {
+    const emergencyContactDetailId = req.params.emergencyContactDetailId;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Delete users emergency contact Details request controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.deleteEmergencyContactDetail(
+        emergencyContactDetailId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getAllEmergencyDetailsByUserId = async (req: Request, res: Response) => {
+    const userId = req.query.userId;
+    const platform = req.query.platform;
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get vehicles by vehicle id controller initiated>'
+    );
+    try {
+      const result = await this.vehicleInfoService.getAllEmergencyDetailsByUserId(
+        userId as string,
+        platform as string
+      );
+      res.send({
+        message: 'Vehicle Fetch Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
   validate = (method: string) => {
     switch (method) {

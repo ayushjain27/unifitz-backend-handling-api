@@ -80,7 +80,7 @@ export interface ICustomer extends Document {
   isVerified?: boolean;
   verificationDetails?: IVerificationDetails;
   customerId: string;
-  emergencyDetails?: IEmergencyContactDetails;
+  emergencyDetails?: IEmergencyContactDetails[];
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
@@ -127,7 +127,7 @@ const customerSchema: Schema = new Schema(
       type: String
     },
     emergencyDetails: {
-      type: emergencyContactDetailsSchema
+      type: [emergencyContactDetailsSchema]
     }
   },
   { timestamps: true }

@@ -21,7 +21,8 @@ export const emergencyContactDetailsSchema: Schema = new Schema(
       type: String
     },
     isPublic: {
-      type: String
+      type: String,
+      default: false
     },
     storeId: {
         type: String

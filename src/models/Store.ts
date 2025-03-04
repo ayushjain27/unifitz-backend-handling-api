@@ -259,7 +259,7 @@ export interface IStore {
   missingItem?: string;
   preferredServicePlugStore?: boolean;
   verificationDetails?: IVerificationDetails;
-  emergencyDetails?: IEmergencyContactDetails;
+  emergencyDetails?: IEmergencyContactDetails[];
 }
 
 const storeSchema: Schema = new Schema<IStore>(
@@ -311,7 +311,7 @@ const storeSchema: Schema = new Schema<IStore>(
       type: String
     },
     emergencyDetails: {
-      type: emergencyContactDetailsSchema
+      type: [emergencyContactDetailsSchema]
     }
   },
   { timestamps: true, strict: false }
