@@ -85,4 +85,38 @@ router.get(
   vehicleInfoController.getAllOwnedVehicles
 )
 
+router.post(
+  '/createParkAssistVehicle',
+  vehicleInfoController.createParkAssistVehicle
+)
+
+router.post(
+  '/uploadParkAssistVehicleImages',
+  uploadFiles.array('files'),
+  vehicleInfoController.uploadParkAssistVehicleImages
+);
+
+router.put(
+  '/parkAssistVehicle/:vehicleId',
+  vehicleInfoController.updateParkAssistVehicle
+);
+
+router.get(
+  '/parkAssistVehicle/vehicle-detail/:vehicleId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getParkAssistVehicleByVehicleId
+);
+
+router.get(
+  '/parkAssistVehicle/getAllVehiclesByUserId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getAllParkAsistVehiclesById
+);
+
+router.delete(
+  '/parkAsistVehicle/:vehicleId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.deleteParkAssistVehicle
+);
+
 export default router;
