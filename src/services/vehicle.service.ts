@@ -557,7 +557,7 @@ export class VehicleInfoService {
     }
     for (const file of files) {
       const fileName: 'rcFrontView' | 'rcBackView' =
-        req.body.fileName || 'rcFrontView';
+      file.originalname?.split('.')[0] || 'rcFrontView';
       const { key, url } = await this.s3Client.uploadFile(
         vehicleId,
         fileName,
