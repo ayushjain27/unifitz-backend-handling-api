@@ -1,3 +1,4 @@
+
 import { Document, model, Schema, Types } from 'mongoose';
 
 export interface IParkAssistVehicle {
@@ -6,14 +7,14 @@ export interface IParkAssistVehicle {
   brand: string;
   customerId?: string;
   partnerId?: string;
-  vehicleImageList: IVehicleImageList;
+  vehicleImageList: IParkAssistVehicleImageList;
 }
 
 export interface IVehicleImage {
   docURL: string;
   key: string;
 }
-export interface IVehicleImageList {
+export interface IParkAssistVehicleImageList {
   rcFrontView: IVehicleImage;
   rcBackView: IVehicleImage;
 }

@@ -18,7 +18,8 @@ import User, { IUser } from './../models/User';
 import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from '../models/Customer';
 import ParkAssistVehicle, {
-  IParkAssistVehicle
+  IParkAssistVehicle,
+  IParkAssistVehicleImageList
 } from '../models/ParkAssistVehicles';
 import { CustomerService } from './customer.service';
 import { StoreService } from './store.service';
@@ -546,7 +547,7 @@ export class VehicleInfoService {
 
     const files: Array<any> = req.files;
 
-    const vehicleImageList: Partial<IVehicleImageList> | any =
+    const vehicleImageList: Partial<IParkAssistVehicleImageList> | any =
       vehicle.vehicleImageList || {
         rcFrontView: {},
         rcBackView: {}
