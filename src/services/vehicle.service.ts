@@ -572,7 +572,7 @@ export class VehicleInfoService {
 
     const updatedVehicle = await ParkAssistVehicle.findOneAndUpdate(
       {
-        _id: vehicleId
+        _id: new Types.ObjectId(vehicleId)
       },
       {
         $set: {

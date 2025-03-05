@@ -324,11 +324,11 @@ export class VehicleInfoController {
 
   uploadParkAssistVehicleImages = async (req: Request, res: Response) => {
     // Validate the request body
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
-      return;
-    }
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+    //   return;
+    // }
     const { vehicleId } = req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Upload Vehicle request initiated>'
