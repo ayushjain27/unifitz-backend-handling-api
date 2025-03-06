@@ -456,6 +456,51 @@ export class BuySellController {
     }
   };
 
+  getVehiclesByStoreId = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
+      );
+      const storeId = req?.query?.storeId;
+      console.log(storeId,"d,rel,l")
+      const result = await this.buySellService.getVehiclesByStoreId(
+       storeId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getSimilarBuySellVehicle = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
+      );
+      const vehType = req?.body?.vehType;
+      const coordinates = req?.body?.coordinates;
+      console.log(vehType,"d,rel,l")
+      console.log(coordinates,"kfenkr,rel,l")
+      const result = await this.buySellService.getSimilarBuySellVehicle(
+        vehType,
+       coordinates
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addorGetSellVehicle':

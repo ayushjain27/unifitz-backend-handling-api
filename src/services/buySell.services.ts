@@ -1324,4 +1324,127 @@ export class BuySellService {
 
     return result;
   }
+
+  async getVehiclesByStoreId(storeId: any): Promise<any> {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
+    );
+    const query = {
+      'storeDetails.storeId': storeId,
+      status: 'ACTIVE'
+    }
+    if (!storeId) delete query['storeDetails.storeId'];
+
+    const result = await buySellVehicleInfo.aggregate([
+      {
+        $match: query // Apply filters after geoNear
+      },
+      {
+        $set: { VehicleInfo: { $toObjectId: '$vehicleId' } }
+      },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      {
+        $unwind: { path: '$vehicleInfo' }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeInfo',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          $or: [
+            { 'storeInfo.profileStatus': StoreProfileStatus.ONBOARDED },
+            { sellerDetails: { $exists: true } }
+          ]
+        }
+      }
+    ]);
+  
+    return result;
+  }
+
+  async getSimilarBuySellVehicle(vehType: any, coordinates: any): Promise<any> {
+    Logger.info(
+      '<Service>:<BuySellService>:<Get all Buy vehhicle List initiated>'
+    );
+    const query = {
+      vehType: vehType,
+      status: 'ACTIVE'
+    }
+    if (!vehType) delete query['vehType'];
+
+    const result = await buySellVehicleInfo.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: coordinates
+          },
+          key: 'location',
+          spherical: true,
+          query: query,
+          distanceField: 'distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      // {
+      //   $match: query // Apply filters after geoNear
+      // },
+      {
+        $set: { VehicleInfo: { $toObjectId: '$vehicleId' } }
+      },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      {
+        $unwind: { path: '$vehicleInfo' }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeDetails.storeId',
+          foreignField: 'storeId',
+          as: 'storeInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeInfo',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          $or: [
+            { 'storeInfo.profileStatus': StoreProfileStatus.ONBOARDED },
+            { sellerDetails: { $exists: true } }
+          ]
+        }
+      }
+    ]);
+  
+    return result;
+  }
 }

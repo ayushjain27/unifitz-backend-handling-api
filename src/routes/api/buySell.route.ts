@@ -120,4 +120,16 @@ router.post(
   buySellController.getBuyVehicleList
 );
 
+router.get(
+  '/getVehiclesByStoreId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  buySellController.getVehiclesByStoreId
+);
+
+router.post(
+  '/getSimilarBuySellVehicle',
+  // roleAuth(ACL.STORE_GET_ALL),
+  buySellController.getSimilarBuySellVehicle
+);
+
 export default router;
