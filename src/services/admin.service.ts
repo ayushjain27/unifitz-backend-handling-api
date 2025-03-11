@@ -1505,10 +1505,7 @@ export class AdminService {
       }
     ]);
 
-    const finalData: any = _.uniqBy(
-      [...fileUrlResponse, ...marketingResponse],
-      '_id' // Assuming `_id` is the unique identifier; change it if needed
-    );
+    const finalData: any = [...fileUrlResponse, ...marketingResponse];
     const result: any = finalData.sort((a: any, b: any) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
