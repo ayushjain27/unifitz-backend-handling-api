@@ -18,10 +18,15 @@ import User, { IUser } from './../models/User';
 import { SurepassService } from './surepass.service';
 import Customer, { ICustomer } from '../models/Customer';
 import ParkAssistVehicle, {
-  IParkAssistVehicle
+  IParkAssistVehicle,
+  IParkAssistVehicleImageList
 } from '../models/ParkAssistVehicles';
 import { CustomerService } from './customer.service';
 import { StoreService } from './store.service';
+import EmergencyContactDetails, {
+  IEmergencyContactDetails
+} from '../models/EmergencyContactDetails';
+import Store from '../models/Store';
 
 @injectable()
 export class VehicleInfoService {
@@ -542,7 +547,7 @@ export class VehicleInfoService {
 
     const files: Array<any> = req.files;
 
-    const vehicleImageList: Partial<IVehicleImageList> | any =
+    const vehicleImageList: Partial<IParkAssistVehicleImageList> | any =
       vehicle.vehicleImageList || {
         rcFrontView: {},
         rcBackView: {}
@@ -552,7 +557,8 @@ export class VehicleInfoService {
       throw new Error('Files not found');
     }
     for (const file of files) {
-      const fileName: 'rcFrontView' | 'rcBackView' = req.body.fileName || 'rcFrontView';
+      const fileName: 'rcFrontView' | 'rcBackView' =
+      file.originalname?.split('.')[0] || 'rcFrontView';
       const { key, url } = await this.s3Client.uploadFile(
         vehicleId,
         fileName,
@@ -567,7 +573,7 @@ export class VehicleInfoService {
 
     const updatedVehicle = await ParkAssistVehicle.findOneAndUpdate(
       {
-        _id: vehicleId
+        _id: new Types.ObjectId(vehicleId)
       },
       {
         $set: {
@@ -612,7 +618,9 @@ export class VehicleInfoService {
     return updatedVehicle;
   }
 
-  async getParkAssistVehicleByVehicleId(vehicleId: string): Promise<IParkAssistVehicle> {
+  async getParkAssistVehicleByVehicleId(
+    vehicleId: string
+  ): Promise<IParkAssistVehicle> {
     Logger.info(
       '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
     );
@@ -622,26 +630,27 @@ export class VehicleInfoService {
     return vehicle;
   }
 
-  async getAllParkAsistVehiclesById(userId: string, platform: string): Promise<any> {
+  async getAllParkAsistVehiclesById(
+    userId: string,
+    platform: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
     );
 
-    if(!userId){
-      throw new Error('User Id not found')
+    if (!userId) {
+      throw new Error('User Id not found');
     }
     let vehicles;
-    if(platform === 'CUSTOMER'){
+    if (platform === 'CUSTOMER') {
       vehicles = await ParkAssistVehicle.find({ customerId: userId });
-    }else{
+    } else {
       vehicles = await ParkAssistVehicle.find({ storeId: userId });
     }
     return vehicles;
   }
 
-  async deleteParkAssistVehicle(
-    vehicleId: string
-  ): Promise<any> {
+  async deleteParkAssistVehicle(vehicleId: string): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
     );
@@ -649,5 +658,212 @@ export class VehicleInfoService {
       _id: new Types.ObjectId(vehicleId)
     });
     return res;
+  }
+
+  async createEmergencyContactDetails(
+    requestPayload: IEmergencyContactDetails
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
+    );
+    const phoneNumber = `+91${requestPayload.phoneNumber}`;
+    requestPayload.phoneNumber = phoneNumber;
+    if (requestPayload?.customerId) {
+      const customer =
+        await this.customerService.getcustomerDetailsByCustomerId(
+          requestPayload.customerId
+        );
+      if (_.isEmpty(customer)) {
+        throw new Error('Customer Not Found');
+      }
+      if (customer?.emergencyDetails) {
+        const isPhoneNumberExists = customer?.emergencyDetails?.some(
+          (contact: any) => contact.phoneNumber === requestPayload.phoneNumber
+        );
+        if (isPhoneNumberExists) {
+          return {
+            message: `This Phone number already exists in emergency contact details`,
+            isPresent: true
+          };
+        } else {
+          let createEmergencyDetails =
+            await EmergencyContactDetails.create(requestPayload);
+          let customers = await Customer.findOneAndUpdate(
+            {
+              customerId: requestPayload.customerId
+            },
+            { $push: { emergencyDetails: requestPayload } },
+            { returnDocument: 'after' }
+          );
+          return createEmergencyDetails;
+        }
+      } else {
+        let createEmergencyDetails =
+          await EmergencyContactDetails.create(requestPayload);
+        let customers = await Customer.findOneAndUpdate(
+          {
+            customerId: requestPayload.customerId
+          },
+          { $set: { emergencyDetails: requestPayload } },
+          { returnDocument: 'after' }
+        );
+        return createEmergencyDetails;
+      }
+    }
+    if (requestPayload?.storeId) {
+      const storeId = requestPayload?.storeId;
+      const store = await this.storeService.getById({
+        storeId,
+        lat: '',
+        long: ''
+      });
+      if (_.isEmpty(store)) {
+        throw new Error('Store Not Found');
+      }
+      if (Array.isArray(store[0]?.emergencyDetails)) {
+        const isPhoneNumberExists = store[0]?.emergencyDetails?.some(
+          (contact: any) => contact.phoneNumber === requestPayload.phoneNumber
+        );
+        if (isPhoneNumberExists) {
+          return {
+            message: `This Phone number already exists in emergency contact details`,
+            isPresent: true
+          };
+        } else {
+          let createEmergencyDetails =
+            await EmergencyContactDetails.create(requestPayload);
+          let stores = await Store.findOneAndUpdate(
+            {
+              storeId: requestPayload.storeId
+            },
+            { $push: { emergencyDetails: requestPayload } },
+            { returnDocument: 'after' }
+          );
+          return createEmergencyDetails;
+        }
+      } else {
+        let createEmergencyDetails =
+          await EmergencyContactDetails.create(requestPayload);
+        let stores = await Store.findOneAndUpdate(
+          {
+            storeId: requestPayload.storeId
+          },
+          { $set: { emergencyDetails: requestPayload } },
+          { returnDocument: 'after' }
+        );
+        return createEmergencyDetails;
+      }
+    }
+  }
+
+  async deleteEmergencyContactDetail(
+    emergencyContactDetailId: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
+    );
+    let emergencyEmployeeDetail = await EmergencyContactDetails.findOne({
+      _id: new Types.ObjectId(emergencyContactDetailId)
+    });
+    let emergencyEmployeeDetailDeletion =
+      await EmergencyContactDetails.findOneAndDelete({
+        _id: new Types.ObjectId(emergencyContactDetailId)
+      });
+    if (!emergencyEmployeeDetail) {
+      throw new Error('Detail Not found');
+    }
+    if (emergencyEmployeeDetail?.customerId) {
+      const customer =
+        await this.customerService.getcustomerDetailsByCustomerId(
+          emergencyEmployeeDetail.customerId
+        );
+      if (_.isEmpty(customer)) {
+        throw new Error('Customer Not Found');
+      }
+      if (customer?.emergencyDetails) {
+        const isPhoneNumberExists = customer?.emergencyDetails?.some(
+          (contact: any) =>
+            contact.phoneNumber === emergencyEmployeeDetail.phoneNumber
+        );
+        if (!isPhoneNumberExists) {
+          return {
+            message: `This Phone number is not exists in emergency contact details`,
+            isPresent: true
+          };
+        } else {
+          let customers = await Customer.findOneAndUpdate(
+            {
+              customerId: emergencyEmployeeDetail.customerId
+            },
+            {
+              $pull: {
+                emergencyDetails: {
+                  phoneNumber: emergencyEmployeeDetail.phoneNumber
+                }
+              }
+            }, // Corrected $pull condition
+            { new: true }
+          );
+        }
+      }
+    }
+    if (emergencyEmployeeDetail?.storeId) {
+      const storeId = emergencyEmployeeDetail?.storeId;
+      const store = await this.storeService.getById({
+        storeId,
+        lat: '',
+        long: ''
+      });
+      if (_.isEmpty(store)) {
+        throw new Error('Store Not Found');
+      }
+      if (Array.isArray(store[0]?.emergencyDetails)) {
+        const isPhoneNumberExists = store[0]?.emergencyDetails?.some(
+          (contact: any) =>
+            contact.phoneNumber === emergencyEmployeeDetail.phoneNumber
+        );
+        if (!isPhoneNumberExists) {
+          return {
+            message: `This Phone number already exists in emergency contact details`,
+            isPresent: true
+          };
+        } else {
+          let stores = await Store.findOneAndUpdate(
+            {
+              storeId: emergencyEmployeeDetail.storeId
+            },
+            {
+              $pull: {
+                emergencyDetails: {
+                  phoneNumber: emergencyEmployeeDetail.phoneNumber
+                }
+              }
+            },
+            { returnDocument: 'after' }
+          );
+        }
+      }
+    }
+    return emergencyEmployeeDetailDeletion;
+  }
+
+  async getAllEmergencyDetailsByUserId(
+    userId: string,
+    platform: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>: <Vehicle Fetch: Get vehicle by vehicle id>'
+    );
+
+    if (!userId) {
+      throw new Error('User Id not found');
+    }
+    let emergencyDetails;
+    if (platform === 'CUSTOMER') {
+      emergencyDetails = await EmergencyContactDetails.find({ customerId: userId });
+    } else {
+      emergencyDetails = await EmergencyContactDetails.find({ storeId: userId });
+    }
+    return emergencyDetails;
   }
 }

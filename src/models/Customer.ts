@@ -1,5 +1,6 @@
 import { Document, model, Schema, Types } from 'mongoose';
 import { DocType } from '../enum/docType.enum';
+import { emergencyContactDetailsSchema, IEmergencyContactDetails } from './EmergencyContactDetails';
 
 export interface IContactInfo extends Document {
   address: string;
@@ -79,6 +80,7 @@ export interface ICustomer extends Document {
   isVerified?: boolean;
   verificationDetails?: IVerificationDetails;
   customerId: string;
+  emergencyDetails?: IEmergencyContactDetails[];
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
@@ -123,6 +125,9 @@ const customerSchema: Schema = new Schema(
     },
     customerId: {
       type: String
+    },
+    emergencyDetails: {
+      type: [emergencyContactDetailsSchema]
     }
   },
   { timestamps: true }

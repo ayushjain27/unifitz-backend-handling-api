@@ -119,4 +119,23 @@ router.delete(
   vehicleInfoController.deleteParkAssistVehicle
 );
 
+router.post(
+  '/parkAsistVehicle/createEmergencyContactDetails',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.createEmergencyContactDetails
+);
+
+router.delete(
+  '/parkAsistVehicle/deleteEmergencyContactDetail/:emergencyContactDetailId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.deleteEmergencyContactDetail
+);
+
+router.get(
+  '/parkAssistVehicle/getAllEmergencyDetailsByUserId',
+  // roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getAllEmergencyDetailsByUserId
+);
+
+
 export default router;
