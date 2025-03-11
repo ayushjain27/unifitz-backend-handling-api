@@ -56,6 +56,7 @@ import { SESClient, CreateTemplateCommand } from '@aws-sdk/client-ses';
 const app = express();
 import cron from 'node-cron';
 import NewVehicle from './models/NewVehicle';
+import { PartnersPoduct } from './models/B2BPartnersProduct';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -584,12 +585,14 @@ async function updateSlugs() {
 async function updateSlug() {
   try {
     // Use aggregation pipeline in updateMany
-    const customers = await Customer.find().sort({ _id: 1 });
-    const baseId = 10000000;
-    for (let i = 0; i < customers.length; i++) {
-      customers[0].customerId = String(baseId); // Increment customerId
-      await customers[0].save(); // Save each updated document
+    const products = await PartnersPoduct.find().sort({ _id: 1 });
+
+    for (let i = 0; i < products.length; i++) {
+      products[i].displayOrderNo = i + 1; // Add displayOrderNo starting from 1
+      await products[i].save(); // Save each updated document
     }
+
+    console.log('All products have been updated with displayOrderNo.');
     return 'Done';
     // console.log(customers[0]?._id)
     // await Admin.findOneAndUpdate(// Only update documents that have storeId
@@ -652,9 +655,9 @@ async function updateSlug() {
 //   }
 // }
 
-// app.get('/slug', async (req, res) => {
-//   updateSlug();
-// });
+app.get('/slug', async (req, res) => {
+  updateSlug();
+});
 
 // import mongoose from 'mongoose';
 // import NewVehicle from './models/NewVehicle'; // Adjust path as needed
@@ -689,16 +692,46 @@ async function shuffleOrderNumbers() {
   }
 }
 
+async function shufflePartnersProductNumber() {
+  try {
+    const partnerProduct = await PartnersPoduct.find({}, 'displayOrderNo'); // Get only `orderNo`
+    
+    if (partnerProduct.length === 0) {
+      console.log('No products found.');
+      return;
+    }
+
+    // Extract only order numbers
+    const orderNumbers = partnerProduct.map(product => product.displayOrderNo);
+
+    // Fisher-Yates shuffle algorithm for better randomness
+    for (let i = orderNumbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [orderNumbers[i], orderNumbers[j]] = [orderNumbers[j], orderNumbers[i]];
+    }
+
+    // Assign shuffled order numbers back
+    for (let i = 0; i < partnerProduct.length; i++) {
+      partnerProduct[i].displayOrderNo = orderNumbers[i];
+      await partnerProduct[i].save(); // Save updated document
+    }
+
+    console.log('Order numbers shuffled successfully.');
+  } catch (err) {
+    console.error('Error while shuffling order numbers:', err);
+  }
+}
+
 // Run shuffle every hour
 // setInterval(shuffleOrderNumbers, 60 * 60 * 1000); // 1 hour
 // Run the function every hour
-cron.schedule('0 * * * *', () => {
-  console.log('⏳ Running hourly orderNo reshuffle...');
-  shuffleOrderNumbers();
-});
+// cron.schedule('0 * * * *', () => {
+//   console.log('⏳ Running hourly orderNo reshuffle...');
+//   shuffleOrderNumbers();
+//   shufflePartnersProductNumber();
+// });
 
 
-// const sqs = new AWS.SQS();
 // const ses = new AWS.SES();
 const path = require('path');
 const sesClient = new SESClient({ region: 'ap-south-1' });

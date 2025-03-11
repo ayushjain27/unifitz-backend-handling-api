@@ -1049,6 +1049,13 @@ export class ProductService {
     if (role === AdminRole.OEM) {
       newProd.oemUserName = userName;
     }
+
+    const lastCreatedNewPartnerProductId = await StaticIds.find({}).limit(1).exec();
+    const newPartnersProductNo = (lastCreatedNewPartnerProductId[0].newPartnersProductNo) + 1;
+
+    await StaticIds.findOneAndUpdate({}, { newPartnersProductNo: newPartnersProductNo });
+    newProd.displayOrderNo = newPartnersProductNo;
+
     const productResult = await PartnersPoduct.create(newProd);
     Logger.info(
       '<Service>:<ProductService>:<Partner Product created successfully>'
@@ -1454,6 +1461,7 @@ export class ProductService {
       {
         $match: matchStage
       },
+      { $sample: { size: 1000 } },
       {
         $skip: pageNo * pageSize
       },
