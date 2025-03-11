@@ -1239,12 +1239,12 @@ export class BuySellService {
     const { vehicleType, brands, years, fuelType, coordinates, pageNo, pageSize, minPrice, maxPrice } = query;
     const filterParams: any = { 
       status: 'ACTIVE',
-      vehType: vehicleType,
+      vehType: { $in: vehicleType ? vehicleType : [] },
       brandName: { $in: brands ? brands : [] },
       fuelType:  { $in: fuelType ? fuelType : [] }
     };
 
-    if (!vehicleType) delete filterParams['vehType'];
+    if (!vehicleType || _.isEmpty(vehicleType)) delete filterParams['vehType'];
     if (!brands || _.isEmpty(brands)) delete filterParams['brandName'];
     if (!fuelType || _.isEmpty(fuelType)) delete filterParams['fuelType'];
 
