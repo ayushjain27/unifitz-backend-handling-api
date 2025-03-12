@@ -725,11 +725,11 @@ async function shufflePartnersProductNumber() {
 // Run shuffle every hour
 // setInterval(shuffleOrderNumbers, 60 * 60 * 1000); // 1 hour
 // Run the function every hour
-// cron.schedule('0 * * * *', () => {
-//   console.log('⏳ Running hourly orderNo reshuffle...');
-//   shuffleOrderNumbers();
-//   shufflePartnersProductNumber();
-// });
+cron.schedule('0 * * * *', () => {
+  console.log('⏳ Running hourly orderNo reshuffle...');
+  shuffleOrderNumbers();
+  shufflePartnersProductNumber();
+});
 
 
 // const ses = new AWS.SES();

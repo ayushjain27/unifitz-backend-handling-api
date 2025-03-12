@@ -373,7 +373,7 @@ export class NewVehicleInfoService {
       {
         $match: query
       },
-      { $sample: { size: 1000 } },
+      { $sort: { orderNo: 1 } }, // Sort by orderNo (use -1 for descending)
       {
         $skip: pageNo * pageSize
       },
