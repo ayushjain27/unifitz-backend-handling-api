@@ -1461,7 +1461,7 @@ export class ProductService {
       {
         $match: matchStage
       },
-      { $sample: { size: 1000 } },
+      { $sort: { displayOrderNo: 1 } }, // Sort by orderNo (use -1 for descending)
       {
         $skip: pageNo * pageSize
       },
