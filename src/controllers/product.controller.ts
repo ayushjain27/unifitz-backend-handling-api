@@ -848,6 +848,7 @@ export class ProductController {
       const pageSize = req?.body?.pageSize;
       const discount = req?.body?.discount;
       const storeId = req?.body?.storeId;
+      const manufactureName = req?.body?.manufactureName;
       // const role = req?.role;
       // if (role !== AdminRole.ADMIN) {
       //   throw new Error('User not allowed');
@@ -866,7 +867,8 @@ export class ProductController {
         pageNo,
         pageSize,
         discount,
-        storeId
+        storeId,
+        manufactureName
       );
       res.send({
         message: 'Partner Product obtained successfully',

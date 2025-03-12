@@ -1318,7 +1318,8 @@ export class ProductService {
     pageNo?: number,
     pageSize?: number,
     discount?: string,
-    storeId?: string
+    storeId?: string,
+    manufactureName?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     let query: any = {};
@@ -1339,7 +1340,8 @@ export class ProductService {
         $gte: discountStart,
         $lte: discountEnd
       },
-      'partnerDetail.status' : "ACTIVE"
+      'partnerDetail.status' : "ACTIVE",
+      manufactureName: manufactureName
     };
 
     if (userType === 'Distributer') {
@@ -1397,6 +1399,9 @@ export class ProductService {
     }
     if (!brandName) {
       delete query['colorCodeList.oemList.oemBrand'];
+    }
+    if (!manufactureName) {
+      delete query['manufactureName'];
     }
     if (!makeType) {
       delete query['makeType'];
