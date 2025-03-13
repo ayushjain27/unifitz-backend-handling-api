@@ -866,4 +866,84 @@ export class VehicleInfoService {
     }
     return emergencyDetails;
   }
+
+  async getTotalVehiclesCount(status: string): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Search and Filter stores service initiated 111111>'
+    );
+    let active: any = 0;
+    let inActive: any = 0;
+
+    const total = await ParkAssistVehicle.countDocuments({});
+    if (status === 'ACTIVE' || !status) {
+      active = await ParkAssistVehicle.countDocuments({
+        status: 'ACTIVE'
+      });
+    }
+    if (status === 'INACTIVE' || !status) {
+      inActive = await ParkAssistVehicle.countDocuments({
+        status: 'INACTIVE'
+      });
+    }
+
+    let totalCounts = {
+      total,
+      active,
+      inActive
+    };
+
+    return totalCounts;
+  }
+
+  async getAllParkAssistVehiclePaginated(
+    status?: string,
+    pageNo?: number,
+    pageSize?: number,
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Search and Filter park assist vehicles service initiated>'
+    );
+    let query: any = {
+      status: status
+    }
+
+    let parkAssistVehicles: any = await ParkAssistVehicle.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return parkAssistVehicles;
+  }
+
+  async getParkAssistVehicleDetailsByVehilceNumber(vehicleNumber: string): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Get vehicle details by vehicle number service initiated 111111>'
+    );
+
+    const result = await ParkAssistVehicle.findOne({
+      vehicleNumber: vehicleNumber
+    });
+
+    return result;
+  }
+
+  async updateParkAssistVehicleStatus(vehicleId: string, status: string): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Update vehicle status by vehicle id service initiated>'
+    );
+  
+    const result = await ParkAssistVehicle.findOneAndUpdate(
+      { _id: new Types.ObjectId(vehicleId) },  // Corrected object wrapping
+      { $set: { status: status } },            // Fixed incorrect `$set` syntax
+      { new: true }                            // Optional: Returns the updated document
+    );
+  
+    return result;
+  }
 }

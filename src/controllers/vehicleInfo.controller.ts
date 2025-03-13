@@ -508,6 +508,116 @@ export class VehicleInfoController {
     }
   };
 
+  getTotalVehiclesCount = async (req: Request, res: Response) => {
+    const status = req?.query?.status;
+    // const employeeId = req?.query?.employeeId;
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Count Total Vehices Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<VehicleInfoController>:<Count Total Vehicles request controller initiated>'
+      );
+      const result=
+        await this.vehicleInfoService.getTotalVehiclesCount(
+          status as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllParkAssistVehiclePaginated = async (req: Request, res: Response) => {
+    const {
+      status,
+      pageNo,
+      pageSize
+    } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Search and Filter park assist pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result =
+        await this.vehicleInfoService.getAllParkAssistVehiclePaginated(
+          status,
+          pageNo,
+          pageSize,
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getParkAssistVehicleDetailsByVehilceNumber = async (req: Request, res: Response) => {
+    const vehicleNumber = req?.query?.vehicleNumber;
+    // const employeeId = req?.query?.employeeId;
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get vehicle Details by vehicle number Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<VehicleInfoController>:<Get vehicle Details By Vehicle Number request controller initiated>'
+      );
+      const result=
+        await this.vehicleInfoService.getParkAssistVehicleDetailsByVehilceNumber(
+          vehicleNumber as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateParkAssistVehicleStatus = async (req: Request, res: Response) => {
+    const vehicleId = req?.body?.vehicleId;
+    const status = req?.body?.status;
+    // const employeeId = req?.query?.employeeId;
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Update vehicle Status by vehicle Id Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<VehicleInfoController>:<Update vehicle Status By Vehicle Id request controller initiated>'
+      );
+      const result=
+        await this.vehicleInfoService.updateParkAssistVehicleStatus(
+          vehicleId as string,
+          status as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':

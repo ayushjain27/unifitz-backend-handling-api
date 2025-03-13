@@ -8,6 +8,7 @@ export interface IParkAssistVehicle {
   customerId?: string;
   partnerId?: string;
   vehicleImageList: IParkAssistVehicleImageList;
+  status: string;
 }
 
 export interface IVehicleImage {
@@ -25,6 +26,11 @@ export enum VehicleType {
   THREE_WHEELER = 'THREE_WHEELER',
   FOUR_WHEELER = 'FOUR_WHEELER',
   COMMERCIAL_VEHICLE = 'COMMERCIAL_VEHICLE'
+}
+
+export enum Status {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE'
 }
 
 export const vehicleImageSchema: Schema = new Schema<IVehicleImage>({
@@ -60,6 +66,10 @@ export const parkAssistVehicleSchema: Schema = new Schema(
     partnerId: {
       type: String
     },
+    status: {
+      type: String,
+      default: Status.INACTIVE
+    }
   },
   {
     timestamps: true,

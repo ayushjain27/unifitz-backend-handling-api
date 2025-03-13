@@ -137,5 +137,29 @@ router.get(
   vehicleInfoController.getAllEmergencyDetailsByUserId
 );
 
+router.get(
+  '/countAllParkAssistVehicles',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getTotalVehiclesCount
+);
+
+router.post(
+  '/park-assist-vehicle-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getAllParkAssistVehiclePaginated
+);
+
+router.get(
+  '/getParkAssistVehicleDetailsByVehilceNumber',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getParkAssistVehicleDetailsByVehilceNumber
+);
+
+router.post(
+  '/updateParkAssistVehicleStatus',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.updateParkAssistVehicleStatus
+);
+
 
 export default router;
