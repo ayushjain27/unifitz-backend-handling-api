@@ -666,7 +666,7 @@ export class VehicleInfoService {
     Logger.info(
       '<Service>:<VehicleService>:<Delete vehicle by Id service initiated>'
     );
-    const phoneNumber = `+91${requestPayload.phoneNumber}`;
+    const phoneNumber = `+91${requestPayload.phoneNumber.slice(-10)}`;
     requestPayload.phoneNumber = phoneNumber;
     if (requestPayload?.customerId) {
       const customer =
