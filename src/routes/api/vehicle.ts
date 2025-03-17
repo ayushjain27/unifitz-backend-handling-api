@@ -161,5 +161,16 @@ router.post(
   vehicleInfoController.updateParkAssistVehicleStatus
 );
 
+router.get(
+  '/countAllParkAssistEmergencyContacts',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getTotalEmergencyContactsCount
+);
+
+router.post(
+  '/park-assist-emergency-contact-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getAllParkAssistEmergencyContactsPaginated
+);
 
 export default router;

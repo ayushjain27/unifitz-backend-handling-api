@@ -558,7 +558,7 @@ export class VehicleInfoService {
     }
     for (const file of files) {
       const fileName: 'rcFrontView' | 'rcBackView' =
-      file.originalname?.split('.')[0] || 'rcFrontView';
+        file.originalname?.split('.')[0] || 'rcFrontView';
       const { key, url } = await this.s3Client.uploadFile(
         vehicleId,
         fileName,
@@ -860,17 +860,19 @@ export class VehicleInfoService {
     }
     let emergencyDetails;
     if (platform === 'CUSTOMER') {
-      emergencyDetails = await EmergencyContactDetails.find({ customerId: userId });
+      emergencyDetails = await EmergencyContactDetails.find({
+        customerId: userId
+      });
     } else {
-      emergencyDetails = await EmergencyContactDetails.find({ storeId: userId });
+      emergencyDetails = await EmergencyContactDetails.find({
+        storeId: userId
+      });
     }
     return emergencyDetails;
   }
 
   async getTotalVehiclesCount(status: string): Promise<any> {
-    Logger.info(
-      '<Service>:<VehicleService>:<Search and Filter stores service initiated 111111>'
-    );
+    Logger.info('<Service>:<VehicleService>:<count all Park Assist Vehicles>');
     let active: any = 0;
     let inActive: any = 0;
 
@@ -898,14 +900,14 @@ export class VehicleInfoService {
   async getAllParkAssistVehiclePaginated(
     status?: string,
     pageNo?: number,
-    pageSize?: number,
+    pageSize?: number
   ): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Search and Filter park assist vehicles service initiated>'
     );
     let query: any = {
       status: status
-    }
+    };
 
     let parkAssistVehicles: any = await ParkAssistVehicle.aggregate([
       {
@@ -921,7 +923,9 @@ export class VehicleInfoService {
     return parkAssistVehicles;
   }
 
-  async getParkAssistVehicleDetailsByVehilceNumber(vehicleNumber: string): Promise<any> {
+  async getParkAssistVehicleDetailsByVehilceNumber(
+    vehicleNumber: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Get vehicle details by vehicle number service initiated 111111>'
     );
@@ -933,17 +937,69 @@ export class VehicleInfoService {
     return result;
   }
 
-  async updateParkAssistVehicleStatus(vehicleId: string, status: string): Promise<any> {
+  async updateParkAssistVehicleStatus(
+    vehicleId: string,
+    status: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<VehicleService>:<Update vehicle status by vehicle id service initiated>'
     );
-  
+
     const result = await ParkAssistVehicle.findOneAndUpdate(
-      { _id: new Types.ObjectId(vehicleId) },  // Corrected object wrapping
-      { $set: { status: status } },            // Fixed incorrect `$set` syntax
-      { new: true }                            // Optional: Returns the updated document
+      { _id: new Types.ObjectId(vehicleId) }, // Corrected object wrapping
+      { $set: { status: status } }, // Fixed incorrect `$set` syntax
+      { new: true } // Optional: Returns the updated document
     );
-  
+
     return result;
+  }
+
+  async getTotalEmergencyContactsCount(): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Count all Park Assist Vehicles>');
+
+    const total = await EmergencyContactDetails.countDocuments({});
+    const isPublic = await EmergencyContactDetails.countDocuments({
+      isPublic: true
+    });
+    const isPrivate = await EmergencyContactDetails.countDocuments({
+      isPublic: false
+    });
+
+    let totalCounts = {
+      total,
+      isPublic,
+      isPrivate
+    };
+
+    return totalCounts;
+  }
+
+  async getAllParkAssistEmergencyContactsPaginated(
+    status?: string,
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<VehicleService>:<Search and Filter park assist vehicles service initiated>'
+    );
+    let query: any = {}
+    if(status === 'public'){
+      query.isPublic = true
+    }else{
+      query.isPublic = false
+    }
+
+    let parkAssistemergencyContacts: any = await EmergencyContactDetails.aggregate([
+      {
+        $match: query
+      },
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return parkAssistemergencyContacts;
   }
 }

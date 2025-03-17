@@ -618,6 +618,58 @@ export class VehicleInfoController {
     }
   };
 
+  getTotalEmergencyContactsCount = async (req: Request, res: Response) => {
+
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Count Total Emergency Contacts Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<VehicleInfoController>:<Count Total Emergency Contacts request controller initiated>'
+      );
+      const result=
+        await this.vehicleInfoService.getTotalEmergencyContactsCount();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllParkAssistEmergencyContactsPaginated = async (req: Request, res: Response) => {
+    const {
+      status,
+      pageNo,
+      pageSize
+    } = req.body;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Search and Filter park assist pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
+      );
+      const result =
+        await this.vehicleInfoService.getAllParkAssistEmergencyContactsPaginated(
+          status,
+          pageNo,
+          pageSize,
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':
