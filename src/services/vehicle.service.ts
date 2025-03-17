@@ -504,8 +504,8 @@ export class VehicleInfoService {
         throw new Error('User not found');
       }
     }
-    if (vehicleStore?.partnerId) {
-      const storeId = vehicleStore?.partnerId;
+    if (vehicleStore?.storeId) {
+      const storeId = vehicleStore?.storeId;
       const store = await this.storeService.getById({
         storeId,
         lat: '',
@@ -871,30 +871,82 @@ export class VehicleInfoService {
     return emergencyDetails;
   }
 
-  async getTotalVehiclesCount(status: string): Promise<any> {
+  async getTotalVehiclesCount(
+    platform: string,
+    state: string,
+    city: string,
+    searchText: string
+  ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<count all Park Assist Vehicles>');
-    let active: any = 0;
-    let inActive: any = 0;
 
-    const total = await ParkAssistVehicle.countDocuments({});
-    if (status === 'ACTIVE' || !status) {
-      active = await ParkAssistVehicle.countDocuments({
-        status: 'ACTIVE'
-      });
+    let matchQuery: any = {};
+
+    // Add state and city filters if provided
+    if (state) matchQuery['customerDetails.contactInfo.state'] = state;
+    if (city) matchQuery['customerDetails.contactInfo.city'] = city;
+
+    // Add platform-based filters
+    if (platform === 'PARTNER') {
+      matchQuery['storeId'] = { $exists: true };
+    } else if (platform === 'CUSTOMER') {
+      matchQuery['customerId'] = { $exists: true };
     }
-    if (status === 'INACTIVE' || !status) {
-      inActive = await ParkAssistVehicle.countDocuments({
-        status: 'INACTIVE'
-      });
+
+    if (searchText) {
+      if (searchText) {
+        matchQuery.$or = [
+          { vehicleNumber: searchText }, // Case-insensitive vehicle number match
+          {
+            'storeDetails.contactInfo.phoneNumber.primary': `+91${searchText.slice(-10)}` // Ensure TypeScript accepts this key
+          },
+          {
+            'customerDetails.phoneNumber': `+91${searchText.slice(-10)}`
+          }
+        ];
+      }
     }
 
-    let totalCounts = {
-      total,
-      active,
-      inActive
-    };
+    // Aggregate query to fetch total, active, and inactive counts in one go
+    const counts = await ParkAssistVehicle.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: { path: '$storeDetails', preserveNullAndEmptyArrays: true }
+      },
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'customerId',
+          foreignField: 'customerId',
+          as: 'customerDetails'
+        }
+      },
+      {
+        $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true }
+      },
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          active: {
+            $sum: { $cond: [{ $eq: ['$status', 'ACTIVE'] }, 1, 0] }
+          },
+          inActive: {
+            $sum: { $cond: [{ $eq: ['$status', 'INACTIVE'] }, 1, 0] }
+          }
+        }
+      }
+    ]);
 
-    return totalCounts;
+    // Return default counts if aggregation returns empty
+    return counts.length > 0 ? counts[0] : { total: 0, active: 0, inActive: 0 };
   }
 
   async getAllParkAssistVehiclePaginated(
@@ -954,24 +1006,101 @@ export class VehicleInfoService {
     return result;
   }
 
-  async getTotalEmergencyContactsCount(): Promise<any> {
+  async getTotalEmergencyContactsCount(
+    platform: string,
+    state: string,
+    city: string,
+    searchText: string
+  ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Count all Park Assist Vehicles>');
 
-    const total = await EmergencyContactDetails.countDocuments({});
-    const isPublic = await EmergencyContactDetails.countDocuments({
-      isPublic: true
-    });
-    const isPrivate = await EmergencyContactDetails.countDocuments({
-      isPublic: false
-    });
+    // Build query dynamically
+    const matchQuery: any = {};
 
-    let totalCounts = {
-      total,
-      isPublic,
-      isPrivate
-    };
+    if (state) matchQuery['customerDetails.contactInfo.state'] = state;
+    if (city) matchQuery['customerDetails.contactInfo.city'] = city;
 
-    return totalCounts;
+    if (platform === 'PARTNER') {
+      matchQuery['storeId'] = { $exists: true };
+    } else if (platform === 'CUSTOMER') {
+      matchQuery['customerId'] = { $exists: true };
+    }
+
+    if (searchText) {
+      const parkAssistVehicleDetails = await ParkAssistVehicle.findOne({
+        vehicleNumber: searchText
+      }).lean(); // Use lean() for better performance
+
+      const searchConditions: Record<string, any>[] = [];
+
+      // Add search conditions for phone numbers
+      searchConditions.push(
+        {
+          'storeDetails.contactInfo.phoneNumber.primary': `+91${searchText.slice(-10)}`
+        },
+        { 'customerDetails.phoneNumber': `+91${searchText.slice(-10)}` }
+      );
+
+      // Add customerId and storeId only if they exist
+      if (parkAssistVehicleDetails?.customerId) {
+        searchConditions.push({
+          customerId: parkAssistVehicleDetails.customerId
+        });
+      }
+      if (parkAssistVehicleDetails?.storeId) {
+        searchConditions.push({ storeId: parkAssistVehicleDetails.storeId });
+      }
+
+      // Assign $or condition only if searchConditions is not empty
+      if (searchConditions.length > 0) {
+        matchQuery.$or = searchConditions;
+      }
+    }
+
+    // Aggregate query to fetch total, active, and inactive counts
+    const counts = await EmergencyContactDetails.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      { $unwind: { path: '$storeDetails', preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'customerId',
+          foreignField: 'customerId',
+          as: 'customerDetails'
+        }
+      },
+      {
+        $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true }
+      }, // Lookup park assist vehicles using storeId and customerId
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: '$_id', // Ensure unique records
+          isPublic: { $first: '$isPublic' }, // Preserve original value
+          isPrivate: { $first: '$isPrivate' }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          isPublic: { $sum: { $cond: [{ $eq: ['$isPublic', true] }, 1, 0] } },
+          isPrivate: { $sum: { $cond: [{ $eq: ['$isPublic', false] }, 1, 0] } }
+        }
+      }
+    ]);
+
+    return (
+      counts[0] || { total: 0, totalVehicles: 0, isPublic: 0, isPrivate: 0 }
+    );
   }
 
   async getAllParkAssistEmergencyContactsPaginated(
@@ -982,24 +1111,25 @@ export class VehicleInfoService {
     Logger.info(
       '<Service>:<VehicleService>:<Search and Filter park assist vehicles service initiated>'
     );
-    let query: any = {}
-    if(status === 'public'){
-      query.isPublic = true
-    }else{
-      query.isPublic = false
+    let query: any = {};
+    if (status === 'public') {
+      query.isPublic = true;
+    } else {
+      query.isPublic = false;
     }
 
-    let parkAssistemergencyContacts: any = await EmergencyContactDetails.aggregate([
-      {
-        $match: query
-      },
-      {
-        $skip: pageNo * pageSize
-      },
-      {
-        $limit: pageSize
-      }
-    ]);
+    let parkAssistemergencyContacts: any =
+      await EmergencyContactDetails.aggregate([
+        {
+          $match: query
+        },
+        {
+          $skip: pageNo * pageSize
+        },
+        {
+          $limit: pageSize
+        }
+      ]);
     return parkAssistemergencyContacts;
   }
 }

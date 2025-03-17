@@ -6,7 +6,7 @@ export interface IParkAssistVehicle {
   vehicleNumber: string;
   brand: string;
   customerId?: string;
-  partnerId?: string;
+  storeId?: string;
   vehicleImageList: IParkAssistVehicleImageList;
   status: string;
 }
@@ -63,7 +63,7 @@ export const parkAssistVehicleSchema: Schema = new Schema(
     customerId: {
       type: String
     },
-    partnerId: {
+    storeId: {
       type: String
     },
     status: {
