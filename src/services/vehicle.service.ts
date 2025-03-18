@@ -1132,4 +1132,21 @@ export class VehicleInfoService {
       ]);
     return parkAssistemergencyContacts;
   }
+
+  async getVehicleAndEmergencyDetailsByVehicleNumber(
+    vehicleNumber: string
+  ): Promise<{ vehicleData: any; emergencyData: any[] }> {
+    Logger.info('<Service>:<VehicleService>:<Search and Filter initiated>');
+    // Fetch vehicle details along with emergency contact details in parallel
+    const vehicle = await ParkAssistVehicle.findOne({ vehicleNumber });
+    if (!vehicle) {
+      throw new Error('Vehicle not found');
+    }
+
+    const emergencyDetails = await EmergencyContactDetails.find({
+      customerId: vehicle.customerId
+    });
+
+    return { vehicleData: vehicle, emergencyData: emergencyDetails };
+  }
 }

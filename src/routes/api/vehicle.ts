@@ -173,4 +173,10 @@ router.post(
   vehicleInfoController.getAllParkAssistEmergencyContactsPaginated
 );
 
+router.get(
+  '/getVehicleAndEmergencyDetailsByVehicleNumber',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getVehicleAndEmergencyDetailsByVehicleNumber
+)
+
 export default router;

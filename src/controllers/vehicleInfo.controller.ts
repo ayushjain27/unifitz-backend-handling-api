@@ -681,6 +681,33 @@ export class VehicleInfoController {
     }
   };
 
+  getVehicleAndEmergencyDetailsByVehicleNumber = async (
+    req: Request,
+    res: Response
+  ) => {
+    const { vehicleNumber } = req.query;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get all vehicle and emergency contact details request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Get all vehicle and emergency contact details request controller initiated>'
+      );
+      const result =
+        await this.vehicleInfoService.getVehicleAndEmergencyDetailsByVehicleNumber(
+          vehicleNumber as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':
