@@ -1137,16 +1137,35 @@ export class VehicleInfoService {
     vehicleNumber: string
   ): Promise<{ vehicleData: any; emergencyData: any[] }> {
     Logger.info('<Service>:<VehicleService>:<Search and Filter initiated>');
-    // Fetch vehicle details along with emergency contact details in parallel
-    const vehicle = await ParkAssistVehicle.findOne({ vehicleNumber });
+  
+    // Fetch vehicle details
+    const vehicle = await ParkAssistVehicle.findOne({ vehicleNumber, status: 'ACTIVE' }).lean();
     if (!vehicle) {
       throw new Error('Vehicle not found');
     }
-
+  
+    // Fetch emergency contact details
     const emergencyDetails = await EmergencyContactDetails.find({
-      customerId: vehicle.customerId
-    });
+      customerId: vehicle.customerId,
+      isPublic: true
+    }).lean();
+  
+    if (!emergencyDetails.length) {
+      return { vehicleData: vehicle, emergencyData: [] }; // No emergency contacts found
+    }
+  
+    // Extract unique phone numbers
+    const phoneNumbers = emergencyDetails.map((detail) => `+91${detail.phoneNumber.slice(-10)}`);
+  
+    // Fetch customers who have these phone numbers
+  const validCustomers = await Customer.find({ phoneNumber: { $in: phoneNumbers } }).lean();
+  const validPhoneNumbers = new Set(validCustomers.map((customer) => customer.phoneNumber));
 
-    return { vehicleData: vehicle, emergencyData: emergencyDetails };
+  // Filter emergency details to include only those with matching phone numbers in Customer DB
+  const filteredEmergencyDetails = emergencyDetails.filter((detail) =>
+    validPhoneNumbers.has(`+91${detail.phoneNumber.slice(-10)}`)
+  );
+  
+    return { vehicleData: vehicle, emergencyData: filteredEmergencyDetails };
   }
 }
