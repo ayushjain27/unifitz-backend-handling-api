@@ -179,4 +179,10 @@ router.get(
   vehicleInfoController.getVehicleAndEmergencyDetailsByVehicleNumber
 )
 
+router.get(
+  '/getVehicleDetailsFromRc',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getVehicleDetailsFromRc
+)
+
 export default router;

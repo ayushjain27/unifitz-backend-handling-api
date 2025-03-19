@@ -512,7 +512,7 @@ export class VehicleInfoController {
     const platform = req?.query?.platform;
     const state = req?.query?.state;
     const city = req?.query?.city;
-    const serachText = req?.query?.searchText;
+    const searchText = req?.query?.searchText;
 
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Count Total Vehices Initiated>'
@@ -525,7 +525,7 @@ export class VehicleInfoController {
         platform as string,
         state as string,
         city as string,
-        serachText as string
+        searchText as string
       );
       res.send({
         result
@@ -539,7 +539,8 @@ export class VehicleInfoController {
   };
 
   getAllParkAssistVehiclePaginated = async (req: Request, res: Response) => {
-    const { status, pageNo, pageSize } = req.body;
+    const { status, pageNo, pageSize, platform, state, city, searchText } =
+      req.body;
     Logger.info(
       '<Controller>:<VehicleInfoController>:<Search and Filter park assist pagination request controller initiated>'
     );
@@ -551,7 +552,11 @@ export class VehicleInfoController {
         await this.vehicleInfoService.getAllParkAssistVehiclePaginated(
           status,
           pageNo,
-          pageSize
+          pageSize,
+          platform,
+          state,
+          city,
+          searchText
         );
       res.send({
         result
@@ -656,10 +661,10 @@ export class VehicleInfoController {
     req: Request,
     res: Response
   ) => {
-    const { status, pageNo, pageSize } = req.body;
-    Logger.info(
-      '<Controller>:<VehicleInfoController>:<Search and Filter park assist pagination request controller initiated>'
-    );
+    const { status, pageNo, pageSize, platform, state, city, searchText } = req.body;
+      Logger.info(
+        '<Controller>:<VehicleInfoController>:<Search and Filter park assist pagination request controller initiated>'
+      );
     try {
       Logger.info(
         '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
@@ -668,7 +673,11 @@ export class VehicleInfoController {
         await this.vehicleInfoService.getAllParkAssistEmergencyContactsPaginated(
           status,
           pageNo,
-          pageSize
+          pageSize,
+          platform,
+          state,
+          city,
+          searchText
         );
       res.send({
         result
@@ -695,6 +704,33 @@ export class VehicleInfoController {
       );
       const result =
         await this.vehicleInfoService.getVehicleAndEmergencyDetailsByVehicleNumber(
+          vehicleNumber as string
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getVehicleDetailsFromRc = async (
+    req: Request,
+    res: Response
+  ) => {
+    const { vehicleNumber } = req.query;
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Get all vehicle and emergency contact details request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Get all vehicle and emergency contact details request controller initiated>'
+      );
+      const result =
+        await this.vehicleInfoService.getVehicleDetailsFromRc(
           vehicleNumber as string
         );
       res.send({
