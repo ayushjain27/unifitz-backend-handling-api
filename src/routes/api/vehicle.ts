@@ -185,4 +185,10 @@ router.get(
   vehicleInfoController.getVehicleDetailsFromRc
 )
 
+router.post(
+  '/razorpay/createSubscription',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.createRazorPaySubscription
+)
+
 export default router;
