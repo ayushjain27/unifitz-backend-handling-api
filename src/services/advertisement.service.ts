@@ -31,7 +31,7 @@ export class AdvertisementService {
     if (!file) {
       throw new Error('File does not exist');
     }
-    const banner: IBanner = await Banner.findOne({ _id: bannerId });
+    const banner: IBanner = await Banner.findOne({ _id: bannerId }).lean();
 
     if (_.isEmpty(banner)) {
       throw new Error('Banner does not exist');
@@ -51,6 +51,7 @@ export class AdvertisementService {
       status: BannerStatus.ACTIVE,
       _id: new Types.ObjectId(bannerId)
     };
+
     const res = await Banner.findOneAndUpdate(
       { _id: bannerId },
       bannerDetails,
