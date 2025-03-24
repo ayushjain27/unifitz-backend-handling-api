@@ -137,5 +137,58 @@ router.get(
   vehicleInfoController.getAllEmergencyDetailsByUserId
 );
 
+router.get(
+  '/countAllParkAssistVehicles',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getTotalVehiclesCount
+);
+
+router.post(
+  '/park-assist-vehicle-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getAllParkAssistVehiclePaginated
+);
+
+router.get(
+  '/getParkAssistVehicleDetailsByVehilceNumber',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getParkAssistVehicleDetailsByVehilceNumber
+);
+
+router.post(
+  '/updateParkAssistVehicleStatus',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.updateParkAssistVehicleStatus
+);
+
+router.get(
+  '/countAllParkAssistEmergencyContacts',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getTotalEmergencyContactsCount
+);
+
+router.post(
+  '/park-assist-emergency-contact-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  vehicleInfoController.getAllParkAssistEmergencyContactsPaginated
+);
+
+router.get(
+  '/getVehicleAndEmergencyDetailsByVehicleNumber',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getVehicleAndEmergencyDetailsByVehicleNumber
+)
+
+router.get(
+  '/getVehicleDetailsFromRc',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.getVehicleDetailsFromRc
+)
+
+router.post(
+  '/razorpay/createSubscription',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.createRazorPaySubscription
+)
 
 export default router;

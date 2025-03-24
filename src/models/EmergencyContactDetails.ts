@@ -4,7 +4,7 @@ export interface IEmergencyContactDetails {
   name: string;
   phoneNumber: string;
   relation: string;
-  isPublic?: string;
+  isPublic?: boolean;
   storeId?: string;
   customerId?: string;
 }
@@ -21,7 +21,7 @@ export const emergencyContactDetailsSchema: Schema = new Schema(
       type: String
     },
     isPublic: {
-      type: String,
+      type: Boolean,
       default: false
     },
     storeId: {

@@ -56,3 +56,7 @@ export const serverkey =
 export const API_VERSION = config.get('API_VERSION');
 
 export const smcInsuranceKey = config.get('SMC_INSURANCE_API_KEY');
+
+export const razorpayKey = config.get('RAZORPAY_KEY');
+
+export const razorpaySecretId = config.get('RAZORPAY_SECRET_ID');
