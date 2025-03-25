@@ -1323,19 +1323,24 @@ export class VehicleInfoService {
 
   async createRazorPaySubscription(
     plan_id: string,
-    customer_email: string
+    customer_email: string,
+    customer_id: string,
+    description: string
   ): Promise<any> {
     Logger.info('<Service>:<VehicleService>:<Search and Filter initiated>');
 
     try {
-      console.log(razorpay,"fmewkfmkmrke")
-      console.log(razorpayKey,"razorpayKey")
-      console.log(razorpaySecretId,"razorpaySecretId")
       // get the store data
        const subscription = await razorpay.subscriptions.create({
           plan_id,
           customer_notify: 1,
           total_count: 12, // Number of billing cycles
+          notes: {
+            email: customer_email || 'tester@gmail.coom', // ✅ Meta tag
+            purpose: "Premium Membership", // ✅ Custom meta tag
+            reference_id: customer_id, // ✅ Custom meta tag
+            description: description || 'Premium Features'
+          },
         });
   
         console.log(subscription,"fermfk")

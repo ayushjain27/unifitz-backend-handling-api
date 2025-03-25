@@ -748,7 +748,7 @@ export class VehicleInfoController {
     req: Request,
     res: Response
   ): Promise<any> => {
-    const { plan_id, customer_email } = req.body;
+    const { plan_id, customer_email, customer_id, description } = req.body;
     if (!plan_id) {
       return res.status(400).json({ error: "Plan ID is required" });
     }
@@ -766,7 +766,9 @@ export class VehicleInfoController {
       const result =
         await this.vehicleInfoService.createRazorPaySubscription(
           plan_id as string,
-          customer_email as string
+          customer_email as string,
+          customer_id as string,
+          description as string
         );
       res.send({
         result

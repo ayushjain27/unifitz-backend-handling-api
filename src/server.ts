@@ -1,7 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { connectFirebaseAdmin } from './config/firebase-config';
 import morganMiddleware from './config/morgan';
 import Logger from './config/winston';
@@ -44,19 +44,23 @@ import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
 import Customer from './models/Customer';
 import StatePermission from './models/StatePermission';
-import { API_VERSION, s3Config } from './config/constants';
+import { API_VERSION, razorpayKey, razorpaySecretId, s3Config } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
 import errorHandler from './routes/middleware/errorHandler';
 import { SESClient, CreateTemplateCommand } from '@aws-sdk/client-ses';
+import { createHmac } from "crypto";
+import bcrypt from 'bcryptjs';
+import jwt from "jsonwebtoken";
 // import cron from 'node-cron';
 
 const app = express();
 import cron from 'node-cron';
 import NewVehicle from './models/NewVehicle';
 import { PartnersPoduct } from './models/B2BPartnersProduct';
+import Razorpay from 'razorpay';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -290,6 +294,56 @@ app.post('/subCategory', async (req, res) => {
   res.json({
     list: result
   });
+});
+
+const razorpay = new Razorpay({
+  key_id: razorpayKey as string,
+  key_secret: razorpaySecretId as string
+})
+
+app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
+  const signature = req.headers["x-razorpay-signature"];
+  const body = JSON.stringify(req.body);
+  console.log(signature,"fmrkfnmkr")
+
+  // Hash the request body with the secret
+  // const expectedSignature = await bcrypt.hash(body, 'EIvoLq3J67PI3LCHpumHaJlm');
+  const expectedSignature = createHmac("sha256", "EIvoLq3J67PI3LCHpumHaJlm")
+  .update(body)
+  .digest("hex");
+  console.log(expectedSignature,"fmkefnrfkeknrke")
+
+  if (signature !== expectedSignature) {
+    return res.status(401).json({ message: "Invalid signature" });
+  }
+
+  if(req.body.event === 'subscription.activated'){
+    let customerId = req.body.payload.subscription.entity.notes.reference_id
+    let customer = Customer.findOne({
+      customerId: customerId
+    });
+    let customerDetails = await Customer.findOneAndUpdate(
+      { customerId: customerId },
+      { 
+          $set: { 
+              "accessList.PARK_ASSIST": { 
+                  CREATE: true, 
+                  READ: true, 
+                  UPDATE: true, 
+                  DELETE: true 
+              } 
+          } 
+      },
+      { new: true } // Returns the updated document
+  );
+  }
+
+  console.log("Webhook wsfe3:", req.body);
+  console.log("Webhook ewferf:", req.body.payload.subscription && req.body.payload.subscription);
+  console.log("Webhook wef:", req.body.payload.subscription && req.body.payload.subscription.entity);
+  // console.log("Webhook wdf:", req.body.payload.payment && req.body.payload.payment);
+  // console.log("Webhook recewefived:", req.body.payload.payment && req.body.payload.payment.entity);
+  res.status(200).json({ message: "Webhook processed successfully" });
 });
 
 app.post('/productSubCategory', async (req, res) => {

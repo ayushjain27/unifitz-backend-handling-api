@@ -539,5 +539,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     }
+  },
+  CUSTOMER: {
+    PARK_ASSIST: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
   }
 };
