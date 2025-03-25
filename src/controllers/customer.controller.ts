@@ -13,6 +13,7 @@ import {
   VerifyAadharUserRequest,
   VerifyCustomerRequest
 } from '../interfaces';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class CustomerController {
@@ -33,6 +34,7 @@ export class CustomerController {
     Logger.info(
       '<Controller>:<CustomerController>:<Customer creation controller initiated>'
     );
+    customerPayload.accessList = permissions.CUSTOMER
     try {
       const result = await this.customerService.create(customerPayload);
       res.json({
