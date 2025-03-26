@@ -319,7 +319,7 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
 
   if(req.body.event === 'subscription.activated'){
     let customerId = req.body.payload.subscription.entity.notes.reference_id
-    let customer = Customer.findOne({
+    let customer = await Customer.findOne({
       customerId: customerId
     });
     let customerDetails = await Customer.findOneAndUpdate(
@@ -339,10 +339,7 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
   }
 
   console.log("Webhook wsfe3:", req.body);
-  console.log("Webhook ewferf:", req.body.payload.subscription && req.body.payload.subscription);
-  console.log("Webhook wef:", req.body.payload.subscription && req.body.payload.subscription.entity);
-  // console.log("Webhook wdf:", req.body.payload.payment && req.body.payload.payment);
-  // console.log("Webhook recewefived:", req.body.payload.payment && req.body.payload.payment.entity);
+
   res.status(200).json({ message: "Webhook processed successfully" });
 });
 
