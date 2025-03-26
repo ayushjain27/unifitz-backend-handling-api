@@ -203,7 +203,7 @@ export class AdvertisementService {
           body: addBanner.description,
           phoneNumber: customer?.phoneNumber,
           type: "NEW_BANNERS",
-          role: "STORE_OWNER",
+          role: "USER",
           storeId: customer?.customerId
         }
     
