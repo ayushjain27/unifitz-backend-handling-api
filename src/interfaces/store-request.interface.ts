@@ -16,6 +16,7 @@ export interface StoreReviewRequest {
   userId: Types.ObjectId;
   user: IUser;
   storeId: string;
+  customerId: string;
   review: string;
   rating: number;
 }

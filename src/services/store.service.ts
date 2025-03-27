@@ -34,6 +34,7 @@ import slugify from 'slugify';
 import { SPEmployeeService } from './spEmployee.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
+import CustomerStoreReview from '../models/CustomerStoreReviews';
 
 @injectable()
 export class StoreService {
@@ -789,13 +790,18 @@ export class StoreService {
         }
       }
     ];
-    
+
     // Only modify if `pageNo === 0`
     if (searchReqBody.pageNo === 0) {
       aggregationPipeline.push({
         $facet: {
           preferredStores: [
-            { $match: { preferredServicePlugStore: true, 'contactInfo.distance': { $lte: 1 } } },
+            {
+              $match: {
+                preferredServicePlugStore: true,
+                'contactInfo.distance': { $lte: 1 }
+              }
+            },
             { $sort: { 'contactInfo.distance': 1 } }
           ],
           otherStores: [
@@ -806,32 +812,41 @@ export class StoreService {
           ]
         }
       });
-    
+
       aggregationPipeline.push({
         $project: {
           stores: {
             $concatArrays: [
-              { 
-                $cond: { 
-                  if: { $gt: [{ $size: '$preferredStores' }, 0] }, 
-                  then: [{ $arrayElemAt: ['$preferredStores', 0] }], 
-                  else: [] 
-                } 
+              {
+                $cond: {
+                  if: { $gt: [{ $size: '$preferredStores' }, 0] },
+                  then: [{ $arrayElemAt: ['$preferredStores', 0] }],
+                  else: []
+                }
               },
-              { 
-                $cond: { 
-                  if: { $gt: [{ $size: '$preferredStores' }, 1] }, 
-                  then: { $slice: ['$preferredStores', 1, { $subtract: [{ $size: '$preferredStores' }, 1] }] }, 
-                  else: [] 
-                } 
+              {
+                $cond: {
+                  if: { $gt: [{ $size: '$preferredStores' }, 1] },
+                  then: {
+                    $slice: [
+                      '$preferredStores',
+                      1,
+                      { $subtract: [{ $size: '$preferredStores' }, 1] }
+                    ]
+                  },
+                  else: []
+                }
               },
               '$otherStores'
             ]
           }
         }
       });
-    
-      aggregationPipeline.push({ $unwind: '$stores' }, { $replaceRoot: { newRoot: '$stores' } });
+
+      aggregationPipeline.push(
+        { $unwind: '$stores' },
+        { $replaceRoot: { newRoot: '$stores' } }
+      );
     } else {
       // Standard pagination for other pages
       aggregationPipeline.push(
@@ -839,8 +854,8 @@ export class StoreService {
         { $limit: searchReqBody.pageSize }
       );
     }
-    
-    let stores: any = await Store.aggregate(aggregationPipeline);    
+
+    let stores: any = await Store.aggregate(aggregationPipeline);
 
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service 2222222222>'
@@ -877,86 +892,97 @@ export class StoreService {
     return stores;
   }
 
-  async addReview(
-    storeReview: StoreReviewRequest
-  ): Promise<StoreReviewRequest> {
-    Logger.info('<Service>:<StoreService>:<Add Store Ratings initiate>');
-    let customer: ICustomer;
-    if (storeReview?.userId) {
-      customer = await Customer.findOne({
-        _id: new Types.ObjectId(storeReview?.userId)
+  async addReview(storeReview: StoreReviewRequest): Promise<StoreReviewRequest> {
+    Logger.info('<Service>:<StoreService>:<Add Store Ratings Initiated>');
+  
+    // Check if customer has already reviewed this store
+    let customerReviewCount = await CustomerStoreReview.findOne({
+      customerId: storeReview.customerId,
+      storeId: storeReview.storeId,
+    });
+  
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  
+    if (!customerReviewCount) {
+      // First-time review: Create initial review count record
+      customerReviewCount = await CustomerStoreReview.create({
+        customerId: storeReview.customerId,
+        storeId: storeReview.storeId,
+        count: 1,
+        lastCountReset: new Date(),
       });
+    } else if (customerReviewCount.lastCountReset < oneMonthAgo) {
+      // Reset count if it's been over a month
+      await CustomerStoreReview.updateOne(
+        { customerId: storeReview.customerId, storeId: storeReview.storeId },
+        { $set: { lastCountReset: new Date(), count: 1 } }
+      );
+    } else if (customerReviewCount.count >= 3) {
+      throw new Error(
+        `Maximum reviews reached for storeId ${storeReview.storeId} this month`
+      );
+    } else {
+      // Increment review count
+      await CustomerStoreReview.updateOne(
+        { customerId: storeReview.customerId, storeId: storeReview.storeId },
+        { $inc: { count: 1 } }
+      );
     }
-    console.log(customer, 'dfw;lmk');
-    let store: IStore;
-    store = await Store.findOne(
-      { storeId: storeReview?.storeId },
+  
+    // Fetch customer only if userId exists
+    let customer: ICustomer | null = null;
+    if (storeReview.userId) {
+      customer = await Customer.findOne({ customerId: storeReview?.customerId });
+      if (!customer) throw new Error('Customer not found');
+    }
+  
+    // Fetch store details
+    const store: IStore | null = await Store.findOne(
+      { storeId: storeReview.storeId },
       { verificationDetails: 0 }
     );
+  
+    if (!store) throw new Error('Store not found');
+  
     const phoneNumber =
-      store?.basicInfo?.userPhoneNumber ||
-      store?.contactInfo?.phoneNumber?.primary;
-    if (!storeReview?.userId) {
-      throw new Error('Customer not found');
-    }
-    const newStoreReview = new StoreReview(storeReview);
-    newStoreReview.userPhoneNumber = customer?.phoneNumber || '';
+      store.basicInfo?.userPhoneNumber || store.contactInfo?.phoneNumber?.primary;
+  
+    // Create and save the store review
+    const newStoreReview = new StoreReview({
+      ...storeReview,
+      userPhoneNumber: customer?.phoneNumber || '',
+    });
     await newStoreReview.save();
-    // await sendNotification(
-    //   'Store Review',
-    //   'Store Review',
-    //   phoneNumber,
-    //   'STORE_OWNER',
-    //   'RATING_REVIEW'
-    // );
-    const data = {
-      title: 'Store Review',
-      body: `Congratulations! You got an new review`,
-      phoneNumber: phoneNumber,
-      role: 'STORE_OWNER',
-      type: 'RATING_REVIEW'
-    };
-    const sqsMessage = await this.sqsService.createMessage(
-      SQSEvent.NOTIFICATION,
-      data
-    );
+  
+    // Prepare and send notifications
     const notificationData = {
       title: 'Store Review',
-      body: `Congratulations! You got a new review`,
-      phoneNumber: phoneNumber,
+      body: 'Congratulations! You got a new review',
+      phoneNumber,
       type: 'RATING_REVIEW',
       role: 'STORE_OWNER',
-      storeId: store?.storeId
+      storeId: store.storeId,
     };
-
-    if (!isEmpty(store?.storeId)) {
-      let email = store?.contactInfo?.email;
-
-      console.log(email, 'dlemrfn');
-      if (!isEmpty(email)) {
-        const templateData = {
-          storeId: store?.storeId,
-          customerName: store?.basicInfo?.ownerName,
-          body: `Congratulations! You got a new review`,
-        };
-        console.log(templateData, 'fewfrefe');
-        const emailNotificationData = {
-          to: email,
-          templateData: templateData,
-          templateName: 'StoreReview'
-        };
-
-        const emailNotification = await this.sqsService.createMessage(
-          SQSEvent.EMAIL_NOTIFICATION,
-          emailNotificationData
-        );
-      }
+  
+    await this.sqsService.createMessage(SQSEvent.NOTIFICATION, notificationData);
+    await this.notificationService.createNotification(notificationData);
+  
+    // Send email notification if email exists
+    if (store.contactInfo?.email) {
+      const emailData = {
+        to: store.contactInfo.email,
+        templateData: {
+          storeId: store.storeId,
+          customerName: store.basicInfo?.ownerName,
+          body: 'Congratulations! You got a new review',
+        },
+        templateName: 'StoreReview',
+      };
+      await this.sqsService.createMessage(SQSEvent.EMAIL_NOTIFICATION, emailData);
     }
-
-    let notification =
-      await this.notificationService.createNotification(notificationData);
-
-    Logger.info('<Service>:<StoreService>:<Store Ratings added successfully>');
+  
+    Logger.info('<Service>:<StoreService>:<Store Ratings Added Successfully>');
     return newStoreReview;
   }
 
@@ -1179,29 +1205,29 @@ export class StoreService {
       let notification =
         await this.notificationService.createNotification(notificationData);
 
-        if (!isEmpty(storeDetails?.storeId)) {
-          let email = storeDetails?.contactInfo?.email;
-    
-          console.log(email, 'dlemrfn');
-          if (!isEmpty(email)) {
-            const templateData = {
-              storeId: storeDetails?.storeId,
-              customerName: storeDetails?.basicInfo?.ownerName,
-              body: `Your store is verified with ${payload.documentType}`,
-            };
-            console.log(templateData, 'fewfrefe');
-            const emailNotificationData = {
-              to: email,
-              templateData: templateData,
-              templateName: 'StoreVerify'
-            };
-    
-            const emailNotification = await this.sqsService.createMessage(
-              SQSEvent.EMAIL_NOTIFICATION,
-              emailNotificationData
-            );
-          }
+      if (!isEmpty(storeDetails?.storeId)) {
+        let email = storeDetails?.contactInfo?.email;
+
+        console.log(email, 'dlemrfn');
+        if (!isEmpty(email)) {
+          const templateData = {
+            storeId: storeDetails?.storeId,
+            customerName: storeDetails?.basicInfo?.ownerName,
+            body: `Your store is verified with ${payload.documentType}`
+          };
+          console.log(templateData, 'fewfrefe');
+          const emailNotificationData = {
+            to: email,
+            templateData: templateData,
+            templateName: 'StoreVerify'
+          };
+
+          const emailNotification = await this.sqsService.createMessage(
+            SQSEvent.EMAIL_NOTIFICATION,
+            emailNotificationData
+          );
         }
+      }
 
       return updatedStore;
     } catch (err) {
@@ -1320,30 +1346,30 @@ export class StoreService {
 
       let notification =
         await this.notificationService.createNotification(notificationData);
-        
-        if (!isEmpty(storeDetails?.storeId)) {
-          let email = storeDetails?.contactInfo?.email;
-    
-          console.log(email, 'dlemrfn');
-          if (!isEmpty(email)) {
-            const templateData = {
-              storeId: storeDetails?.storeId,
-              customerName: storeDetails?.basicInfo?.ownerName,
-              body: `Your store is verified with Aadhar`,
-            };
-            console.log(templateData, 'fewfrefe');
-            const emailNotificationData = {
-              to: email,
-              templateData: templateData,
-              templateName: 'StoreVerify'
-            };
-    
-            const emailNotification = await this.sqsService.createMessage(
-              SQSEvent.EMAIL_NOTIFICATION,
-              emailNotificationData
-            );
-          }
+
+      if (!isEmpty(storeDetails?.storeId)) {
+        let email = storeDetails?.contactInfo?.email;
+
+        console.log(email, 'dlemrfn');
+        if (!isEmpty(email)) {
+          const templateData = {
+            storeId: storeDetails?.storeId,
+            customerName: storeDetails?.basicInfo?.ownerName,
+            body: `Your store is verified with Aadhar`
+          };
+          console.log(templateData, 'fewfrefe');
+          const emailNotificationData = {
+            to: email,
+            templateData: templateData,
+            templateName: 'StoreVerify'
+          };
+
+          const emailNotification = await this.sqsService.createMessage(
+            SQSEvent.EMAIL_NOTIFICATION,
+            emailNotificationData
+          );
         }
+      }
 
       return updatedStore;
     } catch (err) {
