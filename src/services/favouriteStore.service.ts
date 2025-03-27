@@ -33,15 +33,15 @@ export class FavouriteStoreService {
 
     // Check if Customer exists
     const customer: ICustomer = await Customer.findOne({
-      _id: new Types.ObjectId(customerId)
+      customerId: customerId
     });
     if (_.isEmpty(customer)) {
       throw new Error('Customer not found');
     }
 
     const currentFavStore: IFavouriteStore = await FavouriteStore.findOne({
-      storeId: favStore.storeId,
-      customerId: new Types.ObjectId(favStore.customerId)
+      storeId: storeId,
+      customerId: customerId
     });
 
     if (!_.isEmpty(currentFavStore)) {

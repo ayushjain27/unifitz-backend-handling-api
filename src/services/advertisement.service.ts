@@ -139,6 +139,7 @@ export class AdvertisementService {
           $project: {
             _id: 1,
             phoneNumber: 1,
+            customerId: 1,
             geoLocation: 1,
             distance: {
               $sqrt: {
@@ -179,7 +180,7 @@ export class AdvertisementService {
 
       // console.log(customerResponse, 'sad;lkwm');
 
-      await customerResponse.forEach(async(customer) => {
+      await customerResponse.forEach(async(item, index) => {
         // sendNotification(
         //   addBanner.title,
         //   addBanner.description,
@@ -190,7 +191,7 @@ export class AdvertisementService {
         const data = {
           title: addBanner.title,
           body: addBanner.description,
-          phoneNumber: customer?.phoneNumber,
+          phoneNumber: item?.phoneNumber,
           role: 'USER',
           type: 'NEW_BANNERS'
         };
@@ -198,14 +199,17 @@ export class AdvertisementService {
           SQSEvent.NOTIFICATION,
           data
         );
+
+        console.log(item,"flmrkfm")
         const notificationData = {
           title:  addBanner.title,
           body: addBanner.description,
-          phoneNumber: customer?.phoneNumber,
+          phoneNumber: item?.phoneNumber,
           type: "NEW_BANNERS",
           role: "USER",
-          storeId: customer?.customerId
+          customerId: item?.customerId
         }
+        console.log(notificationData,"notificationData")
     
         let notification = await this.notificationService.createNotification(notificationData)
       });
