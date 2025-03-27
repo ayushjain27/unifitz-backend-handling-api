@@ -34,7 +34,8 @@ import {
   StoreLeadController,
   OrderManagementController,
   SmcInsuranceController,
-  ReportRoadAccidentController
+  ReportRoadAccidentController,
+  RazorPayController
 } from '../controllers';
 import {
   StoreService,
@@ -70,7 +71,8 @@ import {
   StoreLeadService,
   OrderManagementService,
   SmcInsuranceService,
-  ReportRoadAccidentService
+  ReportRoadAccidentService,
+  RazorPayService
 } from '../services';
 
 const container = new Container();
@@ -278,5 +280,12 @@ container
 container
   .bind<ReportRoadAccidentController>(TYPES.ReportRoadAccidentController)
   .to(ReportRoadAccidentController);
+
+container
+  .bind<RazorPayService>(TYPES.RazorPayService)
+  .to(RazorPayService);
+container
+  .bind<RazorPayController>(TYPES.RazorPayController)
+  .to(RazorPayController);
 
 export default container;

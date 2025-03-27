@@ -27,13 +27,6 @@ import EmergencyContactDetails, {
   IEmergencyContactDetails
 } from '../models/EmergencyContactDetails';
 import Store from '../models/Store';
-import Razorpay from "razorpay";
-import { razorpayKey, razorpaySecretId } from '../config/constants';
-
-const razorpay = new Razorpay({
-  key_id: razorpayKey as string,
-  key_secret: razorpaySecretId as string
-})
 @injectable()
 export class VehicleInfoService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
@@ -1317,36 +1310,6 @@ export class VehicleInfoService {
         await this.surepassService.getRcDetails(vehicleNumber);
       return vehicleDetails;
     } catch (err) {
-      throw new Error(err);
-    }
-  }
-
-  async createRazorPaySubscription(
-    plan_id: string,
-    customer_email: string,
-    customer_id: string,
-    description: string
-  ): Promise<any> {
-    Logger.info('<Service>:<VehicleService>:<Search and Filter initiated>');
-
-    try {
-      // get the store data
-       const subscription = await razorpay.subscriptions.create({
-          plan_id,
-          customer_notify: 1,
-          total_count: 12, // Number of billing cycles
-          notes: {
-            email: customer_email || 'tester@gmail.coom', // ✅ Meta tag
-            purpose: "Premium Membership", // ✅ Custom meta tag
-            reference_id: customer_id, // ✅ Custom meta tag
-            description: description || 'Premium Features'
-          },
-        });
-  
-        console.log(subscription,"fermfk")
-      return subscription;
-    } catch (err) {
-      console.log(err,"frmkfnk")
       throw new Error(err);
     }
   }

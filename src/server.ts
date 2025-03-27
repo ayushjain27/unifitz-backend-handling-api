@@ -30,6 +30,7 @@ import vehicle from './routes/api/vehicle';
 import newVehicle from './routes/api/newVehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
+import razorpayData from './routes/api/razorpay';
 import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
 // import * as pincodeList from './utils/constants/cityPincodeList.json';
@@ -141,6 +142,7 @@ app.use('/reportRoadAccident', reportRoadAccident);
 app.use('/account', deleteAccount);
 app.use('/orderManagement', orderManagement);
 app.use('/smcInsurance', smcInsurance);
+app.use('/razorpay', razorpayData);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({

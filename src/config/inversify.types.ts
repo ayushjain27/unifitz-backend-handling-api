@@ -89,5 +89,8 @@ export const TYPES = {
   SmcInsuranceService: Symbol('SmcInsuranceService'),
 
   ReportRoadAccidentController: Symbol('ReportRoadAccidentController'),
-  ReportRoadAccidentService: Symbol('ReportRoadAccidentService')
+  ReportRoadAccidentService: Symbol('ReportRoadAccidentService'),
+
+  RazorPayController: Symbol('RazorPayController'),
+  RazorPayService: Symbol('RazorPayService')
 };
