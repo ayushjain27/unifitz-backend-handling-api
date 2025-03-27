@@ -56,7 +56,7 @@ export class FavouriteStoreService {
     }
 
     const newFavStore = {
-      customerId: new Types.ObjectId(customerId),
+      customerId: customerId,
       storeId,
       isFavourite: true
     };
@@ -82,7 +82,7 @@ export class FavouriteStoreService {
   async checkFavStore(favStore: AddToFavouriteRequest) {
     const favStoreDb = await FavouriteStore.findOne({
       storeId: favStore.storeId,
-      customerId: new Types.ObjectId(favStore.customerId)
+      customerId: favStore.customerId
     });
     if (_.isEmpty(favStoreDb)) {
       return { isFavourite: false, favouriteId: null };
@@ -98,7 +98,7 @@ export class FavouriteStoreService {
     const { pageSize, pageNo, customerId } = allFavReq;
     let allFavStore: any = await FavouriteStore.aggregate([
       {
-        $match: { customerId: new Types.ObjectId(customerId) }
+        $match: { customerId: customerId }
       },
       {
         $lookup: {

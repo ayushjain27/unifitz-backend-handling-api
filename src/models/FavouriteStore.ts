@@ -15,7 +15,7 @@ const favouriteStoreSchema: Schema = new Schema(
       required: true
     },
     customerId: {
-      type: Types.ObjectId,
+      type: String,
       required: true
     },
     isFavourite: {

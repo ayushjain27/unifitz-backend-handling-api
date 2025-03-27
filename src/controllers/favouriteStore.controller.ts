@@ -25,10 +25,6 @@ export class FavouriteStoreController {
       return;
     }
     const addToFavouriteRequest: AddToFavouriteRequest = req.body;
-    // const addToFavouriteRequest: AddToFavouriteRequest = {
-    //   customerId,
-    //   storeId
-    // };
     Logger.info(
       '<Controller>:<FavouriteStoreController>:<Add to favourite request initiated>'
     );
