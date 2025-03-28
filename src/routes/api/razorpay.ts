@@ -17,9 +17,31 @@ const razorPayController = container.get<RazorPayController>(
 );
 
 router.post(
-    '/createSubscription',
-    roleAuth(ACL.STORE_GET_ALL),
-    razorPayController.createRazorPaySubscription
-  )
+  '/createSubscription',
+  roleAuth(ACL.STORE_GET_ALL),
+  razorPayController.createRazorPaySubscription
+);
+
+router.post(
+  '/createPayment',
+  roleAuth(ACL.STORE_GET_ALL),
+  razorPayController.validate('createPayment'),
+  validationHandler(),
+  razorPayController.createPayment
+);
+
+router.post(
+  '/updatePaymentStatus',
+  roleAuth(ACL.STORE_GET_ALL),
+  razorPayController.validate('updatePaymentStatus'),
+  validationHandler(),
+  razorPayController.updatePaymentStatus
+);
+
+router.get(
+  '/getPaymentDetails',
+  roleAuth(ACL.STORE_GET_ALL),
+  razorPayController.getPaymentDetails
+);
 
 export default router;

@@ -93,3 +93,10 @@ export interface PartnersProductStoreRatingResponse {
   totalRatings: number;
   totalReviews: number;
 }
+
+export interface UserPaymentRequest {
+  purpose: string;
+  storeId: string;
+  customerId: string;
+  subscriptionId: string;
+}
