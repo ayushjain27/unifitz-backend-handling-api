@@ -149,9 +149,6 @@ export class RazorPayController {
           // body('storeId', 'Store Id does not exist').exists().isString(),
           body('purpose', 'Purpose is required')
             .exists()
-            .isString(),
-          body('subscriptionId', 'Subscription Id is requored')
-            .exists()
             .isString()
         ];
       case 'updatePaymentStatus':

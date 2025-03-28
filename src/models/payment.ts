@@ -11,7 +11,6 @@ export interface IPayment {
   storeId: string;
   customerId: string;
   status: string;
-  subscriptionId: string;
 }
 
 export const paymentSchema: Schema = new Schema(
@@ -29,11 +28,7 @@ export const paymentSchema: Schema = new Schema(
     status: {
       type: String,
       default: 'INACTIVE'
-    },
-    subscriptionId: {
-      type: String,
-      required: true
-    },
+    }
   },
   { timestamps: true }
 );

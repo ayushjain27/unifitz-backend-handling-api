@@ -84,8 +84,7 @@ export class RazorPayService {
           query,
           {
             $set: {
-              status: 'INACTIVE',
-              subscriptionId: paymentRequest.subscriptionId
+              status: 'INACTIVE'
             }
           },
           { returnDocument: 'after' }
@@ -150,7 +149,8 @@ export class RazorPayService {
     try {
       const query = {
         storeId: paymentRequest.storeId,
-        customerId: paymentRequest.customerId
+        customerId: paymentRequest.customerId,
+        status: "ACTIVE"
       };
 
       const getPaymentDetails = await Payment.find(query);
