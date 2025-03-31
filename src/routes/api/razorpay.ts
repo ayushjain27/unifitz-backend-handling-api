@@ -44,4 +44,12 @@ router.get(
   razorPayController.getPaymentDetails
 );
 
+// router.post(
+//   '/createSubscriptionData',
+//   roleAuth(ACL.STORE_GET_ALL),
+//   razorPayController.validate('createSubscriptionData'),
+//   validationHandler(),
+//   razorPayController.createSubscriptionData
+// )
+
 export default router;

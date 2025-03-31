@@ -16,8 +16,9 @@ import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 import { StaticIds } from '../models/StaticId';
 import Razorpay from 'razorpay';
-import { razorpayKey, razorpaySecretId } from '../config/constants';
+import { planId, razorpayKey, razorpaySecretId } from '../config/constants';
 import Payment, { IPayment } from '../models/payment';
+import Subscription, { ISubscription } from '../models/subscription';
 
 const razorpay = new Razorpay({
   key_id: razorpayKey as string,
@@ -29,7 +30,6 @@ export class RazorPayService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
   async createRazorPaySubscription(
-    plan_id: string,
     customer_email: string,
     customer_id: string,
     purpose: string
@@ -39,7 +39,7 @@ export class RazorPayService {
     try {
       // get the store data
       const subscription = await razorpay.subscriptions.create({
-        plan_id,
+        plan_id: planId as string,
         customer_notify: 1,
         total_count: 12, // Number of billing cycles
         notes: {
@@ -49,7 +49,6 @@ export class RazorPayService {
         }
       });
 
-      console.log(subscription, 'fermfk');
       return subscription;
     } catch (err) {
       console.log(err, 'frmkfnk');
@@ -150,7 +149,7 @@ export class RazorPayService {
       const query = {
         storeId: paymentRequest.storeId,
         customerId: paymentRequest.customerId,
-        status: "ACTIVE"
+        status: 'ACTIVE'
       };
 
       const getPaymentDetails = await Payment.find(query);
@@ -161,4 +160,19 @@ export class RazorPayService {
       throw new Error(err);
     }
   }
+
+  // async createSubscriptionData(
+  //   subscriptionRequest: any
+  // ): Promise<ISubscription> {
+  //   Logger.info('<Service>:<RazorPAyService>:<RazorPay subsription initiated>');
+
+  //   try {
+  //     // get the store data
+  //     const subscription = await Subscription.create(subscriptionRequest);
+  //     return subscription;
+  //   } catch (err) {
+  //     console.log(err, 'frmkfnk');
+  //     throw new Error(err);
+  //   }
+  // }
 }

@@ -45,7 +45,7 @@ import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
 import Customer from './models/Customer';
 import StatePermission from './models/StatePermission';
-import { API_VERSION, razorpayKey, razorpaySecretId, s3Config } from './config/constants';
+import { API_VERSION, razorpayKey, razorpaySecretId, s3Config, webhookId } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
@@ -310,7 +310,7 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
 
   // Hash the request body with the secret
   // const expectedSignature = await bcrypt.hash(body, 'EIvoLq3J67PI3LCHpumHaJlm');
-  const expectedSignature = createHmac("sha256", "EIvoLq3J67PI3LCHpumHaJlm")
+  const expectedSignature = createHmac("sha256", webhookId as string)
   .update(body)
   .digest("hex");
   console.log(expectedSignature,"fmkefnrfkeknrke")

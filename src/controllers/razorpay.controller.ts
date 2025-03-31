@@ -28,10 +28,7 @@ export class RazorPayController {
     req: Request,
     res: Response
   ): Promise<any> => {
-    const { plan_id, customer_email, customer_id, purpose } = req.body;
-    if (!plan_id) {
-      return res.status(400).json({ error: "Plan ID is required" });
-    }
+    const { customer_email, customer_id, purpose } = req.body;
     if (!customer_email) {
       return res.status(400).json({ error: "Email is required" });
     }
@@ -45,7 +42,6 @@ export class RazorPayController {
       );
       const result =
         await this.razorPayService.createRazorPaySubscription(
-          plan_id as string,
           customer_email as string,
           customer_id as string,
           purpose as string
@@ -142,6 +138,33 @@ export class RazorPayController {
     }
   };
 
+  // createSubscriptionData = async (
+  //   req: Request,
+  //   res: Response
+  // ): Promise<any> => {
+
+  //   Logger.info(
+  //     '<Controller>:<RazorPayController>:<Get subscriptions data request controller initiated>'
+  //   );
+  //   try {
+  //     Logger.info(
+  //       '<Controller>:<RazorPayController>:<Get subscriptions data request controller initiated>'
+  //     );
+  //     const result =
+  //       await this.razorPayService.createSubscriptionData(
+  //         req,body
+  //       );
+  //     res.send({
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res
+  //       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+  //       .json({ message: err.message });
+  //   }
+  // };
+
   validate = (method: string) => {
     switch (method) {
       case 'createPayment':
@@ -157,6 +180,15 @@ export class RazorPayController {
           body('purpose', 'Purpose is required')
             .exists()
             .isString()
+        ];
+      case 'createSubscriptionData':
+        return [
+          // body('storeId', 'Store Id does not exist').exists().isString(),
+          body('purpose', 'Purpose is required')
+            .exists(),
+          body('price', 'Price is required')
+            .exists()
+            .isNumeric()
         ];
     }
   };

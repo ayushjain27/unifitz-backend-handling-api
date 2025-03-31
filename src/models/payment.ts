@@ -1,11 +1,5 @@
-import { Document, Model, model, ObjectId, Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
-/**
- * Interface to model the Admin Schema for TypeScript.
- * @param catalogName:string
- * @param tree:string
- * @param parent:string
- */
 export interface IPayment {
   purpose: string;
   storeId: string;
