@@ -14,6 +14,7 @@ import {
 import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 import { StaticIds } from '../models/StaticId';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class CustomerService {
@@ -33,6 +34,7 @@ export class CustomerService {
     );
     await StaticIds.findOneAndUpdate({}, { customerId: newCustomerId });
     customerPayload.customerId = newCustomerId;
+    customerPayload.accessList = permissions.CUSTOMER
     const newCustomer = await Customer.create(customerPayload);
     Logger.info('<Service>:<CustomerService>:<Customer created successfully>');
     return newCustomer;
