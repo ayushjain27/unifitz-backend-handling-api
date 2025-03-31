@@ -16,6 +16,7 @@ export interface StoreReviewRequest {
   userId: Types.ObjectId;
   user: IUser;
   storeId: string;
+  customerId: string;
   review: string;
   rating: number;
 }
@@ -91,4 +92,11 @@ export interface PartnersProductStoreRatingResponse {
   averageRating: string | number;
   totalRatings: number;
   totalReviews: number;
+}
+
+export interface UserPaymentRequest {
+  purpose: string;
+  storeId: string;
+  customerId: string;
+  subscriptionId: string;
 }

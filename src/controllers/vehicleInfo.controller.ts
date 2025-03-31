@@ -744,43 +744,6 @@ export class VehicleInfoController {
     }
   };
 
-  createRazorPaySubscription = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
-    const { plan_id, customer_email, customer_id, description } = req.body;
-    if (!plan_id) {
-      return res.status(400).json({ error: "Plan ID is required" });
-    }
-    if (!customer_email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-
-    Logger.info(
-      '<Controller>:<VehicleInfoController>:<Get all vehicle and emergency contact details request controller initiated>'
-    );
-    try {
-      Logger.info(
-        '<Controller>:<StoreController>:<Get all vehicle and emergency contact details request controller initiated>'
-      );
-      const result =
-        await this.vehicleInfoService.createRazorPaySubscription(
-          plan_id as string,
-          customer_email as string,
-          customer_id as string,
-          description as string
-        );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: err.message });
-    }
-  };
-
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':

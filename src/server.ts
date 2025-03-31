@@ -30,6 +30,7 @@ import vehicle from './routes/api/vehicle';
 import newVehicle from './routes/api/newVehicle';
 import enquiry from './routes/api/enquiry.route';
 import buysell from './routes/api/buySell.route';
+import razorpayData from './routes/api/razorpay';
 import { window } from './utils/constants/common';
 import stateCityList from './utils/constants/statecityList.json';
 // import * as pincodeList from './utils/constants/cityPincodeList.json';
@@ -44,7 +45,7 @@ import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
 import Customer from './models/Customer';
 import StatePermission from './models/StatePermission';
-import { API_VERSION, razorpayKey, razorpaySecretId, s3Config } from './config/constants';
+import { API_VERSION, razorpayKey, razorpaySecretId, s3Config, webhookId } from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
@@ -141,6 +142,7 @@ app.use('/reportRoadAccident', reportRoadAccident);
 app.use('/account', deleteAccount);
 app.use('/orderManagement', orderManagement);
 app.use('/smcInsurance', smcInsurance);
+app.use('/razorpay', razorpayData);
 app.get('/category', async (req, res) => {
   const catalogType = req.query.catalogType || 'category';
   const categoryList: ICatalog[] = await Catalog.find({
@@ -308,7 +310,7 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
 
   // Hash the request body with the secret
   // const expectedSignature = await bcrypt.hash(body, 'EIvoLq3J67PI3LCHpumHaJlm');
-  const expectedSignature = createHmac("sha256", "EIvoLq3J67PI3LCHpumHaJlm")
+  const expectedSignature = createHmac("sha256", webhookId as string)
   .update(body)
   .digest("hex");
   console.log(expectedSignature,"fmkefnrfkeknrke")

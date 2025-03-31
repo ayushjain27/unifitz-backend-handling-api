@@ -9,6 +9,7 @@ export interface IStoreReview extends Document {
   user: IUser;
   userPhoneNumber: string;
   storeId: string;
+  customerId: string;
   review: string;
   rating: number;
   isHide?: boolean;
@@ -44,6 +45,9 @@ const storeReviewSchema: Schema = new Schema(
     storeId: {
       type: String,
       required: true
+    },
+    customerId: {
+      type: String
     },
     review: {
       type: String,
