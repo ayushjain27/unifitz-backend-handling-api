@@ -1416,96 +1416,97 @@ export class AdminService {
         $limit: pageSize
       }
     ]);
-    const fileUrlResponse = await Marketing.aggregate([
-      {
-        $match: { postType: 'YoutubeUrl', userType: platform }
-      },
-      {
-        $addFields: {
-          hasCategory: { $gt: [{ $size: '$category' }, 0] },
-          hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
-          hasBrand: { $gt: [{ $size: '$brand' }, 0] },
-          hasState: { $gt: [{ $size: '$state' }, 0] },
-          hasCity: { $gt: [{ $size: '$city' }, 0] },
-          status: {
-            $cond: {
-              if: { $eq: ['$endDate', currentDate] },
-              then: 'ENABLED',
-              else: {
-                $cond: {
-                  if: { $lt: ['$endDate', currentDate] },
-                  then: 'DISABLED',
-                  else: 'ENABLED'
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        $match: {
-          status: 'ENABLED',
-          $or: [
-            {
-              $and: [
-                { hasCategory: true },
-                { category: { $exists: true, $ne: [] } },
-                { 'category.name': matchStage['category.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasSubCategory: true },
-                { subCategory: { $exists: true, $ne: [] } },
-                { 'subCategory.name': matchStage['subCategory.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasBrand: true },
-                { brand: { $exists: true, $ne: [] } },
-                { 'brand.name': matchStage['brand.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasState: true },
-                { state: { $exists: true, $ne: [] } },
-                { 'state.name': matchStage['state.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasCity: true },
-                { city: { $exists: true, $ne: [] } },
-                { 'city.name': matchStage['city.name'] }
-              ]
-            },
-            {
-              $and: [
-                { hasCategory: false },
-                { hasSubCategory: false },
-                { hasBrand: false },
-                { hasState: false },
-                { hasCity: false }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        $match: matchLocation
-      },
-      { $sort: { createdAt: -1 } },
-      {
-        $skip: pageNo * pageSize
-      },
-      {
-        $limit: pageSize
-      }
-    ]);
+    // const fileUrlResponse = await Marketing.aggregate([
+    //   {
+    //     $match: { postType: 'YoutubeUrl', userType: platform }
+    //   },
+    //   {
+    //     $addFields: {
+    //       hasCategory: { $gt: [{ $size: '$category' }, 0] },
+    //       hasSubCategory: { $gt: [{ $size: '$subCategory' }, 0] },
+    //       hasBrand: { $gt: [{ $size: '$brand' }, 0] },
+    //       hasState: { $gt: [{ $size: '$state' }, 0] },
+    //       hasCity: { $gt: [{ $size: '$city' }, 0] },
+    //       status: {
+    //         $cond: {
+    //           if: { $eq: ['$endDate', currentDate] },
+    //           then: 'ENABLED',
+    //           else: {
+    //             $cond: {
+    //               if: { $lt: ['$endDate', currentDate] },
+    //               then: 'DISABLED',
+    //               else: 'ENABLED'
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   },
+    //   {
+    //     $match: {
+    //       status: 'ENABLED',
+    //       $or: [
+    //         {
+    //           $and: [
+    //             { hasCategory: true },
+    //             { category: { $exists: true, $ne: [] } },
+    //             { 'category.name': matchStage['category.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasSubCategory: true },
+    //             { subCategory: { $exists: true, $ne: [] } },
+    //             { 'subCategory.name': matchStage['subCategory.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasBrand: true },
+    //             { brand: { $exists: true, $ne: [] } },
+    //             { 'brand.name': matchStage['brand.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasState: true },
+    //             { state: { $exists: true, $ne: [] } },
+    //             { 'state.name': matchStage['state.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasCity: true },
+    //             { city: { $exists: true, $ne: [] } },
+    //             { 'city.name': matchStage['city.name'] }
+    //           ]
+    //         },
+    //         {
+    //           $and: [
+    //             { hasCategory: false },
+    //             { hasSubCategory: false },
+    //             { hasBrand: false },
+    //             { hasState: false },
+    //             { hasCity: false }
+    //           ]
+    //         }
+    //       ]
+    //     }
+    //   },
+    //   {
+    //     $match: matchLocation
+    //   },
+    //   { $sort: { createdAt: -1 } },
+    //   {
+    //     $skip: pageNo * pageSize
+    //   },
+    //   {
+    //     $limit: pageSize
+    //   }
+    // ]);
+    // console.log(fileUrlResponse,"fmreklmf")
 
-    const finalData: any = [...fileUrlResponse, ...marketingResponse];
+    const finalData: any = [...marketingResponse];
     const result: any = finalData.sort((a: any, b: any) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -1514,6 +1515,7 @@ export class AdminService {
       }
       return dateB - dateA;
     });
+    console.log(result,"sf mre m")
     return result;
   }
 
