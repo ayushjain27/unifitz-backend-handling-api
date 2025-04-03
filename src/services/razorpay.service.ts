@@ -1,24 +1,14 @@
 import { injectable } from 'inversify';
-import { Types } from 'mongoose';
-import _, { isEmpty } from 'lodash';
+import _ from 'lodash';
 import Logger from '../config/winston';
-import Customer, { ICustomer } from './../models/Customer';
 import container from '../config/inversify.container';
 import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
 import {
-  ApproveUserVerifyRequest,
-  UserPaymentRequest,
-  VerifyAadharUserRequest,
-  VerifyCustomerRequest
-} from '../interfaces';
-import { DocType } from '../enum/docType.enum';
-import { SurepassService } from './surepass.service';
-import { StaticIds } from '../models/StaticId';
+  UserPaymentRequest} from '../interfaces';
 import Razorpay from 'razorpay';
 import { planId, razorpayKey, razorpaySecretId } from '../config/constants';
 import Payment, { IPayment } from '../models/payment';
-import Subscription, { ISubscription } from '../models/subscription';
 
 const razorpay = new Razorpay({
   key_id: razorpayKey as string,
@@ -34,7 +24,7 @@ export class RazorPayService {
     customer_id: string,
     purpose: string
   ): Promise<any> {
-    Logger.info('<Service>:<RazorPAyService>:<RazorPay subsription initiated>');
+    Logger.info('<Service>:<RazorPayService>:<RazorPay subsription initiated>');
 
     try {
       // get the store data
@@ -58,7 +48,7 @@ export class RazorPayService {
 
   async createPayment(paymentRequest: UserPaymentRequest): Promise<IPayment> {
     Logger.info(
-      '<Service>:<RazorPAyService>:<RazorPay subscription initiated>'
+      '<Service>:<RazorPayService>:<RazorPay subscription initiated>'
     );
 
     try {
@@ -101,7 +91,7 @@ export class RazorPayService {
 
   async createOrder(orderRequest: any): Promise<any> {
     Logger.info(
-      '<Service>:<RazorPAyService>:<RazorPay subscription initiated>'
+      '<Service>:<RazorPayService>:<RazorPay subscription initiated>'
     );
 
     try {
@@ -122,7 +112,7 @@ export class RazorPayService {
 
   async updatePaymentStatus(paymentRequest: any): Promise<IPayment> {
     Logger.info(
-      '<Service>:<RazorPAyService>:<RazorPay subscription initiated>'
+      '<Service>:<RazorPayService>:<RazorPay subscription initiated>'
     );
 
     try {
@@ -163,7 +153,7 @@ export class RazorPayService {
 
   async getPaymentDetails(paymentRequest: any): Promise<any> {
     Logger.info(
-      '<Service>:<RazorPAyService>:<RazorPay subscription initiated>'
+      '<Service>:<RazorPayService>:<RazorPay subscription initiated>'
     );
 
     try {

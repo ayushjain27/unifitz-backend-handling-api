@@ -33,3 +33,4 @@ export * from './sqs.service';
 export * from './smcInsurance.service';
 export * from './reportRoadAccident.service';
 export * from './razorpay.service';
+export * from './parkAssist.service';
