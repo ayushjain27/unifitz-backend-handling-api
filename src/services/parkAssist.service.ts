@@ -12,7 +12,7 @@ import Razorpay from 'razorpay';
 import { planId, razorpayKey, razorpaySecretId } from '../config/constants';
 import Payment, { IPayment } from '../models/payment';
 import ParkAssistChatUser, { IParkAssistChatUser } from '../models/parkAssistChatUser';
-import PakAssistChatMessage, { IParkAssistChatMessage } from '../models/parkAssistChatMessage';
+import ParkAssistChatMessage, { IParkAssistChatMessage } from '../models/parkAssistChatMessage';
 
 @injectable()
 export class ParkAssistService {
@@ -58,7 +58,7 @@ export class ParkAssistService {
     );
 
     try {
-      const parkAssistChatMessage = await PakAssistChatMessage.create(parkAssistUserChatPayload);
+      const parkAssistChatMessage = await ParkAssistChatMessage.create(parkAssistUserChatPayload);
       return parkAssistChatMessage;
     } catch (err) {
       console.error(err, 'Error in creating user');
@@ -68,12 +68,26 @@ export class ParkAssistService {
 
   async getUserChatDetails(dataPayload: any): Promise<any> {
     Logger.info(
-      '<Service>:<ParkAssistService>:<Park Assist User Message Creation initiated>'
+      '<Service>:<ParkAssistService>:<Get Park Assist User Messages initiated>'
     );
 
     try {
-      const parkAssistChatMessage = await PakAssistChatMessage.find(dataPayload);
+      const parkAssistChatMessage = await ParkAssistChatMessage.find(dataPayload);
       return parkAssistChatMessage;
+    } catch (err) {
+      console.error(err, 'Error in creating user');
+      throw new Error(err);
+    }
+  }
+
+  async getUserDetails(dataPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<ParkAssistService>:<Get Park Assist User Details Creation initiated>'
+    );
+
+    try {
+      const parkAssistUsers = await ParkAssistChatUser.find(dataPayload);
+      return parkAssistUsers;
     } catch (err) {
       console.error(err, 'Error in creating user');
       throw new Error(err);

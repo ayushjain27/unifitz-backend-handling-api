@@ -34,9 +34,9 @@ export const parkAssistChatMessageSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export const PakAssistChatMessage = model<IParkAssistChatMessage>(
+export const ParkAssistChatMessage = model<IParkAssistChatMessage>(
   'parkAssistChatMessage',
   parkAssistChatMessageSchema
 );
 
-export default PakAssistChatMessage;
+export default ParkAssistChatMessage;

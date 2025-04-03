@@ -38,4 +38,10 @@ router.get(
   parkAssistController.getUserChatDetails
 );
 
+router.get(
+  '/getUserDetails',
+  roleAuth(ACL.STORE_GET_ALL),
+  parkAssistController.getUserDetails
+);
+
 export default router;

@@ -77,7 +77,6 @@ export class ParkAssistController {
 
   getUserChatDetails = async (req: Request, res: Response): Promise<any> => {
     const dataRequest: any = req.query;
-    console.log(req.query,"drlmfk")
     if (!dataRequest.senderId) {
       return res.json({ error: 'Sender Id is required' });
     }
@@ -96,6 +95,31 @@ export class ParkAssistController {
       );
       const result =
         await this.parkAssistService.getUserChatDetails(dataRequest);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getUserDetails = async (req: Request, res: Response): Promise<any> => {
+    const dataRequest: any = req.query;
+    if (!dataRequest.senderId) {
+      return res.json({ error: 'Sender Id is required' });
+    }
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Get park assist user chat details request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ParkAssistController>:<Get park assist user chat details request controller initialised>'
+      );
+      const result =
+        await this.parkAssistService.getUserDetails(dataRequest);
       res.send({
         result
       });
