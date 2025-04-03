@@ -84,6 +84,33 @@ export class RazorPayController {
     }
   };
 
+  createOrder = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
+    const orderRequest: any = req.body;
+    Logger.info(
+      '<Controller>:<RazorPayController>:<Get razorpay subscription request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<RazorPayController>:<Get razorpay subscription request controller initiated>'
+      );
+      const result =
+        await this.razorPayService.createOrder(
+          orderRequest
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   updatePaymentStatus = async (
     req: Request,
     res: Response

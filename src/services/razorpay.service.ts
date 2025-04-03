@@ -99,6 +99,27 @@ export class RazorPayService {
     }
   }
 
+  async createOrder(orderRequest: any): Promise<any> {
+    Logger.info(
+      '<Service>:<RazorPAyService>:<RazorPay subscription initiated>'
+    );
+
+    try {
+      const options = {
+        amount: orderRequest.amount, // Amount in paise (100 INR = 10000 paise)
+        currency: 'INR',
+        receipt: `receipt_${Date.now()}`,
+        payment_capture: 1 // ✅ Ensures automatic capture
+      };
+
+      const order = await razorpay.orders.create(options);
+      return order;
+    } catch (err) {
+      console.error(err, 'Error in createPayment');
+      throw new Error(err);
+    }
+  }
+
   async updatePaymentStatus(paymentRequest: any): Promise<IPayment> {
     Logger.info(
       '<Service>:<RazorPAyService>:<RazorPay subscription initiated>'
