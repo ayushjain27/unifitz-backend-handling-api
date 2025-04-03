@@ -86,7 +86,7 @@ export class ParkAssistService {
     );
 
     try {
-      const parkAssistUsers = await ParkAssistChatUser.find(dataPayload);
+      const parkAssistUsers = await ParkAssistChatUser.find(dataPayload).sort({ date: -1 });;
       return parkAssistUsers;
     } catch (err) {
       console.error(err, 'Error in creating user');
