@@ -71,8 +71,23 @@ export class ParkAssistService {
       '<Service>:<ParkAssistService>:<Get Park Assist User Messages initiated>'
     );
 
+    const query = {
+        vehicleNumber: dataPayload.vehicleNumber,
+        $or: [
+          {
+            senderId: dataPayload.senderId,
+            receiverId: dataPayload.receiverId,
+          },
+          {
+            senderId: dataPayload.receiverId,
+            receiverId: dataPayload.senderId,
+          },
+        ],
+      };
+    
+
     try {
-      const parkAssistChatMessage = await ParkAssistChatMessage.find(dataPayload);
+      const parkAssistChatMessage = await ParkAssistChatMessage.find(query).sort({ createdAt: 1 });;
       return parkAssistChatMessage;
     } catch (err) {
       console.error(err, 'Error in creating user');
