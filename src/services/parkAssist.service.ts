@@ -74,16 +74,18 @@ export class ParkAssistService {
     const query = {
         vehicleNumber: dataPayload.vehicleNumber,
         $or: [
-          {
-            senderId: dataPayload.senderId,
-            receiverId: dataPayload.receiverId,
-          },
-          {
-            senderId: dataPayload.receiverId,
-            receiverId: dataPayload.senderId,
-          },
-        ],
+            {
+              senderId: String(dataPayload.senderId),
+              receiverId: String(dataPayload.receiverId),
+            },
+            {
+              senderId: String(dataPayload.receiverId),
+              receiverId: String(dataPayload.senderId),
+            },
+          ],      
       };
+
+      console.log(query,"crmkmk")
     
 
     try {
