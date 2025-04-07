@@ -308,21 +308,18 @@ const razorpay = new Razorpay({
 app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
   const signature = req.headers["x-razorpay-signature"];
   const body = JSON.stringify(req.body);
-  console.log(signature,"fmrkfnmkr")
-
   // Hash the request body with the secret
   // const expectedSignature = await bcrypt.hash(body, 'EIvoLq3J67PI3LCHpumHaJlm');
   const expectedSignature = createHmac("sha256", webhookId as string)
   .update(body)
   .digest("hex");
-  console.log(expectedSignature,"fmkefnrfkeknrke")
 
   if (signature !== expectedSignature) {
     return res.status(401).json({ message: "Invalid signature" });
   }
 
-  if(req.body.event === 'subscription.activated'){
-    let customerId = req.body.payload.subscription.entity.notes.reference_id
+  if(req.body.event === 'payment.captured'){
+    let customerId = req.body.payload.subscription.entity.notes.customer_id
     let customer = await Customer.findOne({
       customerId: customerId
     });
@@ -343,6 +340,8 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
   }
 
   console.log("Webhook wsfe3:", req.body);
+  const payment = req.body.payload?.payment?.entity;
+  console.log(payment,"dmfekmnfk")
 
   res.status(200).json({ message: "Webhook processed successfully" });
 });
