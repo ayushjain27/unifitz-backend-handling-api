@@ -788,6 +788,46 @@ export class StoreService {
           distanceField: 'contactInfo.distance',
           distanceMultiplier: 0.001
         }
+      },
+      {
+        $addFields: {
+          hasValidPayment: {
+            $cond: {
+              if: {
+                $and: [
+                  { $eq: ["$preferredServicePlugStore", true] },
+                  { $isArray: "$paymentDetails" },
+                  { $gt: [{ $size: "$paymentDetails" }, 0] },
+                  {
+                    $gt: [
+                      { $toDate: { $arrayElemAt: ["$paymentDetails.endDate", 0] } },
+                      new Date() // Check if first payment's endDate is in future
+                    ]
+                  }
+                ]
+              },
+              then: true,
+              else: false
+            }
+          }
+        }
+      },
+      // Update preferredServicePlugStore status based on payment validity
+      {
+        $set: {
+          preferredServicePlugStore: {
+            $cond: {
+              if: {
+                $and: [
+                  { $eq: ["$preferredServicePlugStore", true] },
+                  "$hasValidPayment"
+                ]
+              },
+              then: true,
+              else: false
+            }
+          }
+        }
       }
     ];
 
@@ -799,7 +839,7 @@ export class StoreService {
             {
               $match: {
                 preferredServicePlugStore: true,
-                'contactInfo.distance': { $lte: 1 }
+                'contactInfo.distance': { $lte: 5 }
               }
             },
             { $sort: { 'contactInfo.distance': 1 } }
