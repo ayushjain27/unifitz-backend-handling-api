@@ -319,10 +319,12 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
   }
 
   if(req.body.event === 'payment.captured'){
-    let customerId = req.body.payload.subscription.entity.notes.customer_id
+    let customerId = req.body.payload.payment.entity.notes?.[0]?.customer_id
+    console.log(customerId,"fmrkmfk");
     let customer = await Customer.findOne({
       customerId: customerId
     });
+    console.log(customer,"customer")
     let customerDetails = await Customer.findOneAndUpdate(
       { customerId: customerId },
       { 
@@ -337,6 +339,7 @@ app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
       },
       { new: true } // Returns the updated document
   );
+  console.log(customerDetails,"dlmrkmfkm")
   }
 
   console.log("Webhook wsfe3:", req.body);

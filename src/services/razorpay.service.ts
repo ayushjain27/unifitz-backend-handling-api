@@ -91,7 +91,7 @@ export class RazorPayService {
 
   async createOrder(orderRequest: any): Promise<any> {
     Logger.info(
-      '<Service>:<RazorPayService>:<RazorPay subscription initiated>'
+      '<Service>:<RazorPayService>:<RazorPay order initiated>'
     );
 
     try {

@@ -90,11 +90,11 @@ export class RazorPayController {
   ): Promise<any> => {
     const orderRequest: any = req.body;
     Logger.info(
-      '<Controller>:<RazorPayController>:<Get razorpay subscription request controller initiated>'
+      '<Controller>:<RazorPayController>:<Get razorpay order request controller initiated>'
     );
     try {
       Logger.info(
-        '<Controller>:<RazorPayController>:<Get razorpay subscription request controller initiated>'
+        '<Controller>:<RazorPayController>:<Get razorpay order request controller initiated>'
       );
       const result =
         await this.razorPayService.createOrder(

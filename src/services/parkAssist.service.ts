@@ -97,14 +97,39 @@ export class ParkAssistService {
     }
   }
 
-  async getUserDetails(dataPayload: any): Promise<any> {
+  async  getUserDetails(dataPayload: any): Promise<any> {
     Logger.info(
       '<Service>:<ParkAssistService>:<Get Park Assist User Details Creation initiated>'
     );
 
+    const query ={
+        $or: [
+            {
+              senderId: String(dataPayload.senderId)
+            },
+            {
+              receiverId: String(dataPayload.senderId),
+            },
+          ], 
+    }
+
     try {
-      const parkAssistUsers = await ParkAssistChatUser.find(dataPayload).sort({ date: -1 });;
-      return parkAssistUsers;
+      const parkAssistUsers = await ParkAssistChatUser.find(query).sort({ date: -1 });;
+      const seenPairs = new Set();
+      const uniqueUsers = [];
+  
+      for (const user of parkAssistUsers) {
+        const key1 = `${user.vehicleNumber}_${user.senderId}_${user.receiverId}`;
+        const key2 = `${user.vehicleNumber}_${user.receiverId}_${user.senderId}`;
+  
+        if (!seenPairs.has(key1) && !seenPairs.has(key2)) {
+          uniqueUsers.push(user);
+          seenPairs.add(key1);
+          seenPairs.add(key2);
+        }
+      }
+  
+      return uniqueUsers;
     } catch (err) {
       console.error(err, 'Error in creating user');
       throw new Error(err);
