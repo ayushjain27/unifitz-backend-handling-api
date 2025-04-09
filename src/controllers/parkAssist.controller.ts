@@ -131,6 +131,34 @@ export class ParkAssistController {
     }
   };
 
+  deleteAllChats = async (req: Request, res: Response): Promise<any> => {
+    const dataRequest: any = req.query;
+    if (!dataRequest.senderId) {
+      return res.json({ error: 'Sender Id is required' });
+    }
+    if (!dataRequest.receiverId) {
+      return res.json({ error: 'Receiver Id is required' });
+    }
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Delete park assist user chat details request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ParkAssistController>:<Delete park assist user chat details request controller initialised>'
+      );
+      const result =
+        await this.parkAssistService.deleteAllChats(dataRequest);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

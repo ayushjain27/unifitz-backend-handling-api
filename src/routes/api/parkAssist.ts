@@ -44,4 +44,10 @@ router.get(
   parkAssistController.getUserDetails
 );
 
+router.delete(
+  '/delete-chat',
+  roleAuth(ACL.STORE_GET_ALL),
+  parkAssistController.deleteAllChats
+)
+
 export default router;
