@@ -6,6 +6,11 @@ export interface IParkAssistChatMessage {
   senderId: string;
   receiverId: string;
   platform: string;
+  geoLocation: {
+    // kind: string;
+    type: string;
+    coordinates: number[];
+  };
 }
 
 export const parkAssistChatMessageSchema: Schema = new Schema(
@@ -29,7 +34,12 @@ export const parkAssistChatMessageSchema: Schema = new Schema(
     platform: {
       type: String,
       required: true
-    }
+    },
+    geoLocation: {
+      // kind: String,
+      type: { type: String, default: 'Point' },
+      coordinates: [{ type: Number }]
+    },
   },
   { timestamps: true }
 );
