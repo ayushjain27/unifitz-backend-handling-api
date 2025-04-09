@@ -6,29 +6,21 @@ import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
 import {
   ParkAssistChatRequest,
-  ParkAssistUserRequest,
-  UserPaymentRequest
-} from '../interfaces';
-import Razorpay from 'razorpay';
-import { planId, razorpayKey, razorpaySecretId } from '../config/constants';
-import Payment, { IPayment } from '../models/payment';
+  ParkAssistUserRequest} from '../interfaces';
 import ParkAssistChatUser, {
   IParkAssistChatUser
 } from '../models/parkAssistChatUser';
 import ParkAssistChatMessage, {
   IParkAssistChatMessage
 } from '../models/parkAssistChatMessage';
-import { CustomerService } from './customer.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { NotificationService } from './notification.service';
+import Customer from '../models/Customer';
 
 @injectable()
 export class ParkAssistService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
-  private customerService = container.get<CustomerService>(
-    TYPES.CustomerService
-  );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
   private notificationService = container.get<NotificationService>(
     TYPES.NotificationService
@@ -81,9 +73,9 @@ export class ParkAssistService {
       '<Service>:<ParkAssistService>:<Park Assist User Message Creation initiated>'
     );
 
-    const customerId = parkAssistUserChatPayload?.receiverId as string;
-    const customer =
-      await this.customerService.getcustomerDetailsByCustomerId(customerId);
+    const customer = await Customer.findOne({
+        customerId: parkAssistUserChatPayload?.receiverId
+    })
     console.log(customer, 'cusotmer');
 
     if (!customer) {
