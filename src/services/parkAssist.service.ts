@@ -4,9 +4,7 @@ import Logger from '../config/winston';
 import container from '../config/inversify.container';
 import { S3Service } from './s3.service';
 import { TYPES } from '../config/inversify.types';
-import {
-  ParkAssistChatRequest,
-  ParkAssistUserRequest} from '../interfaces';
+import { ParkAssistChatRequest, ParkAssistUserRequest } from '../interfaces';
 import ParkAssistChatUser, {
   IParkAssistChatUser
 } from '../models/parkAssistChatUser';
@@ -74,8 +72,8 @@ export class ParkAssistService {
     );
 
     const customer = await Customer.findOne({
-        customerId: parkAssistUserChatPayload?.receiverId
-    })
+      customerId: parkAssistUserChatPayload?.receiverId
+    });
     console.log(customer, 'cusotmer');
 
     if (!customer) {
@@ -87,7 +85,7 @@ export class ParkAssistService {
         parkAssistUserChatPayload
       );
       const data = {
-        title: `New Message from vehicle number ${parkAssistUserChatPayload?.vehicleNumber}`,
+        title: `New Message to vehicle number ${parkAssistUserChatPayload?.vehicleNumber}`,
         body: parkAssistUserChatPayload?.message,
         phoneNumber: customer?.phoneNumber,
         role: 'USER',
@@ -105,7 +103,7 @@ export class ParkAssistService {
         type: 'PARK_ASSIST',
         role: 'USER',
         customerId: customer?.customerId,
-        dataId: parkAssistUserChatPayload?.vehicleNumber
+        dataId: `${[parkAssistUserChatPayload?.vehicleNumber, customer?.customerId === parkAssistUserChatPayload?.receiverId ? parkAssistUserChatPayload?.senderId : parkAssistUserChatPayload?.receiverId]}`
       };
 
       let notification =
@@ -212,6 +210,70 @@ export class ParkAssistService {
       const result = await ParkAssistChatMessage.deleteMany(query);
 
       return [];
+    } catch (err) {
+      console.error(err, 'Error in creating user');
+      throw new Error(err);
+    }
+  }
+
+  async sendNotificationToUser(dataPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<ParkAssistService>:<Send notifications to employees Creation initiated>'
+    );
+    const date = new Date();
+    const customer = await Customer.findOne({
+      customerId: dataPayload?.receiverId
+    });
+    const customerDetail = await Customer.findOne({
+      customerId: dataPayload?.senderId
+    });
+    try {
+      const data = {
+        title: '🚨 SOS Alert: Immediate Assistance Required 🚨',
+        body: `
+🕒 Date & Time: ${date}  
+🏠 Address: ${dataPayload?.address}  
+📍 Location: ${[dataPayload?.latitude, dataPayload.longitude]} (tap to open map)   
+🚗 Vehicle Number: ${dataPayload?.vehicleNumber}  
+📨 Message: "Need urgent help!"  
+
+👤 Sent by: ${customerDetail?.fullName}  
+📞 Contact: ${customerDetail?.phoneNumber} 
+`,
+        phoneNumber: customer?.phoneNumber,
+        role: 'USER',
+        type: 'EMERGENCY'
+      };
+
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+
+      const notificationData = {
+        title: '🚨 SOS Alert: Immediate Assistance Required 🚨',
+        body: `
+🕒 Date & Time: ${date}  
+🏠 Address: ${dataPayload?.address}  
+📍 Location: ${[dataPayload?.longitude, dataPayload.latitude]} (tap to open map)   
+🚗 Vehicle Number: ${dataPayload?.vehicleNumber}  
+📨 Message: "Need urgent help!"  
+
+👤 Sent by: ${customerDetail?.fullName}  
+📞 Contact: ${customerDetail?.phoneNumber} 
+
+
+Tap to open Map
+`,
+        phoneNumber: customer?.phoneNumber,
+        role: 'USER',
+        type: 'EMERGENCY',
+        customerId: customer?.customerId,
+        dataId: `${[dataPayload?.longitude, dataPayload.latitude]}`
+      };
+
+      let notification =
+        await this.notificationService.createNotification(notificationData);
     } catch (err) {
       console.error(err, 'Error in creating user');
       throw new Error(err);

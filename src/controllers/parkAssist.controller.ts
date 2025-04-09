@@ -159,6 +159,28 @@ export class ParkAssistController {
     }
   };
 
+  sendNotificationToUser = async (req: Request, res: Response): Promise<any> => {
+    const dataRequest: any = req.query;
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Send notification to employee request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ParkAssistController>:<DSend notification to employee request controller initialised>'
+      );
+      const result =
+        await this.parkAssistService.sendNotificationToUser(dataRequest);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

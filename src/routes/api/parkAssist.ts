@@ -50,4 +50,10 @@ router.delete(
   parkAssistController.deleteAllChats
 )
 
+router.get(
+  '/sendNotificationToUser',
+  roleAuth(ACL.STORE_GET_ALL),
+  parkAssistController.sendNotificationToUser
+)
+
 export default router;
