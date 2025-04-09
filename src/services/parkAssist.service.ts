@@ -13,10 +13,19 @@ import { planId, razorpayKey, razorpaySecretId } from '../config/constants';
 import Payment, { IPayment } from '../models/payment';
 import ParkAssistChatUser, { IParkAssistChatUser } from '../models/parkAssistChatUser';
 import ParkAssistChatMessage, { IParkAssistChatMessage } from '../models/parkAssistChatMessage';
+import { CustomerService } from './customer.service';
+import { SQSService } from './sqs.service';
+import { SQSEvent } from '../enum/sqsEvent.enum';
+import { NotificationService } from './notification.service';
 
 @injectable()
 export class ParkAssistService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private customerService = container.get<CustomerService>(TYPES.CustomerService);
+  private sqsService = container.get<SQSService>(TYPES.SQSService);
+  private notificationService = container.get<NotificationService>(
+    TYPES.NotificationService
+  );
 
   async createUser(parkAssistUserPayload: ParkAssistUserRequest): Promise<IParkAssistChatUser> {
     Logger.info(
@@ -57,8 +66,41 @@ export class ParkAssistService {
       '<Service>:<ParkAssistService>:<Park Assist User Message Creation initiated>'
     );
 
+    const customerId = parkAssistUserChatPayload?.receiverId as string;
+    const customer = await this.customerService.getcustomerDetailsByCustomerId(customerId);
+    console.log(customer,"cusotmer")
+    
+    if(!customer){
+        throw new Error('Customer not found');
+    }
+
     try {
       const parkAssistChatMessage = await ParkAssistChatMessage.create(parkAssistUserChatPayload);
+      const data = {
+        title: `New Message from vehicle number ${parkAssistUserChatPayload?.vehicleNumber}`,
+        body: parkAssistUserChatPayload?.message,
+        phoneNumber: customer?.phoneNumber,
+        role: 'USER',
+        type: 'PARK_ASSIST'
+      };
+      const sqsMessage = await this.sqsService.createMessage(
+        SQSEvent.NOTIFICATION,
+        data
+      );
+  
+      const notificationData = {
+        title: `New Message from vehicle number ${parkAssistUserChatPayload?.vehicleNumber}`,
+        body: parkAssistUserChatPayload?.message,
+        phoneNumber: customer?.phoneNumber,
+        type: 'PARK_ASSIST',
+        role: 'USER',
+        customerId: customer?.customerId,
+        dataId: parkAssistUserChatPayload?.vehicleNumber
+      };
+  
+      let notification =
+        await this.notificationService.createNotification(notificationData);
+  
       return parkAssistChatMessage;
     } catch (err) {
       console.error(err, 'Error in creating user');

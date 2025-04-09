@@ -842,14 +842,31 @@ export class StoreService {
                 'contactInfo.distance': { $lte: 5 }
               }
             },
-            { $sort: { 'contactInfo.distance': 1 } }
+            { $sort: { 'contactInfo.distance': 1 } },
+            { $limit: 1 }
           ],
           otherStores: [
-            { $match: { preferredServicePlugStore: { $ne: true } } },
-            { $sort: { 'contactInfo.distance': 1 } },
+            { $sort: { 'contactInfo.distance': 1 } }, // Pure distance sorting    
             { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
             { $limit: searchReqBody.pageSize }
           ]
+        }
+      });
+
+      aggregationPipeline.push({
+        $project: {
+          preferredStores: 1,
+          otherStores: {
+            $filter: {
+              input: '$otherStores',
+              as: 'store',
+              cond: {
+                $not: {
+                  $in: ['$$store.storeId', '$preferredStores.storeId']
+                }
+              }
+            }
+          }
         }
       });
 
