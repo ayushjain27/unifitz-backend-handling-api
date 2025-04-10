@@ -799,7 +799,7 @@ export class StoreService {
                   { $isArray: "$paymentDetails" },
                   { $gt: [{ $size: "$paymentDetails" }, 0] },
                   {
-                    $gt: [
+                    $gte: [
                       { $toDate: { $arrayElemAt: ["$paymentDetails.endDate", 0] } },
                       new Date() // Check if first payment's endDate is in future
                     ]
@@ -2228,6 +2228,20 @@ export class StoreService {
                 }
               },
               0
+            ]
+          },
+          preferredServicePlugStoreStatus: {
+            $cond: [
+              {
+                $lt: [
+                  {
+                    $max: '$paymentDetails.endDate'  // ← max() gets latest endDate from array
+                  },
+                  new Date() // compare with current date
+                ]
+              },
+              'INACTIVE',
+              'ACTIVE'
             ]
           }
         }
