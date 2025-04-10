@@ -799,36 +799,45 @@ export class StoreController {
     }
   };
 
-  // getStoreByUserId = async (req: Request, res: Response) => {
-  //   const userId = req.query.userId;
+  getSponsoredStorePaginatedAll = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<StoreController>:<Get all sponsored store request controller initiated>'
+    );
+    try {
+      const result = await this.storeService.getSponsoredStorePaginatedAll(
+        req.body.pageNo,
+        req.body.pageSize
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 
-  //   Logger.info(
-  //     '<Controller>:<StoreController>:<Get stores by userId request controller initiated>'
-  //   );
 
-  //   // Handle case where userId is not provided
-  //   if (!userId) {
-  //     return res
-  //       .status(HttpStatusCodes.BAD_REQUEST)
-  //       .json({ message: 'User ID is required' });
-  //   }
-
-  //   try {
-  //     const result = await this.storeService.getStoreByUserId(userId);
-
-  //     // Send the result in the response after it's retrieved
-  //     res.send({
-  //       result
-  //     });
-  //   } catch (err) {
-  //     Logger.error(err.message);
-
-  //     // Return error response
-  //     res
-  //       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-  //       .json({ message: err.message });
-  //   }
-  // };
+  countAllSponsoredStores = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<StoreController>:<Search and Filter Sponsored Stores pagination request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Search and Filter Sponsored Stores pagination request controller initiated>'
+      );
+      const result: any =
+        await this.storeService.countAllSponsoredStores();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 
   validate = (method: string) => {
     switch (method) {

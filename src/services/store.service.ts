@@ -2100,4 +2100,158 @@ export class StoreService {
     ]);
     return stores;
   }
+
+  async getSponsoredStorePaginatedAll(pageNo: number, pageSize: number) : Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Get all sponsored stores>');
+
+    const query = {
+      preferredServicePlugStore: true
+    }
+
+    const storeResponse: any = await Store.aggregate([
+      { $match: query },
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
+      {
+        $lookup: {
+          from: 'eventlogs',
+          let: { storeId: '$storeId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$moduleInformation', '$$storeId'] } } },
+            {
+              $group: {
+                _id: '$event',
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          as: 'eventStats'
+        }
+      },
+      {
+        $set: {
+          impressionCount: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'IMPRESSION_COUNT'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          storeDetailClick: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'STORE_DETAIL_CLICK'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          shareStoreDetail: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'SHARE_STORE_DETAIL'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          phoneNoClick: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'PHONE_NUMBER_CLICK'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          locationClickCount: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'MAP_VIEW'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          }
+        }
+      },
+      { $project: { eventStats: 0 } }
+    ]);    
+
+    return storeResponse;
+  };
+  
+  async countAllSponsoredStores(): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated 111111>'
+    );
+
+    let query = {
+      preferredServicePlugStore: true
+    }
+
+    const total = await Store.countDocuments(query);
+    let totalCounts = {
+      total
+    };
+
+    return totalCounts;
+  }
 }
