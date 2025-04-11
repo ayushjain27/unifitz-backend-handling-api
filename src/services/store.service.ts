@@ -35,6 +35,7 @@ import { SPEmployeeService } from './spEmployee.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import CustomerStoreReview from '../models/CustomerStoreReviews';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class StoreService {
@@ -95,6 +96,7 @@ export class StoreService {
 
     const slug = `${baseSlug}-${newStoreId}`;
     storePayload.slug = slug;
+    storePayload.accessList = permissions.PARTNER
 
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;

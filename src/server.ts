@@ -63,6 +63,7 @@ import cron from 'node-cron';
 import NewVehicle from './models/NewVehicle';
 import { PartnersPoduct } from './models/B2BPartnersProduct';
 import Razorpay from 'razorpay';
+import Store from './models/Store';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -628,9 +629,9 @@ const server = app.listen(port, () =>
 async function updateSlugs() {
   try {
     // Use aggregation pipeline in updateMany
-    await Admin.updateMany(
+    await Store.updateMany(
       // Only update documents that have storeId
-      { $set: { accessList: permissions.OEM } }
+      { $set: { accessList: permissions.PARTNER } }
     );
 
     console.log('All documents have been updated with slugs.');
@@ -713,7 +714,7 @@ async function updateSlug() {
 // }
 
 app.get('/slug', async (req, res) => {
-  updateSlug();
+  updateSlugs();
 });
 
 // import mongoose from 'mongoose';

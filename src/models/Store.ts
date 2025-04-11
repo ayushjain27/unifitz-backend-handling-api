@@ -283,6 +283,7 @@ export interface IStore {
   verificationDetails?: IVerificationDetails;
   emergencyDetails?: IEmergencyContactDetails[];
   paymentDetails?: IPaymentDetails[];
+  accessList: object;
 }
 
 const storeSchema: Schema = new Schema<IStore>(
@@ -338,6 +339,9 @@ const storeSchema: Schema = new Schema<IStore>(
     },
     paymentDetails: {
       type: [paymentDetailsSchema]
+    },
+    accessList: {
+      type: Object
     }
   },
   { timestamps: true, strict: false }

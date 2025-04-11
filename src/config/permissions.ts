@@ -559,5 +559,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+  },
+  PARTNER: {
+    SPONSORED_STORE: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
   }
 };
