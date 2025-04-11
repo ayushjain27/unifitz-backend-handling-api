@@ -2235,9 +2235,17 @@ export class StoreService {
               {
                 $lt: [
                   {
-                    $max: '$paymentDetails.endDate'  // ← max() gets latest endDate from array
+                    $toDate: {
+                      $arrayElemAt: ['$paymentDetails.endDate', -1]  // get last endDate
+                    }
                   },
-                  new Date() // compare with current date
+                  {
+                    $dateFromParts: {
+                      year: { $year: new Date() },
+                      month: { $month: new Date() },
+                      day: { $dayOfMonth: new Date() }
+                    }
+                  }
                 ]
               },
               'INACTIVE',
