@@ -35,6 +35,7 @@ import { SPEmployeeService } from './spEmployee.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import CustomerStoreReview from '../models/CustomerStoreReviews';
+import { permissions } from '../config/permissions';
 
 @injectable()
 export class StoreService {
@@ -95,6 +96,7 @@ export class StoreService {
 
     const slug = `${baseSlug}-${newStoreId}`;
     storePayload.slug = slug;
+    storePayload.accessList = permissions.PARTNER
 
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
@@ -788,6 +790,46 @@ export class StoreService {
           distanceField: 'contactInfo.distance',
           distanceMultiplier: 0.001
         }
+      },
+      {
+        $addFields: {
+          hasValidPayment: {
+            $cond: {
+              if: {
+                $and: [
+                  { $eq: ["$preferredServicePlugStore", true] },
+                  { $isArray: "$paymentDetails" },
+                  { $gt: [{ $size: "$paymentDetails" }, 0] },
+                  {
+                    $gte: [
+                      { $toDate: { $arrayElemAt: ["$paymentDetails.endDate", 0] } },
+                      new Date() // Check if first payment's endDate is in future
+                    ]
+                  }
+                ]
+              },
+              then: true,
+              else: false
+            }
+          }
+        }
+      },
+      // Update preferredServicePlugStore status based on payment validity
+      {
+        $set: {
+          preferredServicePlugStore: {
+            $cond: {
+              if: {
+                $and: [
+                  { $eq: ["$preferredServicePlugStore", true] },
+                  "$hasValidPayment"
+                ]
+              },
+              then: true,
+              else: false
+            }
+          }
+        }
       }
     ];
 
@@ -799,17 +841,34 @@ export class StoreService {
             {
               $match: {
                 preferredServicePlugStore: true,
-                'contactInfo.distance': { $lte: 1 }
+                'contactInfo.distance': { $lte: 5 }
               }
             },
-            { $sort: { 'contactInfo.distance': 1 } }
+            { $sort: { 'contactInfo.distance': 1 } },
+            { $limit: 1 }
           ],
           otherStores: [
-            { $match: { preferredServicePlugStore: { $ne: true } } },
-            { $sort: { 'contactInfo.distance': 1 } },
+            { $sort: { 'contactInfo.distance': 1 } }, // Pure distance sorting    
             { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
             { $limit: searchReqBody.pageSize }
           ]
+        }
+      });
+
+      aggregationPipeline.push({
+        $project: {
+          preferredStores: 1,
+          otherStores: {
+            $filter: {
+              input: '$otherStores',
+              as: 'store',
+              cond: {
+                $not: {
+                  $in: ['$$store.storeId', '$preferredStores.storeId']
+                }
+              }
+            }
+          }
         }
       });
 
@@ -2042,5 +2101,181 @@ export class StoreService {
       { $sort: { createdAt: -1 } }
     ]);
     return stores;
+  }
+
+  async getSponsoredStorePaginatedAll(pageNo: number, pageSize: number) : Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Get all sponsored stores>');
+
+    const query = {
+      preferredServicePlugStore: true
+    }
+
+    const storeResponse: any = await Store.aggregate([
+      { $match: query },
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
+      {
+        $lookup: {
+          from: 'eventlogs',
+          let: { storeId: '$storeId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$moduleInformation', '$$storeId'] } } },
+            {
+              $group: {
+                _id: '$event',
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          as: 'eventStats'
+        }
+      },
+      {
+        $set: {
+          impressionCount: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'IMPRESSION_COUNT'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          storeDetailClick: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'STORE_DETAIL_CLICK'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          shareStoreDetail: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'SHARE_STORE_DETAIL'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          phoneNoClick: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'PHONE_NUMBER_CLICK'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          locationClickCount: {
+            $ifNull: [
+              {
+                $first: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$eventStats',
+                        as: 'e',
+                        cond: { $eq: ['$$e._id', 'MAP_VIEW'] }
+                      }
+                    },
+                    as: 'filtered',
+                    in: '$$filtered.count'
+                  }
+                }
+              },
+              0
+            ]
+          },
+          preferredServicePlugStoreStatus: {
+            $cond: [
+              {
+                $lt: [
+                  {
+                    $toDate: {
+                      $arrayElemAt: ['$paymentDetails.endDate', -1]  // get last endDate
+                    }
+                  },
+                  {
+                    $dateFromParts: {
+                      year: { $year: new Date() },
+                      month: { $month: new Date() },
+                      day: { $dayOfMonth: new Date() }
+                    }
+                  }
+                ]
+              },
+              'INACTIVE',
+              'ACTIVE'
+            ]
+          }
+        }
+      },
+      { $project: { eventStats: 0 } }
+    ]);    
+
+    return storeResponse;
+  };
+  
+  async countAllSponsoredStores(): Promise<any> {
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated 111111>'
+    );
+
+    let query = {
+      preferredServicePlugStore: true
+    }
+
+    const total = await Store.countDocuments(query);
+    let totalCounts = {
+      total
+    };
+
+    return totalCounts;
   }
 }

@@ -26,4 +26,5 @@ export * from './storeLead.controller';
 export * from './orderManagement.controller';
 export * from './smcInsurance.controller';
 export * from './reportRoadAccident.controller';
-export * from './razorpay.controller'
+export * from './razorpay.controller';
+export * from './parkAssist.controller';

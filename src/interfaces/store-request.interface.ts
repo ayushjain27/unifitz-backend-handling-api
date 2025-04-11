@@ -100,3 +100,17 @@ export interface UserPaymentRequest {
   customerId: string;
   subscriptionId: string;
 }
+export interface ParkAssistUserRequest {
+  senderId: string;
+  receiverId: string;
+  vehicleNumber: string;
+  platform: string;
+  date: Date;
+}
+export interface ParkAssistChatRequest {
+  senderId: string;
+  receiverId: string;
+  message: string;
+  vehicleNumber: string;
+  platform: string;
+}

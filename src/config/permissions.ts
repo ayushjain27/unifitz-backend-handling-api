@@ -223,7 +223,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
-    }
+    },
+    PARK_ASSIST: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
   },
   OEM: {
     DASHBOARD: {
@@ -456,7 +462,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
-    }
+    },
+    PARK_ASSIST: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
   },
   PARTNER_EMPLOYEE: {
     DASHBOARD: {
@@ -542,6 +554,14 @@ export const permissions: any = {
   },
   CUSTOMER: {
     PARK_ASSIST: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+  },
+  PARTNER: {
+    SPONSORED_STORE: {
       CREATE: false,
       READ: false,
       UPDATE: false,

@@ -150,10 +150,23 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   storeController.createHistory
 );
+
 router.post(
   '/getHistory',
   // roleAuth(ACL.STORE_GET_ALL),
   storeController.getHistory
+);
+
+router.post(
+  '/sponsoredStorepaginated',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.getSponsoredStorePaginatedAll
+);
+
+router.get(
+  '/countAllSponsoredStores',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.countAllSponsoredStores
 );
 
 // router.get(

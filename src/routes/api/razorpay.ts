@@ -31,6 +31,12 @@ router.post(
 );
 
 router.post(
+  '/create-order',
+  roleAuth(ACL.STORE_GET_ALL),
+  razorPayController.createOrder
+);
+
+router.post(
   '/updatePaymentStatus',
   roleAuth(ACL.STORE_GET_ALL),
   razorPayController.validate('updatePaymentStatus'),

@@ -27,6 +27,28 @@ export const languageSchema: Schema = new Schema({
   }
 });
 
+export interface IPaymentDetails {
+  startDate: Date;
+  endDate: Date;
+  paymentDetails: string;
+  amount: string;
+}
+
+export const paymentDetailsSchema: Schema = new Schema({
+  startDate: {
+    type: Date
+  },
+  endDate: {
+    type: Date
+  },
+  paymentDetails: {
+    type: String
+  },
+  amount: {
+    type: String
+  }
+});
+
 export enum StoreProfileStatus {
   DRAFT = 'DRAFT',
   PENDING = 'PENDING',
@@ -260,6 +282,8 @@ export interface IStore {
   preferredServicePlugStore?: boolean;
   verificationDetails?: IVerificationDetails;
   emergencyDetails?: IEmergencyContactDetails[];
+  paymentDetails?: IPaymentDetails[];
+  accessList: object;
 }
 
 const storeSchema: Schema = new Schema<IStore>(
@@ -312,6 +336,12 @@ const storeSchema: Schema = new Schema<IStore>(
     },
     emergencyDetails: {
       type: [emergencyContactDetailsSchema]
+    },
+    paymentDetails: {
+      type: [paymentDetailsSchema]
+    },
+    accessList: {
+      type: Object
     }
   },
   { timestamps: true, strict: false }
