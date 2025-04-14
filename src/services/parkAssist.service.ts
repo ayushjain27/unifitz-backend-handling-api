@@ -227,6 +227,9 @@ export class ParkAssistService {
     const customerDetail = await Customer.findOne({
       customerId: dataPayload?.senderId
     });
+    const customerDetailByPhoneNumber = await Customer.findOne({
+        phoneNumber: `+91${dataPayload?.phoneNumber.slice(-10)}`
+    })
     try {
       const data = {
         title: '🚨 SOS Alert: Immediate Assistance Required 🚨',
@@ -240,7 +243,7 @@ export class ParkAssistService {
 👤 Sent by: ${customerDetail?.fullName}  
 📞 Contact: ${customerDetail?.phoneNumber} 
 `,
-        phoneNumber: customer?.phoneNumber,
+        phoneNumber: dataPayload?.phoneNumber,
         role: 'USER',
         type: 'EMERGENCY'
       };
@@ -265,10 +268,10 @@ export class ParkAssistService {
 
 Tap to open Map
 `,
-        phoneNumber: customer?.phoneNumber,
+        phoneNumber: dataPayload?.phoneNumber,
         role: 'USER',
         type: 'EMERGENCY',
-        customerId: customer?.customerId,
+        customerId: customerDetailByPhoneNumber?.customerId,
         dataId: `${[dataPayload?.longitude, dataPayload.latitude]}`
       };
 

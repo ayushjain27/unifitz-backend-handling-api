@@ -46,16 +46,22 @@ import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
 import Customer from './models/Customer';
 import StatePermission from './models/StatePermission';
-import { API_VERSION, razorpayKey, razorpaySecretId, s3Config, webhookId } from './config/constants';
+import {
+  API_VERSION,
+  razorpayKey,
+  razorpaySecretId,
+  s3Config,
+  webhookId
+} from './config/constants';
 import { rateLimit } from 'express-rate-limit';
 import Admin from './models/Admin';
 import { permissions } from './config/permissions';
 import buySellVehicleInfo from './models/BuySell';
 import errorHandler from './routes/middleware/errorHandler';
 import { SESClient, CreateTemplateCommand } from '@aws-sdk/client-ses';
-import { createHmac } from "crypto";
+import { createHmac } from 'crypto';
 import bcrypt from 'bcryptjs';
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 // import cron from 'node-cron';
 
 const app = express();
@@ -304,50 +310,111 @@ app.post('/subCategory', async (req, res) => {
 const razorpay = new Razorpay({
   key_id: razorpayKey as string,
   key_secret: razorpaySecretId as string
-})
+});
 
-app.post("/api/webhooks/razorpay", async (req: any, res: any) => {
-  const signature = req.headers["x-razorpay-signature"];
+app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
+  const signature = req.headers['x-razorpay-signature'];
   const body = JSON.stringify(req.body);
   // Hash the request body with the secret
   // const expectedSignature = await bcrypt.hash(body, 'EIvoLq3J67PI3LCHpumHaJlm');
-  const expectedSignature = createHmac("sha256", webhookId as string)
-  .update(body)
-  .digest("hex");
+  const expectedSignature = createHmac('sha256', webhookId as string)
+    .update(body)
+    .digest('hex');
 
   if (signature !== expectedSignature) {
-    return res.status(401).json({ message: "Invalid signature" });
+    return res.status(401).json({ message: 'Invalid signature' });
   }
 
-  if(req.body.event === 'payment.captured'){
-    let customerId = req.body.payload.payment.entity.notes?.[0]?.customer_id
-    console.log(customerId,"fmrkmfk");
-    let customer = await Customer.findOne({
-      customerId: customerId
-    });
-    console.log(customer,"customer")
-    let customerDetails = await Customer.findOneAndUpdate(
-      { customerId: customerId },
-      { 
-          $set: { 
-              "accessList.PARK_ASSIST": { 
-                  CREATE: true, 
-                  READ: true, 
-                  UPDATE: true, 
-                  DELETE: true 
-              } 
-          } 
-      },
-      { new: true } // Returns the updated document
-  );
-  console.log(customerDetails,"dlmrkmfkm")
+  if (req.body.event === 'payment.captured') {
+    let userType = req.body.payload.payment.entity.notes?.userType;
+    console.log(userType,"f;ekrmmfk")
+    if (userType === 'CUSTOMER') {
+      let customerId = req.body.payload.payment.entity.notes?.customer_id;
+      console.log(customerId, 'fmrkmfk');
+      let customer = await Customer.findOne({
+        customerId: customerId
+      });
+      console.log(customer, 'customer');
+      let customerDetails = await Customer.findOneAndUpdate(
+        { customerId: customerId },
+        {
+          $set: {
+            'accessList.PARK_ASSIST': {
+              CREATE: true,
+              READ: true,
+              UPDATE: true,
+              DELETE: true
+            }
+          }
+        },
+        { new: true } // Returns the updated document
+      );
+      console.log(customerDetails, 'dlmrkmfkm');
+    } else {
+      let storeId = req.body.payload.payment.entity.notes?.storeId;
+      let note = req.body.payload.payment.entity.notes;
+      let partner = await Store.findOne({
+        storeId: storeId
+      });
+      console.log(note,"D;lemlkfm")
+      console.log(partner,"partner")
+
+      if (note?.purpose === 'SPONSORED') {
+        let data = {
+          startDate: new Date(),
+          partnerDetails: 'PARTNER APP ONLINE PAYMENT',
+          amount: '',
+          endDate: new Date()
+        };
+
+        if (note?.subscriptionPackage === '3 Months') {
+          data.amount = '300';
+          data.endDate = new Date(
+            new Date().setMonth(new Date().getMonth() + 3)
+          );
+        } else if (note?.subscriptionPackage === '6 Months') {
+          data.amount = '500';
+          data.endDate = new Date(
+            new Date().setMonth(new Date().getMonth() + 6)
+          );
+        } else if (note?.subscriptionPackage === '1 year') {
+          data.amount = '1000';
+          data.endDate = new Date(
+            new Date().setFullYear(new Date().getFullYear() + 1)
+          );
+        }
+
+        console.log(data,"Demdkmk")
+
+        if (!isEmpty(partner?.paymentDetails)) {
+          let partnerDetails = await Store.findOneAndUpdate(
+            { storeId: storeId },
+            {
+              $push: { paymentDetails: data }
+            },
+            { new: true } // Returns the updated document
+          );
+          console.log(partnerDetails, 'eflmkmf');
+        } else {
+          let partnerDetails = await Store.findOneAndUpdate(
+            { storeId: storeId },
+            {
+              preferredServicePlugStore: true,
+              $set: { paymentDetails: data }
+            },
+            { new: true } // Returns the updated document
+          );
+          console.log(partnerDetails, 'eflmkmf');
+        }
+      }
+    }
   }
 
-  console.log("Webhook wsfe3:", req.body);
+  console.log('Webhook wsfe3:', req.body);
   const payment = req.body.payload?.payment?.entity;
-  console.log(payment,"dmfekmnfk")
+  console.log(payment, 'dmfekmnfk');
 
-  res.status(200).json({ message: "Webhook processed successfully" });
+  res.status(200).json({ message: 'Webhook processed successfully' });
 });
 
 app.post('/productSubCategory', async (req, res) => {
@@ -502,13 +569,11 @@ app.get('/cityPincodeList', async (req, res) => {
   res.json({ list: uniqueData });
 });
 
-
-
 app.get('/reportQuestions', async (req, res) => {
   res.json(questions);
 });
 
-app.post("/state-permission", async (req, res) => {
+app.post('/state-permission', async (req, res) => {
   try {
     const newPermission = await StatePermission.create(req.body);
     res.status(201).json(newPermission);
@@ -517,7 +582,7 @@ app.post("/state-permission", async (req, res) => {
   }
 });
 
-app.get("/state-permission", async (req, res) => {
+app.get('/state-permission', async (req, res) => {
   try {
     const permissions = await StatePermission.find({});
     res.status(200).json(permissions);
@@ -723,14 +788,14 @@ app.get('/slug', async (req, res) => {
 async function shuffleOrderNumbers() {
   try {
     const vehicles = await NewVehicle.find({}, 'orderNo'); // Get only `orderNo`
-    
+
     if (vehicles.length === 0) {
       console.log('No vehicles found.');
       return;
     }
 
     // Extract only order numbers
-    const orderNumbers = vehicles.map(vehicle => vehicle.orderNo);
+    const orderNumbers = vehicles.map((vehicle) => vehicle.orderNo);
 
     // Fisher-Yates shuffle algorithm for better randomness
     for (let i = orderNumbers.length - 1; i > 0; i--) {
@@ -753,14 +818,16 @@ async function shuffleOrderNumbers() {
 async function shufflePartnersProductNumber() {
   try {
     const partnerProduct = await PartnersPoduct.find({}, 'displayOrderNo'); // Get only `orderNo`
-    
+
     if (partnerProduct.length === 0) {
       console.log('No products found.');
       return;
     }
 
     // Extract only order numbers
-    const orderNumbers = partnerProduct.map(product => product.displayOrderNo);
+    const orderNumbers = partnerProduct.map(
+      (product) => product.displayOrderNo
+    );
 
     // Fisher-Yates shuffle algorithm for better randomness
     for (let i = orderNumbers.length - 1; i > 0; i--) {
@@ -788,7 +855,6 @@ cron.schedule('0 * * * *', () => {
   shuffleOrderNumbers();
   shufflePartnersProductNumber();
 });
-
 
 // const ses = new AWS.SES();
 const path = require('path');
