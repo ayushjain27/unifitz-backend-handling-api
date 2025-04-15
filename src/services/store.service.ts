@@ -802,7 +802,7 @@ export class StoreService {
                   { $gt: [{ $size: "$paymentDetails" }, 0] },
                   {
                     $gte: [
-                      { $toDate: { $arrayElemAt: ["$paymentDetails.endDate", 0] } },
+                      { $toDate: { $arrayElemAt: ["$paymentDetails.endDate", -1] } },
                       new Date() // Check if first payment's endDate is in future
                     ]
                   }
