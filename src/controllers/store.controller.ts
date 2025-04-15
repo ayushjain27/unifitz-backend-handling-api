@@ -806,7 +806,8 @@ export class StoreController {
     try {
       const result = await this.storeService.getSponsoredStorePaginatedAll(
         req.body.pageNo,
-        req.body.pageSize
+        req.body.pageSize,
+        req.body
       );
       res.send({
         result
@@ -819,6 +820,7 @@ export class StoreController {
 
 
   countAllSponsoredStores = async (req: Request, res: Response) => {
+    const query = req.query;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Sponsored Stores pagination request controller initiated>'
     );
@@ -827,7 +829,7 @@ export class StoreController {
         '<Controller>:<StoreController>:<Search and Filter Sponsored Stores pagination request controller initiated>'
       );
       const result: any =
-        await this.storeService.countAllSponsoredStores();
+        await this.storeService.countAllSponsoredStores(query);
       res.send({
         result
       });

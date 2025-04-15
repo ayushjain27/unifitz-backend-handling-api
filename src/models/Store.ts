@@ -34,20 +34,25 @@ export interface IPaymentDetails {
   amount: string;
 }
 
-export const paymentDetailsSchema: Schema = new Schema({
-  startDate: {
-    type: Date
+export const paymentDetailsSchema: Schema = new Schema(
+  {
+    startDate: {
+      type: Date,
+    },
+    endDate: {
+      type: Date,
+    },
+    paymentDetails: {
+      type: String,
+    },
+    amount: {
+      type: String,
+    },
   },
-  endDate: {
-    type: Date
-  },
-  paymentDetails: {
-    type: String
-  },
-  amount: {
-    type: String
+  {
+    timestamps: true,
   }
-});
+);
 
 export enum StoreProfileStatus {
   DRAFT = 'DRAFT',
