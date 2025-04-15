@@ -96,7 +96,7 @@ export class StoreService {
 
     const slug = `${baseSlug}-${newStoreId}`;
     storePayload.slug = slug;
-    storePayload.accessList = permissions.PARTNER
+    storePayload.accessList = permissions.PARTNER;
 
     if (role === AdminRole.OEM) {
       storePayload.oemUserName = userName;
@@ -797,12 +797,16 @@ export class StoreService {
             $cond: {
               if: {
                 $and: [
-                  { $eq: ["$preferredServicePlugStore", true] },
-                  { $isArray: "$paymentDetails" },
-                  { $gt: [{ $size: "$paymentDetails" }, 0] },
+                  { $eq: ['$preferredServicePlugStore', true] },
+                  { $isArray: '$paymentDetails' },
+                  { $gt: [{ $size: '$paymentDetails' }, 0] },
                   {
                     $gte: [
-                      { $toDate: { $arrayElemAt: ["$paymentDetails.endDate", -1] } },
+                      {
+                        $toDate: {
+                          $arrayElemAt: ['$paymentDetails.endDate', -1]
+                        }
+                      },
                       new Date() // Check if first payment's endDate is in future
                     ]
                   }
@@ -821,8 +825,8 @@ export class StoreService {
             $cond: {
               if: {
                 $and: [
-                  { $eq: ["$preferredServicePlugStore", true] },
-                  "$hasValidPayment"
+                  { $eq: ['$preferredServicePlugStore', true] },
+                  '$hasValidPayment'
                 ]
               },
               then: true,
@@ -848,7 +852,7 @@ export class StoreService {
             { $limit: 1 }
           ],
           otherStores: [
-            { $sort: { 'contactInfo.distance': 1 } }, // Pure distance sorting    
+            { $sort: { 'contactInfo.distance': 1 } }, // Pure distance sorting
             { $skip: searchReqBody.pageNo * searchReqBody.pageSize },
             { $limit: searchReqBody.pageSize }
           ]
@@ -951,25 +955,27 @@ export class StoreService {
     return stores;
   }
 
-  async addReview(storeReview: StoreReviewRequest): Promise<StoreReviewRequest> {
+  async addReview(
+    storeReview: StoreReviewRequest
+  ): Promise<StoreReviewRequest> {
     Logger.info('<Service>:<StoreService>:<Add Store Ratings Initiated>');
-  
+
     // Check if customer has already reviewed this store
     let customerReviewCount = await CustomerStoreReview.findOne({
       customerId: storeReview.customerId,
-      storeId: storeReview.storeId,
+      storeId: storeReview.storeId
     });
-  
+
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-  
+
     if (!customerReviewCount) {
       // First-time review: Create initial review count record
       customerReviewCount = await CustomerStoreReview.create({
         customerId: storeReview.customerId,
         storeId: storeReview.storeId,
         count: 1,
-        lastCountReset: new Date(),
+        lastCountReset: new Date()
       });
     } else if (customerReviewCount.lastCountReset < oneMonthAgo) {
       // Reset count if it's been over a month
@@ -988,32 +994,35 @@ export class StoreService {
         { $inc: { count: 1 } }
       );
     }
-  
+
     // Fetch customer only if userId exists
     let customer: ICustomer | null = null;
     if (storeReview.userId) {
-      customer = await Customer.findOne({ customerId: storeReview?.customerId });
+      customer = await Customer.findOne({
+        customerId: storeReview?.customerId
+      });
       if (!customer) throw new Error('Customer not found');
     }
-  
+
     // Fetch store details
     const store: IStore | null = await Store.findOne(
       { storeId: storeReview.storeId },
       { verificationDetails: 0 }
     );
-  
+
     if (!store) throw new Error('Store not found');
-  
+
     const phoneNumber =
-      store.basicInfo?.userPhoneNumber || store.contactInfo?.phoneNumber?.primary;
-  
+      store.basicInfo?.userPhoneNumber ||
+      store.contactInfo?.phoneNumber?.primary;
+
     // Create and save the store review
     const newStoreReview = new StoreReview({
       ...storeReview,
-      userPhoneNumber: customer?.phoneNumber || '',
+      userPhoneNumber: customer?.phoneNumber || ''
     });
     await newStoreReview.save();
-  
+
     // Prepare and send notifications
     const notificationData = {
       title: 'Store Review',
@@ -1021,12 +1030,15 @@ export class StoreService {
       phoneNumber,
       type: 'RATING_REVIEW',
       role: 'STORE_OWNER',
-      storeId: store.storeId,
+      storeId: store.storeId
     };
-  
-    await this.sqsService.createMessage(SQSEvent.NOTIFICATION, notificationData);
+
+    await this.sqsService.createMessage(
+      SQSEvent.NOTIFICATION,
+      notificationData
+    );
     await this.notificationService.createNotification(notificationData);
-  
+
     // Send email notification if email exists
     if (store.contactInfo?.email) {
       const emailData = {
@@ -1034,13 +1046,16 @@ export class StoreService {
         templateData: {
           storeId: store.storeId,
           customerName: store.basicInfo?.ownerName,
-          body: 'Congratulations! You got a new review',
+          body: 'Congratulations! You got a new review'
         },
-        templateName: 'StoreReview',
+        templateName: 'StoreReview'
       };
-      await this.sqsService.createMessage(SQSEvent.EMAIL_NOTIFICATION, emailData);
+      await this.sqsService.createMessage(
+        SQSEvent.EMAIL_NOTIFICATION,
+        emailData
+      );
     }
-  
+
     Logger.info('<Service>:<StoreService>:<Store Ratings Added Successfully>');
     return newStoreReview;
   }
@@ -2103,15 +2118,57 @@ export class StoreService {
     return stores;
   }
 
-  async getSponsoredStorePaginatedAll(pageNo: number, pageSize: number) : Promise<any> {
+  async getSponsoredStorePaginatedAll(
+    pageNo: number,
+    pageSize: number,
+    reqPayload: any
+  ): Promise<any> {
     Logger.info('<Service>:<StoreService>:<Get all sponsored stores>');
-
-    const query = {
-      preferredServicePlugStore: true
-    }
-
-    const storeResponse: any = await Store.aggregate([
+  
+    const startDate = reqPayload?.startDate ? new Date(new Date(reqPayload.startDate).setDate(new Date(reqPayload.startDate).getDate() + 1)) : null;
+    const endDate = reqPayload?.endDate ? new Date(new Date(reqPayload.endDate).setDate(new Date(reqPayload.endDate).getDate() + 1)) : null;
+  
+    const query: any = {
+      preferredServicePlugStore: true,
+      'basicInfo.category.name': reqPayload.category,
+      'basicInfo.subCategory.name': reqPayload.subCategory,
+      'contactInfo.state': reqPayload.state,
+      'contactInfo.city': reqPayload.city,
+      paymentDetails: {
+        $exists: true,
+        $ne: [] as unknown[]
+      }
+    };
+  
+    if (!reqPayload.category) delete query['basicInfo.category.name'];
+    if (!reqPayload.subCategory) delete query['basicInfo.subCategory.name'];
+    if (!reqPayload.state) delete query['contactInfo.state'];
+    if (!reqPayload.city) delete query['contactInfo.city'];
+  
+    const pipeline: any[] = [
       { $match: query },
+      {
+        $addFields: {
+          lastPayment: { $arrayElemAt: ['$paymentDetails', -1] }
+        }
+      }
+    ];
+  
+    // Optional: Apply date range filter
+    if (startDate && endDate) {
+      pipeline.push({
+        $match: {
+          $expr: {
+            $and: [
+              { $gte: ['$lastPayment.startDate', startDate] },
+              { $lte: ['$lastPayment.endDate', endDate] }
+            ]
+          }
+        }
+      });
+    }
+  
+    pipeline.push(
       { $skip: pageNo * pageSize },
       { $limit: pageSize },
       {
@@ -2147,7 +2204,7 @@ export class StoreService {
                     as: 'filtered',
                     in: '$$filtered.count'
                   }
-                }
+                },
               },
               0
             ]
@@ -2236,11 +2293,7 @@ export class StoreService {
             $cond: [
               {
                 $lt: [
-                  {
-                    $toDate: {
-                      $arrayElemAt: ['$paymentDetails.endDate', -1]  // get last endDate
-                    }
-                  },
+                  { $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] } },
                   {
                     $dateFromParts: {
                       year: { $year: new Date() },
@@ -2257,25 +2310,69 @@ export class StoreService {
         }
       },
       { $project: { eventStats: 0 } }
-    ]);    
-
-    return storeResponse;
-  };
-  
-  async countAllSponsoredStores(): Promise<any> {
-    Logger.info(
-      '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated 111111>'
     );
-
-    let query = {
-      preferredServicePlugStore: true
-    }
-
-    const total = await Store.countDocuments(query);
-    let totalCounts = {
-      total
-    };
-
-    return totalCounts;
+  
+    const storeResponse: any = await Store.aggregate(pipeline);
+    return storeResponse;
   }
+  
+
+  async countAllSponsoredStores(reqPayload: any): Promise<any> {
+    Logger.info('<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>');
+
+    const startDate = reqPayload?.startDate ? new Date(new Date(reqPayload.startDate).setDate(new Date(reqPayload.startDate).getDate() + 1)) : null;
+    const endDate = reqPayload?.endDate ? new Date(new Date(reqPayload.endDate).setDate(new Date(reqPayload.endDate).getDate() + 1)) : null;
+
+    console.log(startDate, "dfmkemf", endDate)
+  
+    const query: any = {
+      preferredServicePlugStore: true,
+      'basicInfo.category.name': reqPayload.category,
+      'basicInfo.subCategory.name': reqPayload.subCategory,
+      'contactInfo.state': reqPayload.state,
+      'contactInfo.city': reqPayload.city,
+      paymentDetails: {
+        $exists: true,
+        $ne: [] as unknown[]
+      }
+    };
+  
+    // Clean up query if filters are missing
+    if (!reqPayload.category) delete query['basicInfo.category.name'];
+    if (!reqPayload.subCategory) delete query['basicInfo.subCategory.name'];
+    if (!reqPayload.state) delete query['contactInfo.state'];
+    if (!reqPayload.city) delete query['contactInfo.city'];
+  
+    // Build pipeline
+    const pipeline: any[] = [
+      { $match: query },
+      {
+        $addFields: {
+          lastPayment: { $arrayElemAt: ['$paymentDetails', -1] }
+        }
+      }
+    ];
+  
+    // Add date filter if both start and end date are provided
+    if (startDate && endDate) {
+      pipeline.push({
+        $match: {
+          $expr: {
+            $and: [
+              { $gte: ['$lastPayment.startDate', startDate] },
+              { $lte: ['$lastPayment.endDate', endDate] }
+            ]
+          }
+        }
+      });
+    }
+  
+    pipeline.push({ $count: 'total' });
+  
+    const result = await Store.aggregate(pipeline);
+    console.log(result,"result")
+    const total = result[0]?.total || 0;
+  
+    return { total };
+  }  
 }
