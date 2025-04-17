@@ -169,6 +169,18 @@ router.get(
   storeController.countAllSponsoredStores
 );
 
+router.post(
+  '/getSponsoredStorePaymentAnalytics',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.getSponsoredStorePaymentAnalytics
+)
+
+router.post(
+  '/updateSponsoredPaymentDetails',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.updateSponsoredPaymentDetails
+)
+
 // router.get(
 //   '/getStoreByUserId',
 //   // roleAuth(ACL.STORE_GET_SINGLE),

@@ -2124,27 +2124,41 @@ export class StoreService {
     reqPayload: any
   ): Promise<any> {
     Logger.info('<Service>:<StoreService>:<Get all sponsored stores>');
-  
-    const startDate = reqPayload?.startDate ? new Date(new Date(reqPayload.startDate).setDate(new Date(reqPayload.startDate).getDate() + 1)) : null;
-    const endDate = reqPayload?.endDate ? new Date(new Date(reqPayload.endDate).setDate(new Date(reqPayload.endDate).getDate() + 1)) : null;
-  
+
+    const startDate = reqPayload?.startDate
+      ? new Date(
+          new Date(reqPayload.startDate).setDate(
+            new Date(reqPayload.startDate).getDate() + 1
+          )
+        )
+      : null;
+    const endDate = reqPayload?.endDate
+      ? new Date(
+          new Date(reqPayload.endDate).setDate(
+            new Date(reqPayload.endDate).getDate() + 1
+          )
+        )
+      : null;
+
     const query: any = {
       preferredServicePlugStore: true,
       'basicInfo.category.name': reqPayload.category,
       'basicInfo.subCategory.name': reqPayload.subCategory,
       'contactInfo.state': reqPayload.state,
       'contactInfo.city': reqPayload.city,
+      storeId: reqPayload.storeId,
       paymentDetails: {
         $exists: true,
         $ne: [] as unknown[]
       }
     };
-  
+
     if (!reqPayload.category) delete query['basicInfo.category.name'];
     if (!reqPayload.subCategory) delete query['basicInfo.subCategory.name'];
     if (!reqPayload.state) delete query['contactInfo.state'];
     if (!reqPayload.city) delete query['contactInfo.city'];
-  
+    if (!reqPayload.storeId) delete query['storeId'];
+
     const pipeline: any[] = [
       { $match: query },
       {
@@ -2153,21 +2167,21 @@ export class StoreService {
         }
       }
     ];
-  
+
     // Optional: Apply date range filter
     if (startDate && endDate) {
       pipeline.push({
         $match: {
           $expr: {
             $and: [
-              { $gte: ['$lastPayment.startDate', startDate] },
-              { $lte: ['$lastPayment.endDate', endDate] }
+              { $gte: ['$lastPayment.createdAt', startDate] },
+              { $lte: ['$lastPayment.createdAt', endDate] }
             ]
           }
         }
       });
     }
-  
+
     pipeline.push(
       { $skip: pageNo * pageSize },
       { $limit: pageSize },
@@ -2204,7 +2218,7 @@ export class StoreService {
                     as: 'filtered',
                     in: '$$filtered.count'
                   }
-                },
+                }
               },
               0
             ]
@@ -2293,7 +2307,9 @@ export class StoreService {
             $cond: [
               {
                 $lt: [
-                  { $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] } },
+                  {
+                    $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] }
+                  },
                   {
                     $dateFromParts: {
                       year: { $year: new Date() },
@@ -2311,38 +2327,53 @@ export class StoreService {
       },
       { $project: { eventStats: 0 } }
     );
-  
+
     const storeResponse: any = await Store.aggregate(pipeline);
     return storeResponse;
   }
-  
 
   async countAllSponsoredStores(reqPayload: any): Promise<any> {
-    Logger.info('<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>');
+    Logger.info(
+      '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>'
+    );
 
-    const startDate = reqPayload?.startDate ? new Date(new Date(reqPayload.startDate).setDate(new Date(reqPayload.startDate).getDate() + 1)) : null;
-    const endDate = reqPayload?.endDate ? new Date(new Date(reqPayload.endDate).setDate(new Date(reqPayload.endDate).getDate() + 1)) : null;
+    const startDate = reqPayload?.startDate
+      ? new Date(
+          new Date(reqPayload.startDate).setDate(
+            new Date(reqPayload.startDate).getDate() + 1
+          )
+        )
+      : null;
+    const endDate = reqPayload?.endDate
+      ? new Date(
+          new Date(reqPayload.endDate).setDate(
+            new Date(reqPayload.endDate).getDate() + 1
+          )
+        )
+      : null;
 
-    console.log(startDate, "dfmkemf", endDate)
-  
+    console.log(startDate, 'dfmkemf', endDate);
+
     const query: any = {
       preferredServicePlugStore: true,
       'basicInfo.category.name': reqPayload.category,
       'basicInfo.subCategory.name': reqPayload.subCategory,
       'contactInfo.state': reqPayload.state,
       'contactInfo.city': reqPayload.city,
+      storeId: reqPayload.storeId,
       paymentDetails: {
         $exists: true,
         $ne: [] as unknown[]
       }
     };
-  
+
     // Clean up query if filters are missing
     if (!reqPayload.category) delete query['basicInfo.category.name'];
     if (!reqPayload.subCategory) delete query['basicInfo.subCategory.name'];
     if (!reqPayload.state) delete query['contactInfo.state'];
     if (!reqPayload.city) delete query['contactInfo.city'];
-  
+    if (!reqPayload.storeId) delete query['storeId'];
+
     // Build pipeline
     const pipeline: any[] = [
       { $match: query },
@@ -2352,27 +2383,151 @@ export class StoreService {
         }
       }
     ];
-  
+
     // Add date filter if both start and end date are provided
     if (startDate && endDate) {
       pipeline.push({
         $match: {
           $expr: {
             $and: [
-              { $gte: ['$lastPayment.startDate', startDate] },
-              { $lte: ['$lastPayment.endDate', endDate] }
+              { $gte: ['$lastPayment.createdAt', startDate] },
+              { $lte: ['$lastPayment.createdAt', endDate] }
             ]
           }
         }
       });
     }
-  
+
     pipeline.push({ $count: 'total' });
-  
+
     const result = await Store.aggregate(pipeline);
-    console.log(result,"result")
+    console.log(result, 'result');
     const total = result[0]?.total || 0;
-  
+
     return { total };
-  }  
+  }
+
+  async getSponsoredStorePaymentAnalytics(
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string,
+    category: string,
+    subCategory: string,
+    storeId: string
+  ) {
+    const startDate = new Date(firstDate);
+    const endDate = new Date(lastDate);
+
+    console.log(startDate, 'Dlmekfmd', endDate);
+
+    const query: any = {
+      'contactInfo.state': state,
+      'contactInfo.city': city,
+      'basicInfo.category.name': category,
+      'basicInfo.subCategory.name': subCategory,
+      storeId: storeId
+    };
+
+    if (!state) {
+      delete query['contactInfo.state'];
+    }
+
+    if (!city) {
+      delete query['contactInfo.city'];
+    }
+
+    if (!category) {
+      delete query['basicInfo.category.name'];
+    }
+
+    if (!subCategory) {
+      delete query['basicInfo.subCategory.name'];
+    }
+
+    if (!storeId) {
+      delete query['storeId'];
+    }
+
+    const result = await Store.aggregate([
+      { $match: query },
+      { $unwind: '$paymentDetails' },
+      {
+        $match: {
+          'paymentDetails.createdAt': {
+            $gte: startDate,
+            $lte: endDate
+          }
+        }
+      },
+      {
+        $project: {
+          createdAt: '$paymentDetails.createdAt',
+          amount: { $toInt: '$paymentDetails.amount' },
+          customerId: '$_id',
+          groupId: {
+            $dateFromParts: {
+              year: { $year: '$paymentDetails.createdAt' },
+              month: { $month: '$paymentDetails.createdAt' },
+              day: { $dayOfMonth: '$paymentDetails.createdAt' },
+              hour: {
+                $cond: [
+                  {
+                    $gte: [
+                      {
+                        $dateDiff: {
+                          startDate: startDate,
+                          endDate: endDate,
+                          unit: 'day'
+                        }
+                      },
+                      1
+                    ]
+                  },
+                  0,
+                  { $hour: '$paymentDetails.createdAt' }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$groupId',
+          totalAmount: { $sum: '$amount' },
+          totalCustomers: { $addToSet: '$customerId' }
+        }
+      },
+      {
+        $project: {
+          date: '$_id',
+          totalAmount: 1,
+          totalCustomers: { $size: '$totalCustomers' },
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return result;
+  }
+
+  async updateSponsoredPaymentDetails(requestPayload: any) {
+    let storeDetails = await Store.findOne({
+      storeId: requestPayload?.storeId
+    });
+    if (!storeDetails) {
+      throw new Error('Store not Found');
+    }
+    let partnerDetails = await Store.findOneAndUpdate(
+      { storeId: requestPayload?.storeId },
+      {
+        $push: { paymentDetails: requestPayload }
+      },
+      { new: true } // Returns the updated document
+    );
+    console.log(partnerDetails, 'demkd');
+    return partnerDetails;
+  }
 }

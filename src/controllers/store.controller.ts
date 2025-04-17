@@ -841,6 +841,57 @@ export class StoreController {
     }
   };
 
+  getSponsoredStorePaymentAnalytics = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city,
+      storeId,
+      category,
+      subCategory
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get sponsored stored analytic request controller initiated>'
+      );
+      const result = await this.storeService.getSponsoredStorePaymentAnalytics(
+        startDate,
+        endDate,
+        state,
+        city,
+        category,
+        subCategory,
+        storeId
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateSponsoredPaymentDetails = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<update sponsored store payment details analytic request controller initiated>'
+      );
+      const result = await this.storeService.updateSponsoredPaymentDetails(req.body);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateBusinessVerification':
