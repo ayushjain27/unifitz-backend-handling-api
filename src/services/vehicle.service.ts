@@ -1039,7 +1039,11 @@ export class VehicleInfoService {
       customerId: vehicle.customerId,
     }).lean();
 
-    return { vehicleData: vehicle, emergencyData: emergencyDetails };
+    const customerDetails = await Customer.findOne({
+      customerId: vehicle.customerId
+    });
+
+    return { vehicleData: vehicle, emergencyData: emergencyDetails, customerData: customerDetails };
   }
 
   async updateParkAssistVehicleStatus(
