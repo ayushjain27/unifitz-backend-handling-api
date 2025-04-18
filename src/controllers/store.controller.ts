@@ -909,6 +909,40 @@ export class StoreController {
     }
   };
 
+  totalNumberOfUsersPerCategoryPerMonth = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get total number of users per category analytic request controller initiated>'
+      );
+      const result = await this.storeService.totalNumberOfUsersPerCategoryPerMonth(req.query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  totalNumberOfUsersPerCategory = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get total number of users per category analytic request controller initiated>'
+      );
+      const result = await this.storeService.totalNumberOfUsersPerCategory(req.query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateBusinessVerification':

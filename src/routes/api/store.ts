@@ -187,6 +187,18 @@ router.post(
   storeController.updateSponsoredPaymentDetails
 )
 
+router.get(
+  '/totalNumberOfUsersPerCategoryPerMonth',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.totalNumberOfUsersPerCategoryPerMonth
+)
+
+router.get(
+  '/totalNumberOfUsersPerCategory',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.totalNumberOfUsersPerCategory
+)
+
 // router.get(
 //   '/getStoreByUserId',
 //   // roleAuth(ACL.STORE_GET_SINGLE),

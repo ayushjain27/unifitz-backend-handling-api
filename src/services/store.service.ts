@@ -2568,4 +2568,177 @@ export class StoreService {
     console.log(partnerDetails, 'demkd');
     return partnerDetails;
   }
+
+  async totalNumberOfUsersPerCategoryPerMonth(requestPayload: any) {
+    const startDate = requestPayload?.startDate;
+    const endDate = requestPayload?.endDate;
+
+    let query = {
+      'preferredServicePlugStore': true,
+      'contactInfo.state': requestPayload?.state,
+      'contactInfo.city': requestPayload?.city
+    };
+
+    if(!requestPayload.state){
+      delete query['contactInfo.state'];
+    };
+
+    if(!requestPayload.City){
+      delete query['contactInfo.city'];
+    };
+
+    const result = await Store.aggregate([
+      {
+        $match: query
+      },
+      {
+        $unwind: '$paymentDetails'
+      },
+      {
+        $match: {
+          'paymentDetails.createdAt': {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+          }
+        }
+      },
+      {
+        $unwind: '$basicInfo.category'
+      },
+      {
+        $project: {
+          category: '$basicInfo.category.name',
+          userId: '$userId',
+          amount: { $toInt: '$paymentDetails.amount' }
+        }
+      },
+      {
+        $group: {
+          _id: '$category',
+          totalAmount: { $sum: '$amount' },
+          uniqueUsers: { $addToSet: '$userId' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id',
+          totalAmount: 1,
+          totalUsers: { $size: '$uniqueUsers' }
+        }
+      }
+    ]);
+
+    console.log(result,"result")
+  
+    const output: { [key: string]: { totalUsers: number; totalAmount: number } } = {};
+    // convert to object with category as key
+    result.forEach(item => {
+      output[item.category] = {
+        totalUsers: item.totalUsers,
+        totalAmount: item.totalAmount
+      };
+    });
+  
+    return output;
+  }
+
+  async totalNumberOfUsersPerCategory(requestPayload: any) {
+    let query = {
+      'preferredServicePlugStore': true,
+      'contactInfo.state': requestPayload?.state,
+      'contactInfo.city': requestPayload?.city
+    };
+  
+    if (!requestPayload.state) {
+      delete query['contactInfo.state'];
+    }
+  
+    if (!requestPayload.city) {
+      delete query['contactInfo.city'];
+    }
+  
+    const result = await Store.aggregate([
+      {
+        $match: query
+      },
+      {
+        $unwind: '$basicInfo.category'
+      },
+      {
+        $addFields: {
+          createdMonth: {
+            $dateToString: { format: '%Y-%m', date: '$createdAt' }
+          }
+        }
+      },
+      {
+        $project: {
+          category: '$basicInfo.category.name',
+          userId: '$userId',
+          createdMonth: 1,
+          amount: {
+            $cond: {
+              if: { $isArray: '$paymentDetails.amount' },
+              then: {
+                $sum: {
+                  $map: {
+                    input: '$paymentDetails.amount',
+                    as: 'amt',
+                    in: { $toInt: '$$amt' }
+                  }
+                }
+              },
+              else: { $toInt: '$paymentDetails.amount' }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            category: '$category',
+            month: '$createdMonth'
+          },
+          totalAmount: { $sum: '$amount' },
+          uniqueUsers: { $addToSet: '$userId' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id.category',
+          month: '$_id.month',
+          totalAmount: 1,
+          totalUsers: { $size: '$uniqueUsers' }
+        }
+      },
+      {
+        $sort: { category: 1, month: 1 }
+      }
+    ]);
+  
+    // Transform into nested format and include total per category
+    const output: {
+      [category: string]: {
+        totalAmount: number;
+        totalUsers: number;
+      };
+    } = {};
+  
+    result.forEach(item => {
+      if (!output[item.category]) {
+        output[item.category] = {
+          totalAmount: 0,
+          totalUsers: 0,
+        };
+      }
+      // Accumulate category-level total
+      output[item.category].totalAmount += item.totalAmount;
+      output[item.category].totalUsers += item.totalUsers;
+    });
+  
+    return output;
+  }
+  
 }
