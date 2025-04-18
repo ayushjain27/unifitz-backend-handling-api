@@ -175,6 +175,12 @@ router.post(
   storeController.getSponsoredStorePaymentAnalytics
 )
 
+router.get(
+  '/getOverallPaymentDetails',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.getOverallPaymentDetails
+)
+
 router.post(
   '/updateSponsoredPaymentDetails',
   roleAuth(ACL.STORE_GET_ALL),

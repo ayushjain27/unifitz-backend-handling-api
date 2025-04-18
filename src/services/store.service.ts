@@ -2426,7 +2426,8 @@ export class StoreService {
       'contactInfo.city': city,
       'basicInfo.category.name': category,
       'basicInfo.subCategory.name': subCategory,
-      storeId: storeId
+      storeId: storeId,
+      preferredServicePlugStore: true
     };
 
     if (!state) {
@@ -2512,6 +2513,43 @@ export class StoreService {
 
     return result;
   }
+
+  async getOverallPaymentDetails() {
+    const result = await Store.aggregate([
+      {
+        $match: {
+          'preferredServicePlugStore': true
+        }
+      },
+      {
+        $unwind: '$paymentDetails'
+      },
+      {
+        $project: {
+          storeId: '$_id',
+          userId: '$userId',
+          amount: { $toInt: '$paymentDetails.amount' }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: '$amount' },
+          uniqueUsers: { $addToSet: '$userId' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalAmount: 1,
+          totalUsers: { $size: '$uniqueUsers' }
+        }
+      }
+    ]);
+  
+    return result[0] || { totalAmount: 0, totalUsers: 0 };
+  }
+  
 
   async updateSponsoredPaymentDetails(requestPayload: any) {
     let storeDetails = await Store.findOne({

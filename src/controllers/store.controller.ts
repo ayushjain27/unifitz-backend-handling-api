@@ -875,6 +875,23 @@ export class StoreController {
     }
   };
 
+  getOverallPaymentDetails = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get overall payment details of stored analytic request controller initiated>'
+      );
+      const result = await this.storeService.getOverallPaymentDetails();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   updateSponsoredPaymentDetails = async (req: Request, res: Response) => {
     try {
       Logger.info(
