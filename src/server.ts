@@ -368,17 +368,17 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
         };
 
         if (note?.subscriptionPackage === '3 Months') {
-          data.amount = '300';
+          data.amount = '299';
           data.endDate = new Date(
             new Date().setMonth(new Date().getMonth() + 3)
           );
         } else if (note?.subscriptionPackage === '6 Months') {
-          data.amount = '500';
+          data.amount = '499';
           data.endDate = new Date(
             new Date().setMonth(new Date().getMonth() + 6)
           );
         } else if (note?.subscriptionPackage === '1 year') {
-          data.amount = '1000';
+          data.amount = '999';
           data.endDate = new Date(
             new Date().setFullYear(new Date().getFullYear() + 1)
           );

@@ -162,11 +162,11 @@ export class ParkAssistController {
   sendNotificationToUser = async (req: Request, res: Response): Promise<any> => {
     const dataRequest: any = req.query;
     Logger.info(
-      '<Controller>:<ParkAssistController>:<Send notification to employee request controller initiated>'
+      '<Controller>:<ParkAssistController>:<Send notification to emergency contacts request controller initiated>'
     );
     try {
       Logger.info(
-        '<Controller>:<ParkAssistController>:<DSend notification to employee request controller initialised>'
+        '<Controller>:<ParkAssistController>:<DSend notification to emergency contacts request controller initialised>'
       );
       const result =
         await this.parkAssistService.sendNotificationToUser(dataRequest);

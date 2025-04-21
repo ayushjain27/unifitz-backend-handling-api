@@ -15,6 +15,7 @@ import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { NotificationService } from './notification.service';
 import Customer from '../models/Customer';
+import SOSNotifications from '../models/SOSNotifications';
 
 @injectable()
 export class ParkAssistService {
@@ -218,7 +219,7 @@ export class ParkAssistService {
 
   async sendNotificationToUser(dataPayload: any): Promise<any> {
     Logger.info(
-      '<Service>:<ParkAssistService>:<Send notifications to employees Creation initiated>'
+      '<Service>:<ParkAssistService>:<Send notifications to emergency contacts Creation initiated>'
     );
     const date = new Date();
     const customer = await Customer.findOne({
@@ -228,8 +229,8 @@ export class ParkAssistService {
       customerId: dataPayload?.senderId
     });
     const customerDetailByPhoneNumber = await Customer.findOne({
-        phoneNumber: `+91${dataPayload?.phoneNumber.slice(-10)}`
-    })
+      phoneNumber: `+91${dataPayload?.phoneNumber.slice(-10)}`
+    });
     try {
       const data = {
         title: '🚨 SOS Alert: Immediate Assistance Required 🚨',
@@ -277,6 +278,25 @@ Tap to open Map
 
       let notification =
         await this.notificationService.createNotification(notificationData);
+
+      let newData = {
+        vehicleNumber: dataPayload?.vehicleNumber,
+        senderId: dataPayload?.senderId,
+        receiverId: dataPayload?.receiverId,
+        phoneNumber: `+91${dataPayload?.phoneNumber.slice(-10)}`,
+        address: dataPayload?.address,
+        geoLocation: {
+          // kind: String,
+          type: 'Point',
+          coordinates: [
+            parseFloat(dataPayload?.longitude),
+            parseFloat(dataPayload?.latitude)
+          ]
+        }
+      };
+      let newSOSNotifications = await SOSNotifications.create(newData);
+      console.log(newSOSNotifications, 'newSOSNotifications');
+      return newSOSNotifications;
     } catch (err) {
       console.error(err, 'Error in creating user');
       throw new Error(err);
