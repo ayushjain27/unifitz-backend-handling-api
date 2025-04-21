@@ -1278,6 +1278,21 @@ export class VehicleInfoService {
       customerId: vehicle.customerId
     }).lean();
 
+    const customer = await Customer.findOne({
+      customerId: vehicle.customerId
+    })
+
+    const accessList = customer?.accessList as {
+      PARK_ASSIST?: {
+        CREATE?: boolean;
+        READ?: boolean;
+        UPDATE?: boolean;
+        DELETE?: boolean;
+      };
+    };
+  
+    const hasAccess = accessList?.PARK_ASSIST?.READ;
+
     if (!emergencyDetails.length) {
       return { vehicleData: vehicle, emergencyData: [] }; // No emergency contacts found
     }
@@ -1300,7 +1315,7 @@ export class VehicleInfoService {
       (detail) => validPhoneNumbers.has(`+91${detail.phoneNumber.slice(-10)}`) && !detail.isPublic
     );
 
-    return { vehicleData: vehicle, emergencyData: [...publicEmergencyDetails, ...privateEmergencyDetails]  };
+    return { vehicleData: vehicle, emergencyData: hasAccess ? [...publicEmergencyDetails, ...privateEmergencyDetails] : [] };
   }
 
   async getVehicleDetailsFromRc(
