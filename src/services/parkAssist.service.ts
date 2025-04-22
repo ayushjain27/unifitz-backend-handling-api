@@ -321,6 +321,7 @@ Tap to open Map
     );
 
     let sosNotifications: any = await SOSNotifications.aggregate([
+      { $sort: { createdAt: -1 } }, // Sort in descending order
       {
         $skip: pageNo * pageSize
       },
@@ -332,10 +333,12 @@ Tap to open Map
   }
 
   async getSOSNotifificationDetail(id: string): Promise<any> {
-    Logger.info('<Service>:<ParkAssistService>:<Fetching SOS notification detail>');
-  
+    Logger.info(
+      '<Service>:<ParkAssistService>:<Fetching SOS notification detail>'
+    );
+
     const objectId = new Types.ObjectId(id);
-  
+
     const result = await SOSNotifications.aggregate([
       { $match: { _id: objectId } },
       {
@@ -346,7 +349,12 @@ Tap to open Map
           as: 'senderCustomerDetails'
         }
       },
-      { $unwind: { path: '$senderCustomerDetails', preserveNullAndEmptyArrays: true } },
+      {
+        $unwind: {
+          path: '$senderCustomerDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $lookup: {
           from: 'customers',
@@ -355,10 +363,15 @@ Tap to open Map
           as: 'receiverCustomerDetails'
         }
       },
-      { $unwind: { path: '$receiverCustomerDetails', preserveNullAndEmptyArrays: true } },
+      {
+        $unwind: {
+          path: '$receiverCustomerDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      }
       // Optional: add projection to limit the fields returned
     ]);
-  
+
     return result?.[0] || null;
-  }  
+  }
 }
