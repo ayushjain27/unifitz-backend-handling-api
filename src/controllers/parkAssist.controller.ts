@@ -118,8 +118,7 @@ export class ParkAssistController {
       Logger.info(
         '<Controller>:<ParkAssistController>:<Get park assist user chat details request controller initialised>'
       );
-      const result =
-        await this.parkAssistService.getUserDetails(dataRequest);
+      const result = await this.parkAssistService.getUserDetails(dataRequest);
       res.send({
         result
       });
@@ -146,8 +145,7 @@ export class ParkAssistController {
       Logger.info(
         '<Controller>:<ParkAssistController>:<Delete park assist user chat details request controller initialised>'
       );
-      const result =
-        await this.parkAssistService.deleteAllChats(dataRequest);
+      const result = await this.parkAssistService.deleteAllChats(dataRequest);
       res.send({
         result
       });
@@ -159,7 +157,10 @@ export class ParkAssistController {
     }
   };
 
-  sendNotificationToUser = async (req: Request, res: Response): Promise<any> => {
+  sendNotificationToUser = async (
+    req: Request,
+    res: Response
+  ): Promise<any> => {
     const dataRequest: any = req.query;
     Logger.info(
       '<Controller>:<ParkAssistController>:<Send notification to emergency contacts request controller initiated>'
@@ -170,6 +171,75 @@ export class ParkAssistController {
       );
       const result =
         await this.parkAssistService.sendNotificationToUser(dataRequest);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  countAllSOSNotifications = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Count SOS Notification Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ParkAssistController>:<Count SOS Notification Initiated>'
+      );
+      const result = await this.parkAssistService.countAllSOSNotifications();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllSOSNotifificationPaginated = async (req: Request, res: Response) => {
+    const { pageNo, pageSize } = req.body;
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Get Paginated SOS Notification Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ParkAssistController>:<Get Paginated SOS Notification Initiated>'
+      );
+      const result =
+        await this.parkAssistService.getAllSOSNotifificationPaginated(
+          pageNo,
+          pageSize
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getSOSNotifificationDetail = async (req: Request, res: Response) => {
+    const { id } = req.query;
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Get SOS Notification Detail Initiated>'
+    );
+    try {
+      Logger.info(
+       '<Controller>:<ParkAssistController>:<Get SOS Notification Detail Initiated>'
+      );
+      const result =
+        await this.parkAssistService.getSOSNotifificationDetail(
+          id as string
+        );
       res.send({
         result
       });

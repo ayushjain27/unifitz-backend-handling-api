@@ -16,6 +16,7 @@ import { SQSEvent } from '../enum/sqsEvent.enum';
 import { NotificationService } from './notification.service';
 import Customer from '../models/Customer';
 import SOSNotifications from '../models/SOSNotifications';
+import { Types } from 'mongoose';
 
 @injectable()
 export class ParkAssistService {
@@ -302,4 +303,62 @@ Tap to open Map
       throw new Error(err);
     }
   }
+
+  async countAllSOSNotifications(): Promise<any> {
+    Logger.info('<Service>:<ParkAssistService>:<count all SOS Emergency>');
+
+    // Aggregate query to fetch total, active, and inactive counts in one go
+    const total = await SOSNotifications.countDocuments();
+    return total;
+  }
+
+  async getAllSOSNotifificationPaginated(
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<ParkAssistService>:<Search and Filter sos notifications service initiated>'
+    );
+
+    let sosNotifications: any = await SOSNotifications.aggregate([
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return sosNotifications;
+  }
+
+  async getSOSNotifificationDetail(id: string): Promise<any> {
+    Logger.info('<Service>:<ParkAssistService>:<Fetching SOS notification detail>');
+  
+    const objectId = new Types.ObjectId(id);
+  
+    const result = await SOSNotifications.aggregate([
+      { $match: { _id: objectId } },
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'senderId',
+          foreignField: 'customerId',
+          as: 'senderCustomerDetails'
+        }
+      },
+      { $unwind: { path: '$senderCustomerDetails', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'receiverId',
+          foreignField: 'customerId',
+          as: 'receiverCustomerDetails'
+        }
+      },
+      { $unwind: { path: '$receiverCustomerDetails', preserveNullAndEmptyArrays: true } },
+      // Optional: add projection to limit the fields returned
+    ]);
+  
+    return result?.[0] || null;
+  }  
 }

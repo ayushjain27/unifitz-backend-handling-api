@@ -19,10 +19,12 @@ export const sosNotificationsSchema: Schema = new Schema(
       type: String
     },
     senderId: {
-      type: String
+      type: String,
+      ref: 'customers'
     },
     receiverId: {
-      type: String
+      type: String,
+      ref: 'customers'
     },
     phoneNumber: {
       type: String

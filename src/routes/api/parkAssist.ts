@@ -56,4 +56,22 @@ router.get(
   parkAssistController.sendNotificationToUser
 )
 
+router.get(
+  '/countAllSOSNotifications',
+  roleAuth(ACL.STORE_CREATE),
+  parkAssistController.countAllSOSNotifications
+);
+
+router.post(
+  '/sos-notification-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  parkAssistController.getAllSOSNotifificationPaginated
+);
+
+router.get(
+  '/get-sos-notification-detail',
+  roleAuth(ACL.STORE_CREATE),
+  parkAssistController.getSOSNotifificationDetail
+);
+
 export default router;
