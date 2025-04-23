@@ -744,6 +744,32 @@ export class VehicleInfoController {
     }
   };
 
+  updateRcDetails = async (
+    req: Request,
+    res: Response
+  ) => {
+    Logger.info(
+      '<Controller>:<VehicleInfoController>:<Update rc Details request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<Update rc Details request controller initiated>'
+      );
+      const result =
+        await this.vehicleInfoService.updateRcDetails(
+          req.body
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'addVehicle':

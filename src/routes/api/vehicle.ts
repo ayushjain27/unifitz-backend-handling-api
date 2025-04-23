@@ -177,12 +177,18 @@ router.get(
   '/getVehicleAndEmergencyDetailsByVehicleNumber',
   roleAuth(ACL.STORE_GET_ALL),
   vehicleInfoController.getVehicleAndEmergencyDetailsByVehicleNumber
-)
+);
 
 router.get(
   '/getVehicleDetailsFromRc',
   roleAuth(ACL.STORE_GET_ALL),
   vehicleInfoController.getVehicleDetailsFromRc
+);
+
+router.post(
+  '/updateRcDetails',
+  roleAuth(ACL.STORE_GET_ALL),
+  vehicleInfoController.updateRcDetails
 )
 
 export default router;

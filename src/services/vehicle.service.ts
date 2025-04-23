@@ -1036,14 +1036,18 @@ export class VehicleInfoService {
     });
 
     const emergencyDetails = await EmergencyContactDetails.find({
-      customerId: vehicle.customerId,
+      customerId: vehicle.customerId
     }).lean();
 
     const customerDetails = await Customer.findOne({
       customerId: vehicle.customerId
     });
 
-    return { vehicleData: vehicle, emergencyData: emergencyDetails, customerData: customerDetails };
+    return {
+      vehicleData: vehicle,
+      emergencyData: emergencyDetails,
+      customerData: customerDetails
+    };
   }
 
   async updateParkAssistVehicleStatus(
@@ -1280,7 +1284,7 @@ export class VehicleInfoService {
 
     const customer = await Customer.findOne({
       customerId: vehicle.customerId
-    })
+    });
 
     const accessList = customer?.accessList as {
       PARK_ASSIST?: {
@@ -1290,7 +1294,7 @@ export class VehicleInfoService {
         DELETE?: boolean;
       };
     };
-  
+
     const hasAccess = accessList?.PARK_ASSIST?.READ;
 
     if (!emergencyDetails.length) {
@@ -1310,12 +1314,21 @@ export class VehicleInfoService {
       validCustomers.map((customer) => customer.phoneNumber)
     );
 
-    const publicEmergencyDetails = emergencyDetails.filter(detail => detail.isPublic);
+    const publicEmergencyDetails = emergencyDetails.filter(
+      (detail) => detail.isPublic
+    );
     const privateEmergencyDetails = emergencyDetails.filter(
-      (detail) => validPhoneNumbers.has(`+91${detail.phoneNumber.slice(-10)}`) && !detail.isPublic
+      (detail) =>
+        validPhoneNumbers.has(`+91${detail.phoneNumber.slice(-10)}`) &&
+        !detail.isPublic
     );
 
-    return { vehicleData: vehicle, emergencyData: hasAccess ? [...publicEmergencyDetails, ...privateEmergencyDetails] : [] };
+    return {
+      vehicleData: vehicle,
+      emergencyData: hasAccess
+        ? [...publicEmergencyDetails, ...privateEmergencyDetails]
+        : []
+    };
   }
 
   async getVehicleDetailsFromRc(
@@ -1330,6 +1343,33 @@ export class VehicleInfoService {
       return vehicleDetails;
     } catch (err) {
       throw new Error(err);
+    }
+  }
+
+  async updateRcDetails(requestPayload: any): Promise<any> {
+    Logger.info('<Service>:<VehicleService>:<Update rc Details initiated>');
+
+    try {
+      const updateVehicle = await ParkAssistVehicle.findOneAndUpdate(
+        {
+          vehicleNumber: requestPayload.vehicleNumber,
+          customerId: requestPayload.customerId
+        },
+        {
+          $set: { rcDetails: requestPayload?.rcDetails }
+        },
+        {
+          new: true
+        }
+      );
+
+      return updateVehicle;
+    } catch (err: any) {
+      Logger.error(
+        '<Service>:<VehicleService>:<Update rc Details failed>',
+        err
+      );
+      throw new Error(err.message);
     }
   }
 }
