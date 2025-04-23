@@ -33,6 +33,7 @@ export interface IPaymentDetails {
   paymentDetails: string;
   amount: string;
   paymentId: string;
+  paymentDate: Date;
 }
 
 export const paymentDetailsSchema: Schema = new Schema(
@@ -51,6 +52,9 @@ export const paymentDetailsSchema: Schema = new Schema(
     },
     paymentId: {
       type: String
+    },
+    paymentDate: {
+      type: Date
     }
   },
   {

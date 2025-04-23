@@ -346,7 +346,8 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
               UPDATE: true,
               DELETE: true
             },
-            paymentId: req.body.payload.payment.entity.id
+            paymentId: req.body.payload.payment.entity.id,
+            paymentDate: new Date()
           }
         },
         { new: true } // Returns the updated document
@@ -364,10 +365,11 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
       if (note?.purpose === 'SPONSORED') {
         let data = {
           startDate: new Date(),
-          partnerDetails: 'PARTNER APP ONLINE PAYMENT',
+          paymentDetails: 'PARTNER APP ONLINE PAYMENT',
           amount: '',
           endDate: new Date(),
-          paymentId: req.body.payload.payment.entity.id
+          paymentId: req.body.payload.payment.entity.id,
+          paymentDate: new Date()
         };
 
         if (note?.subscriptionPackage === '3 Months') {
