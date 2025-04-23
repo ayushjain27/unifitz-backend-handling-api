@@ -82,6 +82,7 @@ export interface ICustomer extends Document {
   customerId: string;
   emergencyDetails?: IEmergencyContactDetails[];
   accessList: object;
+  paymentId: string;
   /* eslint-disable */
   createdAt?: Date;
   updatedAt?: Date;
@@ -132,6 +133,9 @@ const customerSchema: Schema = new Schema(
     },
     accessList: {
       type: Object
+    },
+    paymentId: {
+      type: String
     }
   },
   { timestamps: true }

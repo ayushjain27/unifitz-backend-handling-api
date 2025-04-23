@@ -326,6 +326,7 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
   }
 
   if (req.body.event === 'payment.captured') {
+    console.log(req.body.payload.payment.entity,"delmfkm")
     let userType = req.body.payload.payment.entity.notes?.userType;
     console.log(userType,"f;ekrmmfk")
     if (userType === 'CUSTOMER') {
@@ -344,7 +345,8 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
               READ: true,
               UPDATE: true,
               DELETE: true
-            }
+            },
+            paymentId: req.body.payload.payment.entity.id
           }
         },
         { new: true } // Returns the updated document
@@ -364,7 +366,8 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
           startDate: new Date(),
           partnerDetails: 'PARTNER APP ONLINE PAYMENT',
           amount: '',
-          endDate: new Date()
+          endDate: new Date(),
+          paymentId: req.body.payload.payment.entity.id
         };
 
         if (note?.subscriptionPackage === '3 Months') {
@@ -383,7 +386,6 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
             new Date().setFullYear(new Date().getFullYear() + 1)
           );
         }
-
         console.log(data,"Demdkmk")
 
         if (!isEmpty(partner?.paymentDetails)) {
