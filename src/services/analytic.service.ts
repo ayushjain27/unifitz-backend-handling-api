@@ -958,10 +958,10 @@ export class AnalyticService {
     query = {
       'userInformation.state': state,
       'userInformation.city': city,
-      // createdAt: {
-      //   $gte: firstDay,
-      //   $lte: nextDate
-      // },
+      createdAt: {
+        $gte: firstDay,
+        $lte: nextDate
+      },
       event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
       platform: platform,
