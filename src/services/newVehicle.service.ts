@@ -982,6 +982,7 @@ export class NewVehicleInfoService {
       {
         $match: filterParams
       },
+      { $sort: { orderNo: 1 } },
       {
         $skip: pageNo * pageSize
       },
