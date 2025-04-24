@@ -171,4 +171,10 @@ router.get(
   adminController.getInviteRetailer
 );
 
+router.get(
+  '/phone-clicks-per-user',
+  roleAuth(ACL.STORE_CREATE),
+  adminController.getPhoneClicksPerUser
+);
+
 export default router;

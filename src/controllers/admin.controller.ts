@@ -793,6 +793,21 @@ export class AdminController {
     }
   };
 
+  getPhoneClicksPerUser = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<adminService>:<Getting Phone Number Clicks Per User>');
+    try {
+      const result =
+        await this.adminService.getPhoneClicksPerUser(req.query);
+      res.send({
+        message: 'Details obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createUser':

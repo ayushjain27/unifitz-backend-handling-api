@@ -34,6 +34,7 @@ import { StoreService } from './store.service';
 import { ProductService } from './product.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { InviteRetailerModel } from './../models/inviteRetailer';
+import EventAnalyticModel from './../models/CustomerEventAnalytic';
 
 @injectable()
 export class AdminService {
@@ -44,7 +45,6 @@ export class AdminService {
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
   private productService = container.get<ProductService>(TYPES.ProductService);
-
 
   async create(reqBody: any): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
@@ -75,14 +75,19 @@ export class AdminService {
     let permissionResult: any;
 
     if (reqBody?.companyType === 'Manufacturer') {
-      permissionResult = { ...permissions, OEM: { ...permissions.OEM, 
-        B2B_DISTRIBUTORS: {
-        STATUS: 'OEM & EMPLOYEE',
-        CREATE: false,
-        READ: false,
-        UPDATE: false,
-        DELETE: false
-      }} };
+      permissionResult = {
+        ...permissions,
+        OEM: {
+          ...permissions.OEM,
+          B2B_DISTRIBUTORS: {
+            STATUS: 'OEM & EMPLOYEE',
+            CREATE: false,
+            READ: false,
+            UPDATE: false,
+            DELETE: false
+          }
+        }
+      };
     } else {
       const jsonData = { ...permissions };
       delete jsonData.OEM?.B2B_DISTRIBUTORS;
@@ -199,7 +204,9 @@ export class AdminService {
     }, []);
 
     const pincode = locationList.reduce((acc: any, item: any) => {
-      item.pincodes.forEach((pincodes: any) => acc.push({ name: pincodes.name }));
+      item.pincodes.forEach((pincodes: any) =>
+        acc.push({ name: pincodes.name })
+      );
       return acc;
     }, []);
 
@@ -288,7 +295,11 @@ export class AdminService {
     return { user: admin[0], token };
   }
 
-  async getAll(roleBase: string, oemId: string, createdOemUser: string): Promise<IAdmin[]> {
+  async getAll(
+    roleBase: string,
+    oemId: string,
+    createdOemUser: string
+  ): Promise<IAdmin[]> {
     const query = {
       role: roleBase,
       oemId: oemId,
@@ -528,9 +539,7 @@ export class AdminService {
   }
 
   async deleteOemUser(oemId: string): Promise<any> {
-    Logger.info(
-      '<Service>:<AdminService>:<Delete Id service initiated>'
-    );
+    Logger.info('<Service>:<AdminService>:<Delete Id service initiated>');
     const query: any = {};
     query.userName = oemId;
     const res = await Admin.findOneAndDelete(query);
@@ -1515,7 +1524,7 @@ export class AdminService {
       }
       return dateB - dateA;
     });
-    console.log(result,"sf mre m")
+    console.log(result, 'sf mre m');
     return result;
   }
 
@@ -1648,9 +1657,7 @@ export class AdminService {
   }
 
   async createInviteRetailer(postList?: any, userName?: any, role?: any) {
-    Logger.info(
-      '<Service>:<AdminService>:<create service initiated>'
-    );
+    Logger.info('<Service>:<AdminService>:<create service initiated>');
     const query = postList;
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
@@ -1690,5 +1697,46 @@ export class AdminService {
     Logger.info('<Service>:<AdminService>:<get data successful>');
 
     return jsonResult;
+  }
+
+  async getPhoneClicksPerUser(requestPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<AdminService>:<Getting Phone Number Clicks Per User>'
+    );
+
+    const inputDate = new Date(requestPayload?.date);
+    const startOfDay = new Date(inputDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(inputDate.setHours(23, 59, 59, 999));
+
+    try {
+      const results = await EventAnalyticModel.aggregate([
+        {
+          $match: {
+            platform: 'CUSTOMER_APP_ANDROID',
+            event: 'PHONE_NUMBER_CLICK',
+            createdAt: {
+              $gte: startOfDay,
+              $lt: endOfDay
+            }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              phoneNumber: "$userInformation.phoneNumber",
+              module: "$moduleInformation",
+            },
+            count: { $sum: 1 },
+            sampleDoc: { $first: '$$ROOT' } // gets one doc per phone
+          }
+        },
+        {
+          $sort: { count: -1 } // sort descending by count
+        }
+      ]);
+      return results;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 }
