@@ -231,11 +231,12 @@ export const permissions: any = {
       DELETE: false
     },
     SOS_NOTIFICATION: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
       DELETE: false
-    },
+    }
   },
   OEM: {
     DASHBOARD: {
@@ -470,11 +471,19 @@ export const permissions: any = {
       DELETE: false
     },
     PARK_ASSIST: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
       DELETE: false
     },
+    SOS_NOTIFICATION: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    }
   },
   PARTNER_EMPLOYEE: {
     DASHBOARD: {
@@ -540,29 +549,33 @@ export const permissions: any = {
       DELETE: false
     },
     BUY_SPARES: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
       DELETE: false
     },
     JOB_CARD: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
       DELETE: false
     },
     ENQUIRY_MANAGEMENT: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
       DELETE: false
     },
     SOS_NOTIFICATION: {
+      STATUS: 'ALL',
       CREATE: false,
       READ: false,
       UPDATE: false,
       DELETE: false
-    },
+    }
   },
   CUSTOMER: {
     PARK_ASSIST: {
@@ -570,7 +583,7 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
-    },
+    }
   },
   PARTNER: {
     SPONSORED_STORE: {
@@ -578,6 +591,6 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
-    },
+    }
   }
 };

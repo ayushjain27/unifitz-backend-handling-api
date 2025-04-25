@@ -698,9 +698,10 @@ const server = app.listen(port, () =>
 async function updateSlugs() {
   try {
     // Use aggregation pipeline in updateMany
-    await Store.updateMany(
+    await Admin.updateMany(
       // Only update documents that have storeId
-      { $set: { accessList: permissions.PARTNER } }
+      { role: 'EMPLOYEE'},
+      { $set: { accessList: permissions.EMPLOYEE } }
     );
 
     console.log('All documents have been updated with slugs.');
