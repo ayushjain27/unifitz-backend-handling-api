@@ -1721,7 +1721,9 @@ export class AdminService {
     // If filterParam is provided, apply it using $or
     if (requestPayload?.filterParam) {
       matchCondition['$or'] = [
-        { 'userInformation.phoneNumber': requestPayload.filterParam },
+        {
+          'userInformation.phoneNumber': `+91${requestPayload.filterParam.slice(-10)}`
+        },
         { moduleInformation: requestPayload.filterParam }
       ];
     }
