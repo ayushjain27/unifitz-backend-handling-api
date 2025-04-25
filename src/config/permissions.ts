@@ -230,6 +230,12 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    SOS_NOTIFICATION: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
   },
   OEM: {
     DASHBOARD: {
@@ -550,7 +556,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
-    }
+    },
+    SOS_NOTIFICATION: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
   },
   CUSTOMER: {
     PARK_ASSIST: {
