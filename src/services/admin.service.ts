@@ -1720,11 +1720,17 @@ export class AdminService {
 
     // If filterParam is provided, apply it using $or
     if (requestPayload?.filterParam) {
+      const rawParam = requestPayload.filterParam;
+      
+      // Regex for partial phone number match
+      const phonePattern = new RegExp(`^\\+91${rawParam}`);
+      
+      // Regex for partial module match
+      const modulePattern = new RegExp(`^${rawParam}`);
+    
       matchCondition['$or'] = [
-        {
-          'userInformation.phoneNumber': `+91${requestPayload.filterParam.slice(-10)}`
-        },
-        { moduleInformation: requestPayload.filterParam }
+        { 'userInformation.phoneNumber': { $regex: phonePattern } },
+        { moduleInformation: { $regex: modulePattern } }
       ];
     }
 
