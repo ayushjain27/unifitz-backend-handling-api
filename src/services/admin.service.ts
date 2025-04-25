@@ -1708,32 +1708,44 @@ export class AdminService {
     const startOfDay = new Date(inputDate.setHours(0, 0, 0, 0));
     const endOfDay = new Date(inputDate.setHours(23, 59, 59, 999));
 
+    // Base match condition
+    const matchCondition: any = {
+      platform: 'CUSTOMER_APP_ANDROID',
+      event: 'PHONE_NUMBER_CLICK',
+      createdAt: {
+        $gte: startOfDay,
+        $lt: endOfDay
+      }
+    };
+
+    // If filterParam is provided, apply it using $or
+    if (requestPayload?.filterParam) {
+      matchCondition['$or'] = [
+        { 'userInformation.phoneNumber': requestPayload.filterParam },
+        { moduleInformation: requestPayload.filterParam }
+      ];
+    }
+
     try {
       const results = await EventAnalyticModel.aggregate([
         {
-          $match: {
-            platform: 'CUSTOMER_APP_ANDROID',
-            event: 'PHONE_NUMBER_CLICK',
-            createdAt: {
-              $gte: startOfDay,
-              $lt: endOfDay
-            }
-          }
+          $match: matchCondition
         },
         {
           $group: {
             _id: {
-              phoneNumber: "$userInformation.phoneNumber",
-              module: "$moduleInformation",
+              phoneNumber: '$userInformation.phoneNumber',
+              module: '$moduleInformation'
             },
             count: { $sum: 1 },
-            sampleDoc: { $first: '$$ROOT' } // gets one doc per phone
+            sampleDoc: { $first: '$$ROOT' } // one sample per group
           }
         },
         {
-          $sort: { count: -1 } // sort descending by count
+          $sort: { count: -1 }
         }
       ]);
+
       return results;
     } catch (err) {
       throw new Error(err);
