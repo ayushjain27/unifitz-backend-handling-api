@@ -376,4 +376,19 @@ export class CustomerService {
 
     return updatedCustomer;
   }
+
+  async getAllCustomerId() {
+    Logger.info('<Service>:<CustomerService>:<Get all customersID>');
+  
+    const customerResponse = await Customer.find({}, 'customerId'); // Only fetch customerId field
+  
+    const customerIds = customerResponse.map((customer: any) => customer.customerId);
+  
+    const result = {
+      customerIds: customerIds,
+    };
+  
+    return result;
+  }
+  
 }

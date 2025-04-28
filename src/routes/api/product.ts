@@ -323,4 +323,11 @@ router.post(
   productController.updateStatusOfAddress
 );
 
+router.post(
+  '/createMasterProduct',
+  roleAuth(ACL.STORE_CREATE),
+  productController.createMasterProduct
+);
+
+
 export default router;

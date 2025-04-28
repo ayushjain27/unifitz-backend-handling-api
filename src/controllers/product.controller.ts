@@ -1373,6 +1373,28 @@ export class ProductController {
     }
   };
 
+  createMasterProduct = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const prodRequest = req.body;
+    Logger.info(
+      '<Controller>:<ProductController>:<Create Master product controller initiated>'
+    );
+    try {
+      const result = await this.productService.createMasterProduct(prodRequest);
+      res.send({
+        message: 'Master Product Creation Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createProduct':

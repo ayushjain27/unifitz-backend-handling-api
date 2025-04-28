@@ -20,7 +20,11 @@ import {
   OverallStoreRatingResponse,
   PartnersProductStoreRatingResponse
 } from '../interfaces';
-import Admin, { AdminRole, productCategorySchema, productSubCateoryMapSchema } from '../models/Admin';
+import Admin, {
+  AdminRole,
+  productCategorySchema,
+  productSubCateoryMapSchema
+} from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
 import ProductCartModel from '../models/ProductCart';
@@ -34,6 +38,7 @@ import ProductOrderAddress, {
   IProductOrderAddress
 } from '../models/ProductOrderAddress';
 import { StaticIds } from '../models/StaticId';
+import { IMasterProducts } from '../models/MasterProducts';
 
 @injectable()
 export class ProductService {
@@ -314,7 +319,7 @@ export class ProductService {
         { 'productSubCategory.catalogName': { $regex: regexQuery } }
       ];
     }
-    
+
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
     }
@@ -1050,10 +1055,16 @@ export class ProductService {
       newProd.oemUserName = userName;
     }
 
-    const lastCreatedNewPartnerProductId = await StaticIds.find({}).limit(1).exec();
-    const newPartnersProductNo = (lastCreatedNewPartnerProductId[0].newPartnersProductNo) + 1;
+    const lastCreatedNewPartnerProductId = await StaticIds.find({})
+      .limit(1)
+      .exec();
+    const newPartnersProductNo =
+      lastCreatedNewPartnerProductId[0].newPartnersProductNo + 1;
 
-    await StaticIds.findOneAndUpdate({}, { newPartnersProductNo: newPartnersProductNo });
+    await StaticIds.findOneAndUpdate(
+      {},
+      { newPartnersProductNo: newPartnersProductNo }
+    );
     newProd.displayOrderNo = newPartnersProductNo;
 
     const productResult = await PartnersPoduct.create(newProd);
@@ -1098,12 +1109,12 @@ export class ProductService {
     searchQuery?: string,
     category?: string,
     subCategory?: string,
-    employeeId?: string,
+    employeeId?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
       'productCategory.catalogName': { $in: [category] },
-      'productSubCategory.catalogName': { $in: [subCategory] },
+      'productSubCategory.catalogName': { $in: [subCategory] }
       // 'employeeId': employeeId
     };
     if (!employeeId) delete query['employeeId'];
@@ -1165,12 +1176,12 @@ export class ProductService {
     searchQuery?: string,
     category?: string,
     subCategory?: string,
-    employeeId?: string,
+    employeeId?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     const query: any = {
       'productCategory.catalogName': { $in: [category] },
-      'productSubCategory.catalogName': { $in: [subCategory] },
+      'productSubCategory.catalogName': { $in: [subCategory] }
       // 'employeeId': employeeId
     };
     if (!employeeId) delete query['employeeId'];
@@ -1340,7 +1351,7 @@ export class ProductService {
         $gte: discountStart,
         $lte: discountEnd
       },
-      'partnerDetail.status' : "ACTIVE",
+      'partnerDetail.status': 'ACTIVE',
       manufactureName: manufactureName
     };
 
@@ -1386,7 +1397,9 @@ export class ProductService {
         $in: store[0]?.basicInfo?.category.map((category) => category.name)
       };
       query['partnerDetail.subCategory.name'] = {
-        $in: store[0]?.basicInfo?.subCategory.map((subCategory) => subCategory.name)
+        $in: store[0]?.basicInfo?.subCategory.map(
+          (subCategory) => subCategory.name
+        )
       };
     }
 
@@ -1446,8 +1459,7 @@ export class ProductService {
         ]
       });
     }
-    
-    
+
     if (filters.length > 0) {
       matchStage.$expr = { $and: filters };
     }
@@ -1480,12 +1492,12 @@ export class ProductService {
 
   async getAllCategoriesAndSubCategories(
     storeId?: string,
-    userType?: string,
+    userType?: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<get product initiated>');
     let query: any = {
-      status: "ACTIVE",
-      'partnerDetail.status' : "ACTIVE"
+      status: 'ACTIVE',
+      'partnerDetail.status': 'ACTIVE'
     };
     if (userType === 'Distributer') {
       query.$or = [
@@ -1511,11 +1523,13 @@ export class ProductService {
         $in: store[0]?.basicInfo?.category.map((category) => category.name)
       };
       query['partnerDetail.subCategory.name'] = {
-        $in: store[0]?.basicInfo?.subCategory.map((subCategory) => subCategory.name)
+        $in: store[0]?.basicInfo?.subCategory.map(
+          (subCategory) => subCategory.name
+        )
       };
     }
 
-    console.log(stateFilter,"rmfkmrkf",cityFilter)
+    console.log(stateFilter, 'rmfkmrkf', cityFilter);
 
     const matchStage: any = { ...query };
 
@@ -1548,7 +1562,7 @@ export class ProductService {
       };
     }
 
-    console.log(query, "frjfrkm",matchStage)
+    console.log(query, 'frjfrkm', matchStage);
 
     // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
@@ -1563,27 +1577,32 @@ export class ProductService {
       { $unwind: { path: '$partnerDetail' } },
       {
         $match: matchStage
-      },
-    ])
+      }
+    ]);
 
     const categorySet = new Set<string>();
     const subCategorySet = new Set<string>();
 
-    product.forEach(product => {
-        product.productCategory?.forEach((category: { catalogName: string; }) => categorySet.add(category.catalogName));
-        product.productSubCategory?.forEach((subCategory: { catalogName: string; }) => subCategorySet.add(subCategory.catalogName));
+    product.forEach((product) => {
+      product.productCategory?.forEach((category: { catalogName: string }) =>
+        categorySet.add(category.catalogName)
+      );
+      product.productSubCategory?.forEach(
+        (subCategory: { catalogName: string }) =>
+          subCategorySet.add(subCategory.catalogName)
+      );
     });
 
     const uniqueCategories = Array.from(categorySet);
     const uniqueSubCategories = Array.from(subCategorySet);
 
-    console.log(uniqueCategories,"femrkrk")
-    console.log(uniqueSubCategories,"feejrmrkrk")
+    console.log(uniqueCategories, 'femrkrk');
+    console.log(uniqueSubCategories, 'feejrmrkrk');
 
     const total = {
       uniqueProductCategory: uniqueCategories,
       uniqueProductSubCateory: uniqueSubCategories
-    }
+    };
 
     // console.log(product,"products")
 
@@ -1731,9 +1750,9 @@ export class ProductService {
 
     let query = {
       _id: new Types.ObjectId(partnerProductId)
-    }
+    };
 
-    console.log(query,"drmkfk")
+    console.log(query, 'drmkfk');
 
     const newProd = await PartnersPoduct.aggregate([
       {
@@ -1751,8 +1770,8 @@ export class ProductService {
         $unwind: {
           path: '$partnerDetail'
         }
-      }]);
-
+      }
+    ]);
 
     if (_.isEmpty(newProd)) {
       throw new Error('Partner product does not exist');
@@ -1789,24 +1808,23 @@ export class ProductService {
       reqBody?.priceDetail?.sellingPrice !== null
     ) {
       const numVal =
-        (reqBody?.priceDetail?.mrp -
-          reqBody?.priceDetail?.sellingPrice) /
+        (reqBody?.priceDetail?.mrp - reqBody?.priceDetail?.sellingPrice) /
         reqBody?.priceDetail?.mrp;
 
-        reqBody.discount = numVal * 100;
+      reqBody.discount = numVal * 100;
     }
     let finalResult: any = reqBody;
     if (
       reqBody?.priceDetail?.mrp === null &&
       reqBody?.priceDetail?.sellingPrice === null
     ) {
-       delete reqBody['discount'];
-       finalResult.$unset = { discount: "" };
-       finalResult = reqBody;
+      delete reqBody['discount'];
+      finalResult.$unset = { discount: '' };
+      finalResult = reqBody;
     }
 
     console.log(finalResult, 'finalResultfinalResult');
-    
+
     const res = await PartnersPoduct.findOneAndUpdate(query, finalResult, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
@@ -2361,30 +2379,40 @@ export class ProductService {
     return updatedAddr;
   }
 
-async updateProductLocation(
-  userName: string,
-  state?: any,
-  city?: any,
-  pincode?: any
-): Promise<any> {
-  Logger.info('<Service>:<ProductService>:<get product initiated>');
-  const query: any = {};
-  if (userName) {
-    query.oemUserName = userName;
+  async updateProductLocation(
+    userName: string,
+    state?: any,
+    city?: any,
+    pincode?: any
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<get product initiated>');
+    const query: any = {};
+    if (userName) {
+      query.oemUserName = userName;
+    }
+
+    let updateData: any = {};
+    updateData = {
+      $set: {
+        state: state,
+        city: city,
+        pincode: pincode
+      }
+    };
+
+    const product = await PartnersPoduct.updateMany(query, updateData);
+
+    return product;
   }
 
-  let updateData: any = {};
-  updateData = {
-    $set: {
-      'state': state,
-      'city': city,
-      'pincode': pincode
-    }
-  };
-
-  const product = await PartnersPoduct.updateMany(query, updateData);
-
-  return product;
-}
-
+  async createMasterProduct(productPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<ProductService>: <Product Creation: creating new master product>'
+    );
+    const newMasterProd = await Product.create(productPayload);
+    Logger.info(
+      '<Service>:<ProductService>:<Master Product created successfully>'
+    );
+    return newMasterProd;
+  }
 }

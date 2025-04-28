@@ -197,6 +197,21 @@ export class CustomerController {
     }
   };
 
+  getAllCustomerId = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all customersId request controller initiated>'
+    );
+    try {
+      const result = await this.customerService.getAllCustomerId();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   initiateUserVerification = async (req: Request, res: Response) => {
     const payload = req.body as VerifyCustomerRequest;
     Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');

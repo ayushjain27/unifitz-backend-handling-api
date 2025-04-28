@@ -70,4 +70,6 @@ router.get(
 router.get('/paginated/all', customerController.getPaginatedAll);
 router.get('/count', customerController.getAllCount);
 
+router.get('/getAllCustomerId', customerController.getAllCustomerId);
+
 export default router;
