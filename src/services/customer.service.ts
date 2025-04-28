@@ -15,6 +15,7 @@ import { DocType } from '../enum/docType.enum';
 import { SurepassService } from './surepass.service';
 import { StaticIds } from '../models/StaticId';
 import { permissions } from '../config/permissions';
+import CustomerReferralCode from '../models/CustomerReferralcode';
 
 @injectable()
 export class CustomerService {
@@ -34,8 +35,13 @@ export class CustomerService {
     );
     await StaticIds.findOneAndUpdate({}, { customerId: newCustomerId });
     customerPayload.customerId = newCustomerId;
-    customerPayload.accessList = permissions.CUSTOMER
+    customerPayload.accessList = permissions.CUSTOMER;
     const newCustomer = await Customer.create(customerPayload);
+    let data = {
+      customerId: newCustomerId,
+      referralCode: customerPayload?.referralCode
+    };
+    await CustomerReferralCode.create(data);
     Logger.info('<Service>:<CustomerService>:<Customer created successfully>');
     return newCustomer;
   }
@@ -47,17 +53,38 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>: <Customer onboarding: creating new customer>'
     );
-    await Customer.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(customerId)
-      },
-      customerPayload
-    );
-    const updatedCustomerPayload = Customer.findById(
-      new Types.ObjectId(customerId)
-    );
-    Logger.info('<Service>:<CustomerService>:<Customer updated successfully>');
-    return updatedCustomerPayload;
+    try {
+      await Customer.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(customerId)
+        },
+        customerPayload
+      );
+      const updatedCustomerPayload = Customer.findById(
+        new Types.ObjectId(customerId)
+      );
+      let customerReferrals = await CustomerReferralCode.findOne({
+        customerId: customerPayload?.customerId,
+        referralCode: customerPayload?.referralCode
+      });
+      console.log(customerReferrals,"wemkfmlr")
+      if (customerReferrals) {
+        await CustomerReferralCode.findOneAndUpdate(
+          {
+            customerId: customerPayload?.customerId,
+            referralCode: customerPayload?.referralCode
+          },
+          { $set: { status: 'SUCCESSFULL' } },
+          { new: true }
+        );
+      }
+      Logger.info(
+        '<Service>:<CustomerService>:<Customer updated successfully>'
+      );
+      return updatedCustomerPayload;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   async updateCustomerImage(customerId: string, req: Request | any) {
@@ -142,7 +169,7 @@ export class CustomerService {
       query.$or = [
         { customerId: { $regex: regexQuery } },
         { 'contactInfo.address': { $regex: regexQuery } }
-      ]
+      ];
     }
     const customerResponse: any = await Customer.countDocuments(query);
     const result = {
@@ -180,9 +207,9 @@ export class CustomerService {
       query.$or = [
         { customerId: { $regex: regexQuery } },
         { 'contactInfo.address': { $regex: regexQuery } },
-        { phoneNumber: { $regex: regexQuery }},
-        { fullName: { $regex: regexQuery }}
-      ]
+        { phoneNumber: { $regex: regexQuery } },
+        { fullName: { $regex: regexQuery } }
+      ];
     }
     const customerResponse = await Customer.aggregate([
       {

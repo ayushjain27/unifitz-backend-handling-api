@@ -700,8 +700,8 @@ async function updateSlugs() {
     // Use aggregation pipeline in updateMany
     await Admin.updateMany(
       // Only update documents that have storeId
-      { role: 'EMPLOYEE'},
-      { $set: { accessList: permissions.EMPLOYEE } }
+      { role: 'ADMIN'},
+      { $set: { accessList: permissions.OEM } }
     );
 
     console.log('All documents have been updated with slugs.');

@@ -236,6 +236,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    FINANCE: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   OEM: {
@@ -483,6 +490,13 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    FINANCE: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   PARTNER_EMPLOYEE: {
@@ -570,6 +584,13 @@ export const permissions: any = {
       DELETE: false
     },
     SOS_NOTIFICATION: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    FINANCE: {
       STATUS: 'ALL',
       CREATE: false,
       READ: false,
