@@ -37,11 +37,13 @@ export class CustomerService {
     customerPayload.customerId = newCustomerId;
     customerPayload.accessList = permissions.CUSTOMER;
     const newCustomer = await Customer.create(customerPayload);
-    let data = {
-      customerId: newCustomerId,
-      referralCode: customerPayload?.referralCode
-    };
-    await CustomerReferralCode.create(data);
+    if (customerPayload?.referralCode) {
+      let data = {
+        customerId: newCustomerId,
+        referralCode: customerPayload?.referralCode
+      };
+      await CustomerReferralCode.create(data);
+    }
     Logger.info('<Service>:<CustomerService>:<Customer created successfully>');
     return newCustomer;
   }
@@ -63,20 +65,22 @@ export class CustomerService {
       const updatedCustomerPayload = Customer.findById(
         new Types.ObjectId(customerId)
       );
-      let customerReferrals = await CustomerReferralCode.findOne({
-        customerId: customerPayload?.customerId,
-        referralCode: customerPayload?.referralCode
-      });
-      console.log(customerReferrals,"wemkfmlr")
-      if (customerReferrals) {
-        await CustomerReferralCode.findOneAndUpdate(
-          {
-            customerId: customerPayload?.customerId,
-            referralCode: customerPayload?.referralCode
-          },
-          { $set: { status: 'SUCCESSFULL' } },
-          { new: true }
-        );
+      if (customerPayload?.referralCode) {
+        let customerReferrals = await CustomerReferralCode.findOne({
+          customerId: customerPayload?.customerId,
+          referralCode: customerPayload?.referralCode
+        });
+        console.log(customerReferrals, 'wemkfmlr');
+        if (customerReferrals) {
+          await CustomerReferralCode.findOneAndUpdate(
+            {
+              customerId: customerPayload?.customerId,
+              referralCode: customerPayload?.referralCode
+            },
+            { $set: { status: 'SUCCESSFULL' } },
+            { new: true }
+          );
+        }
       }
       Logger.info(
         '<Service>:<CustomerService>:<Customer updated successfully>'
@@ -379,16 +383,27 @@ export class CustomerService {
 
   async getAllCustomerId() {
     Logger.info('<Service>:<CustomerService>:<Get all customersID>');
-  
+
     const customerResponse = await Customer.find({}, 'customerId'); // Only fetch customerId field
-  
-    const customerIds = customerResponse.map((customer: any) => customer.customerId);
-  
+
+    const customerIds = customerResponse.map(
+      (customer: any) => customer.customerId
+    );
+
     const result = {
-      customerIds: customerIds,
+      customerIds: customerIds
     };
-  
+
     return result;
   }
-  
+
+  async getAllCustomerReferralsByCustomerId(referralCode: string) {
+    Logger.info('<Service>:<CustomerService>:<Get all customersID>');
+
+    const customerResponse = await CustomerReferralCode.find({
+      referralCode: referralCode
+    }); // Only fetch customerId field
+
+    return customerResponse;
+  }
 }

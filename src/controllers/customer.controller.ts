@@ -212,6 +212,25 @@ export class CustomerController {
     }
   };
 
+  getAllCustomerReferralsByCustomerId = async (req: Request, res: Response) => {
+    const referralCode = req.query.referralCode;
+    if(!referralCode){
+      res.send({ message: 'Referral Id not found'});
+    }
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all customersId request controller initiated>'
+    );
+    try {
+      const result = await this.customerService.getAllCustomerReferralsByCustomerId(referralCode as string);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   initiateUserVerification = async (req: Request, res: Response) => {
     const payload = req.body as VerifyCustomerRequest;
     Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');
