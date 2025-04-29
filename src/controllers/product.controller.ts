@@ -693,6 +693,31 @@ export class ProductController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+  
+  // uploadBulkPartnerProducts = async (req: Request, res: Response) => {
+  //   if (!req.file) {
+  //     return res.status(400).json({ error: 'No file uploaded' });
+  //   }
+  //   const userName = req?.userId;
+  //   const role = req?.role;
+  //   Logger.info(
+  //     '<Controller>:<ProductController>:<Create partner product controller initiated>'
+  //   );
+  //   try {
+  //     const result = await this.productService.uploadBulkPartnerProducts(
+  //       req.file,
+  //       userName,
+  //       role
+  //     );
+  //     res.send({
+  //       message: 'Product Creation Successful',
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  //   }
+  // };
 
   partnerProductGetAll = async (req: Request, res: Response) => {
     Logger.info(
@@ -715,6 +740,24 @@ export class ProductController {
         message: 'Partner Product obtained successfully',
         result
       });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  downloadTemplate = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Get All request controller initiated>'
+    );
+    try {
+      const result = await this.productService.downloadTemplate();
+      res.setHeader('Content-Disposition', 'attachment; filename=Catalog_Template.xlsx');
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.send(result);
     } catch (err) {
       Logger.error(err.message);
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);

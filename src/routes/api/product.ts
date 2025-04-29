@@ -173,6 +173,19 @@ router.post(
   productController.createPartnerProduct
 );
 
+// router.post(
+//   '/createBulkProducts',
+//   uploadFiles.single('file'),
+//   roleAuth(ACL.STORE_CREATE),
+//   productController.uploadBulkPartnerProducts
+// );
+
+router.get(
+  '/download-template',
+  roleAuth(ACL.STORE_CREATE),
+  productController.downloadTemplate
+)
+
 router.get(
   '/partner/getAll',
   roleAuth(ACL.STORE_GET_ALL),

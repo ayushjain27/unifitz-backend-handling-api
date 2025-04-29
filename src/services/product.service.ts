@@ -38,6 +38,7 @@ import ProductOrderAddress, {
   IProductOrderAddress
 } from '../models/ProductOrderAddress';
 import { StaticIds } from '../models/StaticId';
+import ExcelJS from 'exceljs';
 import { IMasterProducts } from '../models/MasterProducts';
 
 @injectable()
@@ -1074,6 +1075,123 @@ export class ProductService {
     return productResult;
   }
 
+  async createBulkPartnerProducts(
+    productsPayload: IB2BPartnersProduct[],
+    userName?: string,
+    role?: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>: <Creating bulk partner products>');
+
+    const lastCreatedId = await StaticIds.findOne().exec();
+    let currentProductNo = lastCreatedId?.newPartnersProductNo || 1000; // fallback to base if needed
+
+    const bulkProductsToInsert = [];
+
+    for (const productPayload of productsPayload) {
+      const newProd: any = productPayload;
+
+      // Discount calculation
+      if (
+        newProd?.priceDetail?.mrp !== null &&
+        newProd?.priceDetail?.sellingPrice !== null
+      ) {
+        const numVal =
+          (newProd?.priceDetail?.mrp - newProd?.priceDetail?.sellingPrice) /
+          newProd?.priceDetail?.mrp;
+        newProd.discount = numVal * 100;
+      }
+
+      // Add OEM user info
+      if (role === AdminRole.OEM) {
+        newProd.oemUserName = userName;
+      }
+
+      // Assign display order number
+      currentProductNo += 1;
+      newProd.displayOrderNo = currentProductNo;
+
+      bulkProductsToInsert.push(newProd);
+    }
+
+    // Update static ID count
+    await StaticIds.findOneAndUpdate(
+      {},
+      { newPartnersProductNo: currentProductNo }
+    );
+
+    const createdProducts =
+      await PartnersPoduct.insertMany(bulkProductsToInsert);
+
+    Logger.info('<Service>:<ProductService>: <Bulk partner products created>');
+    return createdProducts;
+  }
+
+  //   async uploadBulkPartnerProducts(
+  //     file: any,
+  //     userName?: string,
+  //     role?: string
+  //   ): Promise<any> {
+  //     Logger.info('<Service>:<ProductService>: <Creating bulk partner products>');
+  //   try {
+  //   const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+  //   const sheetName = workbook.SheetNames[0];
+  //   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+  //   const formattedData = data.map((item: any) => ({
+  //     productName: item['Product Name'],
+  //     makeType: item['Make Type'],
+  //     vehicleType: item['Vehicle Type'],
+  //     productCategory: item['Product Category'],
+  //     productSubCategory: item['Product Subcategory'],
+  //     brandName: item['Brand Name'] || '',
+  //     vehicleModel: item['Vehicle Model'] || '',
+  //     productSuggest: item['Product Suggest'] || '',
+  //     productDescription: item['Product Description'] || '',
+  //     features: item['Features'] || '',
+  //     inTheBox: item['In The Box'] || '',
+  //     materialDetails: item['Material Details'] || '',
+  //     madeIn: item['Made In'] || '',
+  //     warranty: item['Warranty'],
+  //     returnPolicy: item['Return Policy'],
+  //     state: [{ name: item['State'] }],
+  //     city: item['City'],
+  //     selectAllStateAndCity: item['Select All State and City'] === 'Yes',
+  //     targetedAudience: {
+  //       distributor: item['Distributor'] === 'Yes',
+  //       dealerRetailer: item['Dealer/Retailer'] === 'Yes',
+  //       consumers: item['Consumers'] === 'Yes'
+  //     },
+  //     priceDetail: {
+  //       mrp: parseInt(item['MRP'], 10),
+  //       sellingPrice: parseInt(item['Selling Price'], 10),
+  //       qty: item['Qty'],
+  //       width: item['Width'],
+  //       height: item['Height'],
+  //       depth: item['Depth'],
+  //       weight: item['Weight']
+  //     },
+  //     bulkOrders: {
+  //       mrp: parseInt(item['Bulk MRP'], 10),
+  //       wholeSalePrice: parseInt(item['Wholesale Price'], 10),
+  //       qty: item['Bulk Qty'],
+  //       width: item['Bulk Width'],
+  //       height: item['Bulk Height'],
+  //       depth: item['Bulk Depth'],
+  //       weight: item['Bulk Weight']
+  //     }
+  //   }));
+
+  //   // Call the bulk create service
+  //   const createdProducts = await this.createBulkPartnerProducts(formattedData, userName, role);
+
+  //   return { message: 'Products created', data: createdProducts };
+  // } catch (err) {
+  //   console.error(err);
+  //   return { error: 'Something went wrong' };
+  // }
+
+  // }
+
   async partnerProductGetAll(
     userName: string,
     role?: string,
@@ -1099,6 +1217,251 @@ export class ProductService {
 
     return product;
   }
+
+  async downloadTemplate(): Promise<Buffer> {
+    Logger.info('<Service>:<ProductService>:<downloadTemplate initiated>');
+  
+    const headerRow1 = [
+      'B2B Partners Product Upload Template (Automotive Parts & Accessories)'
+    ];
+  
+    const headerRow2 = [
+      'Field Name',
+      'ERROR STATUS\n(Do not fill - system use)',
+      'ERROR MESSAGE\n(Do not fill - system use)',
+      '* Compulsory Field: Product Name',
+      '* Compulsory Field: Vehicle Type',
+      '* Compulsory Field: Brand Name',
+      '* Compulsory Field: Vehicle Model',
+      '* Compulsory Field: MRP',
+      '* Compulsory Field: Selling Price',
+      '* Compulsory Field: Image Link 1',
+      'Optional Field: Fuel Type',
+      'Optional Field: State',
+      'Optional Field: City',
+      'Optional Field: Pincode',
+      'Optional Field: Return Policy',
+      'Optional Field: Warranty',
+      'Optional Field: Material',
+      'Optional Field: Description',
+      'Field Name',
+      'ERROR STATUS\n(Do not fill - system use)',
+      'ERROR MESSAGE\n(Do not fill - system use)',
+      '* Compulsory Field: Product Name',
+      '* Compulsory Field: Vehicle Type',
+      '* Compulsory Field: Brand Name',
+      '* Compulsory Field: Vehicle Model',
+      '* Compulsory Field: MRP',
+      '* Compulsory Field: Selling Price',
+      '* Compulsory Field: Image Link 1',
+      'Optional Field: Fuel Type',
+      'Optional Field: State',
+      'Optional Field: City',
+      'Optional Field: Pincode',
+      'Optional Field: Return Policy',
+      'Optional Field: Warranty',
+      'Optional Field: Material',
+      'Optional Field: Description',
+      'Optional Field: State',
+      'Optional Field: City',
+      'Optional Field: Pincode',
+      'Optional Field: Return Policy',
+      'Optional Field: Warranty',
+      'Optional Field: Material',
+      'Optional Field: Description'
+    ];
+  
+    const fieldDescriptions = [
+      'Fields + Description:',
+      "For system use, don't modify",
+      "For system use, don't modify",
+      'Short name of the product. Eg: Brake Pad for Activa',
+      'Eg: Two Wheeler, Four Wheeler',
+      'Eg: Honda, Bajaj',
+      'Eg: Activa 5G, Pulsar 150',
+      'Maximum Retail Price (must be > Selling Price)',
+      'Selling price to B2B buyers',
+      'Direct image URL (hosted, not local)',
+      'Eg: Petrol, Diesel, Electric',
+      'Eg: Maharashtra, Gujarat',
+      'City name where you serve',
+      'Postal code of service location',
+      'Optional return policy notes',
+      'Eg: 6 Months, 1 Year',
+      'Eg: Stainless Steel, Plastic',
+      'Detailed product features, USPs',
+      'Fields + Description:',
+      "For system use, don't modify",
+      "For system use, don't modify",
+      'Short name of the product. Eg: Brake Pad for Activa',
+      'Eg: Two Wheeler, Four Wheeler',
+      'Eg: Honda, Bajaj',
+      'Eg: Activa 5G, Pulsar 150',
+      'Maximum Retail Price (must be > Selling Price)',
+      'Selling price to B2B buyers',
+      'Direct image URL (hosted, not local)',
+      'Eg: Petrol, Diesel, Electric',
+      'Eg: Maharashtra, Gujarat',
+      'City name where you serve',
+      'Postal code of service location',
+      'Optional return policy notes',
+      'Eg: 6 Months, 1 Year',
+      'Eg: Stainless Steel, Plastic',
+      'Detailed product features, USPs',
+      'Eg: Maharashtra, Gujarat',
+      'City name where you serve',
+      'Postal code of service location',
+      'Optional return policy notes',
+      'Eg: 6 Months, 1 Year',
+      'Eg: Stainless Steel, Plastic',
+      'Detailed product features, USPs'
+    ];
+  
+    const tutorialRow = [
+      'Tutorial Link',
+      'vehicleType',
+      'makeType',
+      'manufactureName',
+      'productSuggest',
+      'productDescription',
+      'features',
+      'inTheBox',
+      'warranty',
+      'returnPolicy',
+      'materialDetails',
+      'madeIn',
+      'isActive',
+      'retailPriceMrp',
+      'retailPriceSellingPrice',
+      'retailPriceQty',
+      'retailPriceWidth',
+      'retailPriceHeight',
+      'retailPriceDepth',
+      'retailPriceWeight',
+      'bulkPriceMrp',
+      'bulkPriceWholeSalePrice',
+      'bulkPriceQty',
+      'bulkPriceWidth',
+      'bulkPriceHeight',
+      'bulkPriceDepth',
+      'bulkPriceWeight',
+      'color',
+      'colorName',
+      'oemPartNumber',
+      'skuNumber',
+      'manufacturerPartNumber',
+      'image1',
+      'image2',
+      'image3',
+      'oemBrand',
+      'oemModel',
+      'partNumber',
+      'engineSize',
+      'startYear',
+      'endYear',
+      'variants',
+      'fuelType'
+    ];
+  
+    const dummyRows = [[
+      'Examples',
+      'Fancy Brake Pad',
+      '',
+      '',
+      'Brake Pad for Activa',
+      'Two Wheeler',
+      'Honda',
+      'Activa 5G',
+      999,
+      899,
+      'https://yourcdn.com/image1.jpg',
+      'Petrol',
+      'Maharashtra',
+      'Pune',
+      '411001',
+      'Return in 7 Days',
+      '6 Months',
+      'Metal',
+      'High quality OEM replacement brake pad.',
+      'Fancy Brake Pad',
+      '',
+      '',
+      'Brake Pad for Activa',
+      'Two Wheeler',
+      'Honda',
+      'Activa 5G',
+      999,
+      899,
+      'https://yourcdn.com/image1.jpg',
+      'Petrol',
+      'Maharashtra',
+      'Pune',
+      '411001',
+      'Return in 7 Days',
+      '6 Months',
+      'Metal',
+      'High quality OEM replacement brake pad.',
+      'Maharashtra',
+      'Pune',
+      '411001',
+      'Return in 7 Days',
+      '6 Months',
+      'Metal'
+    ]];
+  
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Upload Template');
+  
+    const fullData = [
+      headerRow1,
+      headerRow2,
+      fieldDescriptions,
+      tutorialRow,
+      ...dummyRows
+    ];
+  
+    fullData.forEach((row, rowIndex) => {
+      const excelRow = worksheet.addRow(row);
+  
+      if (rowIndex === 0) {
+        worksheet.mergeCells(1, 1, 1, headerRow2.length);
+        excelRow.height = 35;
+      } else if (rowIndex === 1) {
+        excelRow.height = 45;
+      } else if (rowIndex === 2) {
+        excelRow.height = 65;
+      } else if (rowIndex === 3) {
+        excelRow.height = 20;
+      }
+  
+      excelRow.eachCell((cell) => {
+        cell.alignment = { wrapText: true, vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
+  
+        if (rowIndex <= 1) {
+          cell.font = { bold: true, size: rowIndex === 0 ? 14 : 12, color: { argb: 'FFFF0000' } };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF00FF00' }
+          };
+        }
+      });
+    });
+  
+    headerRow2.forEach((_, idx) => {
+      worksheet.getColumn(idx + 1).width = idx === 0 ? 50 : 30;
+    });
+  
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
+  }
+  
 
   async getAllProductByPaginated(
     userName: string,
