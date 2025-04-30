@@ -409,9 +409,21 @@ export class CustomerService {
   async getAllCustomerReferralsByCustomerId(referralCode: string) {
     Logger.info('<Service>:<CustomerService>:<Get all customersID>');
 
-    const customerResponse = await CustomerReferralCode.find({
-      referralCode: referralCode
-    }); // Only fetch customerId field
+    const customerResponse = await CustomerReferralCode.aggregate([
+      // Step 1: Match the referralCode
+      {
+        $match: { referralCode: referralCode }
+      },
+      // Step 2: Perform a lookup on 'customers' collection
+      {
+        $lookup: {
+          from: 'customers',        // The collection to join
+          localField: 'customerId',  // Field from the CustomerReferralCode collection
+          foreignField: 'customerId',// Field from the customers collection
+          as: 'customersDetails'     // Alias for the resulting joined data
+        }
+      }
+    ]);
 
     return customerResponse;
   }
