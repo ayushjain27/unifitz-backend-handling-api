@@ -1220,18 +1220,17 @@ export class ProductService {
 
   async downloadTemplate(): Promise<Buffer> {
     Logger.info('<Service>:<ProductService>:<downloadTemplate initiated>');
-  
+
     const headerRow1 = [
       'B2B Partners Product Upload Template (Automotive Parts & Accessories)'
     ];
-  
     const headerRow2 = [
       'Field Name',
-      'ERROR STATUS\n(Do not fill - system use)',
-      'ERROR MESSAGE\n(Do not fill - system use)',
-      '* Compulsory Field: Product Name',
-      '* Compulsory Field: Vehicle Type',
-      '* Compulsory Field: Brand Name',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
       '* Compulsory Field: Vehicle Model',
       '* Compulsory Field: MRP',
       '* Compulsory Field: Selling Price',
@@ -1270,198 +1269,184 @@ export class ProductService {
       'Optional Field: Material',
       'Optional Field: Description'
     ];
-  
+
     const fieldDescriptions = [
-      'Fields + Description:',
-      "For system use, don't modify",
-      "For system use, don't modify",
-      'Short name of the product. Eg: Brake Pad for Activa',
-      'Eg: Two Wheeler, Four Wheeler',
-      'Eg: Honda, Bajaj',
-      'Eg: Activa 5G, Pulsar 150',
-      'Maximum Retail Price (must be > Selling Price)',
-      'Selling price to B2B buyers',
-      'Direct image URL (hosted, not local)',
-      'Eg: Petrol, Diesel, Electric',
-      'Eg: Maharashtra, Gujarat',
-      'City name where you serve',
-      'Postal code of service location',
-      'Optional return policy notes',
-      'Eg: 6 Months, 1 Year',
-      'Eg: Stainless Steel, Plastic',
-      'Detailed product features, USPs',
-      'Fields + Description:',
-      "For system use, don't modify",
-      "For system use, don't modify",
-      'Short name of the product. Eg: Brake Pad for Activa',
-      'Eg: Two Wheeler, Four Wheeler',
-      'Eg: Honda, Bajaj',
-      'Eg: Activa 5G, Pulsar 150',
-      'Maximum Retail Price (must be > Selling Price)',
-      'Selling price to B2B buyers',
-      'Direct image URL (hosted, not local)',
-      'Eg: Petrol, Diesel, Electric',
-      'Eg: Maharashtra, Gujarat',
-      'City name where you serve',
-      'Postal code of service location',
-      'Optional return policy notes',
-      'Eg: 6 Months, 1 Year',
-      'Eg: Stainless Steel, Plastic',
-      'Detailed product features, USPs',
-      'Eg: Maharashtra, Gujarat',
-      'City name where you serve',
-      'Postal code of service location',
-      'Optional return policy notes',
-      'Eg: 6 Months, 1 Year',
-      'Eg: Stainless Steel, Plastic',
-      'Detailed product features, USPs'
+      {
+        title: 'Field +  Discription',
+        description: ''
+      },
+      {
+        title: 'Product Category',
+        description: 'Add multiple Categories using commas'
+      },
+      {
+        title: 'Product SubCatgeory',
+        description: 'Add multiple Sub Categories using commas'
+      },
+      {
+        title: 'Vehicle Type',
+        description: 'Add multiple vehicle types using commas'
+      },
+      {
+        title: 'Make Type',
+        description: 'Add make type'
+      },
+      {
+        title: 'Manufacture Name',
+        description: 'Add manufacture name'
+      },
     ];
-  
-    const tutorialRow = [
-      'Tutorial Link',
-      'vehicleType',
-      'makeType',
-      'manufactureName',
-      'productSuggest',
-      'productDescription',
-      'features',
-      'inTheBox',
-      'warranty',
-      'returnPolicy',
-      'materialDetails',
-      'madeIn',
-      'isActive',
-      'retailPriceMrp',
-      'retailPriceSellingPrice',
-      'retailPriceQty',
-      'retailPriceWidth',
-      'retailPriceHeight',
-      'retailPriceDepth',
-      'retailPriceWeight',
-      'bulkPriceMrp',
-      'bulkPriceWholeSalePrice',
-      'bulkPriceQty',
-      'bulkPriceWidth',
-      'bulkPriceHeight',
-      'bulkPriceDepth',
-      'bulkPriceWeight',
-      'color',
-      'colorName',
-      'oemPartNumber',
-      'skuNumber',
-      'manufacturerPartNumber',
-      'image1',
-      'image2',
-      'image3',
-      'oemBrand',
-      'oemModel',
-      'partNumber',
-      'engineSize',
-      'startYear',
-      'endYear',
-      'variants',
-      'fuelType'
+
+    const dummyRows = [
+      [
+        'Examples',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Honda',
+        'Activa 5G',
+        999,
+        899,
+        'https://yourcdn.com/image1.jpg',
+        'Petrol',
+        'Maharashtra',
+        'Pune',
+        '411001',
+        'Return in 7 Days',
+        '6 Months',
+        'Metal',
+        'High quality OEM replacement brake pad.',
+        'Fancy Brake Pad',
+        '',
+        '',
+        'Brake Pad for Activa',
+        'Two Wheeler',
+        'Honda',
+        'Activa 5G',
+        999,
+        899,
+        'https://yourcdn.com/image1.jpg',
+        'Petrol',
+        'Maharashtra',
+        'Pune',
+        '411001',
+        'Return in 7 Days',
+        '6 Months',
+        'Metal',
+        'High quality OEM replacement brake pad.',
+        'Maharashtra',
+        'Pune',
+        '411001',
+        'Return in 7 Days',
+        '6 Months',
+        'Metal'
+      ]
     ];
-  
-    const dummyRows = [[
-      'Examples',
-      'Fancy Brake Pad',
-      '',
-      '',
-      'Brake Pad for Activa',
-      'Two Wheeler',
-      'Honda',
-      'Activa 5G',
-      999,
-      899,
-      'https://yourcdn.com/image1.jpg',
-      'Petrol',
-      'Maharashtra',
-      'Pune',
-      '411001',
-      'Return in 7 Days',
-      '6 Months',
-      'Metal',
-      'High quality OEM replacement brake pad.',
-      'Fancy Brake Pad',
-      '',
-      '',
-      'Brake Pad for Activa',
-      'Two Wheeler',
-      'Honda',
-      'Activa 5G',
-      999,
-      899,
-      'https://yourcdn.com/image1.jpg',
-      'Petrol',
-      'Maharashtra',
-      'Pune',
-      '411001',
-      'Return in 7 Days',
-      '6 Months',
-      'Metal',
-      'High quality OEM replacement brake pad.',
-      'Maharashtra',
-      'Pune',
-      '411001',
-      'Return in 7 Days',
-      '6 Months',
-      'Metal'
-    ]];
-  
+
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Upload Template');
-  
-    const fullData = [
-      headerRow1,
-      headerRow2,
-      fieldDescriptions,
-      tutorialRow,
-      ...dummyRows
-    ];
-  
+
+    const fullData = [headerRow1, headerRow2, fieldDescriptions, ...dummyRows];
+
     fullData.forEach((row, rowIndex) => {
       const excelRow = worksheet.addRow(row);
-  
+
       if (rowIndex === 0) {
         worksheet.mergeCells(1, 1, 1, headerRow2.length);
         excelRow.height = 35;
       } else if (rowIndex === 1) {
-        excelRow.height = 45;
+        excelRow.height = 60;
       } else if (rowIndex === 2) {
-        excelRow.height = 65;
+        excelRow.height = 100;
       } else if (rowIndex === 3) {
-        excelRow.height = 20;
+        excelRow.height = 40;
       }
-  
+
       excelRow.eachCell((cell) => {
-        cell.alignment = { wrapText: true, vertical: 'middle', horizontal: 'center' };
+        cell.alignment = {
+          wrapText: true,
+          vertical: 'middle',
+          horizontal: 'center'
+        };
         cell.border = {
           top: { style: 'medium' },
           left: { style: 'medium' },
           bottom: { style: 'medium' },
           right: { style: 'medium' }
         };
-  
-        if (rowIndex <= 1) {
-          cell.font = { bold: true, size: rowIndex === 0 ? 14 : 12, color: { argb: 'FFFF0000' } };
+
+        if (rowIndex === 1) {
+          cell.font = { bold: true, size: 12, color: { argb: 'FFFF0000' } }; // Red text
           cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FF00FF00' }
+            fgColor: { argb: 'FFADD8E6' } // Light blue
+          };
+        } else if (rowIndex === 2) {
+          excelRow.eachCell((cell, colNumber) => {
+            const field = fieldDescriptions[colNumber - 1];
+
+            if (field) {
+              cell.value = {
+                richText: [
+                  { text: `${field.title}\n`, font: { bold: true } },
+                  { text: `${field.description}`, font: { bold: false } }
+                ]
+              };
+            }
+
+            cell.alignment = {
+              wrapText: true,
+              vertical: 'middle',
+              horizontal: 'center'
+            };
+
+            cell.font = { size: 12 };
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFD3D3D3' }
+            };
+            cell.border = {
+              top: { style: 'medium' },
+              left: { style: 'medium' },
+              bottom: { style: 'medium' },
+              right: { style: 'medium' }
+            };
+          });
+        } else if (rowIndex === 3) {
+          cell.font = { bold: true, size: 12, color: { argb: 'FF800080' } }; // Blue text
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFD3D3D3' } // Light gray
           };
         }
       });
     });
-  
+
     headerRow2.forEach((_, idx) => {
       worksheet.getColumn(idx + 1).width = idx === 0 ? 50 : 30;
     });
-  
+
+    // Example: Add 20 dummy rows to apply dropdowns
+    for (let i = 1; i <= 20; i++) {
+      const row = worksheet.getRow(i);
+      row.getCell(1).value = `Row ${i}`;
+      row.commit();
+    }
+
+    // Example: Add 20 dummy rows to apply dropdowns
+    for (let i = 1; i <= 20; i++) {
+      const row = worksheet.getRow(i);
+      row.getCell(1).value = `Row ${i}`;
+      row.commit();
+    }
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
   }
-  
 
   async getAllProductByPaginated(
     userName: string,
