@@ -2127,15 +2127,28 @@ export class StoreService {
 
     const startDate = reqPayload?.startDate
       ? new Date(
-          new Date(reqPayload.startDate).setDate(
-            new Date(reqPayload.startDate).getDate() + 1
+          Date.UTC(
+            new Date(reqPayload.startDate).getUTCFullYear(),
+            new Date(reqPayload.startDate).getUTCMonth(),
+            new Date(reqPayload.startDate).getUTCDate(),
+            0,
+            0,
+            0,
+            0
           )
         )
       : null;
+
     const endDate = reqPayload?.endDate
       ? new Date(
-          new Date(reqPayload.endDate).setDate(
-            new Date(reqPayload.endDate).getDate() + 1
+          Date.UTC(
+            new Date(reqPayload.endDate).getUTCFullYear(),
+            new Date(reqPayload.endDate).getUTCMonth(),
+            new Date(reqPayload.endDate).getUTCDate(),
+            23,
+            59,
+            59,
+            999
           )
         )
       : null;
@@ -2339,15 +2352,28 @@ export class StoreService {
 
     const startDate = reqPayload?.startDate
       ? new Date(
-          new Date(reqPayload.startDate).setDate(
-            new Date(reqPayload.startDate).getDate() + 1
+          Date.UTC(
+            new Date(reqPayload.startDate).getUTCFullYear(),
+            new Date(reqPayload.startDate).getUTCMonth(),
+            new Date(reqPayload.startDate).getUTCDate(),
+            0,
+            0,
+            0,
+            0
           )
         )
       : null;
+
     const endDate = reqPayload?.endDate
       ? new Date(
-          new Date(reqPayload.endDate).setDate(
-            new Date(reqPayload.endDate).getDate() + 1
+          Date.UTC(
+            new Date(reqPayload.endDate).getUTCFullYear(),
+            new Date(reqPayload.endDate).getUTCMonth(),
+            new Date(reqPayload.endDate).getUTCDate(),
+            23,
+            59,
+            59,
+            999
           )
         )
       : null;
@@ -2416,10 +2442,33 @@ export class StoreService {
     subCategory: string,
     storeId: string
   ) {
-    const startDate = new Date(firstDate);
-    const endDate = new Date(lastDate);
+    const startDate = firstDate
+      ? new Date(
+          Date.UTC(
+            new Date(firstDate).getUTCFullYear(),
+            new Date(firstDate).getUTCMonth(),
+            new Date(firstDate).getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        )
+      : null;
 
-    console.log(startDate, 'Dlmekfmd', endDate);
+    const endDate = lastDate
+      ? new Date(
+          Date.UTC(
+            new Date(lastDate).getUTCFullYear(),
+            new Date(lastDate).getUTCMonth(),
+            new Date(lastDate).getUTCDate(),
+            23,
+            59,
+            59,
+            999
+          )
+        )
+      : null;
 
     const query: any = {
       'contactInfo.state': state,
@@ -2518,7 +2567,7 @@ export class StoreService {
     const result = await Store.aggregate([
       {
         $match: {
-          'preferredServicePlugStore': true
+          preferredServicePlugStore: true
         }
       },
       {
@@ -2546,10 +2595,9 @@ export class StoreService {
         }
       }
     ]);
-  
+
     return result[0] || { totalAmount: 0, totalUsers: 0 };
   }
-  
 
   async updateSponsoredPaymentDetails(requestPayload: any) {
     let storeDetails = await Store.findOne({
@@ -2570,22 +2618,47 @@ export class StoreService {
   }
 
   async totalNumberOfUsersPerCategoryPerMonth(requestPayload: any) {
-    const startDate = requestPayload?.startDate;
-    const endDate = requestPayload?.endDate;
+    const startDate = requestPayload?.startDate
+      ? new Date(
+          Date.UTC(
+            new Date(requestPayload.startDate).getUTCFullYear(),
+            new Date(requestPayload.startDate).getUTCMonth(),
+            new Date(requestPayload.startDate).getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        )
+      : null;
 
+    const endDate = requestPayload?.endDate
+      ? new Date(
+          Date.UTC(
+            new Date(requestPayload.endDate).getUTCFullYear(),
+            new Date(requestPayload.endDate).getUTCMonth(),
+            new Date(requestPayload.endDate).getUTCDate(),
+            23,
+            59,
+            59,
+            999
+          )
+        )
+      : null;
+      
     let query = {
-      'preferredServicePlugStore': true,
+      preferredServicePlugStore: true,
       'contactInfo.state': requestPayload?.state,
       'contactInfo.city': requestPayload?.city
     };
 
-    if(!requestPayload.state){
+    if (!requestPayload.state) {
       delete query['contactInfo.state'];
-    };
+    }
 
-    if(!requestPayload.City){
+    if (!requestPayload.City) {
       delete query['contactInfo.city'];
-    };
+    }
 
     const result = await Store.aggregate([
       {
@@ -2629,35 +2702,37 @@ export class StoreService {
       }
     ]);
 
-    console.log(result,"result")
-  
-    const output: { [key: string]: { totalUsers: number; totalAmount: number } } = {};
+    console.log(result, 'result');
+
+    const output: {
+      [key: string]: { totalUsers: number; totalAmount: number };
+    } = {};
     // convert to object with category as key
-    result.forEach(item => {
+    result.forEach((item) => {
       output[item.category] = {
         totalUsers: item.totalUsers,
         totalAmount: item.totalAmount
       };
     });
-  
+
     return output;
   }
 
   async totalNumberOfUsersPerCategory(requestPayload: any) {
     let query = {
-      'preferredServicePlugStore': true,
+      preferredServicePlugStore: true,
       'contactInfo.state': requestPayload?.state,
       'contactInfo.city': requestPayload?.city
     };
-  
+
     if (!requestPayload.state) {
       delete query['contactInfo.state'];
     }
-  
+
     if (!requestPayload.city) {
       delete query['contactInfo.city'];
     }
-  
+
     const result = await Store.aggregate([
       {
         $match: query
@@ -2717,7 +2792,7 @@ export class StoreService {
         $sort: { category: 1, month: 1 }
       }
     ]);
-  
+
     // Transform into nested format and include total per category
     const output: {
       [category: string]: {
@@ -2725,20 +2800,19 @@ export class StoreService {
         totalUsers: number;
       };
     } = {};
-  
-    result.forEach(item => {
+
+    result.forEach((item) => {
       if (!output[item.category]) {
         output[item.category] = {
           totalAmount: 0,
-          totalUsers: 0,
+          totalUsers: 0
         };
       }
       // Accumulate category-level total
       output[item.category].totalAmount += item.totalAmount;
       output[item.category].totalUsers += item.totalUsers;
     });
-  
+
     return output;
   }
-  
 }
