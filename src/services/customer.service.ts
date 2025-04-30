@@ -29,23 +29,32 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>: <Customer onboarding: creating new customer>'
     );
-    const lastCreatedCustomerId = await StaticIds.find({}).limit(1).exec();
-    const newCustomerId = String(
-      parseInt(lastCreatedCustomerId[0].customerId) + 1
-    );
-    await StaticIds.findOneAndUpdate({}, { customerId: newCustomerId });
-    customerPayload.customerId = newCustomerId;
-    customerPayload.accessList = permissions.CUSTOMER;
-    const newCustomer = await Customer.create(customerPayload);
-    if (customerPayload?.referralCode) {
-      let data = {
-        customerId: newCustomerId,
-        referralCode: customerPayload?.referralCode
-      };
-      await CustomerReferralCode.create(data);
+    const checkCustomerExists = await Customer.findOne({
+      phoneNumber: customerPayload?.phoneNumber
+    });
+    if (checkCustomerExists) {
+      return;
+    } else {
+      const lastCreatedCustomerId = await StaticIds.find({}).limit(1).exec();
+      const newCustomerId = String(
+        parseInt(lastCreatedCustomerId[0].customerId) + 1
+      );
+      await StaticIds.findOneAndUpdate({}, { customerId: newCustomerId });
+      customerPayload.customerId = newCustomerId;
+      customerPayload.accessList = permissions.CUSTOMER;
+      const newCustomer = await Customer.create(customerPayload);
+      if (customerPayload?.referralCode) {
+        let data = {
+          customerId: newCustomerId,
+          referralCode: customerPayload?.referralCode
+        };
+        await CustomerReferralCode.create(data);
+      }
+      Logger.info(
+        '<Service>:<CustomerService>:<Customer created successfully>'
+      );
+      return newCustomer;
     }
-    Logger.info('<Service>:<CustomerService>:<Customer created successfully>');
-    return newCustomer;
   }
 
   async update(
