@@ -1231,43 +1231,58 @@ export class ProductService {
       '* Compulsory Field',
       '* Compulsory Field',
       '* Compulsory Field',
-      '* Compulsory Field: Vehicle Model',
-      '* Compulsory Field: MRP',
-      '* Compulsory Field: Selling Price',
-      '* Compulsory Field: Image Link 1',
-      'Optional Field: Fuel Type',
-      'Optional Field: State',
-      'Optional Field: City',
-      'Optional Field: Pincode',
-      'Optional Field: Return Policy',
-      'Optional Field: Warranty',
-      'Optional Field: Material',
-      'Optional Field: Description',
-      'Field Name',
-      'ERROR STATUS\n(Do not fill - system use)',
-      'ERROR MESSAGE\n(Do not fill - system use)',
-      '* Compulsory Field: Product Name',
-      '* Compulsory Field: Vehicle Type',
-      '* Compulsory Field: Brand Name',
-      '* Compulsory Field: Vehicle Model',
-      '* Compulsory Field: MRP',
-      '* Compulsory Field: Selling Price',
-      '* Compulsory Field: Image Link 1',
-      'Optional Field: Fuel Type',
-      'Optional Field: State',
-      'Optional Field: City',
-      'Optional Field: Pincode',
-      'Optional Field: Return Policy',
-      'Optional Field: Warranty',
-      'Optional Field: Material',
-      'Optional Field: Description',
-      'Optional Field: State',
-      'Optional Field: City',
-      'Optional Field: Pincode',
-      'Optional Field: Return Policy',
-      'Optional Field: Warranty',
-      'Optional Field: Material',
-      'Optional Field: Description'
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
     ];
 
     const fieldDescriptions = [
@@ -1295,6 +1310,214 @@ export class ProductService {
         title: 'Manufacture Name',
         description: 'Add manufacture name'
       },
+      {
+        title: 'Product Name',
+        description: 'Add product name'
+      },
+      {
+        title: 'Product Description',
+        description: 'Add product description'
+      },
+      {
+        title: 'Special Features',
+        description: 'Add special features'
+      },
+      {
+        title: 'In the Box',
+        description: 'Add it'
+      },
+      {
+        title: 'Warranty',
+        description: 'Add warranty'
+      },
+      {
+        title: 'Return Policy',
+        description: 'Add Return Policy'
+      },
+      {
+        title: 'Material Details',
+        description: 'Add materail details'
+      },
+      {
+        title: 'Made In(Country of Origin)',
+        description: 'Add country name'
+      },
+      {
+        title: 'Retail Mrp',
+        description: 'Add mrp in number'
+      },
+      {
+        title: 'Retail Selling Price',
+        description: 'Add selling price in number'
+      },
+      {
+        title: 'Retail Quantity',
+        description: 'Add quantity in number'
+      },
+      {
+        title: 'Retail Width',
+        description: 'Add width in number'
+      },
+      {
+        title: 'Retail Height',
+        description: 'Add height in number'
+      },
+      {
+        title: 'Retail Depth',
+        description: 'Add depth in number'
+      },
+      {
+        title: 'Retail Weight',
+        description: 'Add weight in number'
+      },
+      {
+        title: 'Bulk Mrp',
+        description: 'Add mrp in number'
+      },
+      {
+        title: 'Bulk/WholeSale Price',
+        description: 'Add bulk/wholesale price in number'
+      },
+      {
+        title: 'Bulk Quantity',
+        description: 'Add no of qunatityin one box in number'
+      },
+      {
+        title: 'Bulk Width',
+        description: 'Add width in number'
+      },
+      {
+        title: 'Bulk Height',
+        description: 'Add height in number'
+      },
+      {
+        title: 'Bulk Depth',
+        description: 'Add depth in number'
+      },
+      {
+        title: 'Bulk Weight',
+        description: 'Add weight in number'
+      },
+      {
+        title: 'Color Code 1',
+        description: 'Add color code'
+      },
+      {
+        title: 'Color Name 1',
+        description: 'Add color name'
+      },
+      {
+        title: 'SkU Number 1',
+        description: 'Add sku number'
+      },
+      {
+        title: 'Oem Part Number 1',
+        description: 'Add oem part number'
+      },
+      {
+        title: 'Image 1.1',
+        description: 'Add image 1 of color code 1'
+      },
+      {
+        title: 'Image 2.1',
+        description: 'Add image 2 of color code 1'
+      },
+      {
+        title: 'Image 3.1',
+        description: 'Add image 3 of color code 1'
+      },
+      {
+        title: 'Oem Brand 1',
+        description: 'Add oem brand'
+      },
+      {
+        title: 'Model Name 1',
+        description: 'Add multiple model name using commas'
+      },
+      {
+        title: 'Part Number 1',
+        description: 'Add part number'
+      },
+      {
+        title: 'Variants 1',
+        description: 'Add variants'
+      },
+      {
+        title: 'Fuel Type 1',
+        description: 'Add multiple fuel Type using commas'
+      },
+      {
+        title: 'Engine Size 1',
+        description: 'Add engine size'
+      },
+      {
+        title: 'Start Date 1',
+        description: 'Add start date'
+      },
+      {
+        title: 'End Date 1',
+        description: 'Add End Date'
+      },
+      {
+        title: 'Color Code 2',
+        description: 'Add color code'
+      },
+      {
+        title: 'Color Name 2',
+        description: 'Add color name'
+      },
+      {
+        title: 'SkU Number 2',
+        description: 'Add sku number'
+      },
+      {
+        title: 'Oem Part Number 2',
+        description: 'Add oem part number'
+      },
+      {
+        title: 'Image 1.2',
+        description: 'Add image'
+      },
+      {
+        title: 'Image 2.2',
+        description: 'Add image'
+      },
+      {
+        title: 'Image 3.2',
+        description: 'Add image'
+      },
+      {
+        title: 'Oem Brand 2',
+        description: 'Add oem brand'
+      },
+      {
+        title: 'Model Name 2',
+        description: 'Add multiple model name using commas'
+      },
+      {
+        title: 'Part Number 2',
+        description: 'Add part number'
+      },
+      {
+        title: 'Variants 2',
+        description: 'Add variants'
+      },
+      {
+        title: 'Fuel Type 2',
+        description: 'Add multiple fuel Type using commas'
+      },
+      {
+        title: 'Engine Size 2',
+        description: 'Add engine size'
+      },
+      {
+        title: 'Start Date 2',
+        description: 'Add start date'
+      },
+      {
+        title: 'End Date 2',
+        description: 'Add End Date'
+      },
     ];
 
     const dummyRows = [
@@ -1305,43 +1528,58 @@ export class ProductService {
         'Two Wheelers, Three Wheelers',
         'OEM',
         'Bajaj',
-        'Honda',
-        'Activa 5G',
-        999,
-        899,
-        'https://yourcdn.com/image1.jpg',
-        'Petrol',
-        'Maharashtra',
-        'Pune',
-        '411001',
-        'Return in 7 Days',
-        '6 Months',
-        'Metal',
-        'High quality OEM replacement brake pad.',
-        'Fancy Brake Pad',
-        '',
-        '',
-        'Brake Pad for Activa',
-        'Two Wheeler',
-        'Honda',
-        'Activa 5G',
-        999,
-        899,
-        'https://yourcdn.com/image1.jpg',
-        'Petrol',
-        'Maharashtra',
-        'Pune',
-        '411001',
-        'Return in 7 Days',
-        '6 Months',
-        'Metal',
-        'High quality OEM replacement brake pad.',
-        'Maharashtra',
-        'Pune',
-        '411001',
-        'Return in 7 Days',
-        '6 Months',
-        'Metal'
+        'Screw',
+       'Long Elastic Product',
+       'Provide multiple things',
+       'One Set ramp',
+       '1 year warranty',
+       '7 days return policy',
+       'Steel',
+       'India',
+       200,
+       100,
+       20,
+       20,
+       20,
+       20,
+       20,
+       200,
+       100,
+       20,
+       20,
+       20,
+       20,
+       20,
+       '#ffffff',
+       'white',
+       'VTM01',
+       'ME234',
+       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+       'Bajaj',
+       'Pulsor 220F',
+       'DDF24343',
+       'ZX CVT Reinforced, Honda City',
+       'Petrol, Diesel',
+       '1.5 L 4-cylinder',
+       '23/04/2025',
+       '23/04/2025',
+       '#ffffff',
+       'white',
+       'VTM01',
+       'ME234',
+       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+       'Bajaj',
+       'Pulsor 220F',
+       'DDF24343',
+       'ZX CVT Reinforced, Honda City',
+       'Petrol, Diesel',
+       '1.5 L 4-cylinder',
+       '23/04/2025',
+       '23/04/2025'
       ]
     ];
 
@@ -1366,7 +1604,7 @@ export class ProductService {
 
       excelRow.eachCell((cell) => {
         cell.alignment = {
-          wrapText: true,
+          wrapText: false,
           vertical: 'middle',
           horizontal: 'center'
         };
@@ -1431,19 +1669,6 @@ export class ProductService {
       worksheet.getColumn(idx + 1).width = idx === 0 ? 50 : 30;
     });
 
-    // Example: Add 20 dummy rows to apply dropdowns
-    for (let i = 1; i <= 20; i++) {
-      const row = worksheet.getRow(i);
-      row.getCell(1).value = `Row ${i}`;
-      row.commit();
-    }
-
-    // Example: Add 20 dummy rows to apply dropdowns
-    for (let i = 1; i <= 20; i++) {
-      const row = worksheet.getRow(i);
-      row.getCell(1).value = `Row ${i}`;
-      row.commit();
-    }
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
   }
