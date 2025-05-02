@@ -302,6 +302,31 @@ export class CustomerController {
     }
   };
 
+  inviteUsers = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    const customerPayload: ICustomer = req.body;
+    customerPayload.phoneNumber = appendCodeToPhone(
+      customerPayload?.phoneNumber
+    );
+    Logger.info(
+      '<Controller>:<CustomerController>:<Invite Users creation controller initiated>'
+    );
+    try {
+      const result = await this.customerService.inviteUsers(customerPayload);
+      res.json({
+        message: 'Invite Users creation successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':

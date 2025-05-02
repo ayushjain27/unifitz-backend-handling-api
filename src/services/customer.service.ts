@@ -16,6 +16,7 @@ import { SurepassService } from './surepass.service';
 import { StaticIds } from '../models/StaticId';
 import { permissions } from '../config/permissions';
 import CustomerReferralCode from '../models/CustomerReferralcode';
+import { InviteUsers } from '../models/InviteUsers';
 
 @injectable()
 export class CustomerService {
@@ -417,14 +418,62 @@ export class CustomerService {
       // Step 2: Perform a lookup on 'customers' collection
       {
         $lookup: {
-          from: 'customers',        // The collection to join
-          localField: 'customerId',  // Field from the CustomerReferralCode collection
-          foreignField: 'customerId',// Field from the customers collection
-          as: 'customersDetails'     // Alias for the resulting joined data
+          from: 'customers', // The collection to join
+          localField: 'customerId', // Field from the CustomerReferralCode collection
+          foreignField: 'customerId', // Field from the customers collection
+          as: 'customersDetails' // Alias for the resulting joined data
         }
       }
     ]);
 
     return customerResponse;
+  }
+
+  async inviteUsers(customerPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>: <Customer Inviting: Inviting new customer>'
+    );
+    const checkCustomerExists = await Customer.findOne({
+      phoneNumber: customerPayload?.phoneNumber
+    });
+    if (checkCustomerExists) {
+      throw new Error(
+        'This phoneNumber is already exists. Please use different phoneNumber'
+      );
+    }
+    const checkInviteUsersExists = await InviteUsers.findOne({
+      phoneNumber: customerPayload?.phoneNumber,
+      customerId: customerPayload?.customerId
+    });
+    console.log(checkInviteUsersExists, 'Dlr,fm');
+    if (checkInviteUsersExists) {
+      console.log(
+        checkInviteUsersExists?.count,
+        'checkInviteUsersExists?.count'
+      );
+
+      const updateInviteDetails = await InviteUsers.findOneAndUpdate(
+        {
+          phoneNumber: customerPayload?.phoneNumber,
+          customerId: customerPayload?.customerId
+        },
+        {
+          $set: {
+            count: Number(checkInviteUsersExists?.count || 0) + 1
+          }
+        },
+        {
+          new: true // returns updated document
+        }
+      );
+      return updateInviteDetails;
+    } else {
+      customerPayload.count = 1;
+      let newInvite = InviteUsers.create(customerPayload);
+      Logger.info(
+        '<Service>:<CustomerService>:<Customer created successfully>'
+      );
+      return newInvite;
+    }
   }
 }

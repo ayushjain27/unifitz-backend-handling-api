@@ -75,4 +75,6 @@ router.get('/getAllCustomerId', customerController.getAllCustomerId);
 
 router.get('/getAllCustomerReferralsByCustomerId', customerController.getAllCustomerReferralsByCustomerId);
 
+router.post('/inviteUsers', roleAuth(ACL.CUSTOMER_CREATE), customerController.inviteUsers);
+
 export default router;
