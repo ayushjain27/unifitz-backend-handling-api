@@ -32,3 +32,5 @@ export const InviteUsers = model<IInviteUsers>(
   'invitesUser',
   invitesUserSchema
 );
+
+export default InviteUsers;

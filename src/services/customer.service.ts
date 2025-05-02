@@ -16,7 +16,7 @@ import { SurepassService } from './surepass.service';
 import { StaticIds } from '../models/StaticId';
 import { permissions } from '../config/permissions';
 import CustomerReferralCode from '../models/CustomerReferralcode';
-import { InviteUsers } from '../models/InviteUsers';
+import InviteUsers from '../models/InviteUsers';
 
 @injectable()
 export class CustomerService {
