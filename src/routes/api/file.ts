@@ -7,6 +7,9 @@ import Logger from '../../config/winston';
 import { ACL } from '../../enum/rbac.enum';
 import { S3Service } from '../../services';
 import { roleAuth } from '../middleware/rbac';
+import ExcelJS from 'exceljs';
+import * as fs from 'fs';
+import { buffer } from 'stream/consumers';
 
 const router: Router = Router();
 const storage = multer.memoryStorage();
@@ -44,28 +47,21 @@ router.post(
 router.post(
   '/upload-any',
   uploadFile.array('files', 10), // Accept up to 10 files
-  roleAuth(ACL.FILE_UPLOAD),
+  roleAuth(ACL.STORE_CREATE),
   async (req: any, res: any) => {
     const files = req.files;
     const uploadedLinks = [];
-    console.log(files, 'elmfk');
 
     if (!files || files.length === 0) {
       return res.status(HttpStatusCodes.BAD_REQUEST).send('No files uploaded');
     }
 
+    console.log(files, 'lefmkmrk');
+
     try {
       // Upload all files and collect links
       for (const file of files) {
-        if (file.mimetype === 'image/jpeg') {
-          const filename = `${Date.now()}-${file.originalname}`;
-          const result = await s3Client.uploadFile(
-            filename,
-            file.originalname,
-            file.buffer
-          );
-          uploadedLinks.push({ link: result });
-        } else {
+        if (file.mimetype === 'application/zip') {
           const directory = await unzipper.Open.buffer(file.buffer);
 
           for (const entry of directory.files) {
@@ -99,38 +95,48 @@ router.post(
               }
             }
           }
+        } else {
+          const filename = `${Date.now()}-${file.originalname}`;
+          const result = await s3Client.uploadFile(
+            filename,
+            file.originalname,
+            file.buffer
+          );
+          uploadedLinks.push({ link: result });
         }
       }
 
       console.log(uploadedLinks, 'uploadedLinks');
-
       // Create Excel file with the links using ExcelJS
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Uploaded Links');
-      
+
       // Set up the header row
-      worksheet.columns = [
-        { header: 'Link', key: 'link', width: 60 }
-      ];
+      worksheet.columns = [{ header: 'Link', key: 'link', width: 60 }];
 
       // Add the uploaded links as rows
       uploadedLinks.forEach((linkData) => {
-        worksheet.addRow({ link: linkData.link });
+        // Parse the JSON if it's a string, or use directly if it's an object
+        const linkInfo = typeof linkData.link === 'string' ? JSON.parse(linkData.link) : linkData.link;
+        worksheet.addRow({ link: linkInfo.url }); // Only add the URL
       });
 
       // Create a buffer with the generated Excel file
       const excelBuffer = await workbook.xlsx.writeBuffer();
 
-      // Optionally, save the Excel file locally (useful for debugging)
-      const excelFileName = 'uploaded_links.xlsx';
-      const filePath = `/tmp/${excelFileName}`; // Temporary path for saving the file
-      fs.writeFileSync(filePath, excelBuffer);
+      // Set the appropriate headers for the download response
+      const result = Buffer.from(excelBuffer)
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=uploaded_links.xlsx'
+      );
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
 
       // Send the Excel file as a response
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=${excelFileName}`);
-      res.status(HttpStatusCodes.OK).send(excelBuffer);
-
+      res.status(200).send(result);
     } catch (error) {
       Logger.error('Upload failed:', error);
       res
