@@ -45,9 +45,9 @@ export class S3Service {
       Body: fileBuffer,
       ACL: 'public-read'
     };
-    Logger.info('---------------------');
-    Logger.info('upload file is filereq body is', params);
-    Logger.info('---------------------');
+    // Logger.info('---------------------');
+    // Logger.info('upload file is filereq body is', params);
+    // Logger.info('---------------------');
     try {
       await this.client.send(new PutObjectCommand(params));
       const location: string = this.getLocation(
