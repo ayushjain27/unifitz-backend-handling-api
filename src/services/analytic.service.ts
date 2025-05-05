@@ -925,7 +925,7 @@ export class AnalyticService {
         }
       },
       { $sort: { users: -1 } },
-      { $limit: 1000 }
+      // { $limit: 1000 }
     ]);
     return queryFilter;
   }
@@ -1018,6 +1018,85 @@ export class AnalyticService {
               ]
             }
           }
+        }
+      },
+      {
+        $project: {
+          name: '$_id',
+          count: '$queryCount',
+          total: '$initialCount',
+          _id: 0
+        }
+      }
+    ]);
+
+    return combinedResult;
+  }
+
+  async getOverallTrafficAnalaytic(
+    role: string,
+    userName: string,
+    state: string,
+    city: string,
+    storeId: string,
+    platform: string,
+    oemId?: string,
+    adminFilterOemId?: string,
+    brandName?: string
+  ) {
+    Logger.info(
+      '<Service>:<CategoryService>:<Get all analytic service initiated>'
+    );
+    let query: any = {};
+    Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
+    // const c_Date = new Date();
+    const tday = new Date();
+
+    query = {
+      'userInformation.state': state,
+      'userInformation.city': city,
+      event: { $ne: 'IMPRESSION_COUNT' },
+      moduleInformation: storeId,
+      platform: platform,
+      oemUserName: adminFilterOemId
+    };
+    if (!adminFilterOemId) {
+      delete query['oemUserName'];
+    }
+
+    if (!state) {
+      delete query['userInformation.state'];
+    }
+    if (!city) {
+      delete query['userInformation.city'];
+    }
+    if (!platform) {
+      delete query['platform'];
+    }
+    if (!storeId) {
+      delete query['moduleInformation'];
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    if (oemId === 'SERVICEPLUG') {
+      delete query['oemUserName'];
+    }
+
+    const combinedResult = await EventAnalyticModel.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$event',
+          initialCount: { $sum: 1 },
         }
       },
       {

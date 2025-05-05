@@ -449,6 +449,44 @@ export class AnalyticController {
     }
   };
 
+  getOverallTrafficAnalaytic = async (req: Request, res: Response) => {
+    const role = req?.role;
+    const userName = req?.userId;
+    const {
+      state,
+      city,
+      storeId,
+      platform,
+      oemId,
+      adminFilterOemId,
+      brandName
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get overall analytic request controller initiated>'
+      );
+      const result = await this.analyticService.getOverallTrafficAnalaytic(
+        role,
+        userName,
+        state,
+        city,
+        storeId,
+        platform,
+        oemId,
+        adminFilterOemId,
+        brandName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   createPlusFeatures = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

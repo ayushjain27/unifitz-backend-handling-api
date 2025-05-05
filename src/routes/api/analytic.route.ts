@@ -77,6 +77,12 @@ router.post(
   analyticController.getTrafficAnalaytic
 );
 
+router.post(
+  '/getOverallTrafficAnalaytic',
+  roleAuth(ACL.STORE_CREATE),
+  analyticController.getOverallTrafficAnalaytic
+);
+
 // ====================event analytic api lists ended=====================
 // =======================================================================
 // router.get('/getTotalCustomers', analyticController.getTotalCustomers);
