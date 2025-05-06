@@ -481,7 +481,7 @@ export class CustomerService {
     Logger.info('<Service>:<CustomerService>:<count all refer customers>');
 
     // Aggregate query to fetch total, active, and inactive counts in one go
-    const total = await CustomerReferralCode.countDocuments();
+    const total = await InviteUsers.countDocuments();
     return total;
   }
 
@@ -489,19 +489,32 @@ export class CustomerService {
     pageNo?: number,
     pageSize?: number
   ): Promise<any> {
-    Logger.info(
-      '<Service>:<CustomerService>:<Get all customer referrals initiated>'
-    );
-
-    let sosNotifications: any = await CustomerReferralCode.aggregate([
-      { $sort: { createdAt: -1 } }, // Sort in descending order
+    Logger.info('<Service>:<CustomerService>:<Get all customer referrals initiated>');
+  
+    return await InviteUsers.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
       {
-        $skip: pageNo * pageSize
+        $lookup: {
+          from: 'customers', // The customer collection name
+          localField: 'phoneNumber',
+          foreignField: 'phoneNumber',
+          as: 'customerMatch'
+        }
       },
       {
-        $limit: pageSize
-      }
+        $addFields: {
+          status: {
+            $cond: {
+              if: { $gt: [{ $size: '$customerMatch' }, 0] },
+              then: 'ACTIVE',
+              else: 'INACTIVE'
+            }
+          }
+        }
+      },
+      { $project: { customerMatch: 0 } } // Remove the temporary field
     ]);
-    return sosNotifications;
   }
 }

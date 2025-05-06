@@ -324,6 +324,51 @@ export class CustomerController {
     }
   };
 
+  countAllReferCustomer = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Count all referral customers Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Count all referral customers Initiated>'
+      );
+      const result = await this.customerService.countAllReferCustomer();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  countAllReferCustomerPaginated = async (req: Request, res: Response) => {
+    const { pageNo, pageSize } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
+      );
+      const result =
+        await this.customerService.countAllReferCustomerPaginated(
+          pageNo,
+          pageSize
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':
