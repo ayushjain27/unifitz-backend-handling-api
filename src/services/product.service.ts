@@ -1218,6 +1218,161 @@ export class ProductService {
     return product;
   }
 
+  async uploadBulkPartnerProducts(file: any): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Upload bulk products initiated>');
+    console.log(file, 'dendjn');
+    // 1. Read Excel file with ExcelJS
+    // 2. Process Excel buffer correctly
+    const workbook = new ExcelJS.Workbook();
+
+    // OPTION 1: Convert Buffer to Uint8Array (most reliable)
+    const uint8Array = new Uint8Array(file.buffer);
+    await workbook.xlsx.load(uint8Array);
+
+    // OPTION 2: Alternative buffer handling
+    // await workbook.xlsx.load(req.file.buffer as Buffer);
+
+    // 3. Process worksheet data
+    const worksheet = workbook.worksheets[0];
+    // 2. Extract headers and compulsory fields
+    const headers: any = {};
+    const compulsoryFields: any = [];
+
+    // Get headers from row 4 (Field + Description)
+    const headerRow = worksheet.getRow(3);
+    headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      headers[colNumber] = cell.value;
+    });
+
+    // Get compulsory fields from row 2 (marked with *)
+    const compulsoryRow = worksheet.getRow(2);
+    compulsoryRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      if (cell.value && cell.value.toString().includes('* Compulsory Field')) {
+        compulsoryFields.push(headers[colNumber]?.richText[0]?.text?.replace(/\n/g, '').trim());
+      }
+    });
+
+    // 3. Process data starting from row 5
+    const rows: Array<Record<string, string>> = [];
+
+    for (let rowNumber = 5; rowNumber <= worksheet.rowCount; rowNumber++) {
+      const row = worksheet.getRow(rowNumber);
+
+      // Skip empty rows
+      if (!row.hasValues) continue;
+
+      const rowData: Record<string, string> = {};
+
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const header = headers[colNumber];
+
+        if (header) {
+          let value = '';
+        
+          if (cell.type === ExcelJS.ValueType.Date) {
+            value = (cell.value as Date).toISOString();
+          } else if (cell.type === ExcelJS.ValueType.Formula) {
+            value = cell.result?.toString() || '';
+          } else {
+            value = cell.value?.toString().trim() || '';
+          }
+        
+          // Handle header formatting
+          let headerText = '';
+          if (typeof header === 'object' && 'richText' in header) {
+            headerText = header.richText?.[0]?.text?.replace(/\n/g, '').trim();
+          } else {
+            headerText = header?.toString()?.replace(/\n/g, '').trim();
+          }
+        
+          rowData[headerText] = value;
+        }
+      });
+
+      rows.push(rowData);
+    }
+
+    console.log(compulsoryFields, 'dmdfkr');
+
+    // 4. Validate data
+    const validationResult: any = await this.validateExcelData(
+      rows,
+      compulsoryFields
+    );
+    // console.log(validationResult, 'validationResult');
+
+    if (validationResult.errors.length > 0) {
+      return {
+        success: false,
+        message: 'Validation errors found',
+        errors: validationResult.errors,
+        compulsoryFields
+      };
+    }else{
+      return {
+        success: true,
+        message: 'File processed successfully',
+        data: rows // Just for demonstration
+      };
+    }
+  }
+
+  // Updated validation function
+  async validateExcelData(
+    rows: Array<Record<string, string>>,
+    compulsoryFields: string[]
+  ) {
+    const errors: {
+      row: number; // Actual Excel row number
+      errors: string[];
+      data: Record<string, string>; // Include the problematic data
+    }[] = [];
+  
+    const validRows: Record<string, string>[] = [];
+  
+    rows.forEach((row, index) => {
+      const rowErrors: string[] = [];
+  
+      // Validate compulsory fields
+      compulsoryFields.forEach((field) => {
+        const value = row[field];
+        console.log(value,"crmfkr")
+        if (!value || value.trim() === '') {
+          rowErrors.push(`"${field}" is required`);
+        }
+      });
+  
+      // Validate multi-value fields
+      const multiValueFields = [
+        'Product Category',
+        'Product SubCategory',
+        'Vehicle Type'
+      ];
+  
+      multiValueFields.forEach((field) => {
+        const value = row[field];
+        if (value && !/^[a-zA-Z0-9,\s\-]+$/.test(value)) {
+          rowErrors.push(
+            `"${field}" contains invalid characters (only letters, numbers, commas, hyphens allowed)`
+          );
+        }
+      });
+  
+      if (rowErrors.length > 0) {
+        errors.push({
+          row: index + 5, // Adjusted for Excel row (starting at row 5)
+          errors: rowErrors,
+          data: row
+        });
+      } else {
+        validRows.push(row);
+      }
+    });
+  
+    return { validRows, errors };
+  }
+  
+
   async downloadTemplate(): Promise<Buffer> {
     Logger.info('<Service>:<ProductService>:<downloadTemplate initiated>');
 
@@ -1282,7 +1437,7 @@ export class ProductService {
       'Optional',
       'Optional',
       'Optional',
-      'Optional',
+      'Optional'
     ];
 
     const fieldDescriptions = [
@@ -1517,7 +1672,7 @@ export class ProductService {
       {
         title: 'End Date 2',
         description: 'Add End Date'
-      },
+      }
     ];
 
     const dummyRows = [
@@ -1529,58 +1684,478 @@ export class ProductService {
         'OEM',
         'Bajaj',
         'Screw',
-       'Long Elastic Product',
-       'Provide multiple things',
-       'One Set ramp',
-       '1 year warranty',
-       '7 days return policy',
-       'Steel',
-       'India',
-       200,
-       100,
-       20,
-       20,
-       20,
-       20,
-       20,
-       200,
-       100,
-       20,
-       20,
-       20,
-       20,
-       20,
-       '#ffffff',
-       'white',
-       'VTM01',
-       'ME234',
-       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
-       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
-       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
-       'Bajaj',
-       'Pulsor 220F',
-       'DDF24343',
-       'ZX CVT Reinforced, Honda City',
-       'Petrol, Diesel',
-       '1.5 L 4-cylinder',
-       '23/04/2025',
-       '23/04/2025',
-       '#ffffff',
-       'white',
-       'VTM01',
-       'ME234',
-       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
-       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
-       'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
-       'Bajaj',
-       'Pulsor 220F',
-       'DDF24343',
-       'ZX CVT Reinforced, Honda City',
-       'Petrol, Diesel',
-       '1.5 L 4-cylinder',
-       '23/04/2025',
-       '23/04/2025'
-      ]
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples2',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples3',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples4',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples5',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples6',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples7',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
+      [
+        'Examples8',
+        'EVs Battery, EVs Charging',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
+        'Bajaj',
+        'Pulsor 220F',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ],
     ];
 
     const workbook = new ExcelJS.Workbook();

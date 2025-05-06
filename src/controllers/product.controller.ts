@@ -746,6 +746,19 @@ export class ProductController {
     }
   };
 
+  uploadBulkPartnerProducts = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<ProductController>:<Upload All bulk products request controller initiated>'
+    );
+    try {
+      const result = await this.productService.uploadBulkPartnerProducts(req.file);
+    res.send(result);
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   downloadTemplate = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<ProductController>:<Get All request controller initiated>'
