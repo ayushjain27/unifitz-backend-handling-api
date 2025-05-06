@@ -475,5 +475,33 @@ export class CustomerService {
       );
       return newInvite;
     }
+  };
+  
+  async countAllReferCustomer(): Promise<any> {
+    Logger.info('<Service>:<CustomerService>:<count all refer customers>');
+
+    // Aggregate query to fetch total, active, and inactive counts in one go
+    const total = await CustomerReferralCode.countDocuments();
+    return total;
+  }
+
+  async countAllReferCustomerPaginated(
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get all customer referrals initiated>'
+    );
+
+    let sosNotifications: any = await CustomerReferralCode.aggregate([
+      { $sort: { createdAt: -1 } }, // Sort in descending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return sosNotifications;
   }
 }

@@ -77,4 +77,16 @@ router.get('/getAllCustomerReferralsByCustomerId', customerController.getAllCust
 
 router.post('/inviteUsers', roleAuth(ACL.CUSTOMER_CREATE), customerController.inviteUsers);
 
+router.get(
+  '/countAllReferCustomer',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.countAllReferCustomer
+);
+
+router.post(
+  '/count-all-refer-customer-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.countAllReferCustomerPaginated
+);
+
 export default router;

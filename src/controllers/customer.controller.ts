@@ -137,9 +137,8 @@ export class CustomerController {
       '<Controller>:<CustomerController>:<Get Customer Details By Customer Id request controller initiated>'
     );
     try {
-      const result = await this.customerService.getcustomerDetailsByCustomerId(
-        customerId
-      );
+      const result =
+        await this.customerService.getcustomerDetailsByCustomerId(customerId);
       res.send({
         result
       });
@@ -236,9 +235,8 @@ export class CustomerController {
     Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');
 
     try {
-      const result = await this.customerService.initiateUserVerification(
-        payload
-      );
+      const result =
+        await this.customerService.initiateUserVerification(payload);
       res.send({
         message: 'Customer Verification Initatiation Successful',
         result
@@ -263,9 +261,8 @@ export class CustomerController {
     Logger.info('<Controller>:<CustomerController>:<Verify User Initatiate>');
 
     try {
-      const result = await this.customerService.approveUserVerification(
-        payload
-      );
+      const result =
+        await this.customerService.approveUserVerification(payload);
       res.send({
         message: 'User Verification Approval Successful',
         result
