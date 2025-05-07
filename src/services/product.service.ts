@@ -149,7 +149,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId);
     const product: IProduct[] = await Product.find(query);
 
     return product;
@@ -196,7 +195,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId);
     const product: IProduct[] = await Product.aggregate([
       {
         $match: query
@@ -1214,7 +1212,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId, 'partner');
 
     const product: IB2BPartnersProduct[] = await PartnersPoduct.find(query);
 
@@ -1223,7 +1220,6 @@ export class ProductService {
 
   async uploadBulkPartnerProducts(file: any): Promise<any> {
     Logger.info('<Service>:<ProductService>:<Upload bulk products initiated>');
-    console.log(file, 'dendjn');
     // 1. Read Excel file with ExcelJS
     // 2. Process Excel buffer correctly
     const workbook = new ExcelJS.Workbook();
@@ -1302,7 +1298,6 @@ export class ProductService {
       rows,
       compulsoryFields
     );
-    // console.log(validationResult, 'validationResult');
 
     if (validationResult.errors.length > 0) {
       return {
@@ -1313,11 +1308,7 @@ export class ProductService {
       };
     } else {
       const data = await this.processAllRows(rows);
-      console.log(data[0]?.priceDetail, 'data price get', data[0]?.bulkOrders);
-      console.log(data, 'data get');
-      // const data = {
-      //   productCategory
-      // }
+      console.log(data,"dekmfkmrke")
       return {
         success: true,
         message: 'File processed successfully',
@@ -1367,8 +1358,6 @@ export class ProductService {
       }).lean()
     ]);
 
-    // console.log(allFuelTypes,"allFuelTypes")
-
     // 4. Create lookup maps for fast access
     const categoryMap = new Map(
       allCategories.map((cat) => [cat.catalogName, cat])
@@ -1410,25 +1399,47 @@ export class ProductService {
         .map((name: string) => ({ name: name.trim() }))
         .filter((item: { name: string | any[] }) => item.name.length > 0);
 
-        const fuelType = item['Fuel Name 1']
+      const fuelType = item['Fuel Type 1']
         ?.split(',')
         .map((fuelName: string) => {
           const cleanName = fuelName.trim().toLowerCase();
-          return vehicleResult.find(fuel => 
-            fuel.name.toLowerCase() === cleanName
+          return vehicleResult.find(
+            (fuel) => fuel.name.toLowerCase() === cleanName
           );
         });
 
-        const oemModel = item['Model Type 1']
+      const oemModel = item['Model Name 1']
         ?.split(',')
         .map((modelName: string) => {
           const cleanName = modelName.trim().toLowerCase();
-          return vehicleModelList.find(model => 
-            model.value.toLowerCase() === cleanName
+          return vehicleModelList.find(
+            (model) => model.value.toLowerCase() === cleanName
           );
         });
 
-        console.log(oemModel,"oemModel");
+      const fuelTypes: any = [];
+      if (item['Fuel Type 2']) {
+        fuelTypes.push(
+          item['Fuel Type 2']?.split(',').map((fuelName: string) => {
+            const cleanName = fuelName.trim().toLowerCase();
+            return vehicleResult.find(
+              (fuel) => fuel.name.toLowerCase() === cleanName
+            );
+          })
+        );
+      }
+
+      const oemModels: any = [];
+      if (item['Model Name 2']) {
+        oemModels.push(
+          item['Model Name 2']?.split(',').map((modelName: string) => {
+            const cleanName = modelName.trim().toLowerCase();
+            return vehicleModelList.find(
+              (model) => model.value.toLowerCase() === cleanName
+            );
+          })
+        );
+      }
 
       const priceDetail = {
         mrp: NaN,
@@ -1468,36 +1479,90 @@ export class ProductService {
         bulkOrders.weight = item['Bulk Weight'];
       }
 
-      const colorCodeList = [{
-        color: item['Color Code 1'],
-        colorName: item['Color Name 1'],
-        oemPartNumber: item['SkU Number 1'],
-        skuNumber: item['Oem Part Number 1'],
-        image1: {
-          key: this.cleanImageUrl(item['Image 1.1']),
-          docURL: item['Image 1.1']
-        },
-        mage2: item['Image 1.2'] && {
-          key: this.cleanImageUrl(item['Image 1.2']),
-          docURL: item['Image 1.2']
-        },
-        image3: item['Image 1.3'] && {
-          key: this.cleanImageUrl(item['Image 1.3']),
-          docURL: item['Image 1.3']
-        },
+      const colorCodeList = [
+        {
+          color: item['Color Code 1'],
+          colorName: item['Color Name 1'],
+          oemPartNumber: item['SkU Number 1'],
+          skuNumber: item['Oem Part Number 1'],
+          image1: {
+            key: this.cleanImageUrl(item['Image 1.1']),
+            docURL: item['Image 1.1']
+          },
+          mage2: item['Image 2.1'] && {
+            key: this.cleanImageUrl(item['Image 2.1']),
+            docURL: item['Image 2.1']
+          },
+          image3: item['Image 3.1'] && {
+            key: this.cleanImageUrl(item['Image 3.1']),
+            docURL: item['Image 3.1']
+          },
 
-        // const fuelType = item['Fuel Type 1']
-        oemList: [{
-          oemBrand: item['Oem Brand 1'],
-          // oemModel: item[],
-          partNumber: item['Part Number 1'],
-          engineSize: item['Engine Size 1'],
-          startYear: new Date(item['Start Date 1']),
-          endYear: new Date(item['End Date 1']),
-          variants: item['Variants 1'],
-          fuelType: fuelType,
-        }]
-      }]
+          // const fuelType = item['Fuel Type 1']
+          oemList: [
+            {
+              oemBrand: item['Oem Brand 1'] ? item['Oem Brand 1'] : '',
+              oemModel: oemModel ? oemModel : [],
+              partNumber: item['Part Number 1'] ? item['Part Number 1'] : '',
+              engineSize: item['Engine Size 1'] ? item['Engine Size 1'] : '',
+              startYear: item['Start Date 1']
+                ? new Date(item['Start Date 1'])
+                : null,
+              endYear: item['End Date 1'] ? new Date(item['End Date 1']) : null,
+              variants: item['Variants 1'] ? item['Variants 1'] : '',
+              fuelType: fuelType ? fuelType : []
+            }
+          ]
+        }
+      ];
+
+      if (item['Color Code 2']) {
+        colorCodeList.push({
+          color: item['Color Code 2'],
+          colorName: item['Color Name 2'],
+          oemPartNumber: item['SkU Number 2'],
+          skuNumber: item['Oem Part Number 2'],
+          image1: item['Image 1.2'] && {
+            key: this.cleanImageUrl(item['Image 1.2']),
+            docURL: item['Image 1.2']
+          },
+          mage2: item['Image 2.2'] && {
+            key: this.cleanImageUrl(item['Image 2.2']),
+            docURL: item['Image 2.2']
+          },
+          image3: item['Image 3.2'] && {
+            key: this.cleanImageUrl(item['Image 3.2']),
+            docURL: item['Image 3.2']
+          },
+
+          // const fuelType = item['Fuel Type 1']
+          oemList: [
+            {
+              oemBrand: item['Oem Brand 2'] ? item['Oem Brand 2'] : '',
+              oemModel: oemModels ? oemModels : [],
+              partNumber: item['Part Number 2'] ? item['Part Number 2'] : '',
+              engineSize: item['Engine Size 2'] ? item['Engine Size 2'] : '',
+              startYear: item['Start Date 2']
+                ? new Date(item['Start Date 2'])
+                : null,
+              endYear: item['End Date 2'] ? new Date(item['End Date 2']) : null,
+              variants: item['Variants 2'] ? item['Variants 2'] : '',
+              fuelType: fuelTypes ? fuelTypes : []
+            }
+          ]
+        });
+      }
+
+      // const lastCreatedNewPartnerProductId = await StaticIds.find({})
+      //   .limit(1)
+      //   .exec();
+      // const newPartnersProductNo =
+      //   lastCreatedNewPartnerProductId[0].newPartnersProductNo + 1;
+
+      // await StaticIds.findOneAndUpdate(
+      //   {},
+      //   { newPartnersProductNo: newPartnersProductNo }
+      // );
 
       return {
         productCategory,
@@ -1514,14 +1579,21 @@ export class ProductService {
         madeIn: item['Made In(Country of Origin)'],
         returnPolicy: item['Return Policy'],
         priceDetail,
-        bulkOrders
+        bulkOrders,
+        colorCodeList,
+        targetedAudience: {
+          distributor: true,
+          dealerRetailer: false,
+          consumers: false
+        },
+        // displayOrderNo: newPartnersProductNo
       };
     });
   }
 
   async cleanImageUrl(fullUrl: string) {
     const baseUrl = 'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/';
-    return fullUrl.startsWith(baseUrl) 
+    return fullUrl.startsWith(baseUrl)
       ? fullUrl.slice(baseUrl.length)
       : fullUrl;
   }
@@ -1920,7 +1992,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -1935,7 +2007,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -1980,7 +2052,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -1995,7 +2067,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2040,7 +2112,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2055,7 +2127,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2100,7 +2172,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2115,7 +2187,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2160,7 +2232,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2175,7 +2247,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2220,7 +2292,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2235,7 +2307,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2280,7 +2352,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2295,7 +2367,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2340,7 +2412,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2355,7 +2427,7 @@ export class ProductService {
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/676167c45f9689a0a9b1a699/1734436345483/image100',
         'Bajaj',
-        'Pulsor 220F',
+        'Pleasure+ XTEC',
         'DDF24343',
         'ZX CVT Reinforced, Honda City',
         'Petrol, Diesel',
@@ -2647,7 +2719,6 @@ export class ProductService {
     if (_.isEmpty(productSubCategory)) {
       delete query['productSubCategory.catalogName'];
     }
-    console.log(userName, role, oemId, query, 'partner');
 
     const product = await PartnersPoduct.aggregate([
       {
@@ -2744,9 +2815,7 @@ export class ProductService {
         query['vehicleType.name'] = { $in: subCategoryNames };
       }
       stateFilter = store[0]?.contactInfo?.state || null;
-      console.log(stateFilter, 'Dekm');
       cityFilter = store[0]?.contactInfo?.city || null;
-      console.log(cityFilter, 'Dekm');
       pincodeFilter = store[0]?.contactInfo?.pincode || null;
       query['partnerDetail.category.name'] = {
         $in: store[0]?.basicInfo?.category.map((category) => category.name)
@@ -2783,8 +2852,6 @@ export class ProductService {
     if (!productSubCategory) {
       delete query['productSubCategory.catalogName'];
     }
-
-    console.log(userName, role, oemId, query, 'partner');
 
     const matchStage: any = { ...query };
 
@@ -2884,8 +2951,6 @@ export class ProductService {
       };
     }
 
-    console.log(stateFilter, 'rmfkmrkf', cityFilter);
-
     const matchStage: any = { ...query };
 
     // Dynamically build the $expr for state and city filters
@@ -2916,8 +2981,6 @@ export class ProductService {
         ]
       };
     }
-
-    console.log(query, 'frjfrkm', matchStage);
 
     // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
@@ -2951,15 +3014,10 @@ export class ProductService {
     const uniqueCategories = Array.from(categorySet);
     const uniqueSubCategories = Array.from(subCategorySet);
 
-    console.log(uniqueCategories, 'femrkrk');
-    console.log(uniqueSubCategories, 'feejrmrkrk');
-
     const total = {
       uniqueProductCategory: uniqueCategories,
       uniqueProductSubCateory: uniqueSubCategories
     };
-
-    // console.log(product,"products")
 
     return total;
   }
@@ -3107,8 +3165,6 @@ export class ProductService {
       _id: new Types.ObjectId(partnerProductId)
     };
 
-    console.log(query, 'drmkfk');
-
     const newProd = await PartnersPoduct.aggregate([
       {
         $match: query
@@ -3178,8 +3234,6 @@ export class ProductService {
       finalResult = reqBody;
     }
 
-    console.log(finalResult, 'finalResultfinalResult');
-
     const res = await PartnersPoduct.findOneAndUpdate(query, finalResult, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
@@ -3242,7 +3296,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(allData, 'allDataallDataallData');
 
     if (allData?.state) updateData = { $set: { state: allData?.state } };
     if (allData?.city) updateData = { $set: { city: allData?.city } };
@@ -3348,14 +3401,6 @@ export class ProductService {
       );
       ImageList.push({ colorCodeIndex, imageFieldIndex, key, docURL: url });
     }
-    console.log(ImageList, 'ImageListImageList');
-    console.log(
-      imageIndexes?.length,
-      imageIndexes,
-      imageIndexes[0],
-      imageIndexes[0].split('-'),
-      'imageIndex.splitsplitsplitsplit'
-    );
 
     const colorList: any = [];
     for (let index = 0; index < partnerProduct?.colorCodeList.length; index++) {
@@ -3378,7 +3423,6 @@ export class ProductService {
       });
       colorList.push(colorCode);
     }
-    console.log(dataList, colorList, 'colorListcolorList');
 
     const producttDetails = {
       ...partnerProduct,
@@ -3386,7 +3430,6 @@ export class ProductService {
       status: 'ACTIVE',
       _id: new Types.ObjectId(partnerProductId)
     };
-    console.log(dataList, producttDetails, 'dataListdataListdataListdataList');
 
     const res = await PartnersPoduct.findOneAndUpdate(
       { _id: partnerProductId },
