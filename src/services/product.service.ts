@@ -41,6 +41,8 @@ import { StaticIds } from '../models/StaticId';
 import ExcelJS from 'exceljs';
 import { IMasterProducts } from '../models/MasterProducts';
 import Category from '../models/Category';
+import { vehicleModelList, vehicleResult } from '../enum/docType.enum';
+import { CompositionHookListInstance } from 'twilio/lib/rest/video/v1/compositionHook';
 
 @injectable()
 export class ProductService {
@@ -1351,9 +1353,6 @@ export class ProductService {
     const allSubCategoryNames = [
       ...new Set(allCategoryData.flatMap((data) => data.subCategories))
     ];
-    const allVehicleName = [
-      ...new Set(allCategoryData.flatMap((data) => data.vehicleTypes))
-    ];
 
     // 3. Batch fetch all categories and subcategories
     const [allCategories, allSubCategories] = await Promise.all([
@@ -1367,6 +1366,8 @@ export class ProductService {
         catalogType: 'productSubCategory'
       }).lean()
     ]);
+
+    // console.log(allFuelTypes,"allFuelTypes")
 
     // 4. Create lookup maps for fast access
     const categoryMap = new Map(
@@ -1408,6 +1409,26 @@ export class ProductService {
         .split(',')
         .map((name: string) => ({ name: name.trim() }))
         .filter((item: { name: string | any[] }) => item.name.length > 0);
+
+        const fuelType = item['Fuel Name 1']
+        ?.split(',')
+        .map((fuelName: string) => {
+          const cleanName = fuelName.trim().toLowerCase();
+          return vehicleResult.find(fuel => 
+            fuel.name.toLowerCase() === cleanName
+          );
+        });
+
+        const oemModel = item['Model Type 1']
+        ?.split(',')
+        .map((modelName: string) => {
+          const cleanName = modelName.trim().toLowerCase();
+          return vehicleModelList.find(model => 
+            model.value.toLowerCase() === cleanName
+          );
+        });
+
+        console.log(oemModel,"oemModel");
 
       const priceDetail = {
         mrp: NaN,
@@ -1464,7 +1485,18 @@ export class ProductService {
           key: this.cleanImageUrl(item['Image 1.3']),
           docURL: item['Image 1.3']
         },
-        oemList: [{}]
+
+        // const fuelType = item['Fuel Type 1']
+        oemList: [{
+          oemBrand: item['Oem Brand 1'],
+          // oemModel: item[],
+          partNumber: item['Part Number 1'],
+          engineSize: item['Engine Size 1'],
+          startYear: new Date(item['Start Date 1']),
+          endYear: new Date(item['End Date 1']),
+          variants: item['Variants 1'],
+          fuelType: fuelType,
+        }]
       }]
 
       return {
