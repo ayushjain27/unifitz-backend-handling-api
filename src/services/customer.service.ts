@@ -475,24 +475,81 @@ export class CustomerService {
       );
       return newInvite;
     }
-  };
-  
-  async countAllReferCustomer(): Promise<any> {
+  }
+
+  async countAllReferCustomer(searchText: string): Promise<any> {
     Logger.info('<Service>:<CustomerService>:<count all refer customers>');
+    let matchQuery: any = {};
+    if (searchText) {
+      if (searchText) {
+        matchQuery.$or = [
+          { customerId: searchText },
+          {
+            'customerDetails.phoneNumber': `+91${searchText.slice(-10)}`
+          }
+        ];
+      }
+    }
 
     // Aggregate query to fetch total, active, and inactive counts in one go
-    const total = await InviteUsers.countDocuments();
-    return total;
+    const counts = await InviteUsers.aggregate([
+      {
+        $lookup: {
+          from: 'customers',
+          localField: 'customerId',
+          foreignField: 'customerId',
+          as: 'customerDetails'
+        }
+      },
+      {
+        $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true }
+      },
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 }
+        }
+      }
+    ]);
+    return counts;
   }
 
   async countAllReferCustomerPaginated(
     pageNo?: number,
-    pageSize?: number
+    pageSize?: number,
+    searchText?: string
   ): Promise<any> {
-    Logger.info('<Service>:<CustomerService>:<Get all customer referrals initiated>');
-  
-    return await InviteUsers.aggregate([
+    Logger.info(
+      '<Service>:<CustomerService>:<Get all customer referrals initiated>'
+    );
+
+    let matchQuery: any = {};
+    if (searchText) {
+      if (searchText) {
+        matchQuery.$or = [
+          { customerId: searchText },
+          {
+            'customerDetails.phoneNumber': `+91${searchText.slice(-10)}`
+          }
+        ];
+      }
+    }
+
+    const inviteUsers = await InviteUsers.aggregate([
+      {
+        $lookup: {
+          from: 'customers', // The customer collection name
+          localField: 'customeId',
+          foreignField: 'customeId',
+          as: 'customerDetails'
+        }
+      },
+      {
+        $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true }
+      },
       { $sort: { createdAt: -1 } },
+      { $match: matchQuery },
       { $skip: pageNo * pageSize },
       { $limit: pageSize },
       {
@@ -516,5 +573,6 @@ export class CustomerService {
       },
       { $project: { customerMatch: 0 } } // Remove the temporary field
     ]);
+    return inviteUsers;
   }
 }
