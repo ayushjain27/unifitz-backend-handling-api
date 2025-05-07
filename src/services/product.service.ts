@@ -40,6 +40,7 @@ import ProductOrderAddress, {
 import { StaticIds } from '../models/StaticId';
 import ExcelJS from 'exceljs';
 import { IMasterProducts } from '../models/MasterProducts';
+import Category from '../models/Category';
 
 @injectable()
 export class ProductService {
@@ -1248,7 +1249,9 @@ export class ProductService {
     const compulsoryRow = worksheet.getRow(2);
     compulsoryRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
       if (cell.value && cell.value.toString().includes('* Compulsory Field')) {
-        compulsoryFields.push(headers[colNumber]?.richText[0]?.text?.replace(/\n/g, '').trim());
+        compulsoryFields.push(
+          headers[colNumber]?.richText[0]?.text?.replace(/\n/g, '').trim()
+        );
       }
     });
 
@@ -1268,7 +1271,7 @@ export class ProductService {
 
         if (header) {
           let value = '';
-        
+
           if (cell.type === ExcelJS.ValueType.Date) {
             value = (cell.value as Date).toISOString();
           } else if (cell.type === ExcelJS.ValueType.Formula) {
@@ -1276,7 +1279,7 @@ export class ProductService {
           } else {
             value = cell.value?.toString().trim() || '';
           }
-        
+
           // Handle header formatting
           let headerText = '';
           if (typeof header === 'object' && 'richText' in header) {
@@ -1284,15 +1287,13 @@ export class ProductService {
           } else {
             headerText = header?.toString()?.replace(/\n/g, '').trim();
           }
-        
+
           rowData[headerText] = value;
         }
       });
 
       rows.push(rowData);
     }
-
-    console.log(compulsoryFields, 'dmdfkr');
 
     // 4. Validate data
     const validationResult: any = await this.validateExcelData(
@@ -1308,13 +1309,189 @@ export class ProductService {
         errors: validationResult.errors,
         compulsoryFields
       };
-    }else{
+    } else {
+      const data = await this.processAllRows(rows);
+      console.log(data[0]?.priceDetail, 'data price get', data[0]?.bulkOrders);
+      console.log(data, 'data get');
+      // const data = {
+      //   productCategory
+      // }
       return {
         success: true,
         message: 'File processed successfully',
         data: rows // Just for demonstration
       };
     }
+  }
+
+  async processAllRows(rows: any[]) {
+    // 1. Collect all unique category and subcategory names
+    const allCategoryData = rows.map((item) => ({
+      categories:
+        item['Product Category']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [],
+      subCategories:
+        item['Product SubCategory']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [],
+      vehicleTypes:
+        item['Vehicle Type']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || []
+    }));
+
+    // 2. Get all unique names for batch querying
+    const allCategoryNames = [
+      ...new Set(allCategoryData.flatMap((data) => data.categories))
+    ];
+    const allSubCategoryNames = [
+      ...new Set(allCategoryData.flatMap((data) => data.subCategories))
+    ];
+    const allVehicleName = [
+      ...new Set(allCategoryData.flatMap((data) => data.vehicleTypes))
+    ];
+
+    // 3. Batch fetch all categories and subcategories
+    const [allCategories, allSubCategories] = await Promise.all([
+      Category.find({
+        catalogName: { $in: allCategoryNames },
+        catalogType: 'productCategory',
+        parent: 'root'
+      }).lean(),
+      Category.find({
+        catalogName: { $in: allSubCategoryNames },
+        catalogType: 'productSubCategory'
+      }).lean()
+    ]);
+
+    // 4. Create lookup maps for fast access
+    const categoryMap = new Map(
+      allCategories.map((cat) => [cat.catalogName, cat])
+    );
+    const subCategoryMap = new Map(
+      allSubCategories.map((sub) => [`${sub.parent}|${sub.catalogName}`, sub])
+    );
+
+    // 5. Process all rows with the pre-fetched data
+    return rows.map((item) => {
+      const categoryNames =
+        item['Product Category']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [];
+
+      const subCategoryNames =
+        item['Product SubCategory']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [];
+
+      // Get categories from map
+      const productCategory = categoryNames
+        .map((name: string) => categoryMap.get(name))
+        .filter(Boolean);
+
+      // Get subcategories with proper parent relationships
+      const productSubCategory = subCategoryNames
+        .flatMap((subName: any) =>
+          categoryNames.map((catName: any) =>
+            subCategoryMap.get(`${catName}|${subName}`)
+          )
+        )
+        .filter(Boolean);
+
+      const vehicleType = item['Vehicle Type']
+        .split(',')
+        .map((name: string) => ({ name: name.trim() }))
+        .filter((item: { name: string | any[] }) => item.name.length > 0);
+
+      const priceDetail = {
+        mrp: NaN,
+        sellingPrice: NaN,
+        qty: '',
+        width: '',
+        height: '',
+        depth: '',
+        weight: ''
+      };
+      if (item['Retail Mrp']) {
+        priceDetail.mrp = Number(item['Retail Mrp']);
+        priceDetail.sellingPrice = Number(item['Retail Selling Price']);
+        priceDetail.qty = item['Retail Quantity'];
+        priceDetail.width = item['Retail Width'];
+        priceDetail.height = item['Retail Height'];
+        priceDetail.depth = item['Retail Depth'];
+        priceDetail.weight = item['Retail Weight'];
+      }
+
+      const bulkOrders = {
+        mrp: NaN,
+        wholeSalePrice: NaN,
+        qty: '',
+        width: '',
+        height: '',
+        depth: '',
+        weight: ''
+      };
+      if (item['Bulk Mrp']) {
+        bulkOrders.mrp = Number(item['Bulk Mrp']);
+        bulkOrders.wholeSalePrice = Number(item['Bulk/WholeSale Price']);
+        bulkOrders.qty = item['Bulk Quantity'];
+        bulkOrders.width = item['Bulk Width'];
+        bulkOrders.height = item['Bulk Height'];
+        bulkOrders.depth = item['Bulk Depth'];
+        bulkOrders.weight = item['Bulk Weight'];
+      }
+
+      const colorCodeList = [{
+        color: item['Color Code 1'],
+        colorName: item['Color Name 1'],
+        oemPartNumber: item['SkU Number 1'],
+        skuNumber: item['Oem Part Number 1'],
+        image1: {
+          key: this.cleanImageUrl(item['Image 1.1']),
+          docURL: item['Image 1.1']
+        },
+        mage2: item['Image 1.2'] && {
+          key: this.cleanImageUrl(item['Image 1.2']),
+          docURL: item['Image 1.2']
+        },
+        image3: item['Image 1.3'] && {
+          key: this.cleanImageUrl(item['Image 1.3']),
+          docURL: item['Image 1.3']
+        },
+        oemList: [{}]
+      }]
+
+      return {
+        productCategory,
+        productSubCategory,
+        vehicleType,
+        makeType: item['Make Type'],
+        manufactureName: item['Manufacture Name'],
+        productSuggest: item['Product Name'],
+        productDescription: item['Product Description'],
+        features: item['Special Features'],
+        inTheBox: item['In the Box'],
+        warranty: item['Warranty'],
+        materialDetails: item['Material Details'],
+        madeIn: item['Made In(Country of Origin)'],
+        returnPolicy: item['Return Policy'],
+        priceDetail,
+        bulkOrders
+      };
+    });
+  }
+
+  async cleanImageUrl(fullUrl: string) {
+    const baseUrl = 'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/';
+    return fullUrl.startsWith(baseUrl) 
+      ? fullUrl.slice(baseUrl.length)
+      : fullUrl;
   }
 
   // Updated validation function
@@ -1327,37 +1504,36 @@ export class ProductService {
       errors: string[];
       data: Record<string, string>; // Include the problematic data
     }[] = [];
-  
+
     const validRows: Record<string, string>[] = [];
-  
+
     rows.forEach((row, index) => {
       const rowErrors: string[] = [];
-  
+
       // Validate compulsory fields
       compulsoryFields.forEach((field) => {
         const value = row[field];
-        console.log(value,"crmfkr")
         if (!value || value.trim() === '') {
           rowErrors.push(`"${field}" is required`);
         }
       });
-  
+
       // Validate multi-value fields
       const multiValueFields = [
         'Product Category',
         'Product SubCategory',
         'Vehicle Type'
       ];
-  
+
       multiValueFields.forEach((field) => {
-        const value = row[field];
-        if (value && !/^[a-zA-Z0-9,\s\-]+$/.test(value)) {
+        const value = String(row[field] || ''); // Ensure we're working with a string
+        if (value && !/^[a-zA-Z0-9,\s\-&]+$/.test(value)) {
           rowErrors.push(
-            `"${field}" contains invalid characters (only letters, numbers, commas, hyphens allowed)`
+            `"${field}" contains invalid characters (only letters, numbers, commas, hyphens, and ampersands allowed)`
           );
         }
       });
-  
+
       if (rowErrors.length > 0) {
         errors.push({
           row: index + 5, // Adjusted for Excel row (starting at row 5)
@@ -1368,10 +1544,9 @@ export class ProductService {
         validRows.push(row);
       }
     });
-  
+
     return { validRows, errors };
   }
-  
 
   async downloadTemplate(): Promise<Buffer> {
     Logger.info('<Service>:<ProductService>:<downloadTemplate initiated>');
@@ -1450,7 +1625,7 @@ export class ProductService {
         description: 'Add multiple Categories using commas'
       },
       {
-        title: 'Product SubCatgeory',
+        title: 'Product SubCategory',
         description: 'Add multiple Sub Categories using commas'
       },
       {
@@ -1678,7 +1853,7 @@ export class ProductService {
     const dummyRows = [
       [
         'Examples',
-        'EVs Battery, EVs Charging',
+        'Accessories, EVs Charging, Wheels & Tyres',
         'Commercial Charger, Spare Parts',
         'Two Wheelers, Three Wheelers',
         'OEM',
@@ -1738,8 +1913,8 @@ export class ProductService {
       ],
       [
         'Examples2',
-        'EVs Battery, EVs Charging',
-        'Commercial Charger, Spare Parts',
+        'Accessories, EVs Charging, Wheels & Tyres',
+        'Commercial Charger, Spare Parts, Universal',
         'Two Wheelers, Three Wheelers',
         'OEM',
         'Bajaj',
@@ -2155,7 +2330,7 @@ export class ProductService {
         '1.5 L 4-cylinder',
         '23/04/2025',
         '23/04/2025'
-      ],
+      ]
     ];
 
     const workbook = new ExcelJS.Workbook();
@@ -2419,7 +2594,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
     if (!vehicleType) {
@@ -2516,7 +2691,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
 
@@ -2786,7 +2961,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
     if (!vehicleType) {
@@ -2844,7 +3019,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
 
