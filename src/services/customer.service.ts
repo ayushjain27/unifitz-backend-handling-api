@@ -533,7 +533,7 @@ export class CustomerService {
         { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
       ];
     }
-    
+
     // Aggregate query to fetch counts
     const counts = await InviteUsers.aggregate([
       {
@@ -628,8 +628,8 @@ export class CustomerService {
       {
         $lookup: {
           from: 'customers', // The customer collection name
-          localField: 'customeId',
-          foreignField: 'customeId',
+          localField: 'customerId',
+          foreignField: 'customerId',
           as: 'customerDetails'
         }
       },
