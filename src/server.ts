@@ -70,7 +70,7 @@ import NewVehicle from './models/NewVehicle';
 import { PartnersPoduct } from './models/B2BPartnersProduct';
 import Razorpay from 'razorpay';
 import Store from './models/Store';
-import { StoreEventCollectionPerDayPerStore } from './models/storeEventCollectionPerDayPerStore';
+import { StoreEventCollectionPerMonthPerStore } from './models/storeEventCollectionPerMonthPerStore';
 import EventAnalyticModel from './models/CustomerEventAnalytic';
 import { StoreOverallEventCollectionPerDayPerStore } from './models/storeOverallEventCollectionPerDay';
 // Connect to MongoDB
@@ -329,9 +329,9 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
   }
 
   if (req.body.event === 'payment.captured') {
-    console.log(req.body.payload.payment.entity,"delmfkm")
+    console.log(req.body.payload.payment.entity, 'delmfkm');
     let userType = req.body.payload.payment.entity.notes?.userType;
-    console.log(userType,"f;ekrmmfk")
+    console.log(userType, 'f;ekrmmfk');
     if (userType === 'CUSTOMER') {
       let customerId = req.body.payload.payment.entity.notes?.customer_id;
       console.log(customerId, 'fmrkmfk');
@@ -362,8 +362,8 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
       let partner = await Store.findOne({
         storeId: storeId
       });
-      console.log(note,"D;lemlkfm")
-      console.log(partner,"partner")
+      console.log(note, 'D;lemlkfm');
+      console.log(partner, 'partner');
 
       if (note?.purpose === 'SPONSORED') {
         let data = {
@@ -391,7 +391,7 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
             new Date().setFullYear(new Date().getFullYear() + 1)
           );
         }
-        console.log(data,"Demdkmk")
+        console.log(data, 'Demdkmk');
 
         if (!isEmpty(partner?.paymentDetails)) {
           let partnerDetails = await Store.findOneAndUpdate(
@@ -702,7 +702,7 @@ async function updateSlugs() {
   try {
     const today = new Date();
     const startOfToday = new Date(today.setUTCHours(0, 0, 0, 0));
-    const oneYearAgo = new Date("2024-06-08T05:27:18.815+00:00");
+    const oneYearAgo = new Date('2024-05-01T00:00:00.000Z');
     // oneYearAgo.setUTCFullYear(oneYearAgo.getUTCFullYear() - 2);
 
     for (let d = new Date(oneYearAgo); d <= startOfToday; d.setUTCDate(d.getUTCDate() + 1)) {
@@ -715,25 +715,21 @@ async function updateSlugs() {
         {
           $match: {
             createdAt: { $gte: startDate, $lte: endDate },
-            module: 'STORE',
             moduleInformation: { $exists: true, $ne: '' }
           }
         },
         {
           $group: {
-            _id: {
-              storeId: '$moduleInformation',
-              event: '$event'
-            },
+            _id: '$event',
             count: { $sum: 1 }
           }
         },
         {
           $group: {
-            _id: '$_id.storeId',
+            _id: null,
             eventsArray: {
               $push: {
-                k: '$_id.event',
+                k: '$_id',
                 v: '$count'
               }
             },
@@ -742,7 +738,8 @@ async function updateSlugs() {
         },
         {
           $project: {
-            storeId: '$_id',
+            _id: 0,
+            date: startDate,
             events: { $arrayToObject: '$eventsArray' },
             totalEvents: 1
           }
@@ -750,29 +747,20 @@ async function updateSlugs() {
       ]);
 
       // Prepare bulk update
-      const bulkOps = result.map(doc => ({
-        updateOne: {
-          filter: {
-            storeId: doc.storeId,
-            date: startDate
-          },
-          update: {
+      if (result.length) {
+        const doc = result[0];
+
+        await StoreOverallEventCollectionPerDayPerStore.findOneAndUpdate(
+          { date: startDate },
+          {
             $set: {
               events: doc.events,
-              date: startDate
-            },
-            $setOnInsert: {
-              storeId: doc.storeId
-            },
-            $inc: { totalEvents: doc.totalEvents }
+              totalEvents: doc.totalEvents
+            }
           },
-          upsert: true
-        }
-      }));
-
-      if (bulkOps.length) {
-        await StoreEventCollectionPerDayPerStore.bulkWrite(bulkOps);
-        console.log(`Stored ${bulkOps.length} documents for ${startDate.toISOString().slice(0, 10)}`);
+          { upsert: true }
+        );
+        // console.log(`Stored ${bulkOps.length} documents for ${startDate.toISOString().slice(0, 10)}`);
       }
     }
 

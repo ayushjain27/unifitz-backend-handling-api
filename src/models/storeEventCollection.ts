@@ -3,7 +3,8 @@ import { model, Schema } from 'mongoose';
 export interface IStoreEventCollectionPerDayPerStore {
   _id?: string;
   storeId: string;
-  date: Date;
+  startDate: Date;
+  endDate: Date;
 }
 
 const storeEventCollectionPerDayPerStoreSchema: Schema = new Schema<IStoreEventCollectionPerDayPerStore>(
@@ -12,9 +13,12 @@ const storeEventCollectionPerDayPerStoreSchema: Schema = new Schema<IStoreEventC
       type: String,
       required: true
     },
-    date: {
-        type: Date
-    }
+    startDate: {
+      type: Date
+  },
+    endDate: {
+      type: Date
+  },
   },
   { timestamps: true, strict: false }
 );

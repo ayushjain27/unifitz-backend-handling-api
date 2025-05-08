@@ -2177,7 +2177,7 @@ export class StoreService {
       { $limit: pageSize },
       {
         $lookup: {
-          from: 'storeeventcollections',
+          from: 'eventlogscollections',
           let: {
             storeId: '$storeId'
           },
