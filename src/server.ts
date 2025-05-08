@@ -70,6 +70,9 @@ import NewVehicle from './models/NewVehicle';
 import { PartnersPoduct } from './models/B2BPartnersProduct';
 import Razorpay from 'razorpay';
 import Store from './models/Store';
+import { StoreEventCollectionPerDayPerStore } from './models/storeEventCollectionPerDayPerStore';
+import EventAnalyticModel from './models/CustomerEventAnalytic';
+import { StoreOverallEventCollectionPerDayPerStore } from './models/storeOverallEventCollectionPerDay';
 // Connect to MongoDB
 
 // AWS.config.update({
@@ -697,17 +700,87 @@ const server = app.listen(port, () =>
 
 async function updateSlugs() {
   try {
-    // Use aggregation pipeline in updateMany
-    await Admin.updateMany(
-      // Only update documents that have storeId
-      { role: 'ADMIN'},
-      { $set: { accessList: permissions.OEM } }
-    );
+    const today = new Date();
+    const startOfToday = new Date(today.setUTCHours(0, 0, 0, 0));
+    const oneYearAgo = new Date("2024-06-08T05:27:18.815+00:00");
+    // oneYearAgo.setUTCFullYear(oneYearAgo.getUTCFullYear() - 2);
 
-    console.log('All documents have been updated with slugs.');
+    for (let d = new Date(oneYearAgo); d <= startOfToday; d.setUTCDate(d.getUTCDate() + 1)) {
+      const startDate = new Date(d.setUTCHours(0, 0, 0, 0));
+      const endDate = new Date(d.setUTCHours(23, 59, 59, 999));
+
+      console.log(`Processing: ${startDate.toISOString().slice(0, 10)}`);
+
+      const result = await EventAnalyticModel.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            module: 'STORE',
+            moduleInformation: { $exists: true, $ne: '' }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              storeId: '$moduleInformation',
+              event: '$event'
+            },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id.storeId',
+            eventsArray: {
+              $push: {
+                k: '$_id.event',
+                v: '$count'
+              }
+            },
+            totalEvents: { $sum: '$count' }
+          }
+        },
+        {
+          $project: {
+            storeId: '$_id',
+            events: { $arrayToObject: '$eventsArray' },
+            totalEvents: 1
+          }
+        }
+      ]);
+
+      // Prepare bulk update
+      const bulkOps = result.map(doc => ({
+        updateOne: {
+          filter: {
+            storeId: doc.storeId,
+            date: startDate
+          },
+          update: {
+            $set: {
+              events: doc.events,
+              date: startDate
+            },
+            $setOnInsert: {
+              storeId: doc.storeId
+            },
+            $inc: { totalEvents: doc.totalEvents }
+          },
+          upsert: true
+        }
+      }));
+
+      if (bulkOps.length) {
+        await StoreEventCollectionPerDayPerStore.bulkWrite(bulkOps);
+        console.log(`Stored ${bulkOps.length} documents for ${startDate.toISOString().slice(0, 10)}`);
+      }
+    }
+
+    console.log('✅ Done processing full year of data.');
   } catch (err) {
-    console.log(err, 'sa;lkfndj');
+    console.error('❌ Error in updateSlugs:', err);
   }
+
 }
 
 async function updateSlug() {

@@ -2126,222 +2126,133 @@ export class StoreService {
     Logger.info('<Service>:<StoreService>:<Get all sponsored stores>');
 
     const startDate = reqPayload?.startDate
-      ? new Date(
-          Date.UTC(
-            new Date(reqPayload.startDate).getUTCFullYear(),
-            new Date(reqPayload.startDate).getUTCMonth(),
-            new Date(reqPayload.startDate).getUTCDate(),
-            0,
-            0,
-            0,
-            0
-          )
-        )
+      ? new Date(reqPayload.startDate).setUTCHours(0, 0, 0, 0)
       : null;
-
     const endDate = reqPayload?.endDate
-      ? new Date(
-          Date.UTC(
-            new Date(reqPayload.endDate).getUTCFullYear(),
-            new Date(reqPayload.endDate).getUTCMonth(),
-            new Date(reqPayload.endDate).getUTCDate(),
-            23,
-            59,
-            59,
-            999
-          )
-        )
+      ? new Date(reqPayload.endDate).setUTCHours(23, 59, 59, 999)
       : null;
 
     const query: any = {
       preferredServicePlugStore: true,
+      paymentDetails: { $exists: true, $ne: [] }
+    };
+
+    // Only add filters if values exist
+    const optionalFilters = {
       'basicInfo.category.name': reqPayload.category,
       'basicInfo.subCategory.name': reqPayload.subCategory,
       'contactInfo.state': reqPayload.state,
       'contactInfo.city': reqPayload.city,
-      storeId: reqPayload.storeId,
-      paymentDetails: {
-        $exists: true,
-        $ne: [] as unknown[]
-      }
+      storeId: reqPayload.storeId
     };
 
-    if (!reqPayload.category) delete query['basicInfo.category.name'];
-    if (!reqPayload.subCategory) delete query['basicInfo.subCategory.name'];
-    if (!reqPayload.state) delete query['contactInfo.state'];
-    if (!reqPayload.city) delete query['contactInfo.city'];
-    if (!reqPayload.storeId) delete query['storeId'];
+    Object.entries(optionalFilters).forEach(([key, value]) => {
+      if (value) query[key] = value;
+    });
 
     const pipeline: any[] = [
       { $match: query },
       {
         $addFields: {
-          lastPayment: { $arrayElemAt: ['$paymentDetails', -1] }
+          lastPayment: { $arrayElemAt: ['$paymentDetails', -1] },
+          paymentEndDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] }
         }
       }
     ];
 
-    // Optional: Apply date range filter
+    // 4. Date Filter - Simplified
     if (startDate && endDate) {
       pipeline.push({
         $match: {
-          $expr: {
-            $and: [
-              { $gte: ['$lastPayment.createdAt', startDate] },
-              { $lte: ['$lastPayment.createdAt', endDate] }
-            ]
+          'lastPayment.createdAt': {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
           }
         }
       });
     }
-
+    // 5. Pagination First - Reduce data processing
     pipeline.push(
       { $skip: pageNo * pageSize },
       { $limit: pageSize },
       {
         $lookup: {
-          from: 'eventlogs',
-          let: { storeId: '$storeId' },
+          from: 'storeeventcollections',
+          let: {
+            storeId: '$storeId'
+          },
           pipeline: [
-            { $match: { $expr: { $eq: ['$moduleInformation', '$$storeId'] } } },
             {
-              $group: {
-                _id: '$event',
-                count: { $sum: 1 }
+              $match: {
+                $expr: { $eq: ['$storeId', '$$storeId'] }
+              }
+            },
+            {
+              $project: {
+                events: 1
               }
             }
           ],
-          as: 'eventStats'
+          as: 'dailyEventData'
         }
       },
       {
-        $set: {
-          impressionCount: {
-            $ifNull: [
-              {
-                $first: {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: '$eventStats',
-                        as: 'e',
-                        cond: { $eq: ['$$e._id', 'IMPRESSION_COUNT'] }
-                      }
-                    },
-                    as: 'filtered',
-                    in: '$$filtered.count'
-                  }
-                }
-              },
-              0
-            ]
-          },
-          storeDetailClick: {
-            $ifNull: [
-              {
-                $first: {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: '$eventStats',
-                        as: 'e',
-                        cond: { $eq: ['$$e._id', 'STORE_DETAIL_CLICK'] }
-                      }
-                    },
-                    as: 'filtered',
-                    in: '$$filtered.count'
-                  }
-                }
-              },
-              0
-            ]
-          },
-          shareStoreDetail: {
-            $ifNull: [
-              {
-                $first: {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: '$eventStats',
-                        as: 'e',
-                        cond: { $eq: ['$$e._id', 'SHARE_STORE_DETAIL'] }
-                      }
-                    },
-                    as: 'filtered',
-                    in: '$$filtered.count'
-                  }
-                }
-              },
-              0
-            ]
-          },
-          phoneNoClick: {
-            $ifNull: [
-              {
-                $first: {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: '$eventStats',
-                        as: 'e',
-                        cond: { $eq: ['$$e._id', 'PHONE_NUMBER_CLICK'] }
-                      }
-                    },
-                    as: 'filtered',
-                    in: '$$filtered.count'
-                  }
-                }
-              },
-              0
-            ]
-          },
-          locationClickCount: {
-            $ifNull: [
-              {
-                $first: {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: '$eventStats',
-                        as: 'e',
-                        cond: { $eq: ['$$e._id', 'MAP_VIEW'] }
-                      }
-                    },
-                    as: 'filtered',
-                    in: '$$filtered.count'
-                  }
-                }
-              },
-              0
-            ]
-          },
-          preferredServicePlugStoreStatus: {
-            $cond: [
-              {
-                $lt: [
-                  {
-                    $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] }
-                  },
-                  {
-                    $dateFromParts: {
-                      year: { $year: new Date() },
-                      month: { $month: new Date() },
-                      day: { $dayOfMonth: new Date() }
+        $addFields: {
+          combinedEvents: {
+            $let: {
+              vars: {
+                allEvents: {
+                  $reduce: {
+                    input: '$dailyEventData',
+                    initialValue: [],
+                    in: {
+                      $concatArrays: [
+                        '$$value',
+                        { $objectToArray: '$$this.events' }
+                      ]
                     }
                   }
-                ]
+                }
               },
-              'INACTIVE',
-              'ACTIVE'
-            ]
+              in: {
+                $arrayToObject: {
+                  $map: {
+                    input: {
+                      $setUnion: [
+                        { $map: { input: '$$allEvents', as: 'e', in: '$$e.k' } }
+                      ]
+                    },
+                    as: 'eventKey',
+                    in: {
+                      k: '$$eventKey',
+                      v: {
+                        $sum: {
+                          $map: {
+                            input: {
+                              $filter: {
+                                input: '$$allEvents',
+                                as: 'e',
+                                cond: { $eq: ['$$e.k', '$$eventKey'] }
+                              }
+                            },
+                            as: 'matched',
+                            in: '$$matched.v'
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
-      },
-      { $project: { eventStats: 0 } }
+      }
+      
     );
 
     const storeResponse: any = await Store.aggregate(pipeline);
+    console.log('dkekfdnrk');
     return storeResponse;
   }
 
@@ -2350,55 +2261,32 @@ export class StoreService {
       '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>'
     );
 
+    console.log(reqPayload, 'reqPayload');
+
     const startDate = reqPayload?.startDate
-      ? new Date(
-          Date.UTC(
-            new Date(reqPayload.startDate).getUTCFullYear(),
-            new Date(reqPayload.startDate).getUTCMonth(),
-            new Date(reqPayload.startDate).getUTCDate(),
-            0,
-            0,
-            0,
-            0
-          )
-        )
+      ? new Date(reqPayload.startDate).setUTCHours(0, 0, 0, 0)
       : null;
-
-    const endDate = reqPayload?.endDate
-      ? new Date(
-          Date.UTC(
-            new Date(reqPayload.endDate).getUTCFullYear(),
-            new Date(reqPayload.endDate).getUTCMonth(),
-            new Date(reqPayload.endDate).getUTCDate(),
-            23,
-            59,
-            59,
-            999
-          )
-        )
+    const endDate = reqPayload?.lastDate
+      ? new Date(reqPayload.lastDate).setUTCHours(23, 59, 59, 999)
       : null;
-
-    console.log(startDate, 'dfmkemf', endDate);
 
     const query: any = {
       preferredServicePlugStore: true,
+      paymentDetails: { $exists: true, $ne: [] }
+    };
+
+    // Only add filters if values exist
+    const optionalFilters = {
       'basicInfo.category.name': reqPayload.category,
       'basicInfo.subCategory.name': reqPayload.subCategory,
       'contactInfo.state': reqPayload.state,
       'contactInfo.city': reqPayload.city,
-      storeId: reqPayload.storeId,
-      paymentDetails: {
-        $exists: true,
-        $ne: [] as unknown[]
-      }
+      storeId: reqPayload.storeId
     };
 
-    // Clean up query if filters are missing
-    if (!reqPayload.category) delete query['basicInfo.category.name'];
-    if (!reqPayload.subCategory) delete query['basicInfo.subCategory.name'];
-    if (!reqPayload.state) delete query['contactInfo.state'];
-    if (!reqPayload.city) delete query['contactInfo.city'];
-    if (!reqPayload.storeId) delete query['storeId'];
+    Object.entries(optionalFilters).forEach(([key, value]) => {
+      if (value) query[key] = value;
+    });
 
     // Build pipeline
     const pipeline: any[] = [
@@ -2411,14 +2299,13 @@ export class StoreService {
     ];
 
     // Add date filter if both start and end date are provided
+    // 4. Date Filter - Simplified
     if (startDate && endDate) {
       pipeline.push({
         $match: {
-          $expr: {
-            $and: [
-              { $gte: ['$lastPayment.createdAt', startDate] },
-              { $lte: ['$lastPayment.createdAt', endDate] }
-            ]
+          'lastPayment.createdAt': {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
           }
         }
       });
@@ -2443,31 +2330,10 @@ export class StoreService {
     storeId: string
   ) {
     const startDate = firstDate
-      ? new Date(
-          Date.UTC(
-            new Date(firstDate).getUTCFullYear(),
-            new Date(firstDate).getUTCMonth(),
-            new Date(firstDate).getUTCDate(),
-            0,
-            0,
-            0,
-            0
-          )
-        )
+      ? new Date(firstDate).setUTCHours(0, 0, 0, 0)
       : null;
-
     const endDate = lastDate
-      ? new Date(
-          Date.UTC(
-            new Date(lastDate).getUTCFullYear(),
-            new Date(lastDate).getUTCMonth(),
-            new Date(lastDate).getUTCDate(),
-            23,
-            59,
-            59,
-            999
-          )
-        )
+      ? new Date(lastDate).setUTCHours(23, 59, 59, 999)
       : null;
 
     const query: any = {
@@ -2645,7 +2511,7 @@ export class StoreService {
           )
         )
       : null;
-      
+
     let query = {
       preferredServicePlugStore: true,
       'contactInfo.state': requestPayload?.state,
