@@ -213,14 +213,17 @@ export class CustomerController {
 
   getAllCustomerReferralsByCustomerId = async (req: Request, res: Response) => {
     const referralCode = req.query.referralCode;
-    if(!referralCode){
-      res.send({ message: 'Referral Id not found'});
+    if (!referralCode) {
+      res.send({ message: 'Referral Id not found' });
     }
     Logger.info(
       '<Controller>:<CustomerController>:<Get all customersId request controller initiated>'
     );
     try {
-      const result = await this.customerService.getAllCustomerReferralsByCustomerId(referralCode as string);
+      const result =
+        await this.customerService.getAllCustomerReferralsByCustomerId(
+          referralCode as string
+        );
       res.send({
         result
       });
@@ -326,6 +329,10 @@ export class CustomerController {
 
   countAllReferCustomer = async (req: Request, res: Response) => {
     const searchText = req?.query?.searchText;
+    const firstDate = req?.query?.firstDate;
+    const lastDate = req?.query?.lastDate;
+    const state = req?.query?.state;
+    const city = req?.query?.city;
     Logger.info(
       '<Controller>:<CustomerController>:<Count all referral customers Initiated>'
     );
@@ -333,7 +340,13 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Count all referral customers Initiated>'
       );
-      const result = await this.customerService.countAllReferCustomer(searchText as string);
+      const result = await this.customerService.countAllReferCustomer(
+        searchText as string,
+        firstDate as string,
+        lastDate as string,
+        state as string,
+        city as string
+      );
       res.send({
         result
       });
@@ -346,7 +359,7 @@ export class CustomerController {
   };
 
   countAllReferCustomerPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, searchText } = req.body;
+    const { pageNo, pageSize, searchText, firstDate, lastDate, state, city } = req.body;
     Logger.info(
       '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
     );
@@ -354,12 +367,15 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
       );
-      const result =
-        await this.customerService.countAllReferCustomerPaginated(
-          pageNo,
-          pageSize,
-          searchText
-        );
+      const result = await this.customerService.countAllReferCustomerPaginated(
+        pageNo,
+        pageSize,
+        searchText,
+        firstDate,
+        lastDate,
+        state,
+        city
+      );
       res.send({
         result
       });

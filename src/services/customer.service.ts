@@ -477,21 +477,64 @@ export class CustomerService {
     }
   }
 
-  async countAllReferCustomer(searchText: string): Promise<any> {
+  async countAllReferCustomer(
+    searchText: string,
+    firstDate: string,
+    lastDate: string,
+    state: string,
+    city: string
+  ): Promise<any> {
     Logger.info('<Service>:<CustomerService>:<count all refer customers>');
-    let matchQuery: any = {};
-    if (searchText) {
-      if (searchText) {
-        matchQuery.$or = [
-          { customerId: searchText },
-          {
-            'customerDetails.phoneNumber': `+91${searchText.slice(-10)}`
-          }
-        ];
-      }
+    
+    // Initialize match query
+    const matchQuery: any = {};
+  
+    // Date validation and processing
+    const createdAtFilter: any = {};
+    const firstDay = firstDate ? new Date(firstDate) : null;
+    const lastDay = lastDate ? new Date(lastDate) : null;
+  
+    // Validate date range
+    if (firstDay && lastDay && firstDay > lastDay) {
+      throw new Error('Start date must be less than or equal to end date');
     }
-
-    // Aggregate query to fetch total, active, and inactive counts in one go
+  
+    // Set UTC time to beginning of day (00:00:00)
+    if (firstDay) {
+      firstDay.setUTCHours(0, 0, 0, 0);
+      createdAtFilter.$gte = firstDay;
+    }
+  
+    // Set UTC time to end of day (23:59:59)
+    if (lastDay) {
+      lastDay.setUTCHours(23, 59, 59, 999);
+      createdAtFilter.$lte = lastDay;
+    }
+  
+    // Add date filter to match query if dates are provided
+    if (Object.keys(createdAtFilter).length > 0) {
+      matchQuery.createdAt = createdAtFilter;
+    }
+  
+    // Location filters
+    if (state) {
+      matchQuery['customerDetails.contactInfo.state'] = state;
+    }
+    if (city) {
+      matchQuery['customerDetails.contactInfo.city'] = city;
+    }
+  
+    // Search text filter
+    if (searchText) {
+      const searchNumber = searchText.replace(/\D/g, '').slice(-10);
+      matchQuery.$or = [
+        { customerId: searchText },
+        { phoneNumber: new RegExp(searchNumber, 'i') },
+        { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+      ];
+    }
+    
+    // Aggregate query to fetch counts
     const counts = await InviteUsers.aggregate([
       {
         $lookup: {
@@ -501,41 +544,86 @@ export class CustomerService {
           as: 'customerDetails'
         }
       },
-      {
-        $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true }
-      },
+      { $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true } },
       { $match: matchQuery },
       {
-        $group: {
-          _id: null,
-          total: { $sum: 1 }
+        $facet: {
+          totalCount: [
+            { $count: 'total' }
+          ]
+        }
+      },
+      {
+        $project: {
+          total: { $ifNull: [{ $arrayElemAt: ['$totalCount.total', 0] }, 0] }
         }
       }
     ]);
-    return counts;
+  
+    return counts[0] || { total: 0, active: 0, inactive: 0 };
   }
 
   async countAllReferCustomerPaginated(
     pageNo?: number,
     pageSize?: number,
-    searchText?: string
+    searchText?: string,
+    firstDate?: string,
+    lastDate?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Get all customer referrals initiated>'
     );
 
-    let matchQuery: any = {};
-    if (searchText) {
-      if (searchText) {
-        matchQuery.$or = [
-          { customerId: searchText },
-          {
-            'customerDetails.phoneNumber': `+91${searchText.slice(-10)}`
-          }
-        ];
-      }
-    }
+     // Date validation and processing
+     const createdAtFilter: any = {};
+     const firstDay = firstDate ? new Date(firstDate) : null;
+     const lastDay = lastDate ? new Date(lastDate) : null;
 
+      // Initialize match query
+    const matchQuery: any = {};
+   
+     // Validate date range
+     if (firstDay && lastDay && firstDay > lastDay) {
+       throw new Error('Start date must be less than or equal to end date');
+     }
+   
+     // Set UTC time to beginning of day (00:00:00)
+     if (firstDay) {
+       firstDay.setUTCHours(0, 0, 0, 0);
+       createdAtFilter.$gte = firstDay;
+     }
+   
+     // Set UTC time to end of day (23:59:59)
+     if (lastDay) {
+       lastDay.setUTCHours(23, 59, 59, 999);
+       createdAtFilter.$lte = lastDay;
+     }
+   
+     // Add date filter to match query if dates are provided
+     if (Object.keys(createdAtFilter).length > 0) {
+       matchQuery.createdAt = createdAtFilter;
+     }
+   
+     // Location filters
+     if (state) {
+       matchQuery['customerDetails.contactInfo.state'] = state;
+     }
+     if (city) {
+       matchQuery['customerDetails.contactInfo.city'] = city;
+     }
+   
+     // Search text filter
+     if (searchText) {
+       const searchNumber = searchText.replace(/\D/g, '').slice(-10);
+       matchQuery.$or = [
+         { customerId: searchText },
+         { phoneNumber: new RegExp(searchNumber, 'i') },
+         { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+       ];
+     }
+ 
     const inviteUsers = await InviteUsers.aggregate([
       {
         $lookup: {
