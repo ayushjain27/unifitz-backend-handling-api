@@ -1076,123 +1076,6 @@ export class ProductService {
     return productResult;
   }
 
-  async createBulkPartnerProducts(
-    productsPayload: IB2BPartnersProduct[],
-    userName?: string,
-    role?: string
-  ): Promise<any> {
-    Logger.info('<Service>:<ProductService>: <Creating bulk partner products>');
-
-    const lastCreatedId = await StaticIds.findOne().exec();
-    let currentProductNo = lastCreatedId?.newPartnersProductNo || 1000; // fallback to base if needed
-
-    const bulkProductsToInsert = [];
-
-    for (const productPayload of productsPayload) {
-      const newProd: any = productPayload;
-
-      // Discount calculation
-      if (
-        newProd?.priceDetail?.mrp !== null &&
-        newProd?.priceDetail?.sellingPrice !== null
-      ) {
-        const numVal =
-          (newProd?.priceDetail?.mrp - newProd?.priceDetail?.sellingPrice) /
-          newProd?.priceDetail?.mrp;
-        newProd.discount = numVal * 100;
-      }
-
-      // Add OEM user info
-      if (role === AdminRole.OEM) {
-        newProd.oemUserName = userName;
-      }
-
-      // Assign display order number
-      currentProductNo += 1;
-      newProd.displayOrderNo = currentProductNo;
-
-      bulkProductsToInsert.push(newProd);
-    }
-
-    // Update static ID count
-    await StaticIds.findOneAndUpdate(
-      {},
-      { newPartnersProductNo: currentProductNo }
-    );
-
-    const createdProducts =
-      await PartnersPoduct.insertMany(bulkProductsToInsert);
-
-    Logger.info('<Service>:<ProductService>: <Bulk partner products created>');
-    return createdProducts;
-  }
-
-  //   async uploadBulkPartnerProducts(
-  //     file: any,
-  //     userName?: string,
-  //     role?: string
-  //   ): Promise<any> {
-  //     Logger.info('<Service>:<ProductService>: <Creating bulk partner products>');
-  //   try {
-  //   const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-  //   const sheetName = workbook.SheetNames[0];
-  //   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-  //   const formattedData = data.map((item: any) => ({
-  //     productName: item['Product Name'],
-  //     makeType: item['Make Type'],
-  //     vehicleType: item['Vehicle Type'],
-  //     productCategory: item['Product Category'],
-  //     productSubCategory: item['Product Subcategory'],
-  //     brandName: item['Brand Name'] || '',
-  //     vehicleModel: item['Vehicle Model'] || '',
-  //     productSuggest: item['Product Suggest'] || '',
-  //     productDescription: item['Product Description'] || '',
-  //     features: item['Features'] || '',
-  //     inTheBox: item['In The Box'] || '',
-  //     materialDetails: item['Material Details'] || '',
-  //     madeIn: item['Made In'] || '',
-  //     warranty: item['Warranty'],
-  //     returnPolicy: item['Return Policy'],
-  //     state: [{ name: item['State'] }],
-  //     city: item['City'],
-  //     selectAllStateAndCity: item['Select All State and City'] === 'Yes',
-  //     targetedAudience: {
-  //       distributor: item['Distributor'] === 'Yes',
-  //       dealerRetailer: item['Dealer/Retailer'] === 'Yes',
-  //       consumers: item['Consumers'] === 'Yes'
-  //     },
-  //     priceDetail: {
-  //       mrp: parseInt(item['MRP'], 10),
-  //       sellingPrice: parseInt(item['Selling Price'], 10),
-  //       qty: item['Qty'],
-  //       width: item['Width'],
-  //       height: item['Height'],
-  //       depth: item['Depth'],
-  //       weight: item['Weight']
-  //     },
-  //     bulkOrders: {
-  //       mrp: parseInt(item['Bulk MRP'], 10),
-  //       wholeSalePrice: parseInt(item['Wholesale Price'], 10),
-  //       qty: item['Bulk Qty'],
-  //       width: item['Bulk Width'],
-  //       height: item['Bulk Height'],
-  //       depth: item['Bulk Depth'],
-  //       weight: item['Bulk Weight']
-  //     }
-  //   }));
-
-  //   // Call the bulk create service
-  //   const createdProducts = await this.createBulkPartnerProducts(formattedData, userName, role);
-
-  //   return { message: 'Products created', data: createdProducts };
-  // } catch (err) {
-  //   console.error(err);
-  //   return { error: 'Something went wrong' };
-  // }
-
-  // }
-
   async partnerProductGetAll(
     userName: string,
     role?: string,
@@ -1218,32 +1101,28 @@ export class ProductService {
     return product;
   }
 
-  async uploadBulkPartnerProducts(file: any): Promise<any> {
+  async uploadBulkPartnerProducts(
+    file: any,
+    oemUserName: string
+  ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<Upload bulk products initiated>');
-    // 1. Read Excel file with ExcelJS
-    // 2. Process Excel buffer correctly
-    const workbook = new ExcelJS.Workbook();
+    console.log(oemUserName, 'oemUserName');
 
-    // OPTION 1: Convert Buffer to Uint8Array (most reliable)
+    const oemDetails = await Admin.findOne({
+      userName: oemUserName
+    });
+    const workbook = new ExcelJS.Workbook();
     const uint8Array = new Uint8Array(file.buffer);
     await workbook.xlsx.load(uint8Array);
-
-    // OPTION 2: Alternative buffer handling
-    // await workbook.xlsx.load(req.file.buffer as Buffer);
-
-    // 3. Process worksheet data
     const worksheet = workbook.worksheets[0];
-    // 2. Extract headers and compulsory fields
     const headers: any = {};
     const compulsoryFields: any = [];
 
-    // Get headers from row 4 (Field + Description)
     const headerRow = worksheet.getRow(3);
     headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
       headers[colNumber] = cell.value;
     });
 
-    // Get compulsory fields from row 2 (marked with *)
     const compulsoryRow = worksheet.getRow(2);
     compulsoryRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
       if (cell.value && cell.value.toString().includes('* Compulsory Field')) {
@@ -1253,17 +1132,12 @@ export class ProductService {
       }
     });
 
-    // 3. Process data starting from row 5
     const rows: Array<Record<string, string>> = [];
 
     for (let rowNumber = 5; rowNumber <= worksheet.rowCount; rowNumber++) {
       const row = worksheet.getRow(rowNumber);
-
-      // Skip empty rows
       if (!row.hasValues) continue;
-
       const rowData: Record<string, string> = {};
-
       row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
         const header = headers[colNumber];
 
@@ -1289,11 +1163,9 @@ export class ProductService {
           rowData[headerText] = value;
         }
       });
-
       rows.push(rowData);
     }
 
-    // 4. Validate data
     const validationResult: any = await this.validateExcelData(
       rows,
       compulsoryFields
@@ -1307,14 +1179,33 @@ export class ProductService {
         compulsoryFields
       };
     } else {
-      const data = await this.processAllRows(rows);
-      console.log(data,"dekmfkmrke")
+      const processedData = await this.processAllRows(rows);
+      const enrichedData = await this.enrichWithAdditionalData(processedData, oemUserName, oemDetails);
+      const finalData = await this.generateDisplayOrderNumbers(enrichedData);
+      finalData.map(async(item)=>{
+        const productResult = await PartnersPoduct.create(item);
+      })
+      return {
+        success: true,
+        data: finalData,
+        message: 'Products processed successfully'
+      };
+
+      // console.log(enrichedData,"enrichedData")
+      // const newData: any = [];
+      // data.map((item)=>{
+      //   newData.push(...item, ...additionData)
+      // })
+
+      // console.log(additionData, 'dekmfkmrke');
       return {
         success: true,
         message: 'File processed successfully',
         data: rows // Just for demonstration
       };
     }
+
+
   }
 
   async processAllRows(rows: any[]) {
@@ -1486,15 +1377,15 @@ export class ProductService {
           oemPartNumber: item['SkU Number 1'],
           skuNumber: item['Oem Part Number 1'],
           image1: {
-            key: this.cleanImageUrl(item['Image 1.1']),
+            key: item['Image 1.1']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 1.1']
           },
-          mage2: item['Image 2.1'] && {
-            key: this.cleanImageUrl(item['Image 2.1']),
+          image2: item['Image 2.1'] && {
+            key: item['Image 2.1']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 2.1']
           },
           image3: item['Image 3.1'] && {
-            key: this.cleanImageUrl(item['Image 3.1']),
+            key: item['Image 3.1']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 3.1']
           },
 
@@ -1506,9 +1397,9 @@ export class ProductService {
               partNumber: item['Part Number 1'] ? item['Part Number 1'] : '',
               engineSize: item['Engine Size 1'] ? item['Engine Size 1'] : '',
               startYear: item['Start Date 1']
-                ? new Date(item['Start Date 1'])
+                ?  new Date(`${item['Start Date 1'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0]
                 : null,
-              endYear: item['End Date 1'] ? new Date(item['End Date 1']) : null,
+              endYear: item['End Date 1'] ? new Date(`${item['End Date 1'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0] : null,
               variants: item['Variants 1'] ? item['Variants 1'] : '',
               fuelType: fuelType ? fuelType : []
             }
@@ -1523,15 +1414,15 @@ export class ProductService {
           oemPartNumber: item['SkU Number 2'],
           skuNumber: item['Oem Part Number 2'],
           image1: item['Image 1.2'] && {
-            key: this.cleanImageUrl(item['Image 1.2']),
+            key: item['Image 1.2']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 1.2']
           },
-          mage2: item['Image 2.2'] && {
-            key: this.cleanImageUrl(item['Image 2.2']),
+          image2: item['Image 2.2'] && {
+            key: item['Image 2.2']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 2.2']
           },
           image3: item['Image 3.2'] && {
-            key: this.cleanImageUrl(item['Image 3.2']),
+            key: item['Image 3.2']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 3.2']
           },
 
@@ -1543,26 +1434,15 @@ export class ProductService {
               partNumber: item['Part Number 2'] ? item['Part Number 2'] : '',
               engineSize: item['Engine Size 2'] ? item['Engine Size 2'] : '',
               startYear: item['Start Date 2']
-                ? new Date(item['Start Date 2'])
+                ? new Date(`${item['Start Date 2'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0]
                 : null,
-              endYear: item['End Date 2'] ? new Date(item['End Date 2']) : null,
+              endYear: item['End Date 2'] ? new Date(`${item['End Date 2'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0] : null,
               variants: item['Variants 2'] ? item['Variants 2'] : '',
               fuelType: fuelTypes ? fuelTypes : []
             }
           ]
         });
       }
-
-      // const lastCreatedNewPartnerProductId = await StaticIds.find({})
-      //   .limit(1)
-      //   .exec();
-      // const newPartnersProductNo =
-      //   lastCreatedNewPartnerProductId[0].newPartnersProductNo + 1;
-
-      // await StaticIds.findOneAndUpdate(
-      //   {},
-      //   { newPartnersProductNo: newPartnersProductNo }
-      // );
 
       return {
         productCategory,
@@ -1585,17 +1465,61 @@ export class ProductService {
           distributor: true,
           dealerRetailer: false,
           consumers: false
-        },
+        }
         // displayOrderNo: newPartnersProductNo
       };
     });
   }
 
-  async cleanImageUrl(fullUrl: string) {
-    const baseUrl = 'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/';
-    return fullUrl.startsWith(baseUrl)
-      ? fullUrl.slice(baseUrl.length)
-      : fullUrl;
+  async enrichWithAdditionalData(
+    data: any[],
+    oemUserName: string,
+    oemDetails: any
+  ) {
+    const additionData = {
+      oemUserName,
+      shippingAddress: oemDetails?.wareHouseInfo,
+      shippingIndex: 0,
+      selectAllStateAndCity: false,
+      state: Array.from(
+        new Set(oemDetails?.productCategoryLists.flatMap((item: { state: any; }) => item?.state || []))
+      ),
+      city: Array.from(
+        new Set(oemDetails?.productCategoryLists.flatMap((item: { city: any; }) => item?.city || []))
+      ),
+      pincode: Array.from(
+        new Set(oemDetails?.productCategoryLists.flatMap((item: { pincodes: any; }) => item?.pincodes || []))
+      )
+    };
+  
+    return data.map(item => ({
+      ...item,
+      ...additionData
+    }));
+  }
+  
+  async generateDisplayOrderNumbers(data: any[]) {
+    // Get the last display order number
+    const lastCreated = await StaticIds.findOne().sort({ newPartnersProductNo: -1 }).exec();
+    let currentNumber = lastCreated?.newPartnersProductNo || 0;
+  
+    // Generate numbers for all items
+    const updatedData = data.map(item => {
+      currentNumber += 1;
+      return {
+        ...item,
+        displayOrderNo: currentNumber
+      };
+    });
+  
+    // Update the counter in database
+    await StaticIds.findOneAndUpdate(
+      {},
+      { newPartnersProductNo: currentNumber },
+      { upsert: true, new: true }
+    );
+  
+    return updatedData;
   }
 
   // Updated validation function

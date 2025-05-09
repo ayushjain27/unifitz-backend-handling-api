@@ -750,8 +750,9 @@ export class ProductController {
     Logger.info(
       '<Controller>:<ProductController>:<Upload All bulk products request controller initiated>'
     );
+    const { oemUserName } = req.body;
     try {
-      const result = await this.productService.uploadBulkPartnerProducts(req.file);
+      const result = await this.productService.uploadBulkPartnerProducts(req.file, oemUserName);
     res.send(result);
     } catch (err) {
       Logger.error(err.message);
