@@ -1750,6 +1750,20 @@ export class AdminService {
           }
         },
         {
+          $lookup: {
+            from: 'customers', // Your customer collection name
+            localField: '_id.phoneNumber',
+            foreignField: 'phoneNumber',
+            as: 'customerDetails'
+          }
+        },
+        {
+          $unwind: {
+            path: '$customerDetails',
+            preserveNullAndEmptyArrays: true // Keep records even if no customer found
+          }
+        },  
+        {
           $sort: { count: -1 }
         }
       ]);
