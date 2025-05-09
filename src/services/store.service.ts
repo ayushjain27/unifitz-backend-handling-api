@@ -2264,7 +2264,6 @@ export class StoreService {
     );
 
     const storeResponse: any = await Store.aggregate(pipeline);
-    console.log('dkekfdnrk');
     return storeResponse;
   }
 
@@ -2326,7 +2325,6 @@ export class StoreService {
     pipeline.push({ $count: 'total' });
 
     const result = await Store.aggregate(pipeline);
-    console.log(result, 'result');
     const total = result[0]?.total || 0;
 
     return { total };
@@ -2356,6 +2354,8 @@ export class StoreService {
       storeId: storeId,
       preferredServicePlugStore: true
     };
+console.log(firstDate,"fnkr",endDate)
+    console.log(query,"Frmf")
 
     if (!state) {
       delete query['contactInfo.state'];
@@ -2383,8 +2383,8 @@ export class StoreService {
       {
         $match: {
           'paymentDetails.createdAt': {
-            $gte: startDate,
-            $lte: endDate
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
           }
         }
       },
@@ -2404,8 +2404,8 @@ export class StoreService {
                     $gte: [
                       {
                         $dateDiff: {
-                          startDate: startDate,
-                          endDate: endDate,
+                          startDate: new Date(startDate),
+                          endDate: new Date(endDate),
                           unit: 'day'
                         }
                       },
@@ -2579,8 +2579,6 @@ export class StoreService {
         }
       }
     ]);
-
-    console.log(result, 'result');
 
     const output: {
       [key: string]: { totalUsers: number; totalAmount: number };
