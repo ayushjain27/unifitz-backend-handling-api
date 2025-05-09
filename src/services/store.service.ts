@@ -2245,6 +2245,18 @@ export class StoreService {
                 }
               }
             }
+          },
+          preferredServicePlugStoreStatus: {
+            $cond: [
+              {
+                $lt: [
+                  { $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] } },
+                  new Date()
+                ]
+              },
+              'INACTIVE',
+              'ACTIVE'
+            ]
           }
         }
       }
