@@ -100,9 +100,9 @@ export class CreateInvoiceService {
       //   role: "USER",
       //   customerId: reqBody?.storeDetails?.storeId
       // }
-  
+
       // let notification = await this.notificationService.createNotification(notificationData)
-      
+
       // this.createOrUpdateUser(phoneNumber, jobCard);
       //  "category": "", "fuel": "", "fuelType": "PETROL", "gearType": "MANUAL", "kmsDriven": "2000", "lastInsuanceDate": "2020-10-22T18:30:00.000Z", "lastServiceDate": "2023-11-14T07:03:33.476Z", "manufactureYear": "8/2019", "modelName": "ACCESS 125", "ownerShip": "1", "purpose": "OWNED", "userId": "63aadcd071f7e310475492f1", "vehicleImageList": [], "vehicleNumber": "DL8SCS6791"}
       return newInvoice;
@@ -233,7 +233,7 @@ export class CreateInvoiceService {
     );
 
     return 'Email sent';
-  };
+  }
 
   async getAllInvoicePaginated(
     pageNo?: number,
@@ -250,7 +250,27 @@ export class CreateInvoiceService {
       },
       {
         $limit: pageSize
-      }
+      },
+      {
+        $addFields: {
+          convertedJobCardId: { $toObjectId: "$jobCardId" } // Convert string to ObjectId
+        }
+      },
+      {
+        $lookup: {
+          from: 'jobcards',
+          localField: 'convertedJobCardId',
+          foreignField: '_id',
+          as: 'jobCardDetails'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$jobCardDetails',
+          preserveNullAndEmptyArrays: false
+        } 
+      },
+      { $project: { convertedJobCardId: 0 } } // Remove temporary field
     ]);
     return invoices;
   }
