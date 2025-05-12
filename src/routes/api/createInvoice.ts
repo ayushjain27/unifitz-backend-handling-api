@@ -35,4 +35,10 @@ router.get(
   createInvoiceController.invoiceEmail
 );
 
+router.post(
+  '/invoice-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getAllInvoicePaginated
+);
+
 export default router;

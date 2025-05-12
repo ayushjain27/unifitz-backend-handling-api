@@ -233,5 +233,25 @@ export class CreateInvoiceService {
     );
 
     return 'Email sent';
+  };
+
+  async getAllInvoicePaginated(
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>:<Search and Filter invoice service initiated>'
+    );
+
+    let invoices: any = await CreateInvoice.aggregate([
+      { $sort: { createdAt: -1 } }, // Sort in descending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return invoices;
   }
 }

@@ -284,12 +284,9 @@ export class JobCardService {
     pageSize?: number
   ): Promise<any> {
     Logger.info(
-      '<Service>:<JobCardService>:<Search and Filter sos notifications service initiated>'
+      '<Service>:<JobCardService>:<Search and Filter job card service initiated>'
     );
 
-    const query = {
-      isInvoice: true
-    }
 
     let jobCards: any = await JobCard.aggregate([
       { $sort: { createdAt: -1 } }, // Sort in descending order
@@ -300,22 +297,7 @@ export class JobCardService {
         $limit: pageSize
       }
     ]);
-    let invoices: any = await JobCard.aggregate([
-      {
-        $match: query
-      },
-      { $sort: { createdAt: -1 } }, // Sort in descending order
-      {
-        $skip: pageNo * pageSize
-      },
-      {
-        $limit: pageSize
-      }
-    ]);
-    const total = {
-      jobCards,
-      invoices
-    }
-    return total;
-  }
+
+    return jobCards;
+  };
 }

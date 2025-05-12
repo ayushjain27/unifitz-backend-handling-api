@@ -111,6 +111,31 @@ export class CreateInvoiceController {
     }
   };
 
+  getAllInvoicePaginated = async (req: Request, res: Response) => {
+    const { pageNo, pageSize } = req.body;
+    Logger.info(
+      '<Controller>:<CreateInvoiceController>:<Get Paginated Invoice Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CreateInvoiceController>:<Get Paginated Invoice Initiated>'
+      );
+      const result =
+        await this.createInvoiceService.getAllInvoicePaginated(
+          pageNo,
+          pageSize
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   //   validate = (method: string) => {
   //     switch (method) {
   //       case 'createJobCard':
