@@ -264,5 +264,58 @@ export class JobCardService {
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
     return storeJobCard;
+  };
+
+  async countAllJobCard(): Promise<any> {
+    Logger.info('<Service>:<JobCardService>:<count all Job Cards>');
+
+    // Aggregate query to fetch total, active, and inactive counts in one go
+    const totalJobCard = await JobCard.countDocuments();
+    const totalInvoice = await JobCard.find({ isInvoice: true }).countDocuments();
+    const totalCount = {
+      totalJobCard,
+      totalInvoice
+    }
+    return totalCount;
+  }
+
+  async getAllJobCardPaginated(
+    pageNo?: number,
+    pageSize?: number
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<JobCardService>:<Search and Filter sos notifications service initiated>'
+    );
+
+    const query = {
+      isInvoice: true
+    }
+
+    let jobCards: any = await JobCard.aggregate([
+      { $sort: { createdAt: -1 } }, // Sort in descending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    let invoices: any = await JobCard.aggregate([
+      {
+        $match: query
+      },
+      { $sort: { createdAt: -1 } }, // Sort in descending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    const total = {
+      jobCards,
+      invoices
+    }
+    return total;
   }
 }

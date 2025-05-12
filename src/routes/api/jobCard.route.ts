@@ -50,4 +50,16 @@ router.get(
 
 router.get('/filterJobCardDetails', jobCardController.filterJobCards);
 
+router.get(
+  '/countAllJobCard',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.countAllJobCard
+);
+
+router.post(
+  '/job-card-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getAllJobCardPaginated
+);
+
 export default router;

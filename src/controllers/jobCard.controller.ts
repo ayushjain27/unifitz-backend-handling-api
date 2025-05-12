@@ -184,6 +184,51 @@ export class JobCardController {
     }
   };
 
+  countAllJobCard = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<JobCardController>:<Count Job Card Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<JobCardController>:<Count Job Card Initiated>'
+      );
+      const result = await this.jobCardService.countAllJobCard();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllJobCardPaginated = async (req: Request, res: Response) => {
+    const { pageNo, pageSize } = req.body;
+    Logger.info(
+      '<Controller>:<ParkAssistController>:<Get Paginated Job Card Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<ParkAssistController>:<Get Paginated Job Card Initiated>'
+      );
+      const result =
+        await this.jobCardService.getAllJobCardPaginated(
+          pageNo,
+          pageSize
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
