@@ -17,6 +17,7 @@ import { StaticIds } from '../models/StaticId';
 import { permissions } from '../config/permissions';
 import CustomerReferralCode from '../models/CustomerReferralcode';
 import InviteUsers from '../models/inviteNewUsers';
+import Rewards, { IRewards } from '../models/rewards';
 
 @injectable()
 export class CustomerService {
@@ -662,5 +663,45 @@ export class CustomerService {
       { $project: { customerMatch: 0 } } // Remove the temporary field
     ]);
     return inviteUsers;
+  }
+
+  async createRewards(rewardsPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>: <Rewards creation: creating new rewards>'
+    );
+    const newRewards = await Rewards.create(rewardsPayload);
+    return newRewards;
+  };
+
+  async uploadRewardImage(rewardId: string, req: Request | any) {
+    Logger.info('<Service>:<CustomerService>:<Reward image uploading>');
+    const reward: IRewards = await Rewards.findOne({
+      _id: new Types.ObjectId(rewardId)
+    });
+    if (_.isEmpty(reward)) {
+      throw new Error('Reward does not exist');
+    }
+    const file: any = req.file;
+
+    let rewardsImageUrl: any = reward.rewardsImageUrl || '';
+
+    if (!file) {
+      throw new Error('Files not found');
+    }
+
+    const fileName = 'profile';
+    const { url } = await this.s3Client.uploadFile(
+      rewardId,
+      fileName,
+      file.buffer
+    );
+    rewardsImageUrl = url;
+
+    const res = await Rewards.findOneAndUpdate(
+      { _id: rewardId },
+      { $set: { rewardsImageUrl } },
+      { returnDocument: 'after' }
+    );
+    return res;
   }
 }

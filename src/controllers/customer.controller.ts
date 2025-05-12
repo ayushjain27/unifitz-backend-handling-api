@@ -359,7 +359,8 @@ export class CustomerController {
   };
 
   countAllReferCustomerPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, searchText, firstDate, lastDate, state, city } = req.body;
+    const { pageNo, pageSize, searchText, firstDate, lastDate, state, city } =
+      req.body;
     Logger.info(
       '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
     );
@@ -384,6 +385,46 @@ export class CustomerController {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message });
+    }
+  };
+
+  createRewards = async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+      return;
+    }
+    Logger.info(
+      '<Controller>:<CustomerController>:<Create Rewards controller initiated>'
+    );
+    try {
+      const result = await this.customerService.createRewards(req.body);
+      res.json({
+        message: 'Rewards creation successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  uploadRewardImage = async (req: Request, res: Response) => {
+    const { rewardId } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Upload Reward request initiated>'
+    );
+    try {
+      const result = await this.customerService.uploadRewardImage(
+        rewardId,
+        req
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
 
@@ -424,6 +465,13 @@ export class CustomerController {
       case 'getcustomerDetailsByCustomerId':
         return [
           body('customerId', 'Customer Id not Found').exists().isString()
+        ];
+      case 'createRewards':
+        return [
+          // body('storeId', 'Store Id does not exist').exists().isString(),
+          body('title', 'Title does not exist').exists().isString(),
+          body('Description', 'Discription does not exist').exists().isString(),
+          body('quantity', 'Quantity does not exist').exists().isNumeric()
         ];
     }
   };

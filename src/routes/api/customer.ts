@@ -89,4 +89,19 @@ router.post(
   customerController.countAllReferCustomerPaginated
 );
 
+router.post(
+  '/create-rewards',
+  customerController.validate('createRewards'),
+  // validationHandler(),
+  roleAuth(ACL.STORE_CREATE),
+  customerController.createRewards
+);
+
+router.post(
+  '/uploadRewardImage',
+  uploadFile.single('file'),
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.uploadRewardImage
+);
+
 export default router;
