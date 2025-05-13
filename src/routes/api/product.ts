@@ -173,6 +173,19 @@ router.post(
   productController.createPartnerProduct
 );
 
+router.post(
+  '/createBulkProducts',
+  uploadFiles.single('excelFile'),
+  roleAuth(ACL.STORE_CREATE),
+  productController.uploadBulkPartnerProducts
+);
+
+router.get(
+  '/download-template',
+  roleAuth(ACL.STORE_CREATE),
+  productController.downloadTemplate
+)
+
 router.get(
   '/partner/getAll',
   roleAuth(ACL.STORE_GET_ALL),
@@ -328,6 +341,7 @@ router.post(
   roleAuth(ACL.STORE_CREATE),
   productController.createMasterProduct
 );
+
 
 
 export default router;

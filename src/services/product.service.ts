@@ -38,7 +38,11 @@ import ProductOrderAddress, {
   IProductOrderAddress
 } from '../models/ProductOrderAddress';
 import { StaticIds } from '../models/StaticId';
+import ExcelJS from 'exceljs';
 import { IMasterProducts } from '../models/MasterProducts';
+import Category from '../models/Category';
+import { vehicleModelList, vehicleResult } from '../enum/docType.enum';
+import { CompositionHookListInstance } from 'twilio/lib/rest/video/v1/compositionHook';
 
 @injectable()
 export class ProductService {
@@ -145,7 +149,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId);
     const product: IProduct[] = await Product.find(query);
 
     return product;
@@ -192,7 +195,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId);
     const product: IProduct[] = await Product.aggregate([
       {
         $match: query
@@ -1093,11 +1095,927 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId, 'partner');
 
     const product: IB2BPartnersProduct[] = await PartnersPoduct.find(query);
 
     return product;
+  }
+
+  async uploadBulkPartnerProducts(
+    file: any,
+    oemUserName: string
+  ): Promise<any> {
+    Logger.info('<Service>:<ProductService>:<Upload bulk products initiated>');
+    console.log(oemUserName, 'oemUserName');
+
+    const oemDetails = await Admin.findOne({
+      userName: oemUserName
+    });
+    const workbook = new ExcelJS.Workbook();
+    const uint8Array = new Uint8Array(file.buffer);
+    await workbook.xlsx.load(uint8Array);
+    const worksheet = workbook.worksheets[0];
+    const headers: any = {};
+    const compulsoryFields: any = [];
+
+    const headerRow = worksheet.getRow(3);
+    headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      headers[colNumber] = cell.value;
+    });
+
+    const compulsoryRow = worksheet.getRow(2);
+    compulsoryRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      if (cell.value && cell.value.toString().includes('* Compulsory Field')) {
+        compulsoryFields.push(
+          headers[colNumber]?.richText[0]?.text?.replace(/\n/g, '').trim()
+        );
+      }
+    });
+
+    const rows: Array<Record<string, string>> = [];
+
+    for (let rowNumber = 5; rowNumber <= worksheet.rowCount; rowNumber++) {
+      const row = worksheet.getRow(rowNumber);
+      if (!row.hasValues) continue;
+      const rowData: Record<string, string> = {};
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const header = headers[colNumber];
+
+        if (header) {
+          let value = '';
+
+          if (cell.type === ExcelJS.ValueType.Date) {
+            value = (cell.value as Date).toISOString();
+          } else if (cell.type === ExcelJS.ValueType.Formula) {
+            value = cell.result?.toString() || '';
+          } else {
+            value = cell.value?.toString().trim() || '';
+          }
+
+          // Handle header formatting
+          let headerText = '';
+          if (typeof header === 'object' && 'richText' in header) {
+            headerText = header.richText?.[0]?.text?.replace(/\n/g, '').trim();
+          } else {
+            headerText = header?.toString()?.replace(/\n/g, '').trim();
+          }
+
+          rowData[headerText] = value;
+        }
+      });
+      rows.push(rowData);
+    }
+
+    const validationResult: any = await this.validateExcelData(
+      rows,
+      compulsoryFields
+    );
+
+    if (validationResult.errors.length > 0) {
+      return {
+        success: false,
+        message: 'Validation errors found',
+        errors: validationResult.errors,
+        compulsoryFields
+      };
+    } else {
+      const processedData = await this.processAllRows(rows);
+      const enrichedData = await this.enrichWithAdditionalData(processedData, oemUserName, oemDetails);
+      const finalData = await this.generateDisplayOrderNumbers(enrichedData);
+      finalData.map(async(item)=>{
+        const productResult = await PartnersPoduct.create(item);
+      })
+      return {
+        success: true,
+        message: 'File processed successfully',
+        data: rows // Just for demonstration
+      };
+    }
+
+
+  }
+
+  async processAllRows(rows: any[]) {
+    // 1. Collect all unique category and subcategory names
+    const allCategoryData = rows.map((item) => ({
+      categories:
+        item['Product Category']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [],
+      subCategories:
+        item['Product SubCategory']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [],
+      vehicleTypes:
+        item['Vehicle Type']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || []
+    }));
+
+    // 2. Get all unique names for batch querying
+    const allCategoryNames = [
+      ...new Set(allCategoryData.flatMap((data) => data.categories))
+    ];
+    const allSubCategoryNames = [
+      ...new Set(allCategoryData.flatMap((data) => data.subCategories))
+    ];
+
+    // 3. Batch fetch all categories and subcategories
+    const [allCategories, allSubCategories] = await Promise.all([
+      Category.find({
+        catalogName: { $in: allCategoryNames },
+        catalogType: 'productCategory',
+        parent: 'root'
+      }).lean(),
+      Category.find({
+        catalogName: { $in: allSubCategoryNames },
+        catalogType: 'productSubCategory'
+      }).lean()
+    ]);
+
+    // 4. Create lookup maps for fast access
+    const categoryMap = new Map(
+      allCategories.map((cat) => [cat.catalogName, cat])
+    );
+    const subCategoryMap = new Map(
+      allSubCategories.map((sub) => [`${sub.parent}|${sub.catalogName}`, sub])
+    );
+
+    // 5. Process all rows with the pre-fetched data
+    return rows.map((item) => {
+      const categoryNames =
+        item['Product Category']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [];
+
+      const subCategoryNames =
+        item['Product SubCategory']
+          ?.split(',')
+          .map((name: string) => name.trim())
+          .filter(Boolean) || [];
+
+      // Get categories from map
+      const productCategory = categoryNames
+        .map((name: string) => categoryMap.get(name))
+        .filter(Boolean);
+
+      // Get subcategories with proper parent relationships
+      const productSubCategory = subCategoryNames
+        .flatMap((subName: any) =>
+          categoryNames.map((catName: any) =>
+            subCategoryMap.get(`${catName}|${subName}`)
+          )
+        )
+        .filter(Boolean);
+
+      const vehicleType = item['Vehicle Type']
+        .split(',')
+        .map((name: string) => ({ name: name.trim() }))
+        .filter((item: { name: string | any[] }) => item.name.length > 0);
+
+      const fuelType = item['Fuel Type 1']
+        ?.split(',')
+        .map((fuelName: string) => {
+          const cleanName = fuelName.trim().toLowerCase();
+          return vehicleResult.find(
+            (fuel) => fuel.name.toLowerCase() === cleanName
+          );
+        });
+
+      const oemModel = item['Model Name 1']
+        ?.split(',')
+        .map((modelName: string) => {
+          const cleanName = modelName.trim().toLowerCase();
+          return vehicleModelList.find(
+            (model) => model.value.toLowerCase() === cleanName
+          );
+        });
+
+      const fuelTypes: any = [];
+      if (item['Fuel Type 2']) {
+        fuelTypes.push(
+          item['Fuel Type 2']?.split(',').map((fuelName: string) => {
+            const cleanName = fuelName.trim().toLowerCase();
+            return vehicleResult.find(
+              (fuel) => fuel.name.toLowerCase() === cleanName
+            );
+          })
+        );
+      }
+
+      const oemModels: any = [];
+      if (item['Model Name 2']) {
+        oemModels.push(
+          item['Model Name 2']?.split(',').map((modelName: string) => {
+            const cleanName = modelName.trim().toLowerCase();
+            return vehicleModelList.find(
+              (model) => model.value.toLowerCase() === cleanName
+            );
+          })
+        );
+      }
+
+      const priceDetail = {
+        mrp: NaN,
+        sellingPrice: NaN,
+        qty: '',
+        width: '',
+        height: '',
+        depth: '',
+        weight: ''
+      };
+      if (item['Retail Mrp']) {
+        priceDetail.mrp = Number(item['Retail Mrp']);
+        priceDetail.sellingPrice = Number(item['Retail Selling Price']);
+        priceDetail.qty = item['Retail Quantity'];
+        priceDetail.width = item['Retail Width'];
+        priceDetail.height = item['Retail Height'];
+        priceDetail.depth = item['Retail Depth'];
+        priceDetail.weight = item['Retail Weight'];
+      }
+
+      const bulkOrders = {
+        mrp: NaN,
+        wholeSalePrice: NaN,
+        qty: '',
+        width: '',
+        height: '',
+        depth: '',
+        weight: ''
+      };
+      if (item['Bulk Mrp']) {
+        bulkOrders.mrp = Number(item['Bulk Mrp']);
+        bulkOrders.wholeSalePrice = Number(item['Bulk/WholeSale Price']);
+        bulkOrders.qty = item['Bulk Quantity'];
+        bulkOrders.width = item['Bulk Width'];
+        bulkOrders.height = item['Bulk Height'];
+        bulkOrders.depth = item['Bulk Depth'];
+        bulkOrders.weight = item['Bulk Weight'];
+      }
+
+      const colorCodeList = [
+        {
+          color: item['Color Code 1'],
+          colorName: item['Color Name 1'],
+          oemPartNumber: item['SkU Number 1'],
+          skuNumber: item['Oem Part Number 1'],
+          image1: {
+            key: item['Image 1.1']?.trim().split('/').slice(3).join('/'),
+            docURL: item['Image 1.1']
+          },
+          image2: item['Image 2.1'] && {
+            key: item['Image 2.1']?.trim().split('/').slice(3).join('/'),
+            docURL: item['Image 2.1']
+          },
+          image3: item['Image 3.1'] && {
+            key: item['Image 3.1']?.trim().split('/').slice(3).join('/'),
+            docURL: item['Image 3.1']
+          },
+
+          // const fuelType = item['Fuel Type 1']
+          oemList: [
+            {
+              oemBrand: item['Oem Brand 1'] ? item['Oem Brand 1'] : '',
+              oemModel: oemModel ? oemModel : [],
+              partNumber: item['Part Number 1'] ? item['Part Number 1'] : '',
+              engineSize: item['Engine Size 1'] ? item['Engine Size 1'] : '',
+              startYear: item['Start Date 1']
+                ?  new Date(`${item['Start Date 1'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0]
+                : null,
+              endYear: item['End Date 1'] ? new Date(`${item['End Date 1'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0] : null,
+              variants: item['Variants 1'] ? item['Variants 1'] : '',
+              fuelType: fuelType ? fuelType : []
+            }
+          ]
+        }
+      ];
+
+      if (item['Color Code 2']) {
+        colorCodeList.push({
+          color: item['Color Code 2'],
+          colorName: item['Color Name 2'],
+          oemPartNumber: item['SkU Number 2'],
+          skuNumber: item['Oem Part Number 2'],
+          image1: item['Image 1.2'] && {
+            key: item['Image 1.2']?.trim().split('/').slice(3).join('/'),
+            docURL: item['Image 1.2']
+          },
+          image2: item['Image 2.2'] && {
+            key: item['Image 2.2']?.trim().split('/').slice(3).join('/'),
+            docURL: item['Image 2.2']
+          },
+          image3: item['Image 3.2'] && {
+            key: item['Image 3.2']?.trim().split('/').slice(3).join('/'),
+            docURL: item['Image 3.2']
+          },
+
+          // const fuelType = item['Fuel Type 1']
+          oemList: [
+            {
+              oemBrand: item['Oem Brand 2'] ? item['Oem Brand 2'] : '',
+              oemModel: oemModels ? oemModels : [],
+              partNumber: item['Part Number 2'] ? item['Part Number 2'] : '',
+              engineSize: item['Engine Size 2'] ? item['Engine Size 2'] : '',
+              startYear: item['Start Date 2']
+                ? new Date(`${item['Start Date 2'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0]
+                : null,
+              endYear: item['End Date 2'] ? new Date(`${item['End Date 2'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0] : null,
+              variants: item['Variants 2'] ? item['Variants 2'] : '',
+              fuelType: fuelTypes ? fuelTypes : []
+            }
+          ]
+        });
+      }
+
+      return {
+        productCategory,
+        productSubCategory,
+        vehicleType,
+        makeType: item['Make Type'],
+        manufactureName: item['Manufacture Name'],
+        productSuggest: item['Product Name'],
+        productDescription: item['Product Description'],
+        features: item['Special Features'],
+        inTheBox: item['In the Box'],
+        warranty: item['Warranty'],
+        materialDetails: item['Material Details'],
+        madeIn: item['Made In(Country of Origin)'],
+        returnPolicy: item['Return Policy'],
+        priceDetail,
+        bulkOrders,
+        colorCodeList,
+        targetedAudience: {
+          distributor: true,
+          dealerRetailer: false,
+          consumers: false
+        }
+        // displayOrderNo: newPartnersProductNo
+      };
+    });
+  }
+
+  async enrichWithAdditionalData(
+    data: any[],
+    oemUserName: string,
+    oemDetails: any
+  ) {
+    const additionData = {
+      oemUserName,
+      shippingAddress: oemDetails?.wareHouseInfo,
+      shippingIndex: 0,
+      selectAllStateAndCity: false,
+      state: Array.from(
+        new Set(oemDetails?.productCategoryLists.flatMap((item: { state: any; }) => item?.state || []))
+      ),
+      city: Array.from(
+        new Set(oemDetails?.productCategoryLists.flatMap((item: { city: any; }) => item?.city || []))
+      ),
+      pincode: Array.from(
+        new Set(oemDetails?.productCategoryLists.flatMap((item: { pincodes: any; }) => item?.pincodes || []))
+      )
+    };
+  
+    return data.map(item => ({
+      ...item,
+      ...additionData
+    }));
+  }
+  
+  async generateDisplayOrderNumbers(data: any[]) {
+    // Get the last display order number
+    const lastCreated = await StaticIds.findOne().sort({ newPartnersProductNo: -1 }).exec();
+    let currentNumber = lastCreated?.newPartnersProductNo || 0;
+  
+    // Generate numbers for all items
+    const updatedData = data.map(item => {
+      currentNumber += 1;
+      return {
+        ...item,
+        displayOrderNo: currentNumber
+      };
+    });
+  
+    // Update the counter in database
+    await StaticIds.findOneAndUpdate(
+      {},
+      { newPartnersProductNo: currentNumber },
+      { upsert: true, new: true }
+    );
+  
+    return updatedData;
+  }
+
+  // Updated validation function
+  async validateExcelData(
+    rows: Array<Record<string, string>>,
+    compulsoryFields: string[]
+  ) {
+    const errors: {
+      row: number; // Actual Excel row number
+      errors: string[];
+      // data: Record<string, string>; // Include the problematic data
+    }[] = [];
+
+    const validRows: Record<string, string>[] = [];
+
+    rows.forEach((row, index) => {
+      const rowErrors: string[] = [];
+
+      // Validate compulsory fields
+      compulsoryFields.forEach((field) => {
+        const value = row[field];
+        if (!value || value.trim() === '') {
+          rowErrors.push(`"${field}" is required`);
+        }
+      });
+
+      // Validate multi-value fields
+      const multiValueFields = [
+        'Product Category',
+        'Product SubCategory',
+        'Vehicle Type'
+      ];
+
+      multiValueFields.forEach((field) => {
+        const value = String(row[field] || ''); // Ensure we're working with a string
+        if (value && !/^[a-zA-Z0-9,\s\-&]+$/.test(value)) {
+          rowErrors.push(
+            `"${field}" contains invalid characters (only letters, numbers, commas, hyphens, and ampersands allowed)`
+          );
+        }
+      });
+
+      if (rowErrors.length > 0) {
+        errors.push({
+          row: index + 5, // Adjusted for Excel row (starting at row 5)
+          errors: rowErrors,
+          // data: row
+        });
+      } else {
+        validRows.push(row);
+      }
+    });
+
+    return { validRows, errors };
+  }
+
+  async downloadTemplate(): Promise<Buffer> {
+    Logger.info('<Service>:<ProductService>:<downloadTemplate initiated>');
+
+    const headerRow1 = [
+      'B2B Partners Product Upload Template (Automotive Parts & Accessories)'
+    ];
+    const headerRow2 = [
+      'Field Name',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      '* Compulsory Field',
+      'Optional',
+      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional'
+    ];
+
+    const fieldDescriptions = [
+      {
+        title: 'Field +  Discription',
+        description: ''
+      },
+      {
+        title: 'Product Category',
+        description: 'Add multiple Categories using commas'
+      },
+      {
+        title: 'Product SubCategory',
+        description: 'Add multiple Sub Categories using commas'
+      },
+      {
+        title: 'Vehicle Type',
+        description: 'Add multiple vehicle types using commas'
+      },
+      {
+        title: 'Make Type',
+        description: 'Add make type'
+      },
+      {
+        title: 'Manufacture Name',
+        description: 'Add manufacture name'
+      },
+      {
+        title: 'Product Name',
+        description: 'Add product name'
+      },
+      {
+        title: 'Product Description',
+        description: 'Add product description'
+      },
+      {
+        title: 'Special Features',
+        description: 'Add special features'
+      },
+      {
+        title: 'In the Box',
+        description: 'Add it'
+      },
+      {
+        title: 'Warranty',
+        description: 'Add warranty'
+      },
+      {
+        title: 'Return Policy',
+        description: 'Add Return Policy'
+      },
+      {
+        title: 'Material Details',
+        description: 'Add materail details'
+      },
+      {
+        title: 'Made In(Country of Origin)',
+        description: 'Add country name'
+      },
+      {
+        title: 'Retail Mrp',
+        description: 'Add mrp in number'
+      },
+      {
+        title: 'Retail Selling Price',
+        description: 'Add selling price in number'
+      },
+      {
+        title: 'Retail Quantity',
+        description: 'Add quantity in number'
+      },
+      {
+        title: 'Retail Width',
+        description: 'Add width in number'
+      },
+      {
+        title: 'Retail Height',
+        description: 'Add height in number'
+      },
+      {
+        title: 'Retail Depth',
+        description: 'Add depth in number'
+      },
+      {
+        title: 'Retail Weight',
+        description: 'Add weight in number'
+      },
+      {
+        title: 'Bulk Mrp',
+        description: 'Add mrp in number'
+      },
+      {
+        title: 'Bulk/WholeSale Price',
+        description: 'Add bulk/wholesale price in number'
+      },
+      {
+        title: 'Bulk Quantity',
+        description: 'Add no of qunatityin one box in number'
+      },
+      {
+        title: 'Bulk Width',
+        description: 'Add width in number'
+      },
+      {
+        title: 'Bulk Height',
+        description: 'Add height in number'
+      },
+      {
+        title: 'Bulk Depth',
+        description: 'Add depth in number'
+      },
+      {
+        title: 'Bulk Weight',
+        description: 'Add weight in number'
+      },
+      {
+        title: 'Color Code 1',
+        description: 'Add color code'
+      },
+      {
+        title: 'Color Name 1',
+        description: 'Add color name'
+      },
+      {
+        title: 'SkU Number 1',
+        description: 'Add sku number'
+      },
+      {
+        title: 'Oem Part Number 1',
+        description: 'Add oem part number'
+      },
+      {
+        title: 'Image 1.1',
+        description: 'Add image 1 of color code 1'
+      },
+      {
+        title: 'Image 2.1',
+        description: 'Add image 2 of color code 1'
+      },
+      {
+        title: 'Image 3.1',
+        description: 'Add image 3 of color code 1'
+      },
+      {
+        title: 'Oem Brand 1',
+        description: 'Add oem brand'
+      },
+      {
+        title: 'Model Name 1',
+        description: 'Add multiple model name using commas'
+      },
+      {
+        title: 'Part Number 1',
+        description: 'Add part number'
+      },
+      {
+        title: 'Variants 1',
+        description: 'Add variants'
+      },
+      {
+        title: 'Fuel Type 1',
+        description: 'Add multiple fuel Type using commas'
+      },
+      {
+        title: 'Engine Size 1',
+        description: 'Add engine size'
+      },
+      {
+        title: 'Start Date 1',
+        description: 'Add start date'
+      },
+      {
+        title: 'End Date 1',
+        description: 'Add End Date'
+      },
+      {
+        title: 'Color Code 2',
+        description: 'Add color code'
+      },
+      {
+        title: 'Color Name 2',
+        description: 'Add color name'
+      },
+      {
+        title: 'SkU Number 2',
+        description: 'Add sku number'
+      },
+      {
+        title: 'Oem Part Number 2',
+        description: 'Add oem part number'
+      },
+      {
+        title: 'Image 1.2',
+        description: 'Add image'
+      },
+      {
+        title: 'Image 2.2',
+        description: 'Add image'
+      },
+      {
+        title: 'Image 3.2',
+        description: 'Add image'
+      },
+      {
+        title: 'Oem Brand 2',
+        description: 'Add oem brand'
+      },
+      {
+        title: 'Model Name 2',
+        description: 'Add multiple model name using commas'
+      },
+      {
+        title: 'Part Number 2',
+        description: 'Add part number'
+      },
+      {
+        title: 'Variants 2',
+        description: 'Add variants'
+      },
+      {
+        title: 'Fuel Type 2',
+        description: 'Add multiple fuel Type using commas'
+      },
+      {
+        title: 'Engine Size 2',
+        description: 'Add engine size'
+      },
+      {
+        title: 'Start Date 2',
+        description: 'Add start date'
+      },
+      {
+        title: 'End Date 2',
+        description: 'Add End Date'
+      }
+    ];
+
+    const dummyRows = [
+      [
+        'Examples',
+        'Accessories, EVs Charging, Wheels & Tyres',
+        'Commercial Charger, Spare Parts',
+        'Two Wheelers, Three Wheelers',
+        'OEM',
+        'Bajaj',
+        'Screw',
+        'Long Elastic Product',
+        'Provide multiple things',
+        'One Set ramp',
+        '1 year warranty',
+        '7 days return policy',
+        'Steel',
+        'India',
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        200,
+        100,
+        20,
+        20,
+        20,
+        20,
+        20,
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/1747028449326-buySpares.png/1747028449327/buySpares.png',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/1747028449326-buySpares.png/1747028449327/buySpares.png',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/1747028449326-buySpares.png/1747028449327/buySpares.png',
+        'Bajaj',
+        'Pleasure+ XTEC',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025',
+        '#ffffff',
+        'white',
+        'VTM01',
+        'ME234',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/1747028449326-buySpares.png/1747028449327/buySpares.png',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/1747028449326-buySpares.png/1747028449327/buySpares.png',
+        'https://serviceplug-dev.s3.ap-south-1.amazonaws.com/1747028449326-buySpares.png/1747028449327/buySpares.png',
+        'Bajaj',
+        'Pleasure+ XTEC',
+        'DDF24343',
+        'ZX CVT Reinforced, Honda City',
+        'Petrol, Diesel',
+        '1.5 L 4-cylinder',
+        '23/04/2025',
+        '23/04/2025'
+      ]
+    ];
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Upload Template');
+
+    const fullData = [headerRow1, headerRow2, fieldDescriptions, ...dummyRows];
+
+    fullData.forEach((row, rowIndex) => {
+      const excelRow = worksheet.addRow(row);
+
+      if (rowIndex === 0) {
+        worksheet.mergeCells(1, 1, 1, headerRow2.length);
+        excelRow.height = 35;
+      } else if (rowIndex === 1) {
+        excelRow.height = 60;
+      } else if (rowIndex === 2) {
+        excelRow.height = 100;
+      } else if (rowIndex === 3) {
+        excelRow.height = 40;
+      }
+
+      excelRow.eachCell((cell) => {
+        cell.alignment = {
+          wrapText: false,
+          vertical: 'middle',
+          horizontal: 'center'
+        };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
+
+        if (rowIndex === 1) {
+          cell.font = { bold: true, size: 12, color: { argb: 'FFFF0000' } }; // Red text
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFADD8E6' } // Light blue
+          };
+        } else if (rowIndex === 2) {
+          excelRow.eachCell((cell, colNumber) => {
+            const field = fieldDescriptions[colNumber - 1];
+
+            if (field) {
+              cell.value = {
+                richText: [
+                  { text: `${field.title}\n`, font: { bold: true } },
+                  { text: `${field.description}`, font: { bold: false } }
+                ]
+              };
+            }
+
+            cell.alignment = {
+              wrapText: true,
+              vertical: 'middle',
+              horizontal: 'center'
+            };
+
+            cell.font = { size: 12 };
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFD3D3D3' }
+            };
+            cell.border = {
+              top: { style: 'medium' },
+              left: { style: 'medium' },
+              bottom: { style: 'medium' },
+              right: { style: 'medium' }
+            };
+          });
+        } else if (rowIndex === 3) {
+          cell.font = { bold: true, size: 12, color: { argb: 'FF800080' } }; // Blue text
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFD3D3D3' } // Light gray
+          };
+        }
+      });
+    });
+
+    headerRow2.forEach((_, idx) => {
+      worksheet.getColumn(idx + 1).width = idx === 0 ? 50 : 30;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   async getAllProductByPaginated(
@@ -1271,7 +2189,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
     if (!vehicleType) {
@@ -1292,7 +2210,6 @@ export class ProductService {
     if (_.isEmpty(productSubCategory)) {
       delete query['productSubCategory.catalogName'];
     }
-    console.log(userName, role, oemId, query, 'partner');
 
     const product = await PartnersPoduct.aggregate([
       {
@@ -1368,7 +2285,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
 
@@ -1389,9 +2306,7 @@ export class ProductService {
         query['vehicleType.name'] = { $in: subCategoryNames };
       }
       stateFilter = store[0]?.contactInfo?.state || null;
-      console.log(stateFilter, 'Dekm');
       cityFilter = store[0]?.contactInfo?.city || null;
-      console.log(cityFilter, 'Dekm');
       pincodeFilter = store[0]?.contactInfo?.pincode || null;
       query['partnerDetail.category.name'] = {
         $in: store[0]?.basicInfo?.category.map((category) => category.name)
@@ -1428,8 +2343,6 @@ export class ProductService {
     if (!productSubCategory) {
       delete query['productSubCategory.catalogName'];
     }
-
-    console.log(userName, role, oemId, query, 'partner');
 
     const matchStage: any = { ...query };
 
@@ -1529,8 +2442,6 @@ export class ProductService {
       };
     }
 
-    console.log(stateFilter, 'rmfkmrkf', cityFilter);
-
     const matchStage: any = { ...query };
 
     // Dynamically build the $expr for state and city filters
@@ -1561,8 +2472,6 @@ export class ProductService {
         ]
       };
     }
-
-    console.log(query, 'frjfrkm', matchStage);
 
     // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
@@ -1596,15 +2505,10 @@ export class ProductService {
     const uniqueCategories = Array.from(categorySet);
     const uniqueSubCategories = Array.from(subCategorySet);
 
-    console.log(uniqueCategories, 'femrkrk');
-    console.log(uniqueSubCategories, 'feejrmrkrk');
-
     const total = {
       uniqueProductCategory: uniqueCategories,
       uniqueProductSubCateory: uniqueSubCategories
     };
-
-    // console.log(product,"products")
 
     return total;
   }
@@ -1638,7 +2542,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
     if (!vehicleType) {
@@ -1696,7 +2600,7 @@ export class ProductService {
         {
           'partnerDetail.companyType': 'Distributer'
         },
-        { 'targetedAudience.dealer': true }
+        { 'targetedAudience.dealerRetailer': true }
       ];
     }
 
@@ -1751,8 +2655,6 @@ export class ProductService {
     let query = {
       _id: new Types.ObjectId(partnerProductId)
     };
-
-    console.log(query, 'drmkfk');
 
     const newProd = await PartnersPoduct.aggregate([
       {
@@ -1823,8 +2725,6 @@ export class ProductService {
       finalResult = reqBody;
     }
 
-    console.log(finalResult, 'finalResultfinalResult');
-
     const res = await PartnersPoduct.findOneAndUpdate(query, finalResult, {
       returnDocument: 'after',
       projection: { 'verificationDetails.verifyObj': 0 }
@@ -1887,7 +2787,6 @@ export class ProductService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(allData, 'allDataallDataallData');
 
     if (allData?.state) updateData = { $set: { state: allData?.state } };
     if (allData?.city) updateData = { $set: { city: allData?.city } };
@@ -1993,14 +2892,6 @@ export class ProductService {
       );
       ImageList.push({ colorCodeIndex, imageFieldIndex, key, docURL: url });
     }
-    console.log(ImageList, 'ImageListImageList');
-    console.log(
-      imageIndexes?.length,
-      imageIndexes,
-      imageIndexes[0],
-      imageIndexes[0].split('-'),
-      'imageIndex.splitsplitsplitsplit'
-    );
 
     const colorList: any = [];
     for (let index = 0; index < partnerProduct?.colorCodeList.length; index++) {
@@ -2023,7 +2914,6 @@ export class ProductService {
       });
       colorList.push(colorCode);
     }
-    console.log(dataList, colorList, 'colorListcolorList');
 
     const producttDetails = {
       ...partnerProduct,
@@ -2031,7 +2921,6 @@ export class ProductService {
       status: 'ACTIVE',
       _id: new Types.ObjectId(partnerProductId)
     };
-    console.log(dataList, producttDetails, 'dataListdataListdataListdataList');
 
     const res = await PartnersPoduct.findOneAndUpdate(
       { _id: partnerProductId },
