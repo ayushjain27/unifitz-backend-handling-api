@@ -243,6 +243,41 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    IMAGE_BULK_UPLOAD: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    UPLOAD_BULK_PRODUCTS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REFER_AND_EARN: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REWARDS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    JOB_CARD: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   OEM: {
@@ -497,6 +532,41 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    IMAGE_BULK_UPLOAD: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    UPLOAD_BULK_PRODUCTS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REFER_AND_EARN: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REWARDS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    JOB_CARD: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   },
   PARTNER_EMPLOYEE: {
@@ -569,13 +639,6 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
-    JOB_CARD: {
-      STATUS: 'ALL',
-      CREATE: false,
-      READ: false,
-      UPDATE: false,
-      DELETE: false
-    },
     ENQUIRY_MANAGEMENT: {
       STATUS: 'ALL',
       CREATE: false,
@@ -591,6 +654,41 @@ export const permissions: any = {
       DELETE: false
     },
     FINANCE: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    IMAGE_BULK_UPLOAD: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    UPLOAD_BULK_PRODUCTS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REFER_AND_EARN: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REWARDS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    JOB_CARD: {
       STATUS: 'ALL',
       CREATE: false,
       READ: false,
