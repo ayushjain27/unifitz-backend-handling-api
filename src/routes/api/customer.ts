@@ -100,7 +100,7 @@ router.post(
 router.post(
   '/uploadRewardImage',
   uploadFile.single('file'),
-  roleAuth(ACL.CUSTOMER_CREATE),
+  roleAuth(ACL.STORE_CREATE),
   customerController.uploadRewardImage
 );
 
