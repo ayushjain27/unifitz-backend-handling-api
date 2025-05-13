@@ -470,7 +470,7 @@ export class CustomerController {
         return [
           // body('storeId', 'Store Id does not exist').exists().isString(),
           body('title', 'Title does not exist').exists().isString(),
-          body('Description', 'Discription does not exist').exists().isString(),
+          body('description', 'Description does not exist').exists().isString(),
           body('quantity', 'Quantity does not exist').exists().isNumeric()
         ];
     }
