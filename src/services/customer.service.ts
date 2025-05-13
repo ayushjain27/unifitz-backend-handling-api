@@ -703,5 +703,54 @@ export class CustomerService {
       { returnDocument: 'after' }
     );
     return res;
+  };
+
+  async countAllRewards(): Promise<any> {
+    Logger.info('<Service>:<CustomerService>:<count all rewards>');
+
+    const counts = await Rewards.aggregate([
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          active: [{ $match: { status: 'ACTIVE' } }, { $count: "count" }],
+          inactive: [{ $match: { status: 'INACTIVE' } }, { $count: "count" }]
+        }
+      }
+    ]);
+    
+    // Extract the counts from the aggregation result
+    const result = {
+      total: counts[0]?.total[0]?.count || 0,
+      active: counts[0]?.active[0]?.count || 0,
+      inActive: counts[0]?.inactive[0]?.count || 0
+    };
+    
+    return result;
+  }
+
+  async getAllRewardsPaginated(
+    pageNo?: number,
+    pageSize?: number,
+    status?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Search and Filter rewards service initiated>'
+    );
+
+    const query = {
+      status
+    }
+
+    let sosNotifications: any = await Rewards.aggregate([
+      { $match: query},
+      { $sort: { createdAt: -1 } }, // Sort in descending order
+      {
+        $skip: pageNo * pageSize
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+    return sosNotifications;
   }
 }

@@ -428,6 +428,52 @@ export class CustomerController {
     }
   };
 
+  countAllRewards = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Count SOS Notification Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Count All Rewards Initiated>'
+      );
+      const result = await this.customerService.countAllRewards();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllRewardsPaginated = async (req: Request, res: Response) => {
+    const { pageNo, pageSize, status } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get Paginated Rewards Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Get Paginated Rewards Initiated>'
+      );
+      const result =
+        await this.customerService.getAllRewardsPaginated(
+          pageNo,
+          pageSize,
+          status
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':

@@ -104,4 +104,17 @@ router.post(
   customerController.uploadRewardImage
 );
 
+router.get(
+  '/countAllRewards',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.countAllRewards
+);
+
+router.post(
+  '/get-rewards-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.getAllRewardsPaginated
+);
+
+
 export default router;
