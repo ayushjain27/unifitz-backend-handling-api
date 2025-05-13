@@ -18,6 +18,7 @@ import { permissions } from '../config/permissions';
 import CustomerReferralCode from '../models/CustomerReferralcode';
 import InviteUsers from '../models/inviteNewUsers';
 import Rewards, { IRewards } from '../models/rewards';
+import { AdminRole } from './../models/Admin';
 
 @injectable()
 export class CustomerService {
@@ -486,37 +487,37 @@ export class CustomerService {
     city: string
   ): Promise<any> {
     Logger.info('<Service>:<CustomerService>:<count all refer customers>');
-    
+
     // Initialize match query
     const matchQuery: any = {};
-  
+
     // Date validation and processing
     const createdAtFilter: any = {};
     const firstDay = firstDate ? new Date(firstDate) : null;
     const lastDay = lastDate ? new Date(lastDate) : null;
-  
+
     // Validate date range
     if (firstDay && lastDay && firstDay > lastDay) {
       throw new Error('Start date must be less than or equal to end date');
     }
-  
+
     // Set UTC time to beginning of day (00:00:00)
     if (firstDay) {
       firstDay.setUTCHours(0, 0, 0, 0);
       createdAtFilter.$gte = firstDay;
     }
-  
+
     // Set UTC time to end of day (23:59:59)
     if (lastDay) {
       lastDay.setUTCHours(23, 59, 59, 999);
       createdAtFilter.$lte = lastDay;
     }
-  
+
     // Add date filter to match query if dates are provided
     if (Object.keys(createdAtFilter).length > 0) {
       matchQuery.createdAt = createdAtFilter;
     }
-  
+
     // Location filters
     if (state) {
       matchQuery['customerDetails.contactInfo.state'] = state;
@@ -524,7 +525,7 @@ export class CustomerService {
     if (city) {
       matchQuery['customerDetails.contactInfo.city'] = city;
     }
-  
+
     // Search text filter
     if (searchText) {
       const searchNumber = searchText.replace(/\D/g, '').slice(-10);
@@ -545,13 +546,13 @@ export class CustomerService {
           as: 'customerDetails'
         }
       },
-      { $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true } },
+      {
+        $unwind: { path: '$customerDetails', preserveNullAndEmptyArrays: true }
+      },
       { $match: matchQuery },
       {
         $facet: {
-          totalCount: [
-            { $count: 'total' }
-          ]
+          totalCount: [{ $count: 'total' }]
         }
       },
       {
@@ -560,7 +561,7 @@ export class CustomerService {
         }
       }
     ]);
-  
+
     return counts[0] || { total: 0, active: 0, inactive: 0 };
   }
 
@@ -577,54 +578,54 @@ export class CustomerService {
       '<Service>:<CustomerService>:<Get all customer referrals initiated>'
     );
 
-     // Date validation and processing
-     const createdAtFilter: any = {};
-     const firstDay = firstDate ? new Date(firstDate) : null;
-     const lastDay = lastDate ? new Date(lastDate) : null;
+    // Date validation and processing
+    const createdAtFilter: any = {};
+    const firstDay = firstDate ? new Date(firstDate) : null;
+    const lastDay = lastDate ? new Date(lastDate) : null;
 
-      // Initialize match query
+    // Initialize match query
     const matchQuery: any = {};
-   
-     // Validate date range
-     if (firstDay && lastDay && firstDay > lastDay) {
-       throw new Error('Start date must be less than or equal to end date');
-     }
-   
-     // Set UTC time to beginning of day (00:00:00)
-     if (firstDay) {
-       firstDay.setUTCHours(0, 0, 0, 0);
-       createdAtFilter.$gte = firstDay;
-     }
-   
-     // Set UTC time to end of day (23:59:59)
-     if (lastDay) {
-       lastDay.setUTCHours(23, 59, 59, 999);
-       createdAtFilter.$lte = lastDay;
-     }
-   
-     // Add date filter to match query if dates are provided
-     if (Object.keys(createdAtFilter).length > 0) {
-       matchQuery.createdAt = createdAtFilter;
-     }
-   
-     // Location filters
-     if (state) {
-       matchQuery['customerDetails.contactInfo.state'] = state;
-     }
-     if (city) {
-       matchQuery['customerDetails.contactInfo.city'] = city;
-     }
-   
-     // Search text filter
-     if (searchText) {
-       const searchNumber = searchText.replace(/\D/g, '').slice(-10);
-       matchQuery.$or = [
-         { customerId: searchText },
-         { phoneNumber: new RegExp(searchNumber, 'i') },
-         { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
-       ];
-     }
- 
+
+    // Validate date range
+    if (firstDay && lastDay && firstDay > lastDay) {
+      throw new Error('Start date must be less than or equal to end date');
+    }
+
+    // Set UTC time to beginning of day (00:00:00)
+    if (firstDay) {
+      firstDay.setUTCHours(0, 0, 0, 0);
+      createdAtFilter.$gte = firstDay;
+    }
+
+    // Set UTC time to end of day (23:59:59)
+    if (lastDay) {
+      lastDay.setUTCHours(23, 59, 59, 999);
+      createdAtFilter.$lte = lastDay;
+    }
+
+    // Add date filter to match query if dates are provided
+    if (Object.keys(createdAtFilter).length > 0) {
+      matchQuery.createdAt = createdAtFilter;
+    }
+
+    // Location filters
+    if (state) {
+      matchQuery['customerDetails.contactInfo.state'] = state;
+    }
+    if (city) {
+      matchQuery['customerDetails.contactInfo.city'] = city;
+    }
+
+    // Search text filter
+    if (searchText) {
+      const searchNumber = searchText.replace(/\D/g, '').slice(-10);
+      matchQuery.$or = [
+        { customerId: searchText },
+        { phoneNumber: new RegExp(searchNumber, 'i') },
+        { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+      ];
+    }
+
     const inviteUsers = await InviteUsers.aggregate([
       {
         $lookup: {
@@ -671,7 +672,7 @@ export class CustomerService {
     );
     const newRewards = await Rewards.create(rewardsPayload);
     return newRewards;
-  };
+  }
 
   async uploadRewardImage(rewardId: string, req: Request | any) {
     Logger.info('<Service>:<CustomerService>:<Reward image uploading>');
@@ -703,46 +704,75 @@ export class CustomerService {
       { returnDocument: 'after' }
     );
     return res;
-  };
+  }
 
-  async countAllRewards(): Promise<any> {
+  async countAllRewards(
+    userName?: string,
+    role?: string,
+    oemId?: string
+  ): Promise<any> {
     Logger.info('<Service>:<CustomerService>:<count all rewards>');
+    let query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.userName = oemId;
+    }
 
     const counts = await Rewards.aggregate([
       {
+        $match: query
+      },
+      {
         $facet: {
-          total: [{ $count: "count" }],
-          active: [{ $match: { status: 'ACTIVE' } }, { $count: "count" }],
-          inactive: [{ $match: { status: 'INACTIVE' } }, { $count: "count" }]
+          total: [{ $count: 'count' }],
+          active: [{ $match: { status: 'ACTIVE' } }, { $count: 'count' }],
+          inactive: [{ $match: { status: 'INACTIVE' } }, { $count: 'count' }]
         }
       }
     ]);
-    
+
     // Extract the counts from the aggregation result
     const result = {
       total: counts[0]?.total[0]?.count || 0,
       active: counts[0]?.active[0]?.count || 0,
       inActive: counts[0]?.inactive[0]?.count || 0
     };
-    
+
+    console.log(result, 'result');
+
     return result;
   }
 
   async getAllRewardsPaginated(
     pageNo?: number,
     pageSize?: number,
-    status?: string
+    status?: string,
+    userName?: string,
+    role?: string,
+    oemId?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Search and Filter rewards service initiated>'
     );
 
-    const query = {
+    const query: any = {
       status
+    };
+
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.userName = oemId;
     }
 
     let sosNotifications: any = await Rewards.aggregate([
-      { $match: query},
+      { $match: query },
       { $sort: { createdAt: -1 } }, // Sort in descending order
       {
         $skip: pageNo * pageSize
@@ -752,5 +782,70 @@ export class CustomerService {
       }
     ]);
     return sosNotifications;
+  }
+
+  async updateTotalUsers(totalUsers?: number, rewardId?: string): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Update total users service initiated>'
+    );
+    if(!rewardId){
+      throw new Error('Reward Id is required');
+    }
+    if(!totalUsers){
+      throw new Error('Total Users is required')
+    }
+
+    let getRewardInfo: any = await Rewards.findOne({
+      _id: new Types.ObjectId(rewardId)
+    });
+    if (!getRewardInfo) {
+      throw new Error('Reward Details not found');
+    }
+    const updateUsers = await Rewards.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(rewardId)
+      },
+      { $set: { totalUsers: totalUsers } },
+      { returnDocument: 'after' }
+    );
+    return updateUsers;
+  }
+
+  async updateRewardStatus(status?: string, rewardId?: string): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Update reward status service initiated>'
+    );
+    if(!rewardId){
+      throw new Error('Reward Id is required');
+    }
+    if(!status){
+      throw new Error('Status is required')
+    }
+
+    let getRewardInfo: any = await Rewards.findOne({
+      _id: new Types.ObjectId(rewardId)
+    });
+    if (!getRewardInfo) {
+      throw new Error('Reward Details not found');
+    }
+    const updateUsers = await Rewards.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(rewardId)
+      },
+      { $set: { status: status } },
+      { returnDocument: 'after' }
+    );
+    return updateUsers;
+  }
+
+  async getInviteUserPerCustomerId(customerId?: string): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get invite users by customerId initiated>'
+    );
+
+    const totalInvites = await InviteUsers.find({
+      customerId
+    }).countDocuments();
+    return totalInvites;
   }
 }

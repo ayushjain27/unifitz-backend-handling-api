@@ -116,5 +116,23 @@ router.post(
   customerController.getAllRewardsPaginated
 );
 
+router.post(
+  '/update-total-users',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.updateTotalUsers
+);
+
+router.post(
+  '/update-reward-status',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.updateRewardStatus
+);
+
+router.get(
+  '/inviteUserPerCustomerId',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.getInviteUserPerCustomerId
+);
+
 
 export default router;

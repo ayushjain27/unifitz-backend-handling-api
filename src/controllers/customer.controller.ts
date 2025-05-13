@@ -429,6 +429,7 @@ export class CustomerController {
   };
 
   countAllRewards = async (req: Request, res: Response) => {
+    const { oemId } = req.query;
     Logger.info(
       '<Controller>:<CustomerController>:<Count SOS Notification Initiated>'
     );
@@ -436,7 +437,9 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Count All Rewards Initiated>'
       );
-      const result = await this.customerService.countAllRewards();
+      const userName = req?.userId;
+      const role = req?.role;
+      const result = await this.customerService.countAllRewards(userName, role, oemId as string);
       res.send({
         result
       });
@@ -449,7 +452,7 @@ export class CustomerController {
   };
 
   getAllRewardsPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, status } = req.body;
+    const { pageNo, pageSize, status, oemId } = req.body;
     Logger.info(
       '<Controller>:<CustomerController>:<Get Paginated Rewards Initiated>'
     );
@@ -457,11 +460,95 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Get Paginated Rewards Initiated>'
       );
+      const userName = req?.userId;
+      const role = req?.role;
       const result =
         await this.customerService.getAllRewardsPaginated(
           pageNo,
           pageSize,
-          status
+          status,
+          userName,
+          role,
+          oemId
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateTotalUsers = async (req: Request, res: Response) => {
+    const { totalUsers, rewardId } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Updata total Users Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Update total Users Initiated>'
+      );
+      const result =
+        await this.customerService.updateTotalUsers(
+          totalUsers,
+          rewardId
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  updateRewardStatus = async (req: Request, res: Response) => {
+    const { status, rewardId } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Updata Reward status Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Update Reward Status Initiated>'
+      );
+      const result =
+        await this.customerService.updateRewardStatus(
+          status,
+          rewardId
+        );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getInviteUserPerCustomerId = async (req: Request, res: Response) => {
+    const { customerId } = req.query;
+    if(!customerId){
+      res.send({
+        message: 'Customer Id not found'
+      });
+    }
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get Invite users per customerId Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Get Invite Users per customerId Initiated>'
+      );
+      const result =
+        await this.customerService.getInviteUserPerCustomerId(
+          customerId as string
         );
       res.send({
         result
@@ -518,6 +605,12 @@ export class CustomerController {
           body('title', 'Title does not exist').exists().isString(),
           body('description', 'Description does not exist').exists().isString(),
           body('quantity', 'Quantity does not exist').exists().isNumeric()
+        ];
+      case 'updateTotalUsers':
+        return [
+          // body('storeId', 'Store Id does not exist').exists().isString(),
+          body('rewardId', 'Reward Id does not exist').exists().isString(),
+          body('totalUsers', 'Total Users does not exist').exists().isString()
         ];
     }
   };
