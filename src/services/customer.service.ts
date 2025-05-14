@@ -670,6 +670,7 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>: <Rewards creation: creating new rewards>'
     );
+    rewardsPayload.quantityLeft = rewardsPayload?.quantity;
     const newRewards = await Rewards.create(rewardsPayload);
     return newRewards;
   }
