@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
+import CreateInvoice from '../models/CreateInvoice';
 
 require('dotenv').config();
 
@@ -264,31 +265,222 @@ export class JobCardService {
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
     return storeJobCard;
-  };
+  }
 
-  async countAllJobCard(): Promise<any> {
+  async countAllJobCard(reqPayload: any): Promise<any> {
     Logger.info('<Service>:<JobCardService>:<count all Job Cards>');
 
-    // Aggregate query to fetch total, active, and inactive counts in one go
-    const totalJobCard = await JobCard.countDocuments();
-    const totalInvoice = await JobCard.find({ isInvoice: true }).countDocuments();
-    const totalCount = {
-      totalJobCard,
-      totalInvoice
+    const dateFilter: any = {};
+    if (reqPayload.startDate) {
+      const start = new Date(reqPayload.startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
     }
+    if (reqPayload.endDate) {
+      const end = new Date(reqPayload.endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(end, 'dmerkfm');
+      console.log(new Date(end), 'dmerkfm');
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {};
+    const matchQuery: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+      matchQuery.createdAt = dateFilter;
+    }
+
+    if (reqPayload?.state) {
+      query['storeDetail.contactInfo.state'] = reqPayload.state;
+      matchQuery['storeDetail.contactInfo.state'] = reqPayload.state;
+    }
+    if (reqPayload?.city) {
+      query['storeDetail.contactInfo.city'] = reqPayload.city;
+      matchQuery['storeDetail.contactInfo.city'] = reqPayload.city;
+    }
+    if (reqPayload.searchText) {
+      query.$or = [
+        { storeId: new RegExp(reqPayload.searchText, 'i') },
+        {
+          'customerDetails.phoneNumber': new RegExp(reqPayload.searchText, 'i')
+        },
+        {
+          'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(
+            reqPayload.searchText,
+            'i'
+          )
+        }
+      ];
+      matchQuery.$or = [
+        { storeId: new RegExp(reqPayload.searchText, 'i') },
+        {
+          'jobCardDetail.customerDetails.phoneNumber': new RegExp(
+            reqPayload.searchText,
+            'i'
+          )
+        },
+        {
+          'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
+            new RegExp(reqPayload.searchText, 'i')
+        }
+      ];
+    }
+
+    // Aggregate query to fetch total, active, and inactive counts in one go
+    const totalJobCard = await JobCard.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: query
+      },
+      {
+        $count: 'total' // Proper way to count in aggregation
+      }
+    ]);
+    const totalInvoice = await CreateInvoice.aggregate([
+      {
+        $lookup: {
+          from: 'jobcards',
+          let: { jobCardIdStr: '$jobCardId' }, // string field from CreateInvoice
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: '$_id' }, // convert ObjectId to string
+                    '$$jobCardIdStr' // compare with string from CreateInvoice
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'jobCardDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$jobCardDetail',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'jobCardDetail.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: matchQuery
+      },
+      {
+        $count: 'total' // Proper way to count in aggregation
+      }
+    ]);
+    // const totalInvoice = await JobCard.find({
+    //   isInvoice: true
+    // }).countDocuments();
+    const totalCount = {
+      totalJobCard: totalJobCard[0]?.total || 0,
+      totalInvoice: totalInvoice[0]?.total || 0
+    };
     return totalCount;
   }
 
   async getAllJobCardPaginated(
     pageNo?: number,
-    pageSize?: number
+    pageSize?: number,
+    startDate?: string,
+    endDate?: string,
+    searchText?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter job card service initiated>'
     );
 
+    const dateFilter: any = {};
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(end, 'dmerkfm');
+      console.log(new Date(end), 'dmerkfm');
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    }
+
+    if (state) {
+      query['storeDetail.contactInfo.state'] = state;
+    }
+    if (city) {
+      query['storeDetail.contactInfo.city'] = city;
+    }
+
+    if (searchText) {
+      query.$or = [
+        { storeId: new RegExp(searchText, 'i') },
+        {
+          'customerDetails.phoneNumber': new RegExp(searchText, 'i')
+        },
+        {
+          'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(
+            searchText,
+            'i'
+          )
+        }
+      ];
+    }
 
     let jobCards: any = await JobCard.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: query
+      },
       { $sort: { createdAt: -1 } }, // Sort in descending order
       {
         $skip: pageNo * pageSize
@@ -299,5 +491,5 @@ export class JobCardService {
     ]);
 
     return jobCards;
-  };
+  }
 }

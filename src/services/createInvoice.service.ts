@@ -237,13 +237,103 @@ export class CreateInvoiceService {
 
   async getAllInvoicePaginated(
     pageNo?: number,
-    pageSize?: number
+    pageSize?: number,
+    startDate?: string,
+    endDate?: string,
+    searchText?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice service initiated>'
     );
 
+    const dateFilter: any = {};
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(end, 'dmerkfm');
+      console.log(new Date(end), 'dmerkfm');
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    }
+
+    if (state) {
+      query['storeDetail.contactInfo.state'] = state;
+    }
+    if (city) {
+      query['storeDetail.contactInfo.city'] = city;
+    }
+
+    if (searchText) {
+      query.$or = [
+        { storeId: new RegExp(searchText, 'i') },
+        {
+          'jobCardDetail.customerDetails.phoneNumber': new RegExp(
+            searchText,
+            'i'
+          )
+        },
+        {
+          'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
+            new RegExp(searchText, 'i')
+        }
+      ];
+    }
+
     let invoices: any = await CreateInvoice.aggregate([
+      {
+        $lookup: {
+          from: 'jobcards',
+          let: { jobCardIdStr: '$jobCardId' }, // string field from CreateInvoice
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: '$_id' }, // convert ObjectId to string
+                    '$$jobCardIdStr' // compare with string from CreateInvoice
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'jobCardDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$jobCardDetail',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'jobCardDetail.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: query
+      },
       { $sort: { createdAt: -1 } }, // Sort in descending order
       {
         $skip: pageNo * pageSize

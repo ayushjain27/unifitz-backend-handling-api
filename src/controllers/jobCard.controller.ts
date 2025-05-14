@@ -6,6 +6,7 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Request from '../types/request';
 import { JobCardService } from './../services/jobCard.service';
+import { start } from 'repl';
 
 @injectable()
 export class JobCardController {
@@ -185,6 +186,7 @@ export class JobCardController {
   };
 
   countAllJobCard = async (req: Request, res: Response) => {
+    const query = req.query;
     Logger.info(
       '<Controller>:<JobCardController>:<Count Job Card Initiated>'
     );
@@ -192,7 +194,7 @@ export class JobCardController {
       Logger.info(
         '<Controller>:<JobCardController>:<Count Job Card Initiated>'
       );
-      const result = await this.jobCardService.countAllJobCard();
+      const result = await this.jobCardService.countAllJobCard(query);
       res.send({
         result
       });
@@ -205,7 +207,7 @@ export class JobCardController {
   };
 
   getAllJobCardPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize } = req.body;
+    const { pageNo, pageSize, startDate, endDate, searchText, state, city } = req.body;
     Logger.info(
       '<Controller>:<ParkAssistController>:<Get Paginated Job Card Initiated>'
     );
@@ -216,7 +218,12 @@ export class JobCardController {
       const result =
         await this.jobCardService.getAllJobCardPaginated(
           pageNo,
-          pageSize
+          pageSize,
+          startDate,
+          endDate,
+          searchText,
+          state,
+          city
         );
       res.send({
         result
