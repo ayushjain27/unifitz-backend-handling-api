@@ -597,4 +597,66 @@ export class JobCardService {
 
     return result;
   }
+
+  async overallPayment() {
+    Logger.info(
+      '<Service>:<JobCardService>:<Search and Filter overall payments service initiated>'
+    );
+   
+    const jobCardResult = await JobCard.aggregate([
+      {
+        $addFields: {
+          totalAmount: {
+            $sum: {
+              $map: {
+                input: '$lineItems',
+                as: 'item',
+                in: { $multiply: ['$$item.quantity', '$$item.rate'] }
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,  // Group all documents together
+          totalJobCards: { $sum: 1 },
+          totalAmount: { $sum: '$totalAmount' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,  // Exclude the _id field
+          totalJobCards: 1,
+          totalAmount: 1
+        }
+      }
+    ]);
+    const invoiceResult = await CreateInvoice.aggregate([
+      // Group by day and calculate totals
+      {
+        $group: {
+          _id: null,
+          totalInvoices: { $sum: 1 },
+          totalAmounts: { $sum: '$totalAmount' }
+        }
+      },
+      // Format output
+      {
+        $project: {
+          _id: 0,  // Exclude the _id field
+          totalInvoices: 1,
+          totalAmounts: 1
+        }
+      },
+    ]);
+
+    console.log(invoiceResult,"derfre", jobCardResult);
+    let result = {
+      ...jobCardResult[0],
+      ...invoiceResult[0]
+    }
+
+    return result;
+  }
 }

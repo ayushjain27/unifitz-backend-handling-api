@@ -68,4 +68,16 @@ router.post(
   jobCardController.getJobCardTotalPaymentAnalytics
 );
 
+router.get(
+  '/overallPayment',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.overallPayment
+);
+
+// router.get(
+//   '/uniqueStores',
+//   roleAuth(ACL.STORE_CREATE),
+//   jobCardController.uniqueStores
+// );
+
 export default router;

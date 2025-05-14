@@ -266,6 +266,23 @@ export class JobCardController {
     }
   };
 
+  overallPayment = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<JobCardController>:<get jobcard overall payment analytic request controller initiated>'
+      );
+      const result = await this.jobCardService.overallPayment();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
