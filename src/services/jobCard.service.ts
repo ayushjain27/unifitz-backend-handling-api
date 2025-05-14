@@ -430,8 +430,6 @@ export class JobCardService {
     if (endDate) {
       const end = new Date(endDate);
       end.setUTCHours(23, 59, 59, 999);
-      console.log(end, 'dmerkfm');
-      console.log(new Date(end), 'dmerkfm');
       dateFilter.$lte = new Date(end);
     }
 
@@ -491,5 +489,112 @@ export class JobCardService {
     ]);
 
     return jobCards;
+  }
+
+  async getJobCardTotalPaymentAnalytics(
+    startDate: string,
+    endDate: string,
+    state: string,
+    city: string,
+    searchText: string
+  ) {
+    Logger.info(
+      '<Service>:<JobCardService>:<Search and Filter job card analytics service initiated>'
+    );
+    const dateFilter: any = {};
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    }
+
+    if (state) {
+      query['storeDetail.contactInfo.state'] = state;
+    }
+    if (city) {
+      query['storeDetail.contactInfo.city'] = city;
+    }
+
+    if (searchText) {
+      query.$or = [
+        { storeId: new RegExp(searchText, 'i') },
+        {
+          'customerDetails.phoneNumber': new RegExp(searchText, 'i')
+        },
+        {
+          'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(
+            searchText,
+            'i'
+          )
+        }
+      ];
+    }
+
+    const result = await JobCard.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      { $match: query },
+      // Calculate line item amounts
+      {
+        $addFields: {
+          totalAmount: {
+            $sum: {
+              $map: {
+                input: '$lineItems',
+                as: 'item',
+                in: { $multiply: ['$$item.quantity', '$$item.rate'] }
+              }
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt'
+            }
+          },
+          totalJobCards: { $sum: 1 },
+          totalAmount: { $sum: '$totalAmount' }
+        }
+      },
+      // Format output
+      {
+        $project: {
+          date: '$_id',
+          totalJobCards: 1,
+          totalAmount: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return result;
   }
 }

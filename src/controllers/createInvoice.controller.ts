@@ -141,6 +141,36 @@ export class CreateInvoiceController {
     }
   };
 
+  getInvoiceTotalPaymentAnalytics = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city,
+      searchText
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<CreateInvoiceController>:<get invoice payment analytic request controller initiated>'
+      );
+      const result = await this.createInvoiceService.getInvoiceTotalPaymentAnalytics(
+        startDate,
+        endDate,
+        state,
+        city,
+        searchText
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   //   validate = (method: string) => {
   //     switch (method) {
   //       case 'createJobCard':

@@ -62,4 +62,10 @@ router.post(
   jobCardController.getAllJobCardPaginated
 );
 
+router.post(
+  '/getJobCardTotalPaymentAnalytics',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getJobCardTotalPaymentAnalytics
+);
+
 export default router;

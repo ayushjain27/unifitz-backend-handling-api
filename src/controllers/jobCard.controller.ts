@@ -209,11 +209,11 @@ export class JobCardController {
   getAllJobCardPaginated = async (req: Request, res: Response) => {
     const { pageNo, pageSize, startDate, endDate, searchText, state, city } = req.body;
     Logger.info(
-      '<Controller>:<ParkAssistController>:<Get Paginated Job Card Initiated>'
+      '<Controller>:<JobCardController>:<Get Paginated Job Card Initiated>'
     );
     try {
       Logger.info(
-        '<Controller>:<ParkAssistController>:<Get Paginated Job Card Initiated>'
+        '<Controller>:<JobCardController>:<Get Paginated Job Card Initiated>'
       );
       const result =
         await this.jobCardService.getAllJobCardPaginated(
@@ -225,6 +225,36 @@ export class JobCardController {
           state,
           city
         );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getJobCardTotalPaymentAnalytics = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city,
+      searchText
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<JobCardController>:<get jobcard payment analytic request controller initiated>'
+      );
+      const result = await this.jobCardService.getJobCardTotalPaymentAnalytics(
+        startDate,
+        endDate,
+        state,
+        city,
+        searchText
+      );
       res.send({
         result
       });

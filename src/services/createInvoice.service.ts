@@ -363,5 +363,137 @@ export class CreateInvoiceService {
       { $project: { convertedJobCardId: 0 } } // Remove temporary field
     ]);
     return invoices;
+  };
+
+  async getInvoiceTotalPaymentAnalytics(
+    startDate: string,
+    endDate: string,
+    state: string,
+    city: string,
+    searchText: string
+  ) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>:<Search and Filter invoice analytics service initiated>'
+    );
+    const dateFilter: any = {};
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    }
+
+    if (state) {
+      query['storeDetail.contactInfo.state'] = state;
+    }
+    if (city) {
+      query['storeDetail.contactInfo.city'] = city;
+    }
+
+    if (searchText) {
+      query.$or = [
+        { storeId: new RegExp(searchText, 'i') },
+        {
+          'jobCardDetail.customerDetails.phoneNumber': new RegExp(
+            searchText,
+            'i'
+          )
+        },
+        {
+          'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
+            new RegExp(searchText, 'i')
+        }
+      ];
+    }
+
+    const result = await CreateInvoice.aggregate([
+      {
+        $lookup: {
+          from: 'jobcards',
+          let: { jobCardIdStr: '$jobCardId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: '$_id' },
+                    '$$jobCardIdStr'
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'jobCardDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$jobCardDetail',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'jobCardDetail.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $match: query },
+      // Handle date field (fixing potential string/Date issues)
+      {
+        $addFields: {
+          formattedDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$createdAt' }, 'string'] },
+              then: { $dateFromString: { dateString: '$createdAt' } },
+              else: '$createdAt'
+            }
+          }
+        }
+      },
+      // Group by day and calculate totals
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$formattedDate'
+            }
+          },
+          totalInvoices: { $sum: 1 },
+          totalAmount: { $sum: '$totalAmount' }
+        }
+      },
+      // Format output
+      {
+        $project: {
+          date: '$_id',
+          totalInvoices: 1,
+          totalAmount: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return result;
   }
 }

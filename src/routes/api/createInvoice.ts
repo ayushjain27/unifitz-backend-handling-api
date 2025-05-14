@@ -41,4 +41,11 @@ router.post(
   createInvoiceController.getAllInvoicePaginated
 );
 
+router.post(
+  '/getInvoiceTotalPaymentAnalytics',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getInvoiceTotalPaymentAnalytics
+);
+
+
 export default router;
