@@ -283,6 +283,41 @@ export class JobCardController {
     }
   };
 
+  getOverallUniqueStores = async (req: Request, res: Response) => {
+    try {
+      Logger.info(
+        '<Controller>:<JobCardController>:<get jobcard overall unique stores request controller initiated>'
+      );
+      const result = await this.jobCardService.getOverallUniqueStores();
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getUniqueStores = async (req: Request, res: Response) => {
+    const query = req.query;
+    try {
+      Logger.info(
+        '<Controller>:<JobCardController>:<get jobcard unique stores request controller initiated>'
+      );
+      const result = await this.jobCardService.getUniqueStores(query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':

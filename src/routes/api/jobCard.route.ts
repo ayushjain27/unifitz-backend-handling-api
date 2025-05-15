@@ -74,10 +74,10 @@ router.get(
   jobCardController.overallPayment
 );
 
-// router.get(
-//   '/uniqueStores',
-//   roleAuth(ACL.STORE_CREATE),
-//   jobCardController.uniqueStores
-// );
+router.get(
+  '/getUniqueStores',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getUniqueStores
+);
 
 export default router;

@@ -602,7 +602,7 @@ export class JobCardService {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter overall payments service initiated>'
     );
-   
+
     const jobCardResult = await JobCard.aggregate([
       {
         $addFields: {
@@ -619,14 +619,14 @@ export class JobCardService {
       },
       {
         $group: {
-          _id: null,  // Group all documents together
+          _id: null, // Group all documents together
           totalJobCards: { $sum: 1 },
           totalAmount: { $sum: '$totalAmount' }
         }
       },
       {
         $project: {
-          _id: 0,  // Exclude the _id field
+          _id: 0, // Exclude the _id field
           totalJobCards: 1,
           totalAmount: 1
         }
@@ -644,19 +644,220 @@ export class JobCardService {
       // Format output
       {
         $project: {
-          _id: 0,  // Exclude the _id field
+          _id: 0, // Exclude the _id field
           totalInvoices: 1,
           totalAmounts: 1
         }
-      },
+      }
     ]);
 
-    console.log(invoiceResult,"derfre", jobCardResult);
+    console.log(invoiceResult, 'derfre', jobCardResult);
     let result = {
       ...jobCardResult[0],
       ...invoiceResult[0]
+    };
+
+    return result;
+  }
+
+  async getOverallUniqueStores() {
+    Logger.info(
+      '<Service>:<JobCardService>:<Get overall unique stores service initiated>'
+    );
+
+    const jobCardUniqueStores = await JobCard.aggregate([
+      {
+        $group: {
+          _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
+          // If you need to group by store name instead, use "$storeName" or similar
+        }
+      },
+      {
+        $count: 'jobCardUniqueStores'
+      }
+    ]);
+    const invoiceUniqueStores = await CreateInvoice.aggregate([
+      {
+        $group: {
+          _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
+          // If you need to group by store name instead, use "$storeName" or similar
+        }
+      },
+      {
+        $count: 'invoiceUniqueStores'
+      }
+    ]);
+
+    console.log(jobCardUniqueStores, 'jobCardUniqueStores');
+    console.log(invoiceUniqueStores, 'dmkemfkdmr');
+
+    const result = {
+      jobCardUniqueStores: jobCardUniqueStores[0]?.jobCardUniqueStores || 0,
+      invoiceUniqueStores: invoiceUniqueStores[0]?.invoiceUniqueStores || 0
+      // If you want total unique stores across both collections, you would need a different approach
+      // totalUniqueStores: ... (see note below)
+    };
+
+    // If no documents exist, return 0 instead of an empty array
+    return result;
+  }
+
+  async getUniqueStores(reqPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<JobCardService>:<Get overall unique stores service initiated>'
+    );
+
+    const dateFilter: any = {};
+    if (reqPayload.startDate) {
+      const start = new Date(reqPayload.startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (reqPayload.endDate) {
+      const end = new Date(reqPayload.endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      console.log(end, 'dmerkfm');
+      console.log(new Date(end), 'dmerkfm');
+      dateFilter.$lte = new Date(end);
     }
 
+    const query: any = {};
+    const matchQuery: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+      matchQuery.createdAt = dateFilter;
+    }
+
+    if (reqPayload?.state) {
+      query['storeDetail.contactInfo.state'] = reqPayload.state;
+      matchQuery['storeDetail.contactInfo.state'] = reqPayload.state;
+    }
+    if (reqPayload?.city) {
+      query['storeDetail.contactInfo.city'] = reqPayload.city;
+      matchQuery['storeDetail.contactInfo.city'] = reqPayload.city;
+    }
+    if (reqPayload.searchText) {
+      query.$or = [
+        { storeId: new RegExp(reqPayload.searchText, 'i') },
+        {
+          'customerDetails.phoneNumber': new RegExp(reqPayload.searchText, 'i')
+        },
+        {
+          'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(
+            reqPayload.searchText,
+            'i'
+          )
+        }
+      ];
+      matchQuery.$or = [
+        { storeId: new RegExp(reqPayload.searchText, 'i') },
+        {
+          'jobCardDetail.customerDetails.phoneNumber': new RegExp(
+            reqPayload.searchText,
+            'i'
+          )
+        },
+        {
+          'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
+            new RegExp(reqPayload.searchText, 'i')
+        }
+      ];
+    }
+
+    const jobCardUniqueStores = await JobCard.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
+          // If you need to group by store name instead, use "$storeName" or similar
+        }
+      },
+      {
+        $count: 'jobCardUniqueStores'
+      }
+    ]);
+    const invoiceUniqueStores = await CreateInvoice.aggregate([
+      {
+        $lookup: {
+          from: 'jobcards',
+          let: { jobCardIdStr: '$jobCardId' }, // string field from CreateInvoice
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    { $toString: '$_id' }, // convert ObjectId to string
+                    '$$jobCardIdStr' // compare with string from CreateInvoice
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'jobCardDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$jobCardDetail',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'jobCardDetail.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: matchQuery
+      },
+      {
+        $group: {
+          _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
+          // If you need to group by store name instead, use "$storeName" or similar
+        }
+      },
+      {
+        $count: 'invoiceUniqueStores'
+      }
+    ]);
+
+    console.log(jobCardUniqueStores, 'jobCardUniqueStores');
+    console.log(invoiceUniqueStores, 'dmkemfkdmr');
+
+    const result = {
+      jobCardUniqueStores: jobCardUniqueStores[0]?.jobCardUniqueStores || 0,
+      invoiceUniqueStores: invoiceUniqueStores[0]?.invoiceUniqueStores || 0
+      // If you want total unique stores across both collections, you would need a different approach
+      // totalUniqueStores: ... (see note below)
+    };
+
+    // If no documents exist, return 0 instead of an empty array
     return result;
   }
 }
