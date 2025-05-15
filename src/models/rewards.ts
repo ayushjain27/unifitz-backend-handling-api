@@ -9,10 +9,9 @@ export interface IRewards {
   status?: string;
   userName?: string;
   employeeId?: string;
-  selectedAllStore?: boolean;
+  selectedUserName?: string;
   rewardsImageUrl?: string;
   totalMonths?: number;
-  storeList?: string[]; 
 }
 
 const rewardsSchema: Schema = new Schema<IRewards>(
@@ -39,9 +38,8 @@ const rewardsSchema: Schema = new Schema<IRewards>(
       type: String,
       default: 'INACTIVE'
     },
-    selectedAllStore: {
-      type: Boolean,
-      default: false
+    selectedUserName: {
+      type: String,
     },
     userName: {
     type: String
@@ -54,10 +52,6 @@ const rewardsSchema: Schema = new Schema<IRewards>(
     },
     totalMonths: {
       type: Number
-    },
-    storeList: {
-      type: [String], // Fixed array of strings
-      default: []
     }
   },
   { timestamps: true }

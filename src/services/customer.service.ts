@@ -717,6 +717,7 @@ export class CustomerService {
 
     if (role === AdminRole.OEM) {
       query.userName = userName;
+      query.selectedUserName = userName;
     }
 
     if (role === AdminRole.EMPLOYEE) {
@@ -766,6 +767,7 @@ export class CustomerService {
 
     if (role === AdminRole.OEM) {
       query.userName = userName;
+      query.selectedUserName = userName;
     }
 
     if (role === AdminRole.EMPLOYEE) {
