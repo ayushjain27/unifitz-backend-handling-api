@@ -80,4 +80,16 @@ router.get(
   jobCardController.getUniqueStores
 );
 
+router.get(
+  '/getOverallUniqueStores',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getOverallUniqueStores
+);
+
+router.get(
+  '/getUniqueStores',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getUniqueStores
+);
+
 export default router;
