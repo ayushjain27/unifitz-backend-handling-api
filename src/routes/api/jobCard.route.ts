@@ -92,4 +92,10 @@ router.get(
   jobCardController.getUniqueStores
 );
 
+router.get(
+  '/getHighestJobCards',
+  roleAuth(ACL.STORE_CREATE),
+  jobCardController.getHighestJobCards
+);
+
 export default router;

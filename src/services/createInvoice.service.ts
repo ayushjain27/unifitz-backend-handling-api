@@ -496,4 +496,131 @@ export class CreateInvoiceService {
 
     return result;
   }
+
+  async getHighestInvoice(reqPayload: any) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>:<Get highest invoice initiated>'
+    );
+    try {
+      const dateFilter: any = {};
+      if (reqPayload.startDate) {
+        const start = new Date(reqPayload.startDate);
+        start.setUTCHours(0, 0, 0, 0);
+        dateFilter.$gte = new Date(start);
+      }
+      if (reqPayload.endDate) {
+        const end = new Date(reqPayload.endDate);
+        end.setUTCHours(23, 59, 59, 999);
+        dateFilter.$lte = new Date(end);
+      }
+  
+      const matchQuery: any = {};
+      if (Object.keys(dateFilter).length) {
+        matchQuery.createdAt = dateFilter;
+      }
+  
+      // Common pipeline stages
+      const commonStages = [
+        { $match: matchQuery },
+        {
+          $lookup: {
+            from: "stores",
+            localField: "storeId",
+            foreignField: "storeId",
+            as: "storeDetails"
+          }
+        },
+        { $unwind: "$storeDetails" }
+      ];
+  
+      // 1. Top Stores Pipeline
+      const topStoresPipeline: any = [
+        ...commonStages,
+        {
+          $group: {
+            _id: {
+              storeId: "$storeDetails.storeId",
+              storeName: "$storeDetails.name"
+            },
+            invoiceCount: { $sum: 1 },
+          }
+        },
+        { $sort: { invoiceCount: -1 } },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            storeId: "$_id.storeId",
+            storeName: "$_id.storeName",
+            city: 1,
+            state: 1,
+            invoiceCount: 1
+          }
+        }
+      ];
+  
+      // 2. Top Cities Pipeline
+      const topCitiesPipeline: any = [
+        ...commonStages,
+        {
+          $group: {
+            _id: {
+              city: "$storeDetails.contactInfo.city",
+              state: "$storeDetails.contactInfo.state"
+            },
+            invoiceCount: { $sum: 1 }
+          }
+        },
+        { $sort: { invoiceCount: -1 } },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            city: "$_id.city",
+            state: "$_id.state",
+            invoiceCount: 1
+          }
+        }
+      ];
+  
+      // 3. Top States Pipeline
+      const topStatesPipeline: any = [
+        ...commonStages,
+        {
+          $group: {
+            _id: {
+              state: "$storeDetails.contactInfo.state"
+            },
+            invoiceCount: { $sum: 1 }
+          }
+        },
+        { $sort: { invoiceCount: -1 } },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            state: "$_id.state",
+            invoiceCount: 1
+          }
+        }
+      ];
+  
+      // Execute all pipelines in parallel
+      const [topStores, topCities, topStates] = await Promise.all([
+        CreateInvoice.aggregate(topStoresPipeline),
+        CreateInvoice.aggregate(topCitiesPipeline),
+        CreateInvoice.aggregate(topStatesPipeline)
+      ]);
+  
+      return {
+        topStores,
+        topCities,
+        topStates
+      };
+      
+    } catch (error: any) {
+      Logger.error('<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:', error);
+      throw error;
+    }
+  }
 }

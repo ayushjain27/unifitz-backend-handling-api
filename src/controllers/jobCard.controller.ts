@@ -318,6 +318,24 @@ export class JobCardController {
     }
   };
 
+  getHighestJobCards = async (req: Request, res: Response) => {
+    const query = req.query;
+    try {
+      Logger.info(
+        '<Controller>:<JobCardController>:<get highest jobcard request controller initiated>'
+      );
+      const result = await this.jobCardService.getHighestJobCards(query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':

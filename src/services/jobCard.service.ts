@@ -860,4 +860,132 @@ export class JobCardService {
     // If no documents exist, return 0 instead of an empty array
     return result;
   }
+
+  async getHighestJobCards(reqPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<JobCardService>:<Get highest job cards service initiated>'
+    );
+  
+    try {
+      const dateFilter: any = {};
+      if (reqPayload.startDate) {
+        const start = new Date(reqPayload.startDate);
+        start.setUTCHours(0, 0, 0, 0);
+        dateFilter.$gte = new Date(start);
+      }
+      if (reqPayload.endDate) {
+        const end = new Date(reqPayload.endDate);
+        end.setUTCHours(23, 59, 59, 999);
+        dateFilter.$lte = new Date(end);
+      }
+  
+      const matchQuery: any = {};
+      if (Object.keys(dateFilter).length) {
+        matchQuery.createdAt = dateFilter;
+      }
+  
+      // Common pipeline stages
+      const commonStages = [
+        { $match: matchQuery },
+        {
+          $lookup: {
+            from: "stores",
+            localField: "storeId",
+            foreignField: "storeId",
+            as: "storeDetails"
+          }
+        },
+        { $unwind: "$storeDetails" }
+      ];
+  
+      // 1. Top Stores Pipeline
+      const topStoresPipeline: any = [
+        ...commonStages,
+        {
+          $group: {
+            _id: {
+              storeId: "$storeDetails.storeId",
+              storeName: "$storeDetails.name"
+            },
+            jobCardCount: { $sum: 1 },
+          }
+        },
+        { $sort: { jobCardCount: -1 } },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            storeId: "$_id.storeId",
+            storeName: "$_id.storeName",
+            city: 1,
+            state: 1,
+            jobCardCount: 1
+          }
+        }
+      ];
+  
+      // 2. Top Cities Pipeline
+      const topCitiesPipeline: any = [
+        ...commonStages,
+        {
+          $group: {
+            _id: {
+              city: "$storeDetails.contactInfo.city",
+              state: "$storeDetails.contactInfo.state"
+            },
+            jobCardCount: { $sum: 1 }
+          }
+        },
+        { $sort: { jobCardCount: -1 } },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            city: "$_id.city",
+            state: "$_id.state",
+            jobCardCount: 1
+          }
+        }
+      ];
+  
+      // 3. Top States Pipeline
+      const topStatesPipeline: any = [
+        ...commonStages,
+        {
+          $group: {
+            _id: {
+              state: "$storeDetails.contactInfo.state"
+            },
+            jobCardCount: { $sum: 1 }
+          }
+        },
+        { $sort: { jobCardCount: -1 } },
+        { $limit: 20 },
+        {
+          $project: {
+            _id: 0,
+            state: "$_id.state",
+            jobCardCount: 1
+          }
+        }
+      ];
+  
+      // Execute all pipelines in parallel
+      const [topStores, topCities, topStates] = await Promise.all([
+        JobCard.aggregate(topStoresPipeline),
+        JobCard.aggregate(topCitiesPipeline),
+        JobCard.aggregate(topStatesPipeline)
+      ]);
+  
+      return {
+        topStores,
+        topCities,
+        topStates
+      };
+      
+    } catch (error: any) {
+      Logger.error('<Service>:<JobCardService>:<Error in getHighestJobCards>:', error);
+      throw error;
+    }
+  }
 }

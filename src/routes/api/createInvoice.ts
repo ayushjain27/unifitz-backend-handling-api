@@ -47,5 +47,11 @@ router.post(
   createInvoiceController.getInvoiceTotalPaymentAnalytics
 );
 
+router.get(
+  '/getHighestInvoice',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getHighestInvoice
+);
+
 
 export default router;
