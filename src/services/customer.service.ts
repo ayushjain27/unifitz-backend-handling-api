@@ -1004,5 +1004,21 @@ export class CustomerService {
       phoneNumber,
       result
     };
+  };
+
+
+  async getRedeemCouponsDetailsByCustomerId(customerId: string): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<et redeem coupons details by customerId initiated>'
+    );
+
+    if(!customerId){
+      throw new Error('Customer not found')
+    }
+
+    const result = await CustomerRedeemCoupon.find({
+     customerId
+    });
+    return result;
   }
 }

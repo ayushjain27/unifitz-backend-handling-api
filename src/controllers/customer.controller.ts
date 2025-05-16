@@ -591,11 +591,11 @@ export class CustomerController {
   sendCouponRedeemOtp = async (req: Request, res: Response) => {
     const { phoneNumber } = req.body;
     Logger.info(
-      '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+      '<Controller>:<CustomerController>:<Send Otp to redeem request controller initiated>'
     );
     try {
       Logger.info(
-        '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+        '<Controller>:<CustomerController>:<Send Otp to redeem request controller initiated>'
       );
       const result = await this.customerService.sendCouponRedeemOtp(
         phoneNumber as string
@@ -613,14 +613,37 @@ export class CustomerController {
 
   verifyCouponRedeemOtp = async (req: Request, res: Response) => {
     Logger.info(
-      '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+      '<Controller>:<CustomerController>:<verify Otp to redeem request controller initiated>'
     );
     try {
       Logger.info(
-        '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+        '<Controller>:<CustomerController>:<verify Otp to redeem request controller initiated>'
       );
       const result = await this.customerService.verifyCouponRedeemOtp(
         req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getRedeemCouponsDetailsByCustomerId = async (req: Request, res: Response) => {
+    const { customerId } = req.query;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get redeem coupons details by customerId controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<get Redeem Coupons details by customer id controller initiated>'
+      );
+      const result = await this.customerService.getRedeemCouponsDetailsByCustomerId(
+        customerId as string
       );
       res.send({
         result
