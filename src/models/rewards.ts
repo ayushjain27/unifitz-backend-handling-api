@@ -5,13 +5,13 @@ export interface IRewards {
   description: string;
   quantity?: number;
   quantityLeft?: number;
-  totalUsers?: number;
+  eligibleUsers?: number;
   status?: string;
   userName?: string;
   employeeId?: string;
   selectedUserName?: string;
   rewardsImageUrl?: string;
-  totalMonths?: number;
+  eligibleMonths?: number;
 }
 
 const rewardsSchema: Schema = new Schema<IRewards>(
@@ -31,7 +31,7 @@ const rewardsSchema: Schema = new Schema<IRewards>(
     quantityLeft: {
       type: Number
     },
-    totalUsers: {
+    eligibleUsers: {
       type: Number
     },
     status: {
@@ -50,7 +50,7 @@ const rewardsSchema: Schema = new Schema<IRewards>(
     rewardsImageUrl: {
       type: String
     },
-    totalMonths: {
+    eligibleMonths: {
       type: Number
     }
   },

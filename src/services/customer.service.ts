@@ -21,11 +21,15 @@ import Rewards, { IRewards } from '../models/rewards';
 import { AdminRole } from './../models/Admin';
 import Store from '../models/Store';
 import { StoreService } from './store.service';
+import { TwoFactorService } from './twoFactor.service';
 
 @injectable()
 export class CustomerService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   private storeService = container.get<StoreService>(TYPES.StoreService);
+  private twoFactorService = container.get<TwoFactorService>(
+    TYPES.TwoFactorService
+  );
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
@@ -795,33 +799,6 @@ export class CustomerService {
     return sosNotifications;
   }
 
-  async updateTotalUsers(totalUsers?: number, rewardId?: string): Promise<any> {
-    Logger.info(
-      '<Service>:<CustomerService>:<Update total users service initiated>'
-    );
-    if (!rewardId) {
-      throw new Error('Reward Id is required');
-    }
-    if (!totalUsers) {
-      throw new Error('Total Users is required');
-    }
-
-    let getRewardInfo: any = await Rewards.findOne({
-      _id: new Types.ObjectId(rewardId)
-    });
-    if (!getRewardInfo) {
-      throw new Error('Reward Details not found');
-    }
-    const updateUsers = await Rewards.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(rewardId)
-      },
-      { $set: { totalUsers: totalUsers } },
-      { returnDocument: 'after' }
-    );
-    return updateUsers;
-  }
-
   async updateRewardStatus(status?: string, rewardId?: string): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Update reward status service initiated>'
@@ -930,5 +907,23 @@ export class CustomerService {
       );
     }
     return stores;
+  }
+
+  async sendCouponRedeemOtp(phoneNumber: string): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Search and Filter stores service initiated 111111> '
+    );
+
+    if(!phoneNumber){
+      throw new Error('Phone Number is required');
+    }
+
+    const result =
+      await this.twoFactorService.sendVerificationCode(phoneNumber);
+    return {
+      message: 'Verification is sent!!',
+      phoneNumber,
+      result
+    };
   }
 }

@@ -439,7 +439,11 @@ export class CustomerController {
       );
       const userName = req?.userId;
       const role = req?.role;
-      const result = await this.customerService.countAllRewards(userName, role, oemId as string);
+      const result = await this.customerService.countAllRewards(
+        userName,
+        role,
+        oemId as string
+      );
       res.send({
         result
       });
@@ -462,41 +466,15 @@ export class CustomerController {
       );
       const userName = req?.userId;
       const role = req?.role;
-      const result =
-        await this.customerService.getAllRewardsPaginated(
-          pageNo,
-          pageSize,
-          status,
-          userName,
-          role,
-          oemId,
-          selectedPartner
-        );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: err.message });
-    }
-  };
-
-  updateTotalUsers = async (req: Request, res: Response) => {
-    const { totalUsers, rewardId } = req.body;
-    Logger.info(
-      '<Controller>:<CustomerController>:<Updata total Users Initiated>'
-    );
-    try {
-      Logger.info(
-        '<Controller>:<CustomerController>:<Update total Users Initiated>'
+      const result = await this.customerService.getAllRewardsPaginated(
+        pageNo,
+        pageSize,
+        status,
+        userName,
+        role,
+        oemId,
+        selectedPartner
       );
-      const result =
-        await this.customerService.updateTotalUsers(
-          totalUsers,
-          rewardId
-        );
       res.send({
         result
       });
@@ -517,11 +495,10 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Update Reward Status Initiated>'
       );
-      const result =
-        await this.customerService.updateRewardStatus(
-          status,
-          rewardId
-        );
+      const result = await this.customerService.updateRewardStatus(
+        status,
+        rewardId
+      );
       res.send({
         result
       });
@@ -535,7 +512,7 @@ export class CustomerController {
 
   getInviteUserPerCustomerId = async (req: Request, res: Response) => {
     const { customerId } = req.query;
-    if(!customerId){
+    if (!customerId) {
       res.send({
         message: 'Customer Id not found'
       });
@@ -547,10 +524,9 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Get Invite Users per customerId Initiated>'
       );
-      const result =
-        await this.customerService.getInviteUserPerCustomerId(
-          customerId as string
-        );
+      const result = await this.customerService.getInviteUserPerCustomerId(
+        customerId as string
+      );
       res.send({
         result
       });
@@ -570,8 +546,7 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Get all ative rewards list Initiated>'
       );
-      const result =
-        await this.customerService.getRewardsList();
+      const result = await this.customerService.getRewardsList();
       res.send({
         result
       });
@@ -602,6 +577,29 @@ export class CustomerController {
         coordinates,
         oemUserName
       });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  sendCouponRedeemOtp = async (req: Request, res: Response) => {
+    const { phoneNumber } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+      );
+      const result = await this.customerService.sendCouponRedeemOtp(
+        phoneNumber as string
+      );
       res.send({
         result
       });
@@ -657,12 +655,6 @@ export class CustomerController {
           body('title', 'Title does not exist').exists().isString(),
           body('description', 'Description does not exist').exists().isString(),
           body('quantity', 'Quantity does not exist').exists().isNumeric()
-        ];
-      case 'updateTotalUsers':
-        return [
-          // body('storeId', 'Store Id does not exist').exists().isString(),
-          body('rewardId', 'Reward Id does not exist').exists().isString(),
-          body('totalUsers', 'Total Users does not exist').exists().isString()
         ];
     }
   };

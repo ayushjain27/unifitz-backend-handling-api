@@ -117,12 +117,6 @@ router.post(
 );
 
 router.post(
-  '/update-total-users',
-  roleAuth(ACL.STORE_CREATE),
-  customerController.updateTotalUsers
-);
-
-router.post(
   '/update-reward-status',
   roleAuth(ACL.STORE_CREATE),
   customerController.updateRewardStatus
@@ -146,5 +140,10 @@ router.post(
   customerController.getNearestDealer
 );
 
+router.post(
+  '/sendCouponRedeemOtp',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.sendCouponRedeemOtp
+);
 
 export default router;
