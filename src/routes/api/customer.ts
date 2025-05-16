@@ -140,5 +140,11 @@ router.get(
   customerController.getRewardsList
 );
 
+router.post(
+  '/getNearestDealer',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.getNearestDealer
+);
+
 
 export default router;

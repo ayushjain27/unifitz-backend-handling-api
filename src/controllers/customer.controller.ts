@@ -583,6 +583,36 @@ export class CustomerController {
     }
   };
 
+  getNearestDealer = async (req: Request, res: Response) => {
+    const {
+      coordinates,
+      oemUserName
+    }: {
+      coordinates: number[];
+      oemUserName: string;
+    } = req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+      );
+      const result = await this.customerService.getNearestDealer({
+        coordinates,
+        oemUserName
+      });
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':

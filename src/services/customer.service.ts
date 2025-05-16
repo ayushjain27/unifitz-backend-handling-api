@@ -19,11 +19,13 @@ import CustomerReferralCode from '../models/CustomerReferralcode';
 import InviteUsers from '../models/inviteNewUsers';
 import Rewards, { IRewards } from '../models/rewards';
 import { AdminRole } from './../models/Admin';
+import Store from '../models/Store';
+import { StoreService } from './store.service';
 
 @injectable()
 export class CustomerService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
-
+  private storeService = container.get<StoreService>(TYPES.StoreService);
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
   );
@@ -716,10 +718,7 @@ export class CustomerService {
     let query: any = {};
 
     if (role === AdminRole.OEM) {
-      query.$or = [
-        { userName: userName },
-        { selectedUserName: userName }
-      ];
+      query.$or = [{ userName: userName }, { selectedUserName: userName }];
     }
 
     if (role === AdminRole.EMPLOYEE) {
@@ -768,7 +767,7 @@ export class CustomerService {
       status
     };
 
-    if(selectedPartner){
+    if (selectedPartner) {
       query.$or = [
         { userName: selectedPartner },
         { selectedUserName: selectedPartner }
@@ -776,10 +775,7 @@ export class CustomerService {
     }
 
     if (role === AdminRole.OEM) {
-      query.$or = [
-        { userName: userName },
-        { selectedUserName: userName }
-      ];
+      query.$or = [{ userName: userName }, { selectedUserName: userName }];
     }
 
     if (role === AdminRole.EMPLOYEE) {
@@ -803,11 +799,11 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>:<Update total users service initiated>'
     );
-    if(!rewardId){
+    if (!rewardId) {
       throw new Error('Reward Id is required');
     }
-    if(!totalUsers){
-      throw new Error('Total Users is required')
+    if (!totalUsers) {
+      throw new Error('Total Users is required');
     }
 
     let getRewardInfo: any = await Rewards.findOne({
@@ -830,11 +826,11 @@ export class CustomerService {
     Logger.info(
       '<Service>:<CustomerService>:<Update reward status service initiated>'
     );
-    if(!rewardId){
+    if (!rewardId) {
       throw new Error('Reward Id is required');
     }
-    if(!status){
-      throw new Error('Status is required')
+    if (!status) {
+      throw new Error('Status is required');
     }
 
     let getRewardInfo: any = await Rewards.findOne({
@@ -870,8 +866,69 @@ export class CustomerService {
     );
 
     const result = await Rewards.find({
-      "status": "ACTIVE"
+      status: 'ACTIVE'
     });
     return result;
+  }
+
+  async getNearestDealer(searchReqBody: {
+    coordinates: number[];
+    oemUserName: string;
+  }): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Search and Filter stores service initiated 111111> '
+    );
+    const query: any = {
+      profileStatus: 'ONBOARDED',
+      oemUserName: searchReqBody?.oemUserName
+    };
+
+    Logger.debug(query);
+
+    let stores: any = await Store.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: 'Point',
+            coordinates: searchReqBody.coordinates as [number, number]
+          },
+          spherical: true,
+          query: query,
+          distanceField: 'contactInfo.distance',
+          distanceMultiplier: 0.001
+        }
+      },
+      // {
+      //   $lookup: {
+      //     from: 'admin_users',
+      //     localField: 'oemUserName',
+      //     foreignField: 'userName',
+      //     as: 'partnerDetail'
+      //   }
+      // },
+      // { $unwind: { path: '$partnerDetail' } },
+      // {
+      //   $set: {
+      //     partnerEmail: '$partnerDetail.contactInfo.email',
+      //     dealerName: '$partnerDetail.businessName'
+      //   }
+      // },
+      {
+        $project: { verificationDetails: 0 }
+      },
+      { $limit: 10 }
+    ]);
+
+    if (stores && Array.isArray(stores)) {
+      stores = await Promise.all(
+        stores.map(async (store) => {
+          const updatedStore = { ...store };
+          updatedStore.overAllRating =
+            await this.storeService.getOverallRatings(updatedStore.storeId);
+          return updatedStore;
+        })
+      );
+    }
+    return stores;
   }
 }
