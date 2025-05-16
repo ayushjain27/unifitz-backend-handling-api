@@ -22,6 +22,7 @@ import { AdminRole } from './../models/Admin';
 import Store from '../models/Store';
 import { StoreService } from './store.service';
 import { TwoFactorService } from './twoFactor.service';
+import CustomerRedeemCoupon from '../models/CustomerRedeemCoupon';
 
 @injectable()
 export class CustomerService {
@@ -914,14 +915,92 @@ export class CustomerService {
       '<Service>:<CustomerService>:<Search and Filter stores service initiated 111111> '
     );
 
-    if(!phoneNumber){
+    if (!phoneNumber) {
       throw new Error('Phone Number is required');
     }
 
-    const result =
-      await this.twoFactorService.sendVerificationCode(phoneNumber);
+    const result = await this.twoFactorService.sendVerificationCode(
+      phoneNumber.slice(-10)
+    );
     return {
       message: 'Verification is sent!!',
+      phoneNumber,
+      result
+    };
+  }
+
+  async verifyCouponRedeemOtp(requestPayload: any): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Search and Filter stores service initiated 111111> '
+    );
+    const { phoneNumber, code, customerId, storeId, rewardId, oemUserName } =
+      requestPayload;
+
+    let customer = await Customer.findOne({ customerId });
+    if (!customer) {
+      throw new Error('Customer Not Found');
+    }
+    let store = await Store.findOne({ storeId });
+    if (!store) {
+      throw new Error('Store Not Found');
+    }
+    let rewardDetails = await Rewards.findOne({
+      _id: new Types.ObjectId(rewardId)
+    });
+    if (!phoneNumber) {
+      throw new Error('Phone Number is required');
+    }
+
+    const result = await this.twoFactorService.verifyCode(
+      phoneNumber.slice(-10),
+      code
+    );
+    if (!result || result?.Status === 'Error') {
+      return {
+        message: 'Invalid verification code :(',
+        phoneNumber
+      };
+    }
+    let data = {
+      customerId,
+      storeId,
+      rewardId,
+      oemUserName
+    };
+    await CustomerRedeemCoupon.create(data);
+    let oldestInvites = await InviteUsers.find({
+      customerId
+    })
+      .sort({ createdAt: 1 }) // Get oldest first
+      .limit(rewardId?.eligibleUsers); // Only take 20
+
+    if (oldestInvites.length > 0) {
+      const idsToDelete = oldestInvites.map((invite) => invite._id);
+      await InviteUsers.deleteMany({ _id: { $in: idsToDelete } });
+    }
+
+    let oldestsuccessFullInvites = await CustomerReferralCode.find({
+      referralCode: customerId,
+      "status": "SUCCESSFULL"
+    })
+      .sort({ createdAt: 1 }) // Get oldest first
+      .limit(rewardId?.eligibleUsers); // Only take 20
+
+    if (oldestsuccessFullInvites.length > 0) {
+      const idsToDelete = oldestsuccessFullInvites.map((invite) => invite._id);
+      await CustomerReferralCode.deleteMany({ _id: { $in: idsToDelete } });
+    }
+
+    let updateRewards = await Rewards.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(rewardId)
+      },
+      { $set: { quantityLeft: rewardDetails?.quantityLeft - 1 } },
+      { returnDocument: 'after' }
+    );
+
+    return {
+      message: 'Verification is completed!!',
       phoneNumber,
       result
     };

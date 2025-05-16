@@ -611,6 +611,28 @@ export class CustomerController {
     }
   };
 
+  verifyCouponRedeemOtp = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Search and Filter Stores request controller initiated>'
+      );
+      const result = await this.customerService.verifyCouponRedeemOtp(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':

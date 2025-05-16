@@ -146,4 +146,10 @@ router.post(
   customerController.sendCouponRedeemOtp
 );
 
+router.post(
+  '/verifyCouponRedeemOtp',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.verifyCouponRedeemOtp
+);
+
 export default router;
