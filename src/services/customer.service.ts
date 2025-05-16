@@ -757,7 +757,8 @@ export class CustomerService {
     status?: string,
     userName?: string,
     role?: string,
-    oemId?: string
+    oemId?: string,
+    selectedPartner?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Search and Filter rewards service initiated>'
@@ -766,6 +767,13 @@ export class CustomerService {
     const query: any = {
       status
     };
+
+    if(selectedPartner){
+      query.$or = [
+        { userName: selectedPartner },
+        { selectedUserName: selectedPartner }
+      ];
+    }
 
     if (role === AdminRole.OEM) {
       query.$or = [
@@ -854,5 +862,16 @@ export class CustomerService {
       customerId
     }).countDocuments();
     return totalInvites;
+  }
+
+  async getRewardsList(): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get all active rewards list initiated>'
+    );
+
+    const result = await Rewards.find({
+      "status": "ACTIVE"
+    });
+    return result;
   }
 }

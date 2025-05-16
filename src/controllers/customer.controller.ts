@@ -452,7 +452,7 @@ export class CustomerController {
   };
 
   getAllRewardsPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, status, oemId } = req.body;
+    const { pageNo, pageSize, status, oemId, selectedPartner } = req.body;
     Logger.info(
       '<Controller>:<CustomerController>:<Get Paginated Rewards Initiated>'
     );
@@ -469,7 +469,8 @@ export class CustomerController {
           status,
           userName,
           role,
-          oemId
+          oemId,
+          selectedPartner
         );
       res.send({
         result
@@ -550,6 +551,27 @@ export class CustomerController {
         await this.customerService.getInviteUserPerCustomerId(
           customerId as string
         );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getRewardsList = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all active rewards list Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Get all ative rewards list Initiated>'
+      );
+      const result =
+        await this.customerService.getRewardsList();
       res.send({
         result
       });

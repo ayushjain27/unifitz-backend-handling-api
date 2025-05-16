@@ -134,5 +134,11 @@ router.get(
   customerController.getInviteUserPerCustomerId
 );
 
+router.get(
+  '/getRewardsList',
+  roleAuth(ACL.CUSTOMER_CREATE),
+  customerController.getRewardsList
+);
+
 
 export default router;
