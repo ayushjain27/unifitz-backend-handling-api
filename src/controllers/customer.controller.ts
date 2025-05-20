@@ -362,11 +362,11 @@ export class CustomerController {
     const { pageNo, pageSize, searchText, firstDate, lastDate, state, city } =
       req.body;
     Logger.info(
-      '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
+      '<Controller>:<CustomerController>:<Get Paginated Referral Customer Initiated>'
     );
     try {
       Logger.info(
-        '<Controller>:<CustomerController>:<Get Paginated SOS Notification Initiated>'
+        '<Controller>:<CustomerController>:<Get Paginated Referral customer Initiated>'
       );
       const result = await this.customerService.countAllReferCustomerPaginated(
         pageNo,
@@ -644,6 +644,66 @@ export class CustomerController {
       );
       const result = await this.customerService.getRedeemCouponsDetailsByCustomerId(
         customerId as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  countAllRedeemCoupons = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get all customers redeem coupons request controller initiated>'
+    );
+    const searchText = req.query.searchText;
+    const state = req.query.state;
+    const city = req.query.city;
+    const firstDate = req.query.firstDate;
+    const lastDate = req.query.lastDate;
+    const selectedPartner = req.query.selectedPartner;
+    try {
+      const result = await this.customerService.countAllRedeemCoupons(
+        searchText as string,
+        state as string,
+        city as string,
+        selectedPartner as string,
+        firstDate as string,
+        lastDate as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+
+  getAllRedeemCouponsPaginated = async (req: Request, res: Response) => {
+    const { pageNo, pageSize, searchText, firstDate, lastDate, state, city, selectedPartner } =
+      req.body;
+    Logger.info(
+      '<Controller>:<CustomerController>:<Get Paginated Redeem Coupons Initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<Get Paginated Redeem Coupons Initiated>'
+      );
+      const result = await this.customerService.getAllRedeemCouponsPaginated(
+        pageNo,
+        pageSize,
+        searchText,
+        firstDate,
+        lastDate,
+        state,
+        city,
+        selectedPartner
       );
       res.send({
         result

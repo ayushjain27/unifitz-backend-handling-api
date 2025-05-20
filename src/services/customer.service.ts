@@ -981,7 +981,7 @@ export class CustomerService {
 
     let oldestsuccessFullInvites = await CustomerReferralCode.find({
       referralCode: customerId,
-      "status": "SUCCESSFULL"
+      status: 'SUCCESSFULL'
     })
       .sort({ createdAt: 1 }) // Get oldest first
       .limit(rewardId?.eligibleUsers); // Only take 20
@@ -1004,21 +1004,208 @@ export class CustomerService {
       phoneNumber,
       result
     };
-  };
-
+  }
 
   async getRedeemCouponsDetailsByCustomerId(customerId: string): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<et redeem coupons details by customerId initiated>'
     );
 
-    if(!customerId){
-      throw new Error('Customer not found')
+    if (!customerId) {
+      throw new Error('Customer not found');
     }
 
     const result = await CustomerRedeemCoupon.find({
-     customerId
+      customerId
     });
     return result;
+  }
+
+  async countAllRedeemCoupons(
+    searchText: string,
+    state: string,
+    city: string,
+    selectedPartner: string,
+    firstDate: string,
+    lastDate: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get all customers redeem coupons>'
+    );
+    // Date validation and processing
+    const createdAtFilter: any = {};
+    const firstDay = firstDate ? new Date(firstDate) : null;
+    const lastDay = lastDate ? new Date(lastDate) : null;
+
+    // Initialize match query
+    const matchQuery: any = {};
+
+    // Validate date range
+    if (firstDay && lastDay && firstDay > lastDay) {
+      throw new Error('Start date must be less than or equal to end date');
+    }
+
+    // Set UTC time to beginning of day (00:00:00)
+    if (firstDay) {
+      firstDay.setUTCHours(0, 0, 0, 0);
+      createdAtFilter.$gte = firstDay;
+    }
+
+    // Set UTC time to end of day (23:59:59)
+    if (lastDay) {
+      lastDay.setUTCHours(23, 59, 59, 999);
+      createdAtFilter.$lte = lastDay;
+    }
+
+    // Add date filter to match query if dates are provided
+    if (Object.keys(createdAtFilter).length > 0) {
+      matchQuery.createdAt = createdAtFilter;
+    }
+
+    // Location filters
+    if (state) {
+      matchQuery['storeDetails.contactInfo.state'] = state;
+    }
+    if (city) {
+      matchQuery['storeDetails.contactInfo.city'] = city;
+    }
+
+    if (selectedPartner) {
+      matchQuery.oemUserName = selectedPartner;
+    }
+
+    // Search text filter
+    if (searchText) {
+      // const searchNumber = searchText.replace(/\D/g, '').slice(-10);
+      matchQuery.$or = [
+        { customerId: searchText },
+        { storeId: searchText }
+        // { phoneNumber: new RegExp(searchNumber, 'i') },
+        // { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+      ];
+    };
+
+    const count = await CustomerRedeemCoupon.aggregate([
+      {
+        $lookup: {
+          from: 'stores', // The customer collection name
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $match: matchQuery },
+      { $count: 'count' }
+    ]);
+    return {
+      count: count[0]?.count || 0
+    };
+  }
+
+  async getAllRedeemCouponsPaginated(
+    pageNo?: number,
+    pageSize?: number,
+    searchText?: string,
+    firstDate?: string,
+    lastDate?: string,
+    state?: string,
+    city?: string,
+    selectedPartner?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get all customer redeem coupons initiated>'
+    );
+
+    // Date validation and processing
+    const createdAtFilter: any = {};
+    const firstDay = firstDate ? new Date(firstDate) : null;
+    const lastDay = lastDate ? new Date(lastDate) : null;
+
+    // Initialize match query
+    const matchQuery: any = {};
+
+    // Validate date range
+    if (firstDay && lastDay && firstDay > lastDay) {
+      throw new Error('Start date must be less than or equal to end date');
+    }
+
+    // Set UTC time to beginning of day (00:00:00)
+    if (firstDay) {
+      firstDay.setUTCHours(0, 0, 0, 0);
+      createdAtFilter.$gte = firstDay;
+    }
+
+    // Set UTC time to end of day (23:59:59)
+    if (lastDay) {
+      lastDay.setUTCHours(23, 59, 59, 999);
+      createdAtFilter.$lte = lastDay;
+    }
+
+    // Add date filter to match query if dates are provided
+    if (Object.keys(createdAtFilter).length > 0) {
+      matchQuery.createdAt = createdAtFilter;
+    }
+
+    // Location filters
+    if (state) {
+      matchQuery['storeDetails.contactInfo.state'] = state;
+    }
+    if (city) {
+      matchQuery['storeDetails.contactInfo.city'] = city;
+    }
+
+    if (selectedPartner) {
+      matchQuery.oemUserName = selectedPartner;
+    }
+
+    // Search text filter
+    if (searchText) {
+      const searchNumber = searchText.replace(/\D/g, '').slice(-10);
+      matchQuery.$or = [
+        { customerId: searchText },
+        { storeId: searchText }
+        // { phoneNumber: new RegExp(searchNumber, 'i') },
+        // { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+      ];
+    }
+
+    const inviteUsers = await CustomerRedeemCoupon.aggregate([
+      {
+        $lookup: {
+          from: 'stores', // The customer collection name
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: { path: '$storeDetails', preserveNullAndEmptyArrays: true }
+      },
+      { $sort: { createdAt: -1 } },
+      { $match: matchQuery },
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
+      {
+        $lookup: {
+          from: 'customers', // The customer collection name
+          localField: 'customerId',
+          foreignField: 'customerId',
+          as: 'customerDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$customerDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+    ]);
+    return inviteUsers;
   }
 }

@@ -156,6 +156,14 @@ router.get(
   '/getRedeemCouponsDetailsByCustomerId',
   roleAuth(ACL.CUSTOMER_CREATE),
   customerController.getRedeemCouponsDetailsByCustomerId
-)
+);
+
+router.get('/countAllRedeemCoupons', customerController.countAllRedeemCoupons);
+
+router.post(
+  '/get-all-redeem-coupons-paginated',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.getAllRedeemCouponsPaginated
+);
 
 export default router;
