@@ -1064,10 +1064,16 @@ export class CustomerService {
 
     // Location filters
     if (state) {
-      matchQuery['storeDetails.contactInfo.state'] = state;
+      matchQuery.$or = [
+        { 'storeDetails.contactInfo.state': state },
+        { 'customerDetails.contactInfo.state': state }
+      ];
     }
     if (city) {
-      matchQuery['storeDetails.contactInfo.city'] = city;
+      matchQuery.$or = [
+        { 'storeDetails.contactInfo.city': city },
+        { 'customerDetails.contactInfo.city': city }
+      ];
     }
 
     if (selectedPartner) {
@@ -1076,12 +1082,12 @@ export class CustomerService {
 
     // Search text filter
     if (searchText) {
-      // const searchNumber = searchText.replace(/\D/g, '').slice(-10);
+      const searchNumber = searchText.replace(/\D/g, '').slice(-10);
       matchQuery.$or = [
         { customerId: searchText },
-        { storeId: searchText }
-        // { phoneNumber: new RegExp(searchNumber, 'i') },
-        // { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+        { storeId: searchText },
+        { 'storeDetails.contactInfo.phoneNumber.primary': new RegExp(searchNumber, 'i') },
+        { 'customerDetails.contactInfo.phoneNumber': new RegExp(searchNumber, 'i') }
       ];
     };
 
@@ -1092,6 +1098,20 @@ export class CustomerService {
           localField: 'storeId',
           foreignField: 'storeId',
           as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'customers', // The customer collection name
+          localField: 'customerId',
+          foreignField: 'customerId',
+          as: 'customerDetails'
         }
       },
       {
@@ -1154,11 +1174,18 @@ export class CustomerService {
 
     // Location filters
     if (state) {
-      matchQuery['storeDetails.contactInfo.state'] = state;
+      matchQuery.$or = [
+        { 'storeDetails.contactInfo.state': state },
+        { 'customerDetails.contactInfo.state': state }
+      ];
     }
     if (city) {
-      matchQuery['storeDetails.contactInfo.city'] = city;
+      matchQuery.$or = [
+        { 'storeDetails.contactInfo.city': city },
+        { 'customerDetails.contactInfo.city': city }
+      ];
     }
+
 
     if (selectedPartner) {
       matchQuery.oemUserName = selectedPartner;
@@ -1169,11 +1196,11 @@ export class CustomerService {
       const searchNumber = searchText.replace(/\D/g, '').slice(-10);
       matchQuery.$or = [
         { customerId: searchText },
-        { storeId: searchText }
-        // { phoneNumber: new RegExp(searchNumber, 'i') },
-        // { 'customerDetails.phoneNumber': new RegExp(searchNumber, 'i') }
+        { storeId: searchText },
+        { 'storeDetails.contactInfo.phoneNumber.primary': new RegExp(searchNumber, 'i') },
+        { 'customerDetails.contactInfo.phoneNumber': new RegExp(searchNumber, 'i') }
       ];
-    }
+    };
 
     const inviteUsers = await CustomerRedeemCoupon.aggregate([
       {
@@ -1187,10 +1214,6 @@ export class CustomerService {
       {
         $unwind: { path: '$storeDetails', preserveNullAndEmptyArrays: true }
       },
-      { $sort: { createdAt: -1 } },
-      { $match: matchQuery },
-      { $skip: pageNo * pageSize },
-      { $limit: pageSize },
       {
         $lookup: {
           from: 'customers', // The customer collection name
@@ -1205,6 +1228,10 @@ export class CustomerService {
           preserveNullAndEmptyArrays: true
         }
       },
+      { $sort: { createdAt: -1 } },
+      { $match: matchQuery },
+      { $skip: pageNo * pageSize },
+      { $limit: pageSize },
     ]);
     return inviteUsers;
   }
