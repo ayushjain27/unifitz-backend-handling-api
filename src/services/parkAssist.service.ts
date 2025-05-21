@@ -372,26 +372,9 @@ Tap to open Map
       {
         $lookup: {
           from: 'emergencycontactdetails',
-          let: { phone: '$phoneNumber', customer: '$receiverId' },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ['$phoneNumber', '$$phone'] },
-                    { $eq: ['$customerId', '$$customer'] }
-                  ]
-                }
-              }
-            }
-          ],
-          as: 'emergencyContactDetails'
-        }
-      },
-      {
-        $unwind: {
-          path: '$emergencyContactDetails',
-          preserveNullAndEmptyArrays: true
+          localField: 'receiverId',
+          foreignField: 'customerId',
+          as: 'emergencyDetails'
         }
       }
     ]);

@@ -1015,9 +1015,55 @@ export class CustomerService {
       throw new Error('Customer not found');
     }
 
-    const result = await CustomerRedeemCoupon.find({ customerId })
-    .sort({ createdAt: -1 })
-    .exec();
+    const matchQuery = {
+      customerId: customerId
+    }
+
+    const result = await CustomerRedeemCoupon.aggregate([
+      { $match: matchQuery },
+      {
+        $lookup: {
+          from: 'rewards',
+          let: { rewardIdString: '$rewardId' }, // Store the string rewardId in a variable
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  // Convert both to strings for comparison
+                  $eq: [
+                    { $toString: '$_id' },
+                    '$$rewardIdString'
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'rewardDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$rewardDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'stores', // The customer collection name
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+
     return result;
   }
 
