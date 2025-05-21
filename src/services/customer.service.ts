@@ -1015,9 +1015,9 @@ export class CustomerService {
       throw new Error('Customer not found');
     }
 
-    const result = await CustomerRedeemCoupon.find({
-      customerId
-    });
+    const result = await CustomerRedeemCoupon.find({ customerId })
+    .sort({ createdAt: -1 })
+    .exec();
     return result;
   }
 
