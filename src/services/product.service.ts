@@ -1166,6 +1166,27 @@ export class ProductService {
       rows.push(rowData);
     }
 
+    if (isEmpty(rows)) {
+      // Get the 5th row regardless of emptiness
+      const fifthRow = worksheet.getRow(5);
+      const rowData: Record<string, string> = {};
+      
+      fifthRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const header = headers[colNumber];
+        if (header) {
+          let headerText = '';
+          if (typeof header === 'object' && 'richText' in header) {
+            headerText = header.richText?.[0]?.text?.replace(/\n/g, '').trim();
+          } else {
+            headerText = header?.toString()?.replace(/\n/g, '').trim();
+          }
+          rowData[headerText] = cell.value?.toString().trim() || '';
+        }
+      });
+      
+      rows.push(rowData);
+    }
+
     const validationResult: any = await this.validateExcelData(
       rows,
       compulsoryFields
@@ -1180,19 +1201,21 @@ export class ProductService {
       };
     } else {
       const processedData = await this.processAllRows(rows);
-      const enrichedData = await this.enrichWithAdditionalData(processedData, oemUserName, oemDetails);
+      const enrichedData = await this.enrichWithAdditionalData(
+        processedData,
+        oemUserName,
+        oemDetails
+      );
       const finalData = await this.generateDisplayOrderNumbers(enrichedData);
-      finalData.map(async(item)=>{
-        const productResult = await PartnersPoduct.create(item);
-      })
+      finalData.map(async (item) => {
+          const productResult = await PartnersPoduct.create(item);
+      });
       return {
         success: true,
         message: 'File processed successfully',
         data: rows // Just for demonstration
       };
     }
-
-
   }
 
   async processAllRows(rows: any[]) {
@@ -1319,9 +1342,17 @@ export class ProductService {
         );
       }
 
-      const priceDetail = {
-        mrp: NaN,
-        sellingPrice: NaN,
+      const priceDetail: {
+        mrp: number | null;
+        sellingPrice: number | null;
+        qty: string;
+        width: string;
+        height: string;
+        depth: string;
+        weight: string;
+      } = {
+        mrp: null,
+        sellingPrice: null,
         qty: '',
         width: '',
         height: '',
@@ -1338,9 +1369,17 @@ export class ProductService {
         priceDetail.weight = item['Retail Weight'];
       }
 
-      const bulkOrders = {
-        mrp: NaN,
-        wholeSalePrice: NaN,
+      const bulkOrders: {
+        mrp: number;
+        wholeSalePrice: number;
+        qty: string;
+        width: string;
+        height: string;
+        depth: string;
+        weight: string;
+      } = {
+        mrp: null,
+        wholeSalePrice: null,
         qty: '',
         width: '',
         height: '',
@@ -1348,7 +1387,7 @@ export class ProductService {
         weight: ''
       };
       if (item['Bulk Mrp']) {
-        bulkOrders.mrp = Number(item['Bulk Mrp']);
+        bulkOrders.mrp = Number(item['Bulk Mrp']) || null;
         bulkOrders.wholeSalePrice = Number(item['Bulk/WholeSale Price']);
         bulkOrders.qty = item['Bulk Quantity'];
         bulkOrders.width = item['Bulk Width'];
@@ -1367,14 +1406,24 @@ export class ProductService {
             key: item['Image 1.1']?.trim().split('/').slice(3).join('/'),
             docURL: item['Image 1.1']
           },
-          image2: item['Image 2.1'] && {
-            key: item['Image 2.1']?.trim().split('/').slice(3).join('/'),
-            docURL: item['Image 2.1']
-          },
-          image3: item['Image 3.1'] && {
-            key: item['Image 3.1']?.trim().split('/').slice(3).join('/'),
-            docURL: item['Image 3.1']
-          },
+          image2: item['Image 2.1']
+            ? {
+                key: item['Image 2.1']?.trim().split('/').slice(3).join('/'),
+                docURL: item['Image 2.1']
+              }
+            : {
+                key: null,
+                docURL: null
+              },
+          image3: item['Image 3.1']
+            ? {
+                key: item['Image 3.1']?.trim().split('/').slice(3).join('/'),
+                docURL: item['Image 3.1']
+              }
+            : {
+                key: null,
+                docURL: null
+              },
 
           // const fuelType = item['Fuel Type 1']
           oemList: [
@@ -1384,9 +1433,19 @@ export class ProductService {
               partNumber: item['Part Number 1'] ? item['Part Number 1'] : '',
               engineSize: item['Engine Size 1'] ? item['Engine Size 1'] : '',
               startYear: item['Start Date 1']
-                ?  new Date(`${item['Start Date 1'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0]
+                ? new Date(
+                    `${item['Start Date 1'].split('/').reverse().join('-')}T${'00:00:00'}`
+                  )
+                    .toISOString()
+                    .split('.')[0]
                 : null,
-              endYear: item['End Date 1'] ? new Date(`${item['End Date 1'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0] : null,
+              endYear: item['End Date 1']
+                ? new Date(
+                    `${item['End Date 1'].split('/').reverse().join('-')}T${'00:00:00'}`
+                  )
+                    .toISOString()
+                    .split('.')[0]
+                : null,
               variants: item['Variants 1'] ? item['Variants 1'] : '',
               fuelType: fuelType ? fuelType : []
             }
@@ -1400,18 +1459,33 @@ export class ProductService {
           colorName: item['Color Name 2'],
           oemPartNumber: item['SkU Number 2'],
           skuNumber: item['Oem Part Number 2'],
-          image1: item['Image 1.2'] && {
-            key: item['Image 1.2']?.trim().split('/').slice(3).join('/'),
-            docURL: item['Image 1.2']
-          },
-          image2: item['Image 2.2'] && {
-            key: item['Image 2.2']?.trim().split('/').slice(3).join('/'),
-            docURL: item['Image 2.2']
-          },
-          image3: item['Image 3.2'] && {
-            key: item['Image 3.2']?.trim().split('/').slice(3).join('/'),
-            docURL: item['Image 3.2']
-          },
+          image1: item['Image 1.2']
+            ? {
+                key: item['Image 1.2']?.trim().split('/').slice(3).join('/'),
+                docURL: item['Image 1.2']
+              }
+            : {
+                key: null,
+                docURL: null
+              },
+          image2: item['Image 2.2']
+            ? {
+                key: item['Image 2.2']?.trim().split('/').slice(3).join('/'),
+                docURL: item['Image 2.2']
+              }
+            : {
+                key: null,
+                docURL: null
+              },
+          image3: item['Image 3.2']
+            ? {
+                key: item['Image 3.2']?.trim().split('/').slice(3).join('/'),
+                docURL: item['Image 3.2']
+              }
+            : {
+                key: null,
+                docURL: null
+              },
 
           // const fuelType = item['Fuel Type 1']
           oemList: [
@@ -1421,9 +1495,19 @@ export class ProductService {
               partNumber: item['Part Number 2'] ? item['Part Number 2'] : '',
               engineSize: item['Engine Size 2'] ? item['Engine Size 2'] : '',
               startYear: item['Start Date 2']
-                ? new Date(`${item['Start Date 2'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0]
+                ? new Date(
+                    `${item['Start Date 2'].split('/').reverse().join('-')}T${'00:00:00'}`
+                  )
+                    .toISOString()
+                    .split('.')[0]
                 : null,
-              endYear: item['End Date 2'] ? new Date(`${item['End Date 2'].split('/').reverse().join('-')}T${"00:00:00"}`).toISOString().split('.')[0] : null,
+              endYear: item['End Date 2']
+                ? new Date(
+                    `${item['End Date 2'].split('/').reverse().join('-')}T${'00:00:00'}`
+                  )
+                    .toISOString()
+                    .split('.')[0]
+                : null,
               variants: item['Variants 2'] ? item['Variants 2'] : '',
               fuelType: fuelTypes ? fuelTypes : []
             }
@@ -1469,43 +1553,57 @@ export class ProductService {
       shippingIndex: 0,
       selectAllStateAndCity: false,
       state: Array.from(
-        new Set(oemDetails?.productCategoryLists.flatMap((item: { state: any; }) => item?.state || []))
+        new Set(
+          oemDetails?.productCategoryLists.flatMap(
+            (item: { state: any }) => item?.state || []
+          )
+        )
       ),
       city: Array.from(
-        new Set(oemDetails?.productCategoryLists.flatMap((item: { city: any; }) => item?.city || []))
+        new Set(
+          oemDetails?.productCategoryLists.flatMap(
+            (item: { city: any }) => item?.city || []
+          )
+        )
       ),
       pincode: Array.from(
-        new Set(oemDetails?.productCategoryLists.flatMap((item: { pincodes: any; }) => item?.pincodes || []))
+        new Set(
+          oemDetails?.productCategoryLists.flatMap(
+            (item: { pincodes: any }) => item?.pincodes || []
+          )
+        )
       )
     };
-  
-    return data.map(item => ({
+
+    return data.map((item) => ({
       ...item,
       ...additionData
     }));
   }
-  
+
   async generateDisplayOrderNumbers(data: any[]) {
     // Get the last display order number
-    const lastCreated = await StaticIds.findOne().sort({ newPartnersProductNo: -1 }).exec();
+    const lastCreated = await StaticIds.findOne()
+      .sort({ newPartnersProductNo: -1 })
+      .exec();
     let currentNumber = lastCreated?.newPartnersProductNo || 0;
-  
+
     // Generate numbers for all items
-    const updatedData = data.map(item => {
+    const updatedData = data.map((item) => {
       currentNumber += 1;
       return {
         ...item,
         displayOrderNo: currentNumber
       };
     });
-  
+
     // Update the counter in database
     await StaticIds.findOneAndUpdate(
       {},
       { newPartnersProductNo: currentNumber },
       { upsert: true, new: true }
     );
-  
+
     return updatedData;
   }
 
@@ -1552,7 +1650,7 @@ export class ProductService {
       if (rowErrors.length > 0) {
         errors.push({
           row: index + 5, // Adjusted for Excel row (starting at row 5)
-          errors: rowErrors,
+          errors: rowErrors
           // data: row
         });
       } else {
@@ -1613,11 +1711,11 @@ export class ProductService {
       'Optional',
       'Optional',
       'Optional',
-      '* Compulsory Field',
-      '* Compulsory Field',
-      '* Compulsory Field',
       'Optional',
-      '* Compulsory Field',
+      'Optional',
+      'Optional',
+      'Optional',
+      'Optional',
       'Optional',
       'Optional',
       'Optional',
