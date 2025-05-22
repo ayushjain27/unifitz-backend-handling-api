@@ -446,9 +446,10 @@ export class CustomerService {
       phoneNumber: customerPayload?.phoneNumber
     });
     if (checkCustomerExists) {
-      throw new Error(
-        'This phoneNumber is already exists. Please use different phoneNumber'
-      );
+      return {
+        message:
+          'This phoneNumber is already exists. Please use different phoneNumber'
+      };
     }
     const checkInviteUsersExists = await InviteUsers.findOne({
       phoneNumber: customerPayload?.phoneNumber,
@@ -971,8 +972,8 @@ export class CustomerService {
     let oldestInvites = await InviteUsers.find({
       customerId
     })
-      .sort({ createdAt: 1 }) // Get oldest first
-      .limit(rewardId?.eligibleUsers); // Only take 20
+      .sort({ createdAt: -1 }) // Get latest first
+      .limit(rewardId?.eligibleUsers);
 
     if (oldestInvites.length > 0) {
       const idsToDelete = oldestInvites.map((invite) => invite._id);
@@ -983,8 +984,8 @@ export class CustomerService {
       referralCode: customerId,
       status: 'SUCCESSFULL'
     })
-      .sort({ createdAt: 1 }) // Get oldest first
-      .limit(rewardId?.eligibleUsers); // Only take 20
+      .sort({ createdAt: -1 }) // Get oldest first
+      .limit(rewardId?.eligibleUsers);
 
     if (oldestsuccessFullInvites.length > 0) {
       const idsToDelete = oldestsuccessFullInvites.map((invite) => invite._id);
@@ -1017,7 +1018,7 @@ export class CustomerService {
 
     const matchQuery = {
       customerId: customerId
-    }
+    };
 
     const result = await CustomerRedeemCoupon.aggregate([
       { $match: matchQuery },
@@ -1030,10 +1031,7 @@ export class CustomerService {
               $match: {
                 $expr: {
                   // Convert both to strings for comparison
-                  $eq: [
-                    { $toString: '$_id' },
-                    '$$rewardIdString'
-                  ]
+                  $eq: [{ $toString: '$_id' }, '$$rewardIdString']
                 }
               }
             }
@@ -1061,7 +1059,7 @@ export class CustomerService {
           preserveNullAndEmptyArrays: true
         }
       },
-      { $sort: { createdAt: -1 } },
+      { $sort: { createdAt: -1 } }
     ]);
 
     return result;
@@ -1132,10 +1130,20 @@ export class CustomerService {
       matchQuery.$or = [
         { customerId: searchText },
         { storeId: searchText },
-        { 'storeDetails.contactInfo.phoneNumber.primary': new RegExp(searchNumber, 'i') },
-        { 'customerDetails.contactInfo.phoneNumber': new RegExp(searchNumber, 'i') }
+        {
+          'storeDetails.contactInfo.phoneNumber.primary': new RegExp(
+            searchNumber,
+            'i'
+          )
+        },
+        {
+          'customerDetails.contactInfo.phoneNumber': new RegExp(
+            searchNumber,
+            'i'
+          )
+        }
       ];
-    };
+    }
 
     const count = await CustomerRedeemCoupon.aggregate([
       {
@@ -1232,7 +1240,6 @@ export class CustomerService {
       ];
     }
 
-
     if (selectedPartner) {
       matchQuery.oemUserName = selectedPartner;
     }
@@ -1243,10 +1250,20 @@ export class CustomerService {
       matchQuery.$or = [
         { customerId: searchText },
         { storeId: searchText },
-        { 'storeDetails.contactInfo.phoneNumber.primary': new RegExp(searchNumber, 'i') },
-        { 'customerDetails.contactInfo.phoneNumber': new RegExp(searchNumber, 'i') }
+        {
+          'storeDetails.contactInfo.phoneNumber.primary': new RegExp(
+            searchNumber,
+            'i'
+          )
+        },
+        {
+          'customerDetails.contactInfo.phoneNumber': new RegExp(
+            searchNumber,
+            'i'
+          )
+        }
       ];
-    };
+    }
 
     const inviteUsers = await CustomerRedeemCoupon.aggregate([
       {
@@ -1277,7 +1294,7 @@ export class CustomerService {
       { $sort: { createdAt: -1 } },
       { $match: matchQuery },
       { $skip: pageNo * pageSize },
-      { $limit: pageSize },
+      { $limit: pageSize }
     ]);
     return inviteUsers;
   }
