@@ -985,7 +985,7 @@ export class CustomerService {
       customerId
     })
       .sort({ createdAt: -1 }) // Get latest first
-      .limit(rewardId?.eligibleUsers);
+      .limit(rewardDetails?.eligibleUsers);
 
     if (oldestInvites.length > 0) {
       const idsToDelete = oldestInvites.map((invite) => invite._id);
@@ -997,7 +997,7 @@ export class CustomerService {
       status: 'SUCCESSFULL'
     })
       .sort({ createdAt: -1 }) // Get oldest first
-      .limit(rewardId?.eligibleUsers);
+      .limit(rewardDetails?.eligibleUsers);
 
     if (oldestsuccessFullInvites.length > 0) {
       const idsToDelete = oldestsuccessFullInvites.map((invite) => invite._id);
