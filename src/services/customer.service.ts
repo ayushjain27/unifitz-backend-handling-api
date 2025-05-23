@@ -858,7 +858,7 @@ export class CustomerService {
 
     const result = await Rewards.find({
       status: 'ACTIVE'
-    });
+    }) .sort({ eligibleUsers: 1 }).exec();
     return result;
   }
 
