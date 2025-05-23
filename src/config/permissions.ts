@@ -279,6 +279,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    REDEEM_COUPONS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     JOB_CARD: {
       STATUS: 'ALL',
       CREATE: false,
@@ -575,6 +582,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    REDEEM_COUPONS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     JOB_CARD: {
       STATUS: 'ALL',
       CREATE: false,
@@ -696,6 +710,13 @@ export const permissions: any = {
       DELETE: false
     },
     REFERRALS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REDEEM_COUPONS: {
       STATUS: 'ALL',
       CREATE: false,
       READ: false,
