@@ -272,6 +272,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    REFERRALS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     JOB_CARD: {
       STATUS: 'ALL',
       CREATE: false,
@@ -561,6 +568,13 @@ export const permissions: any = {
       UPDATE: false,
       DELETE: false
     },
+    REFERRALS: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
     JOB_CARD: {
       STATUS: 'ALL',
       CREATE: false,
@@ -675,6 +689,13 @@ export const permissions: any = {
       DELETE: false
     },
     REFER_AND_EARN: {
+      STATUS: 'ALL',
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    REFERRALS: {
       STATUS: 'ALL',
       CREATE: false,
       READ: false,

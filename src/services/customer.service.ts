@@ -727,9 +727,14 @@ export class CustomerService {
       query.$or = [{ userName: userName }, { selectedUserName: userName }];
     }
 
-    if (role === AdminRole.EMPLOYEE) {
-      query.userName = oemId;
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
+      query.$or = [
+        { userName: oemId },
+        { selectedUserName: oemId }
+      ];
     }
+
+    console.log(query,"demkfmdkr")
 
     const counts = await Rewards.aggregate([
       {
@@ -773,6 +778,8 @@ export class CustomerService {
       status
     };
 
+    console.log(selectedPartner,"dlmerk")
+
     if (selectedPartner) {
       query.$or = [
         { userName: selectedPartner },
@@ -784,9 +791,14 @@ export class CustomerService {
       query.$or = [{ userName: userName }, { selectedUserName: userName }];
     }
 
-    if (role === AdminRole.EMPLOYEE) {
-      query.userName = oemId;
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
+      query.$or = [
+        { userName: oemId },
+        { selectedUserName: oemId }
+      ];
     }
+
+    console.log(query,"mrfm")
 
     let sosNotifications: any = await Rewards.aggregate([
       { $match: query },
