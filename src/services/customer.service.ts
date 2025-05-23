@@ -1083,7 +1083,10 @@ export class CustomerService {
     city: string,
     selectedPartner: string,
     firstDate: string,
-    lastDate: string
+    lastDate: string,
+    oemId: string,
+    userName?: string,
+    role?: string,
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Get all customers redeem coupons>'
@@ -1095,6 +1098,13 @@ export class CustomerService {
 
     // Initialize match query
     const matchQuery: any = {};
+    if (role === AdminRole.OEM) {
+      matchQuery.oemUserName = userName
+    };
+    
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
+      matchQuery.oemUserName = oemId
+    }
 
     // Validate date range
     if (firstDay && lastDay && firstDay > lastDay) {
@@ -1202,7 +1212,10 @@ export class CustomerService {
     lastDate?: string,
     state?: string,
     city?: string,
-    selectedPartner?: string
+    selectedPartner?: string,
+    oemId?: string,
+    userName?: string,
+    role?: string,
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Get all customer redeem coupons initiated>'
@@ -1215,6 +1228,14 @@ export class CustomerService {
 
     // Initialize match query
     const matchQuery: any = {};
+    
+    if (role === AdminRole.OEM) {
+      matchQuery.oemUserName = userName
+    };
+    
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
+      matchQuery.oemUserName = oemId
+    }
 
     // Validate date range
     if (firstDay && lastDay && firstDay > lastDay) {

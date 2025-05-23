@@ -666,6 +666,9 @@ export class CustomerController {
     const firstDate = req.query.firstDate;
     const lastDate = req.query.lastDate;
     const selectedPartner = req.query.selectedPartner;
+    const oemId = req.query.oemId;
+    const userName = req?.query?.userName;
+    const role = req?.query?.role;
     try {
       const result = await this.customerService.countAllRedeemCoupons(
         searchText as string,
@@ -673,7 +676,10 @@ export class CustomerController {
         city as string,
         selectedPartner as string,
         firstDate as string,
-        lastDate as string
+        lastDate as string,
+        oemId as string,
+        userName as string,
+        role as string
       );
       res.send({
         result
@@ -686,7 +692,7 @@ export class CustomerController {
 
 
   getAllRedeemCouponsPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, searchText, firstDate, lastDate, state, city, selectedPartner } =
+    const { pageNo, pageSize, searchText, firstDate, lastDate, state, city, selectedPartner, oemId } =
       req.body;
     Logger.info(
       '<Controller>:<CustomerController>:<Get Paginated Redeem Coupons Initiated>'
@@ -695,6 +701,8 @@ export class CustomerController {
       Logger.info(
         '<Controller>:<CustomerController>:<Get Paginated Redeem Coupons Initiated>'
       );
+      const userName = req?.userId;
+      const role = req?.role;
       const result = await this.customerService.getAllRedeemCouponsPaginated(
         pageNo,
         pageSize,
@@ -703,7 +711,10 @@ export class CustomerController {
         lastDate,
         state,
         city,
-        selectedPartner
+        selectedPartner,
+        oemId,
+        userName,
+        role
       );
       res.send({
         result
