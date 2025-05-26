@@ -16,11 +16,27 @@ export class AnalyticController {
     this.analyticService = analyticService;
   }
   getTotalCustomers = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city
+    }: {
+      startDate: string;
+      endDate: string;
+      state: string;
+      city: string;
+    } = req.body;
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All customers request controller initiated>'
     );
     try {
-      const result = await this.analyticService.getTotalCustomers();
+      const result = await this.analyticService.getTotalCustomers({
+        startDate,
+        endDate,
+        state,
+        city
+      });
       res.send({
         result
       });
@@ -187,9 +203,8 @@ export class AnalyticController {
       '<Controller>:<StoreController>:<Create  analytic controller initiated>'
     );
     try {
-      const result = await this.analyticService.createEventAnalytic(
-        requestData
-      );
+      const result =
+        await this.analyticService.createEventAnalytic(requestData);
       res.send({
         message: 'OK !!!!'
       });
@@ -692,9 +707,8 @@ export class AnalyticController {
       '<Controller>:<StoreController>:<Create  analytic controller initiated>'
     );
     try {
-      const result = await this.analyticService.createPartnerAnalytic(
-        requestData
-      );
+      const result =
+        await this.analyticService.createPartnerAnalytic(requestData);
       res.send({
         message: 'OK !!!!'
         // result
@@ -814,9 +828,8 @@ export class AnalyticController {
       '<Controller>:<StoreController>:<Create  analytic controller initiated>'
     );
     try {
-      const result = await this.analyticService.createVehicleAnalytic(
-        requestData
-      );
+      const result =
+        await this.analyticService.createVehicleAnalytic(requestData);
       res.send({
         message: 'OK !!!!'
       });
@@ -1131,9 +1144,8 @@ export class AnalyticController {
       '<Controller>:<Vehiclecontroller>:<Create  analytic controller initiated>'
     );
     try {
-      const result = await this.analyticService.createMarketingAnalytic(
-        requestData
-      );
+      const result =
+        await this.analyticService.createMarketingAnalytic(requestData);
       res.send({
         message: 'OK !!!!',
         result

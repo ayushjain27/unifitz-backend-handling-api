@@ -173,35 +173,42 @@ router.post(
   '/getSponsoredStorePaymentAnalytics',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.getSponsoredStorePaymentAnalytics
-)
+);
 
 router.get(
   '/getOverallPaymentDetails',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.getOverallPaymentDetails
-)
+);
 
 router.post(
   '/updateSponsoredPaymentDetails',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.updateSponsoredPaymentDetails
-)
+);
 
 router.get(
   '/totalNumberOfUsersPerCategoryPerMonth',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.totalNumberOfUsersPerCategoryPerMonth
-)
+);
 
 router.get(
   '/totalNumberOfUsersPerCategory',
   roleAuth(ACL.STORE_GET_ALL),
   storeController.totalNumberOfUsersPerCategory
-)
+);
 
-// router.get(
-//   '/getStoreByUserId',
-//   // roleAuth(ACL.STORE_GET_SINGLE),
-//   storeController.getStoreByUserId
-// );
+router.post(
+  '/getTotalOnboardedStoreAnalytics',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.getTotalOnboardedStoreAnalytics
+);
+
+router.post(
+  '/countTotalStores',
+  roleAuth(ACL.STORE_GET_ALL),
+  storeController.countTotalStores
+);
+
 export default router;

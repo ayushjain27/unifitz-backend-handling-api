@@ -1330,5 +1330,101 @@ export class CustomerService {
       { $limit: pageSize }
     ]);
     return inviteUsers;
-  }
+  };
+
+
+  async countAllCustomers(
+    state: string,
+    city: string
+  ) {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
+    );
+    const query: any = {}
+
+    if (state) {
+      query['contactInfo.state'] = state;
+    }
+    if (city) {
+      query['contactInfo.city'] = city;
+    }
+
+    const result = await Customer.find(query).countDocuments();
+    return { total: result };
+  };
+
+  async getTotalCustomers(
+    startDate: string,
+    endDate: string,
+    state: string,
+    city: string
+  ) {
+    Logger.info(
+      '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
+    );
+
+    const dateFilter: any = {};
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {};
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    }
+
+    if (state) {
+      query['contactInfo.state'] = state;
+    }
+    if (city) {
+      query['contactInfo.city'] = city;
+    }
+
+    const result = await Customer.aggregate([
+      { $match: query },
+      // Convert createdAt to Date if it's a string
+      {
+        $addFields: {
+          createdAtDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$createdAt' }, 'string'] }, // Check if it's a string
+              then: { $toDate: '$createdAt' }, // Convert string to Date
+              else: '$createdAt' // Keep as-is if already a Date
+            }
+          }
+        }
+      },
+      // Group by formatted date
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAtDate'
+            }
+          },
+          totalCustomers: { $sum: 1 }
+        }
+      },
+      // Format output
+      {
+        $project: {
+          date: '$_id',
+          totalCustomers: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return result;
+  };
 }

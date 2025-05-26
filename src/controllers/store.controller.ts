@@ -818,7 +818,6 @@ export class StoreController {
     }
   };
 
-
   countAllSponsoredStores = async (req: Request, res: Response) => {
     const query = req.query;
     Logger.info(
@@ -842,15 +841,8 @@ export class StoreController {
   };
 
   getSponsoredStorePaymentAnalytics = async (req: Request, res: Response) => {
-    const {
-      startDate,
-      endDate,
-      state,
-      city,
-      storeId,
-      category,
-      subCategory
-    } = req.body;
+    const { startDate, endDate, state, city, storeId, category, subCategory } =
+      req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get sponsored stored analytic request controller initiated>'
@@ -897,7 +889,9 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>:<update sponsored store payment details analytic request controller initiated>'
       );
-      const result = await this.storeService.updateSponsoredPaymentDetails(req.body);
+      const result = await this.storeService.updateSponsoredPaymentDetails(
+        req.body
+      );
       res.send({
         result
       });
@@ -909,12 +903,18 @@ export class StoreController {
     }
   };
 
-  totalNumberOfUsersPerCategoryPerMonth = async (req: Request, res: Response) => {
+  totalNumberOfUsersPerCategoryPerMonth = async (
+    req: Request,
+    res: Response
+  ) => {
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get total number of users per category analytic request controller initiated>'
       );
-      const result = await this.storeService.totalNumberOfUsersPerCategoryPerMonth(req.query);
+      const result =
+        await this.storeService.totalNumberOfUsersPerCategoryPerMonth(
+          req.query
+        );
       res.send({
         result
       });
@@ -931,7 +931,99 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>:<get total number of users per category analytic request controller initiated>'
       );
-      const result = await this.storeService.totalNumberOfUsersPerCategory(req.query);
+      const result = await this.storeService.totalNumberOfUsersPerCategory(
+        req.query
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getTotalOnboardedStoreAnalytics = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      category,
+      subCategory,
+      state,
+      city,
+      oemId,
+      oemUserId,
+      brandName
+    }: {
+      startDate: string;
+      endDate: string;
+      category: string;
+      subCategory: string;
+      state: string;
+      city: string;
+      oemId: string;
+      oemUserId: string;
+      brandName: string;
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get total stores onboarded analytic request controller initiated>'
+      );
+      const role = req?.role;
+      const userName = req?.userId;
+      console.log(role,"dmekmrfd", userName);
+      const result = await this.storeService.getTotalOnboardedStoreAnalytics(
+        startDate,
+        endDate,
+        category,
+        subCategory,
+        state,
+        city,
+        role,
+        userName,
+        oemId,
+        oemUserId,
+        brandName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  countTotalStores = async (req: Request, res: Response) => {
+    const {
+      state,
+      city,
+      oemId,
+      oemUserId,
+    }: {
+      state: string;
+      city: string;
+      oemId: string;
+      oemUserId: string;
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<StoreController>:<get total stores onboarded analytic request controller initiated>'
+      );
+      const role = req?.role;
+      const userName = req?.userId;
+      const result = await this.storeService.countTotalStores(
+        state,
+        city,
+        role,
+        userName,
+        oemId,
+        oemUserId,
+      );
       res.send({
         result
       });

@@ -2250,7 +2250,9 @@ export class StoreService {
             $cond: [
               {
                 $lt: [
-                  { $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] } },
+                  {
+                    $toDate: { $arrayElemAt: ['$paymentDetails.endDate', -1] }
+                  },
                   new Date()
                 ]
               },
@@ -2260,7 +2262,6 @@ export class StoreService {
           }
         }
       }
-      
     );
 
     const storeResponse: any = await Store.aggregate(pipeline);
@@ -2354,8 +2355,8 @@ export class StoreService {
       storeId: storeId,
       preferredServicePlugStore: true
     };
-console.log(firstDate,"fnkr",endDate)
-    console.log(query,"Frmf")
+    console.log(firstDate, 'fnkr', endDate);
+    console.log(query, 'Frmf');
 
     if (!state) {
       delete query['contactInfo.state'];
@@ -2691,4 +2692,150 @@ console.log(firstDate,"fnkr",endDate)
 
     return output;
   }
+
+  async getTotalOnboardedStoreAnalytics(
+    startDate: string,
+    endDate: string,
+    subCategory: string,
+    category: string,
+    state: string,
+    city: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
+    oemUserId?: string,
+    brandName?: string
+  ) {
+    Logger.info(
+      '<Service>:<StoreService>:<Get Store Onboarded analytics service initiated>'
+    );
+
+    const dateFilter: any = {};
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      dateFilter.$lte = new Date(end);
+    }
+
+    const query: any = {
+      profileStatus: 'ONBOARDED'
+    };
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    }
+
+    if (state) {
+      query['contactInfo.state'] = state;
+    }
+    if (city) {
+      query['contactInfo.city'] = city;
+    }
+
+    if (oemUserId) {
+      query.oemUserName = oemUserId;
+    }
+
+    if (category) {
+      query['basicInfo.category.name'] = { $in: category };
+    }
+    if (subCategory) {
+      query['basicInfo.subCategory.name'] = { $in: subCategory };
+    }
+    if (brandName) {
+      query['basicInfo.brand.name'] = { $in: brandName };
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    console.log(query," dkke")
+
+    const result = await Store.aggregate([
+      { $match: query },
+      // Convert createdAt to Date if it's a string
+      {
+        $addFields: {
+          createdAtDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$createdAt' }, 'string'] }, // Check if it's a string
+              then: { $toDate: '$createdAt' }, // Convert string to Date
+              else: '$createdAt' // Keep as-is if already a Date
+            }
+          }
+        }
+      },
+      // Group by formatted date
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAtDate'
+            }
+          },
+          totalStores: { $sum: 1 }
+        }
+      },
+      // Format output
+      {
+        $project: {
+          date: '$_id',
+          totalStores: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    return result;
+  };
+
+  async countTotalStores(
+    state: string,
+    city: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
+    oemUserId?: string
+  ) {
+    Logger.info(
+      '<Service>:<StoreService>:<Get Store Onboarded analytics service initiated>'
+    );
+    const query: any = {
+      profileStatus: 'ONBOARDED'
+    };
+
+    if (state) {
+      query['contactInfo.state'] = state;
+    }
+    if (city) {
+      query['contactInfo.city'] = city;
+    }
+
+    if (oemUserId) {
+      query.oemUserName = oemUserId;
+    }
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
+    const result = await Store.find(query).countDocuments();
+    return { total: result };
+  };
 }

@@ -727,6 +727,66 @@ export class CustomerController {
     }
   };
 
+  countAllCustomers = async (req: Request, res: Response) => {
+    const {
+      state,
+      city,
+    }: {
+      state: string;
+      city: string;
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<get total stores onboarded analytic request controller initiated>'
+      );
+      const result = await this.customerService.countAllCustomers(
+        state,
+        city
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getTotalCustomers = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city
+    }: {
+      startDate: string;
+      endDate: string;
+      state: string;
+      city: string;
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<get total customers onboarded analytic request controller initiated>'
+      );
+      const result = await this.customerService.getTotalCustomers(
+        startDate,
+        endDate,
+        state,
+        city
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':

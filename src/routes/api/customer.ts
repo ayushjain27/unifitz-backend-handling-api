@@ -166,4 +166,16 @@ router.post(
   customerController.getAllRedeemCouponsPaginated
 );
 
+router.post(
+  '/count-all-customers',
+  roleAuth(ACL.STORE_CREATE),
+  customerController.countAllCustomers
+);
+
+router.post(
+  '/getTotalCustomers',
+  roleAuth(ACL.STORE_GET_ALL),
+  customerController.getTotalCustomers
+);
+
 export default router;

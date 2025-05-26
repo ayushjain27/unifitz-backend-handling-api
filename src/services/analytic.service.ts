@@ -34,11 +34,38 @@ import PlusFeatureAnalyticModel from '../models/PlusFeaturesAnalytic';
 export class AnalyticService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
 
-  async getTotalCustomers() {
+  async getTotalCustomers(searchReqBody: {
+    startDate: string;
+    endDate: string;
+    state: string;
+    city: string;
+  }) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
-    const result = await Customer.find({});
+
+    const query: any = {};
+    let startDate;
+    let endDate;
+    if(searchReqBody?.startDate && searchReqBody?.endDate){
+      startDate = new Date(searchReqBody.startDate);
+      startDate.setDate(startDate.getDate() + 1);
+      startDate.setUTCHours(0, 0, 0, 0);
+
+      endDate = new Date(searchReqBody.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      endDate.setUTCHours(23, 59, 59, 999);
+      query.createdAt = { $gte: startDate, $lte: endDate };
+    };
+
+    if (searchReqBody.state) {
+      query['contactInfo.state'] = { $in: searchReqBody.state };
+    };
+    if (searchReqBody.city) {
+      query['contactInfo.city'] = { $in: searchReqBody.city };
+    };
+    Logger.debug(query);
+    const result = await Customer.find(query).countDocuments();
     return { total: result };
   }
 
@@ -116,57 +143,46 @@ export class AnalyticService {
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
 
-    let startDate = null;
-    let endDate = null;
-    if (searchReqBody.startDate) {
-      startDate = new Date(searchReqBody.startDate.toString());
-      endDate = new Date(searchReqBody.endDate.toString());
+    const query: any = {
+      profileStatus: 'ONBOARDED'
+    };
+
+    let startDate;
+    let endDate;
+    if(searchReqBody?.startDate && searchReqBody?.endDate){
+      startDate = new Date(searchReqBody.startDate);
+      startDate.setDate(startDate.getDate() + 1);
+      startDate.setUTCHours(0, 0, 0, 0);
+
+      endDate = new Date(searchReqBody.endDate);
       endDate.setDate(endDate.getDate() + 1);
+      endDate.setUTCHours(23, 59, 59, 999);
+      query.createdAt = { $gte: startDate, $lte: endDate };
     }
 
-    const query: any = {
-      // 'contactInfo.geoLocation': {
-      //   $near: {
-      //     $geometry: { type: 'Point', coordinates: searchReqBody.coordinates }
-      //   }
-      // },
-      'basicInfo.category.name': { $in: searchReqBody.category },
-      'basicInfo.subCategory.name': { $in: searchReqBody.subCategory },
-      'basicInfo.brand.name': { $in: searchReqBody.brandName },
-      'contactInfo.state': { $in: searchReqBody.state },
-      'contactInfo.city': { $in: searchReqBody.city },
-      createdAt: { $gte: startDate, $lt: endDate },
-      profileStatus: 'ONBOARDED',
-      storeId: searchReqBody.storeId,
-      oemUserName: searchReqBody.oemUserId
-    };
-    if (!searchReqBody.storeId) {
-      delete query['storeId'];
+    if (searchReqBody.storeId) {
+      query.storeId = searchReqBody.storeId;
     }
-    if (!searchReqBody.oemUserId) {
-      delete query['oemUserName'];
+    if (searchReqBody.oemUserId) {
+      query.oemUserName = searchReqBody.oemUserId;
     }
-    if (!searchReqBody.category) {
-      delete query['basicInfo.category.name'];
+    if (searchReqBody.category) {
+      query['basicInfo.category.name'] = { $in: searchReqBody.category };
     }
-    if (!searchReqBody.subCategory || searchReqBody.subCategory.length === 0) {
-      delete query['basicInfo.subCategory.name'];
+    if (searchReqBody.subCategory) {
+      query['basicInfo.subCategory.name'] = { $in: searchReqBody.subCategory };
     }
-    if (!searchReqBody.brandName) {
-      delete query['basicInfo.brand.name'];
+    if (searchReqBody.brandName) {
+      query['basicInfo.brand.name'] = { $in: searchReqBody.brandName };
     }
-    if (!searchReqBody.state) {
-      delete query['contactInfo.state'];
+    if (searchReqBody.state) {
+      query['contactInfo.state'] = { $in: searchReqBody.state };
     }
-    if (!searchReqBody.city) {
-      delete query['contactInfo.city'];
-    }
-    if (!startDate && !endDate) {
-      delete query.createdAt;
+    if (searchReqBody.city) {
+      query['contactInfo.city'] = { $in: searchReqBody.city };
     }
     Logger.debug(query);
 
-    let res: any[] = [];
     if (searchReqBody.role === AdminRole.OEM) {
       query.oemUserName = searchReqBody.userName;
     }
@@ -178,8 +194,9 @@ export class AnalyticService {
     if (searchReqBody.oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    res = await Store.find(query, {
-      'verificationDetails.verifyObj': 0
+    const res = await Store.find(query, {
+      '_id': 1,  // Keep _id (optional)
+      'contactInfo.geoLocation.coordinates': 1  // Include only coordinates
     });
     return res;
   }
@@ -2672,7 +2689,6 @@ export class AnalyticService {
     if (!city) {
       delete query['userInformation.city'];
     }
-    // console.log(query, 'queryquery');
 
     const combinedResult = await EventAnalyticModel.aggregate([
       {
@@ -3095,9 +3111,7 @@ export class AnalyticService {
         { 'marketingDetails.employeeUserName': oemUserName },
         { 'marketingDetails.oemUserName': oemUserName }
       ];
-    }
-
-    console.log(query, statusQuery, role, oemUserName, 'oemusernamemmmamam');
+    };
 
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       { $match: query },
@@ -3612,8 +3626,7 @@ export class AnalyticService {
         { employeeUserName: userName },
         { oemUserName: userName }
       ];
-    }
-    console.log(statusQuery, query, userName, role, 'userNameuserName');
+    };
 
     const response = await Marketing.aggregate([
       {
@@ -3984,8 +3997,7 @@ export class AnalyticService {
 
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
-    }
-    console.log(query, 'queryyyyyy');
+    };
     
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       {
