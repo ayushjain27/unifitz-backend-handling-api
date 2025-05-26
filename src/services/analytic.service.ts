@@ -38,7 +38,7 @@ export class AnalyticService {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
-    const result = await Customer.find({ companyType: 'Manufacturer' });
+    const result = await Customer.find({});
     return { total: result };
   }
 
