@@ -958,96 +958,79 @@ export class AnalyticService {
     platform: string,
     oemId?: string,
     adminFilterOemId?: string,
-    brandName?: string
+    oemUserId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
-    let query: any = {};
+    let query: any = {
+      event: { $ne: 'IMPRESSION_COUNT' }
+    };
     Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
     // const c_Date = new Date();
-    const firstDay = new Date(firstDate);
-    const lastDay = new Date(lastDate);
-    const nextDate = new Date(lastDay);
-    nextDate.setDate(lastDay.getDate() + 1);
-    const tday = new Date();
+    const dateFilter: any = {};
+    if (firstDate) {
+      const start = new Date(firstDate);
+      start.setUTCHours(0, 0, 0, 0);
+      dateFilter.$gte = new Date(start);
+    };
+    if (lastDate) {
+      const end = new Date(lastDate);
+      end.setUTCHours(23, 59, 59, 999);
+      dateFilter.$lte = new Date(end);
+    };
 
-    query = {
+     // 3. Optimized field filtering
+     const filterFields = {
       'userInformation.state': state,
       'userInformation.city': city,
-      createdAt: {
-        $gte: firstDay,
-        $lte: nextDate
-      },
-      event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
       platform: platform,
-      oemUserName: adminFilterOemId
+      oemUserName: adminFilterOemId || oemUserId
     };
-    if (!adminFilterOemId) {
-      delete query['oemUserName'];
-    }
 
-    if (!state) {
-      delete query['userInformation.state'];
-    }
-    if (!city) {
-      delete query['userInformation.city'];
-    }
-    if (!platform) {
-      delete query['platform'];
-    }
-    if (!storeId) {
-      delete query['moduleInformation'];
-    }
+    Object.entries(filterFields).forEach(([key, value]) => {
+      if (value) query[key] = value;
+    });
+
+    if (Object.keys(dateFilter).length) {
+      query.createdAt = dateFilter;
+    };
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
-    }
+    };
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
-    }
+    };
 
-    if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
-
-    const combinedResult = await EventAnalyticModel.aggregate([
-      {
-        $match: query
-      },
-      {
-        $group: {
-          _id: '$event',
-          initialCount: { $sum: 1 },
-          queryCount: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $gte: ['$createdAt', firstDay] },
-                    { $lte: ['$createdAt', nextDate] }
-                  ]
-                },
-                1,
-                0
-              ]
-            }
+    try {
+      const startTime = Date.now();
+      
+      const combinedResult = await EventAnalyticModel.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: '$event',
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            name: '$_id',
+            count: 1,
+            _id: 0
           }
         }
-      },
-      {
-        $project: {
-          name: '$_id',
-          count: '$queryCount',
-          total: '$initialCount',
-          _id: 0
-        }
-      }
-    ]);
+      ]);
 
-    return combinedResult;
+      Logger.debug(`Query executed in ${Date.now() - startTime}ms`);
+      return combinedResult;
+    } catch (error) {
+      Logger.error('Error in getTrafficAnalytic:', error);
+      throw error;
+    };
   }
 
   async getOverallTrafficAnalaytic(
@@ -1059,52 +1042,38 @@ export class AnalyticService {
     platform: string,
     oemId?: string,
     adminFilterOemId?: string,
-    brandName?: string
+    oemUserId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
     );
-    let query: any = {};
+    let query: any = {
+      event: { $ne: 'IMPRESSION_COUNT' }
+    };
     Logger.debug(`${role} ${userName} getTrafficAnalaytic getTrafficAnalaytic`);
     // const c_Date = new Date();
     const tday = new Date();
 
-    query = {
+    // 3. Optimized field filtering
+    const filterFields = {
       'userInformation.state': state,
       'userInformation.city': city,
-      event: { $ne: 'IMPRESSION_COUNT' },
       moduleInformation: storeId,
       platform: platform,
-      oemUserName: adminFilterOemId
+      oemUserName: adminFilterOemId || oemUserId
     };
-    if (!adminFilterOemId) {
-      delete query['oemUserName'];
-    }
 
-    if (!state) {
-      delete query['userInformation.state'];
-    }
-    if (!city) {
-      delete query['userInformation.city'];
-    }
-    if (!platform) {
-      delete query['platform'];
-    }
-    if (!storeId) {
-      delete query['moduleInformation'];
-    }
+    Object.entries(filterFields).forEach(([key, value]) => {
+      if (value) query[key] = value;
+    });
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
-    }
+    };
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
-    }
-
-    if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
-    }
+    };
 
     const combinedResult = await EventAnalyticModel.aggregate([
       {
@@ -3400,7 +3369,8 @@ export class AnalyticService {
     platform: string,
     oemId?: string,
     userName?: string,
-    status?: string
+    status?: string,
+    oemUserId?: string
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -3437,23 +3407,20 @@ export class AnalyticService {
       delete query['platform'];
     }
 
-    // if (role === AdminRole.OEM) {
-    //   query.oemUserName = oemUserName;
-    // }
+    if (role === AdminRole.OEM) {
+      query.oemUserName = oemUserName;
+    }
 
-    // if (role === AdminRole.EMPLOYEE) {
-    //   query.oemUserName = oemId;
-    // }
-
-    // if (oemId === 'SERVICEPLUG') {
-    //   delete query['oemUserName'];
-    // }
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICDPLUG') {
+      query.oemUserName = oemId;
+    }
 
     const statusQuery: any = {};
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
     if (storeId) statusQuery['marketingDetails.storeId'] = storeId;
     if (userName) statusQuery['marketingDetails.oemUserName'] = userName;
+    if (oemUserId) statusQuery['marketingDetails.oemUserName'] = oemUserId;
     if (status) statusQuery['marketingDetails.status'] = status;
     if (role === AdminRole.OEM) {
       statusQuery.$or = [

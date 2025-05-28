@@ -434,7 +434,7 @@ export class AnalyticController {
       platform,
       oemId,
       adminFilterOemId,
-      brandName
+      oemUserId
     } = req.body;
     try {
       Logger.info(
@@ -451,7 +451,7 @@ export class AnalyticController {
         platform,
         oemId,
         adminFilterOemId,
-        brandName
+        oemUserId
       );
       res.send({
         result
@@ -474,7 +474,7 @@ export class AnalyticController {
       platform,
       oemId,
       adminFilterOemId,
-      brandName
+      oemUserId
     } = req.body;
     try {
       Logger.info(
@@ -489,7 +489,7 @@ export class AnalyticController {
         platform,
         oemId,
         adminFilterOemId,
-        brandName
+        oemUserId
       );
       res.send({
         result
@@ -1252,7 +1252,8 @@ export class AnalyticController {
       platform,
       oemId,
       userName,
-      status
+      status,
+      oemUserId
     } = req.body;
     try {
       Logger.info(
@@ -1269,7 +1270,8 @@ export class AnalyticController {
         platform,
         oemId,
         userName,
-        status
+        status,
+        oemUserId
       );
       res.send({
         result

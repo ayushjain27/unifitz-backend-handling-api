@@ -891,7 +891,8 @@ export class OrderManagementService {
     storeId?: string,
     adminFilterOemId?: string,
     state?: string,
-    city?: string
+    city?: string,
+    oemUserId?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>:<Search and Filter orders count service initiated>'
@@ -921,6 +922,10 @@ export class OrderManagementService {
 
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
+    }
+
+    if(oemUserId){
+      query.oemUserName = oemUserId;
     }
 
     const overallStatus = {

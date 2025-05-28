@@ -2759,8 +2759,6 @@ export class StoreService {
       query.oemUserName = oemId;
     }
 
-    console.log(query," dkke")
-
     const result = await Store.aggregate([
       { $match: query },
       // Convert createdAt to Date if it's a string
@@ -2784,14 +2782,14 @@ export class StoreService {
               date: '$createdAtDate'
             }
           },
-          totalStores: { $sum: 1 }
+          totalData: { $sum: 1 }
         }
       },
       // Format output
       {
         $project: {
           date: '$_id',
-          totalStores: 1,
+          totalData: 1,
           _id: 0
         }
       },

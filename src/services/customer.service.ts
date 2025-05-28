@@ -1411,14 +1411,14 @@ export class CustomerService {
               date: '$createdAtDate'
             }
           },
-          totalCustomers: { $sum: 1 }
+          totalData: { $sum: 1 }
         }
       },
       // Format output
       {
         $project: {
           date: '$_id',
-          totalCustomers: 1,
+          totalData: 1,
           _id: 0
         }
       },

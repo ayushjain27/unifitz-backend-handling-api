@@ -767,7 +767,8 @@ export class BuySellService {
       status,
       vehicleType,
       userType,
-      oemId
+      oemId,
+      oemUserId
     } = req || {};
 
     const firstDay = firstDate ? new Date(firstDate) : undefined;
@@ -838,6 +839,7 @@ export class BuySellService {
     if (role === AdminRole.OEM) query.oemUserName = userName;
     if (role === AdminRole.EMPLOYEE) query.oemUserName = oemId;
     if (oemId === 'SERVICEPLUG') delete query.oemUserName;
+    if(oemUserId) query.oemUserName = oemUserId
 
     Logger.debug(query);
 
@@ -917,6 +919,7 @@ export class BuySellService {
 
     const statusQuery = { status };
     const query: any = {
+      status,
       updatedAt:
         firstDate && lastDate ? { $gte: firstDay, $lte: nextDate } : undefined,
       'vehicleInfo.vehicleType': vehicleType,

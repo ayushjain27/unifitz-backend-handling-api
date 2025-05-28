@@ -175,6 +175,7 @@ export class OrderManagementController {
     const adminFilterOemId = req?.query?.adminFilterOemId;
     const state = req?.query?.state;
     const city = req?.query?.city;
+    const oemUserId = req?.query?.oemUserId;
 
     Logger.info(
       '<Controller>:<OrderManagementController>:<Search and Filter Orders count request controller initiated>'
@@ -197,7 +198,8 @@ export class OrderManagementController {
           storeId as string,
           adminFilterOemId as string,
           state as string,
-          city as string
+          city as string,
+          oemUserId as string
         );
       res.send({
         result
