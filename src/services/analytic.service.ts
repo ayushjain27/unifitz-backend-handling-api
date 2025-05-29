@@ -3378,10 +3378,36 @@ export class AnalyticService {
     let query: any = {};
     Logger.debug(`${role} ${oemUserName} getTrafficAnalaytic`);
     // const c_Date = new Date();
-    const firstDay = new Date(firstDate);
-    const lastDay = new Date(lastDate);
-    const nextDate = new Date(lastDay);
-    nextDate.setDate(lastDay.getDate() + 1);
+    // const firstDay = new Date(firstDate);
+    // const lastDay = new Date(lastDate);
+    // const nextDate = new Date(lastDay);
+    const firstDay = firstDate
+      ? new Date(
+          Date.UTC(
+            new Date(firstDate).getUTCFullYear(),
+            new Date(firstDate).getUTCMonth(),
+            new Date(firstDate).getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        )
+      : null;
+    const nextDate = lastDate
+      ? new Date(
+          Date.UTC(
+            new Date(lastDate).getUTCFullYear(),
+            new Date(lastDate).getUTCMonth(),
+            new Date(lastDate).getUTCDate(),
+            23,
+            59,
+            59,
+            999
+          )
+        )
+      : null;
+    // nextDate.setDate(lastDay.getDate() + 1);
     const tday = new Date();
 
     query = {

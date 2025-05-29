@@ -2273,13 +2273,11 @@ export class StoreService {
       '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>'
     );
 
-    console.log(reqPayload, 'reqPayload');
-
     const startDate = reqPayload?.startDate
       ? new Date(reqPayload.startDate).setUTCHours(0, 0, 0, 0)
       : null;
-    const endDate = reqPayload?.lastDate
-      ? new Date(reqPayload.lastDate).setUTCHours(23, 59, 59, 999)
+    const endDate = reqPayload?.endDate
+      ? new Date(reqPayload.endDate).setUTCHours(23, 59, 59, 999)
       : null;
 
     const query: any = {
@@ -2338,7 +2336,11 @@ export class StoreService {
     city: string,
     category: string,
     subCategory: string,
-    storeId: string
+    storeId: string,
+    oemUserId: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
   ) {
     const startDate = firstDate
       ? new Date(firstDate).setUTCHours(0, 0, 0, 0)
@@ -2355,8 +2357,6 @@ export class StoreService {
       storeId: storeId,
       preferredServicePlugStore: true
     };
-    console.log(firstDate, 'fnkr', endDate);
-    console.log(query, 'Frmf');
 
     if (!state) {
       delete query['contactInfo.state'];
@@ -2377,6 +2377,18 @@ export class StoreService {
     if (!storeId) {
       delete query['storeId'];
     }
+
+    if(oemUserId){
+      query.oemUserName = oemUserId
+    };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    };
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    };
 
     const result = await Store.aggregate([
       { $match: query },
@@ -2425,14 +2437,14 @@ export class StoreService {
         $group: {
           _id: '$groupId',
           totalAmount: { $sum: '$amount' },
-          totalCustomers: { $addToSet: '$customerId' }
+          totalData: { $addToSet: '$customerId' }
         }
       },
       {
         $project: {
           date: '$_id',
           totalAmount: 1,
-          totalCustomers: { $size: '$totalCustomers' },
+          totalData: { $size: '$totalData' },
           _id: 0
         }
       },

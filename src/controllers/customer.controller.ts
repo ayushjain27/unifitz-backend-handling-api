@@ -787,6 +787,82 @@ export class CustomerController {
     }
   };
 
+  getTotalCustomersReferred = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city
+    }: {
+      startDate: string;
+      endDate: string;
+      state: string;
+      city: string;
+    } = req.body;
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<get total customers onboarded analytic request controller initiated>'
+      );
+      const result = await this.customerService.getTotalCustomersReferred(
+        startDate,
+        endDate,
+        state,
+        city
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getTotalCustomersRedeemedCoupons = async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      state,
+      city,
+      oemUserId,
+      oemId
+    }: {
+      startDate: string;
+      endDate: string;
+      state: string;
+      city: string;
+      oemUserId: string;
+      oemId: string;
+    } = req.body;
+    const userName = req?.userId;
+      const role = req?.role;
+    try {
+      Logger.info(
+        '<Controller>:<CustomerController>:<get total customers onboarded analytic request controller initiated>'
+      );
+      const result = await this.customerService.getTotalCustomersRedeemedCoupons(
+        startDate,
+        endDate,
+        state,
+        city,
+        oemUserId,
+        oemId,
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   validate = (method: string) => {
     switch (method) {
       case 'initiateUserVerification':

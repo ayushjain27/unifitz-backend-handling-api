@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import CreateInvoice from '../models/CreateInvoice';
+import { AdminRole } from '../models/Admin';
 
 require('dotenv').config();
 
@@ -496,7 +497,11 @@ export class JobCardService {
     endDate: string,
     state: string,
     city: string,
-    searchText: string
+    searchText: string,
+    oemUserId?: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
   ) {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter job card analytics service initiated>'
@@ -541,6 +546,18 @@ export class JobCardService {
       ];
     }
 
+    if(oemUserId){
+      query['storeDetail.oemUserName'] = oemUserId;
+    };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    };
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    };
+
     const result = await JobCard.aggregate([
       {
         $lookup: {
@@ -579,7 +596,7 @@ export class JobCardService {
               date: '$createdAt'
             }
           },
-          totalJobCards: { $sum: 1 },
+          totalData: { $sum: 1 },
           totalAmount: { $sum: '$totalAmount' }
         }
       },
@@ -587,7 +604,7 @@ export class JobCardService {
       {
         $project: {
           date: '$_id',
-          totalJobCards: 1,
+          totalData: 1,
           totalAmount: 1,
           _id: 0
         }

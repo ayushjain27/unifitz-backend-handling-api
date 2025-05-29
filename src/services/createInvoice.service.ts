@@ -13,6 +13,7 @@ import CreateInvoice, { ICreateInvoice } from './../models/CreateInvoice';
 import { SurepassService } from './surepass.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
+import { AdminRole } from '../models/Admin';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -370,7 +371,11 @@ export class CreateInvoiceService {
     endDate: string,
     state: string,
     city: string,
-    searchText: string
+    searchText: string,
+    oemUserId: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
   ) {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice analytics service initiated>'
@@ -415,6 +420,18 @@ export class CreateInvoiceService {
         }
       ];
     }
+
+    if(oemUserId){
+      query['storeDetail.oemUserName'] = oemUserId;
+    };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    };
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    };
 
     const result = await CreateInvoice.aggregate([
       {
@@ -478,7 +495,7 @@ export class CreateInvoiceService {
               date: '$formattedDate'
             }
           },
-          totalInvoices: { $sum: 1 },
+          totalData: { $sum: 1 },
           totalAmount: { $sum: '$totalAmount' }
         }
       },
@@ -486,7 +503,7 @@ export class CreateInvoiceService {
       {
         $project: {
           date: '$_id',
-          totalInvoices: 1,
+          totalData: 1,
           totalAmount: 1,
           _id: 0
         }

@@ -147,18 +147,26 @@ export class CreateInvoiceController {
       endDate,
       state,
       city,
-      searchText
+      searchText,
+      oemUserId,
+      oemId
     } = req.body;
     try {
       Logger.info(
         '<Controller>:<CreateInvoiceController>:<get invoice payment analytic request controller initiated>'
       );
+      const role = req?.role;
+      const userName = req?.userId;
       const result = await this.createInvoiceService.getInvoiceTotalPaymentAnalytics(
         startDate,
         endDate,
         state,
         city,
-        searchText
+        searchText,
+        oemUserId,
+        role,
+        userName,
+        oemId
       );
       res.send({
         result

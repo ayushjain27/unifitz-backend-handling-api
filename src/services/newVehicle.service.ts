@@ -211,6 +211,7 @@ export class NewVehicleInfoService {
   }
 
   async getAllVehicle(
+    oemUserId?: string,
     userName?: string,
     role?: string,
     oemId?: string,
@@ -221,19 +222,33 @@ export class NewVehicleInfoService {
     firstDate?: string,
     lastDate?: string
   ) {
-    const firstDay = firstDate ? new Date(firstDate) : undefined;
-    const nextDay = lastDate
-      ? new Date(lastDate).setDate(new Date(lastDate).getDate() + 1)
-      : undefined;
     const storeKey = [storeId];
     const query: any = {
-      updatedAt:
-        firstDate && lastDate ? { $gte: firstDay, $lte: nextDay } : undefined,
       vehicle: vehicleType,
       brand: brandName?.catalogName,
       oemUserName: adminFilterOemId,
       'stores.storeId': { $in: storeKey }
     };
+
+    let firstDay;
+    let nextDay;
+    if (firstDate) {
+      // Create start time in UTC at the beginning of the day (00:00:00)
+      firstDay = new Date(firstDate);
+      firstDay.setDate(firstDay.getDate());
+      firstDay.setUTCHours(0, 0, 0, 0);
+
+      // Create end time in UTC at the end of the day (23:59:59)
+      nextDay = new Date(lastDate);
+      nextDay.setDate(nextDay.getDate());
+      nextDay.setUTCHours(23, 59, 59, 999);
+
+      query.updatedAt = { $gte: firstDay, $lte: nextDay };
+    }
+
+    if(oemUserId){
+      query.oemUserName = oemUserId
+    }
     if (!query.updatedAt) delete query['updatedAt'];
 
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');

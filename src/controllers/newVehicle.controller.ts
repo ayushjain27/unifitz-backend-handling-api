@@ -120,6 +120,7 @@ export class NewVehicleInfoController {
     const role = req?.role;
     const {
       oemId,
+      oemUserId,
       vehicleType,
       storeId,
       adminFilterOemId,
@@ -132,6 +133,7 @@ export class NewVehicleInfoController {
     );
     try {
       const result = await this.vehicleInfoService.getAllVehicle(
+        oemUserId,
         userName,
         role,
         oemId,

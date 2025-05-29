@@ -178,4 +178,16 @@ router.post(
   customerController.getTotalCustomers
 );
 
+router.post(
+  '/getTotalCustomersReferred',
+  roleAuth(ACL.STORE_GET_ALL),
+  customerController.getTotalCustomersReferred
+);
+
+router.post(
+  '/getTotalCustomersRedeemedCoupons',
+  roleAuth(ACL.STORE_GET_ALL),
+  customerController.getTotalCustomersRedeemedCoupons
+);
+
 export default router;

@@ -841,12 +841,14 @@ export class StoreController {
   };
 
   getSponsoredStorePaymentAnalytics = async (req: Request, res: Response) => {
-    const { startDate, endDate, state, city, storeId, category, subCategory } =
+    const { startDate, endDate, state, city, storeId, category, subCategory, oemUserId, oemId } =
       req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get sponsored stored analytic request controller initiated>'
       );
+      const role = req?.role;
+      const userName = req?.userId;
       const result = await this.storeService.getSponsoredStorePaymentAnalytics(
         startDate,
         endDate,
@@ -854,7 +856,11 @@ export class StoreController {
         city,
         category,
         subCategory,
-        storeId
+        storeId,
+        oemUserId,
+        role,
+        userName,
+        oemId
       );
       res.send({
         result
@@ -973,7 +979,6 @@ export class StoreController {
       );
       const role = req?.role;
       const userName = req?.userId;
-      console.log(role,"dmekmrfd", userName);
       const result = await this.storeService.getTotalOnboardedStoreAnalytics(
         startDate,
         endDate,

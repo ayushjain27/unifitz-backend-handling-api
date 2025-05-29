@@ -242,8 +242,12 @@ export class JobCardController {
       endDate,
       state,
       city,
-      searchText
+      searchText,
+      oemUserId,
+      oemId
     } = req.body;
+    const role = req?.role;
+      const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard payment analytic request controller initiated>'
@@ -253,7 +257,11 @@ export class JobCardController {
         endDate,
         state,
         city,
-        searchText
+        searchText,
+        oemUserId,
+        role,
+        userName,
+        oemId
       );
       res.send({
         result

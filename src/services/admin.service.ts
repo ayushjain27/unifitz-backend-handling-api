@@ -314,7 +314,6 @@ export class AdminService {
     if (!createdOemUser) {
       delete query['createdOemUser'];
     }
-    console.log(query, createdOemUser, 'createdOemUser');
 
     const admin: IAdmin[] = await Admin.find(query);
 

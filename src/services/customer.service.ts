@@ -1427,4 +1427,244 @@ export class CustomerService {
 
     return result;
   };
+
+  async getTotalCustomersReferred(
+    startDate: string,
+    endDate: string,
+    state: string,
+    city: string
+  ) {
+    Logger.info('<Service>:<CustomerService>:<Get Customers analytics service initiated>');
+  
+    try {
+      // Initialize date filter
+      const dateFilter: any = {};
+  
+      // Set up date range if provided
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setUTCHours(0, 0, 0, 0);
+        dateFilter.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setUTCHours(23, 59, 59, 999);
+        dateFilter.$lte = end;
+      }
+  
+      // Build the query
+      const query: any = {
+        referralCode: { $exists: true }
+      };
+  
+      if (Object.keys(dateFilter).length > 1) { // More than just referralCode exists check
+        query.createdAt = dateFilter;
+      }
+  
+      // Add location filters
+      if (state) {
+        query['contactInfo.state'] = state;
+      }
+      if (city) {
+        query['contactInfo.city'] = city;
+      }
+
+      console.log(query,"edninrfdnekn")
+  
+      // Perform aggregation
+      const result = await Customer.aggregate([
+        { $match: query },
+        // Ensure createdAt is properly formatted as Date
+        {
+          $addFields: {
+            createdAtDate: {
+              $cond: [
+                { $eq: [{ $type: '$createdAt' }, 'string'] },
+                { $dateFromString: { dateString: '$createdAt' } },
+                '$createdAt'
+              ]
+            }
+          }
+        },
+        // Group by day
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: '$createdAtDate',
+                timezone: 'UTC' // Ensure consistent timezone
+              }
+            },
+            totalData: { $sum: 1 }
+          }
+        },
+        // Format output
+        {
+          $project: {
+            date: '$_id',
+            totalData: 1,
+            _id: 0
+          }
+        },
+        // Sort chronologically
+        { $sort: { date: 1 } },
+        // Fill in missing dates with zero counts
+        {
+          $group: {
+            _id: null,
+            data: { $push: '$$ROOT' },
+            allDates: {
+              $push: '$date'
+            }
+          }
+        },
+        // Generate date series if needed (optional)
+        {
+          $project: {
+            data: 1,
+            allDates: 1
+          }
+        }
+      ]);
+  
+      // If no results, return empty array
+      if (result.length === 0) {
+        return [];
+      }
+  
+      // Return the data array
+      return result[0].data || [];
+    } catch (error) {
+      Logger.error('<Service>:<CustomerService>:<Error in getTotalCustomersReferred>', error);
+      throw new Error('Failed to fetch referral analytics');
+    }
+  }
+
+  async getTotalCustomersRedeemedCoupons(
+    startDate: string,
+    endDate: string,
+    state: string,
+    city: string,
+    oemUserId: string,
+    oemId: string,
+    userName: string,
+    role: string,
+  ) {
+    Logger.info('<Service>:<CustomerService>:<Get Customers analytics service initiated>');
+  
+    try {
+      // Initialize date filter
+      const dateFilter: any = {};
+  
+      // Set up date range if provided
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setUTCHours(0, 0, 0, 0);
+        dateFilter.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setUTCHours(23, 59, 59, 999);
+        dateFilter.$lte = end;
+      }
+  
+      // Build the query
+      const query: any = {};
+  
+      if (Object.keys(dateFilter).length > 1) { // More than just referralCode exists check
+        query.createdAt = dateFilter;
+      }
+  
+      // Add location filters
+      if (state) {
+        query['contactInfo.state'] = state;
+      }
+      if (city) {
+        query['contactInfo.city'] = city;
+      }
+
+      if (oemUserId) {
+        query.oemUserName = oemUserId;
+      }
+  
+      if (role === AdminRole.OEM) {
+        query.oemUserName = userName;
+      }
+  
+      if (role === AdminRole.EMPLOYEE) {
+        query.oemUserName = oemId;
+      }
+
+      console.log(query,"demkmdfrk")
+  
+      // Perform aggregation
+      const result = await CustomerRedeemCoupon.aggregate([
+        { $match: query },
+        // Ensure createdAt is properly formatted as Date
+        {
+          $addFields: {
+            createdAtDate: {
+              $cond: [
+                { $eq: [{ $type: '$createdAt' }, 'string'] },
+                { $dateFromString: { dateString: '$createdAt' } },
+                '$createdAt'
+              ]
+            }
+          }
+        },
+        // Group by day
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: '$createdAtDate',
+                timezone: 'UTC' // Ensure consistent timezone
+              }
+            },
+            totalData: { $sum: 1 }
+          }
+        },
+        // Format output
+        {
+          $project: {
+            date: '$_id',
+            totalData: 1,
+            _id: 0
+          }
+        },
+        // Sort chronologically
+        { $sort: { date: 1 } },
+        // Fill in missing dates with zero counts
+        {
+          $group: {
+            _id: null,
+            data: { $push: '$$ROOT' },
+            allDates: {
+              $push: '$date'
+            }
+          }
+        },
+        // Generate date series if needed (optional)
+        {
+          $project: {
+            data: 1,
+            allDates: 1
+          }
+        }
+      ]);
+  
+      // If no results, return empty array
+      if (result.length === 0) {
+        return [];
+      }
+  
+      // Return the data array
+      return result[0].data || [];
+    } catch (error) {
+      Logger.error('<Service>:<CustomerService>:<Error in getTotalCustomersReferred>', error);
+      throw new Error('Failed to fetch referral analytics');
+    }
+  }
 }
