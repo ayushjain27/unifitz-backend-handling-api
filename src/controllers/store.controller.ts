@@ -804,10 +804,14 @@ export class StoreController {
       '<Controller>:<StoreController>:<Get all sponsored store request controller initiated>'
     );
     try {
+      const role = req?.role;
+      const userName = req?.userId;
       const result = await this.storeService.getSponsoredStorePaginatedAll(
         req.body.pageNo,
         req.body.pageSize,
-        req.body
+        req.body,
+        role,
+        userName,
       );
       res.send({
         result
@@ -820,6 +824,8 @@ export class StoreController {
 
   countAllSponsoredStores = async (req: Request, res: Response) => {
     const query = req.query;
+    const role = req?.role;
+    const userName = req?.userId;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Sponsored Stores pagination request controller initiated>'
     );
@@ -827,8 +833,11 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>:<Search and Filter Sponsored Stores pagination request controller initiated>'
       );
-      const result: any =
-        await this.storeService.countAllSponsoredStores(query);
+      const result: any = await this.storeService.countAllSponsoredStores(
+        query,
+        role,
+        userName
+      );
       res.send({
         result
       });
@@ -841,8 +850,17 @@ export class StoreController {
   };
 
   getSponsoredStorePaymentAnalytics = async (req: Request, res: Response) => {
-    const { startDate, endDate, state, city, storeId, category, subCategory, oemUserId, oemId } =
-      req.body;
+    const {
+      startDate,
+      endDate,
+      state,
+      city,
+      storeId,
+      category,
+      subCategory,
+      oemUserId,
+      oemId
+    } = req.body;
     try {
       Logger.info(
         '<Controller>:<StoreController>:<get sponsored stored analytic request controller initiated>'
@@ -878,7 +896,14 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>:<get overall payment details of stored analytic request controller initiated>'
       );
-      const result = await this.storeService.getOverallPaymentDetails();
+      const role = req.role;
+      const userName = req.userId;
+      const oemId = req.query?.oemId;
+      const result = await this.storeService.getOverallPaymentDetails(
+        role,
+        userName,
+        oemId as string
+      );
       res.send({
         result
       });
@@ -917,9 +942,13 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>:<get total number of users per category analytic request controller initiated>'
       );
+      const role = req?.role;
+      const userName = req?.userId;
       const result =
         await this.storeService.totalNumberOfUsersPerCategoryPerMonth(
-          req.query
+          req.query,
+          role,
+          userName
         );
       res.send({
         result
@@ -937,8 +966,12 @@ export class StoreController {
       Logger.info(
         '<Controller>:<StoreController>:<get total number of users per category analytic request controller initiated>'
       );
+      const role = req?.role;
+      const userName = req?.userId;
       const result = await this.storeService.totalNumberOfUsersPerCategory(
-        req.query
+        req.query,
+        role,
+        userName
       );
       res.send({
         result
@@ -1008,7 +1041,7 @@ export class StoreController {
       state,
       city,
       oemId,
-      oemUserId,
+      oemUserId
     }: {
       state: string;
       city: string;
@@ -1027,7 +1060,7 @@ export class StoreController {
         role,
         userName,
         oemId,
-        oemUserId,
+        oemUserId
       );
       res.send({
         result

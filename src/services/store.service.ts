@@ -2121,7 +2121,9 @@ export class StoreService {
   async getSponsoredStorePaginatedAll(
     pageNo: number,
     pageSize: number,
-    reqPayload: any
+    reqPayload: any,
+    role?: string,
+    userName?: string
   ): Promise<any> {
     Logger.info('<Service>:<StoreService>:<Get all sponsored stores>');
 
@@ -2136,6 +2138,14 @@ export class StoreService {
       preferredServicePlugStore: true,
       paymentDetails: { $exists: true, $ne: [] }
     };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = reqPayload.oemId;
+    }
 
     // Only add filters if values exist
     const optionalFilters = {
@@ -2268,7 +2278,11 @@ export class StoreService {
     return storeResponse;
   }
 
-  async countAllSponsoredStores(reqPayload: any): Promise<any> {
+  async countAllSponsoredStores(
+    reqPayload: any,
+    role?: string,
+    userName?: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>'
     );
@@ -2297,6 +2311,14 @@ export class StoreService {
     Object.entries(optionalFilters).forEach(([key, value]) => {
       if (value) query[key] = value;
     });
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = reqPayload.oemId;
+    }
 
     // Build pipeline
     const pipeline: any[] = [
@@ -2340,7 +2362,7 @@ export class StoreService {
     oemUserId: string,
     role?: string,
     userName?: string,
-    oemId?: string,
+    oemId?: string
   ) {
     const startDate = firstDate
       ? new Date(firstDate).setUTCHours(0, 0, 0, 0)
@@ -2378,17 +2400,17 @@ export class StoreService {
       delete query['storeId'];
     }
 
-    if(oemUserId){
-      query.oemUserName = oemUserId
-    };
+    if (oemUserId) {
+      query.oemUserName = oemUserId;
+    }
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
-    };
+    }
 
     if (role === AdminRole.EMPLOYEE) {
       query.oemUserName = oemId;
-    };
+    }
 
     const result = await Store.aggregate([
       { $match: query },
@@ -2454,12 +2476,26 @@ export class StoreService {
     return result;
   }
 
-  async getOverallPaymentDetails() {
+  async getOverallPaymentDetails(
+    role?: string,
+    userName?: string,
+    oemId?: string
+  ) {
+    const query: any = {
+      preferredServicePlugStore: true
+    };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = oemId;
+    }
+
     const result = await Store.aggregate([
       {
-        $match: {
-          preferredServicePlugStore: true
-        }
+        $match: query
       },
       {
         $unwind: '$paymentDetails'
@@ -2508,7 +2544,11 @@ export class StoreService {
     return partnerDetails;
   }
 
-  async totalNumberOfUsersPerCategoryPerMonth(requestPayload: any) {
+  async totalNumberOfUsersPerCategoryPerMonth(
+    requestPayload: any,
+    role?: string,
+    userName?: string
+  ) {
     const startDate = requestPayload?.startDate
       ? new Date(
           Date.UTC(
@@ -2537,11 +2577,19 @@ export class StoreService {
         )
       : null;
 
-    let query = {
+    let query: any = {
       preferredServicePlugStore: true,
       'contactInfo.state': requestPayload?.state,
       'contactInfo.city': requestPayload?.city
     };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = requestPayload.oemId;
+    }
 
     if (!requestPayload.state) {
       delete query['contactInfo.state'];
@@ -2607,12 +2655,24 @@ export class StoreService {
     return output;
   }
 
-  async totalNumberOfUsersPerCategory(requestPayload: any) {
-    let query = {
+  async totalNumberOfUsersPerCategory(
+    requestPayload: any,
+    role?: string,
+    userName?: string
+  ) {
+    let query: any = {
       preferredServicePlugStore: true,
       'contactInfo.state': requestPayload?.state,
       'contactInfo.city': requestPayload?.city
     };
+
+    if (role === AdminRole.OEM) {
+      query.oemUserName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      query.oemUserName = requestPayload.oemId;
+    }
 
     if (!requestPayload.state) {
       delete query['contactInfo.state'];
@@ -2809,7 +2869,7 @@ export class StoreService {
     ]);
 
     return result;
-  };
+  }
 
   async countTotalStores(
     state: string,
@@ -2847,5 +2907,5 @@ export class StoreService {
 
     const result = await Store.find(query).countDocuments();
     return { total: result };
-  };
+  }
 }
