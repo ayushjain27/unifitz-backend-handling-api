@@ -2462,14 +2462,14 @@ export class ProductService {
         ]
       });
     }
-    if (pincodeFilter) {
-      filters.push({
-        $or: [
-          { $eq: [{ $size: { $ifNull: ['$pincode', []] } }, 0] }, // ✅ Ensures '$pincode' is always an array
-          { $in: [pincodeFilter, '$pincode.name'] }
-        ]
-      });
-    }
+    // if (pincodeFilter) {
+    //   filters.push({
+    //     $or: [
+    //       { $eq: [{ $size: { $ifNull: ['$pincode', []] } }, 0] }, // ✅ Ensures '$pincode' is always an array
+    //       { $in: [pincodeFilter, '$pincode.name'] }
+    //     ]
+    //   });
+    // }
 
     if (filters.length > 0) {
       matchStage.$expr = { $and: filters };
@@ -2497,6 +2497,8 @@ export class ProductService {
         $limit: pageSize
       }
     ]);
+
+    console.log(product,"kemdk")
 
     return product;
   }
@@ -2590,6 +2592,8 @@ export class ProductService {
     const categorySet = new Set<string>();
     const subCategorySet = new Set<string>();
 
+    console.log(product,"dmekfrk")
+
     product.forEach((product) => {
       product.productCategory?.forEach((category: { catalogName: string }) =>
         categorySet.add(category.catalogName)
@@ -2602,6 +2606,8 @@ export class ProductService {
 
     const uniqueCategories = Array.from(categorySet);
     const uniqueSubCategories = Array.from(subCategorySet);
+
+    console.log(uniqueCategories,"meffr", uniqueSubCategories)
 
     const total = {
       uniqueProductCategory: uniqueCategories,

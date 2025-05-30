@@ -2143,7 +2143,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && reqPayload?.oemId !== 'SERVICEPLUG') {
       query.oemUserName = reqPayload.oemId;
     }
 
@@ -2408,7 +2408,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
     }
 
@@ -2827,7 +2827,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
     }
 
@@ -2901,7 +2901,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && oemId !== "SERVICEPLUG") {
       query.oemUserName = oemId;
     }
 

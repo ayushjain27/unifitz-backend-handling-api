@@ -276,6 +276,27 @@ export class BuySellController {
     }
   };
 
+  getBuySellData = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'
+    );
+    const userName = req?.userId;
+    const role = req?.role;
+    try {
+      const result = await this.buySellService.getBuySellData(
+        req.body,
+        userName,
+        role
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getAllBuySellVehilceCount = async (req: Request, res: Response) => {
     Logger.info(
       '<Controller>:<BuySellController>:<Get all buy sell vehicles request controller initiated>'

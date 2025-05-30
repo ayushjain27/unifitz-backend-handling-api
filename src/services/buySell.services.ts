@@ -632,7 +632,7 @@ export class BuySellService {
   async getAllBuySellVehilce(
     req: any,
     userName?: string,
-    role?: string
+    role?: string,
   ): Promise<IBuySell[]> {
     Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
 
@@ -647,7 +647,8 @@ export class BuySellService {
       status,
       vehicleType,
       userType,
-      oemId
+      oemId,
+      oemUserId
     } = req || {};
 
     const firstDay = firstDate ? new Date(firstDate) : undefined;
@@ -665,6 +666,10 @@ export class BuySellService {
       oemUserName: req?.userName,
       brandName: brandName?.catalogName
     };
+
+    if(req?.oemUserId){
+      query['storeDetails.oemUserName'] = req?.oemUserId
+    }
 
     if (!query.updatedAt) delete query['updatedAt'];
     if (!req.userName) delete query['oemUserName'];
@@ -704,6 +709,9 @@ export class BuySellService {
         }
       ];
     }
+
+    console.log(state, city,"demkdm")
+    console.log(query,"dlemfkem")
 
     if (storeId && userType) {
       delete query['userType'];
@@ -749,6 +757,75 @@ export class BuySellService {
 
     return vehicleResponse;
   }
+
+  async getBuySellData(
+    req: any,
+    userName?: string,
+    role?: string,
+  ): Promise<IBuySell[]> {
+    Logger.info('<Service>:<BuySellService>:<Get all buy sell vehicles>');
+
+    const {
+      state,
+      city,
+      oemId,
+      oemUserId
+    } = req || {};
+    const query: any = {
+       status: "ACTIVE"
+    };
+
+    if(oemUserId){
+      query['storeDetails.oemUserName'] = oemUserId
+    }
+
+    if (role === AdminRole.OEM) {
+      query['storeDetails.oemUserName'] = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
+      query['storeDetails.oemUserName'] = oemId;
+    }
+
+    if (!query.updatedAt) delete query['updatedAt'];
+
+    if (state) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.state': state },
+        {
+          'storeDetails.contactInfo.state': state
+        }
+      ];
+    }
+    if (city) {
+      query.$or = [
+        { 'sellerDetails.contactInfo.city': city },
+        {
+          'storeDetails.contactInfo.city': city
+        }
+      ];
+    }
+
+    console.log(state, city,"demkdm")
+    console.log(query,"dlemfkem")
+
+    const vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
+      { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },
+      {
+        $lookup: {
+          from: 'vehicles',
+          localField: 'VehicleInfo',
+          foreignField: '_id',
+          as: 'vehicleInfo'
+        }
+      },
+      { $unwind: { path: '$vehicleInfo' } },
+      { $match: query }
+    ]);
+
+    return vehicleResponse;
+  }
+  
   async getAllBuySellVehilceCount(
     req: any,
     userName?: string,

@@ -246,9 +246,6 @@ export class NewVehicleInfoService {
       query.updatedAt = { $gte: firstDay, $lte: nextDay };
     }
 
-    if(oemUserId){
-      query.oemUserName = oemUserId
-    }
     if (!query.updatedAt) delete query['updatedAt'];
 
     Logger.info('<Service>:<VehicleService>:<get Vehicles initiated>');
@@ -262,6 +259,10 @@ export class NewVehicleInfoService {
       delete query['stores.storeId'];
     }
 
+    if(oemUserId){
+      query.oemUserName = oemUserId
+    }
+    
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
     }
@@ -276,6 +277,8 @@ export class NewVehicleInfoService {
     if (!vehicleType) {
       delete query['vehicle'];
     }
+
+    console.log(query,"flrmk")
 
     const vehicle = await NewVehicle.aggregate([{ $match: query }]);
     return vehicle;

@@ -69,6 +69,7 @@ router.post(
 router.post('/updateStatus', buySellController.updateBuySellVehicleStatus);
 
 router.post('/all', roleAuth(ACL.ADD_VEHICLE), buySellController.getAll);
+router.post('/getBuySellData', roleAuth(ACL.ADD_VEHICLE), buySellController.getBuySellData);
 router.post(
   '/priceCount',
   roleAuth(ACL.ADD_VEHICLE),
