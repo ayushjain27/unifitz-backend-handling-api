@@ -2462,14 +2462,14 @@ export class ProductService {
         ]
       });
     }
-    // if (pincodeFilter) {
-    //   filters.push({
-    //     $or: [
-    //       { $eq: [{ $size: { $ifNull: ['$pincode', []] } }, 0] }, // ✅ Ensures '$pincode' is always an array
-    //       { $in: [pincodeFilter, '$pincode.name'] }
-    //     ]
-    //   });
-    // }
+    if (pincodeFilter) {
+      filters.push({
+        $or: [
+          { $eq: [{ $size: { $ifNull: ['$pincode', []] } }, 0] }, // ✅ Ensures '$pincode' is always an array
+          { $in: [pincodeFilter, '$pincode.name'] }
+        ]
+      });
+    }
 
     if (filters.length > 0) {
       matchStage.$expr = { $and: filters };
@@ -2523,6 +2523,7 @@ export class ProductService {
 
     let stateFilter: string | null = null;
     let cityFilter: string | null = null;
+    let pincodeFilter: string | null = null;
 
     if (!isEmpty(storeId)) {
       const store = await this.storeService.getById({
@@ -2532,6 +2533,7 @@ export class ProductService {
       });
       stateFilter = store[0]?.contactInfo?.state || null;
       cityFilter = store[0]?.contactInfo?.city || null;
+      pincodeFilter = store[0]?.contactInfo?.pincode || null;
       query['partnerDetail.category.name'] = {
         $in: store[0]?.basicInfo?.category.map((category) => category.name)
       };
@@ -2572,6 +2574,14 @@ export class ProductService {
         ]
       };
     }
+    if (pincodeFilter) {
+      query.$expr = {
+        $or: [
+          { $eq: [{ $size: { $ifNull: ['$pincode', []] } }, 0] }, // ✅ Ensures '$pincode' is always an array
+          { $in: [query, '$pincode.name'] }
+        ]
+      };
+    }
 
     // Build the aggregation pipeline
     const product = await PartnersPoduct.aggregate([
@@ -2591,8 +2601,6 @@ export class ProductService {
 
     const categorySet = new Set<string>();
     const subCategorySet = new Set<string>();
-
-    console.log(product,"dmekfrk")
 
     product.forEach((product) => {
       product.productCategory?.forEach((category: { catalogName: string }) =>
