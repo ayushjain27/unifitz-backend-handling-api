@@ -728,14 +728,8 @@ export class CustomerService {
     }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
-      query.$or = [
-        { userName: oemId },
-        { selectedUserName: oemId }
-      ];
+      query.$or = [{ userName: oemId }, { selectedUserName: oemId }];
     }
-
-    console.log(query,"demkfmdkr")
-
     const counts = await Rewards.aggregate([
       {
         $match: query
@@ -778,7 +772,7 @@ export class CustomerService {
       status
     };
 
-    console.log(selectedPartner,"dlmerk")
+    console.log(selectedPartner, 'dlmerk');
 
     if (selectedPartner) {
       query.$or = [
@@ -792,13 +786,10 @@ export class CustomerService {
     }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
-      query.$or = [
-        { userName: oemId },
-        { selectedUserName: oemId }
-      ];
+      query.$or = [{ userName: oemId }, { selectedUserName: oemId }];
     }
 
-    console.log(query,"mrfm")
+    console.log(query, 'mrfm');
 
     let sosNotifications: any = await Rewards.aggregate([
       { $match: query },
@@ -858,7 +849,9 @@ export class CustomerService {
 
     const result = await Rewards.find({
       status: 'ACTIVE'
-    }) .sort({ eligibleUsers: 1 }).exec();
+    })
+      .sort({ eligibleUsers: 1 })
+      .exec();
     return result;
   }
 
@@ -1086,7 +1079,7 @@ export class CustomerService {
     lastDate: string,
     oemId: string,
     userName?: string,
-    role?: string,
+    role?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Get all customers redeem coupons>'
@@ -1099,11 +1092,11 @@ export class CustomerService {
     // Initialize match query
     const matchQuery: any = {};
     if (role === AdminRole.OEM) {
-      matchQuery.oemUserName = userName
-    };
-    
+      matchQuery.oemUserName = userName;
+    }
+
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
-      matchQuery.oemUserName = oemId
+      matchQuery.oemUserName = oemId;
     }
 
     // Validate date range
@@ -1215,7 +1208,7 @@ export class CustomerService {
     selectedPartner?: string,
     oemId?: string,
     userName?: string,
-    role?: string,
+    role?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CustomerService>:<Get all customer redeem coupons initiated>'
@@ -1228,13 +1221,13 @@ export class CustomerService {
 
     // Initialize match query
     const matchQuery: any = {};
-    
+
     if (role === AdminRole.OEM) {
-      matchQuery.oemUserName = userName
-    };
-    
+      matchQuery.oemUserName = userName;
+    }
+
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
-      matchQuery.oemUserName = oemId
+      matchQuery.oemUserName = oemId;
     }
 
     // Validate date range
@@ -1330,17 +1323,13 @@ export class CustomerService {
       { $limit: pageSize }
     ]);
     return inviteUsers;
-  };
+  }
 
-
-  async countAllCustomers(
-    state: string,
-    city: string
-  ) {
+  async countAllCustomers(state: string, city: string) {
     Logger.info(
       '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
     );
-    const query: any = {}
+    const query: any = {};
 
     if (state) {
       query['contactInfo.state'] = state;
@@ -1351,7 +1340,7 @@ export class CustomerService {
 
     const result = await Customer.find(query).countDocuments();
     return { total: result };
-  };
+  }
 
   async getTotalCustomers(
     startDate: string,
@@ -1426,7 +1415,7 @@ export class CustomerService {
     ]);
 
     return result;
-  };
+  }
 
   async getTotalCustomersReferred(
     startDate: string,
@@ -1434,12 +1423,14 @@ export class CustomerService {
     state: string,
     city: string
   ) {
-    Logger.info('<Service>:<CustomerService>:<Get Customers analytics service initiated>');
-  
+    Logger.info(
+      '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
+    );
+
     try {
       // Initialize date filter
       const dateFilter: any = {};
-  
+
       // Set up date range if provided
       if (startDate) {
         const start = new Date(startDate);
@@ -1451,16 +1442,17 @@ export class CustomerService {
         end.setUTCHours(23, 59, 59, 999);
         dateFilter.$lte = end;
       }
-  
+
       // Build the query
       const query: any = {
         referralCode: { $exists: true }
       };
-  
-      if (Object.keys(dateFilter).length > 1) { // More than just referralCode exists check
+
+      if (Object.keys(dateFilter).length > 1) {
+        // More than just referralCode exists check
         query.createdAt = dateFilter;
       }
-  
+
       // Add location filters
       if (state) {
         query['contactInfo.state'] = state;
@@ -1468,9 +1460,7 @@ export class CustomerService {
       if (city) {
         query['contactInfo.city'] = city;
       }
-
-      console.log(query,"edninrfdnekn")
-  
+      
       // Perform aggregation
       const result = await Customer.aggregate([
         { $match: query },
@@ -1527,16 +1517,19 @@ export class CustomerService {
           }
         }
       ]);
-  
+
       // If no results, return empty array
       if (result.length === 0) {
         return [];
       }
-  
+
       // Return the data array
       return result[0].data || [];
     } catch (error) {
-      Logger.error('<Service>:<CustomerService>:<Error in getTotalCustomersReferred>', error);
+      Logger.error(
+        '<Service>:<CustomerService>:<Error in getTotalCustomersReferred>',
+        error
+      );
       throw new Error('Failed to fetch referral analytics');
     }
   }
@@ -1549,14 +1542,16 @@ export class CustomerService {
     oemUserId: string,
     oemId: string,
     userName: string,
-    role: string,
+    role: string
   ) {
-    Logger.info('<Service>:<CustomerService>:<Get Customers analytics service initiated>');
-  
+    Logger.info(
+      '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
+    );
+
     try {
       // Initialize date filter
       const dateFilter: any = {};
-  
+
       // Set up date range if provided
       if (startDate) {
         const start = new Date(startDate);
@@ -1568,38 +1563,53 @@ export class CustomerService {
         end.setUTCHours(23, 59, 59, 999);
         dateFilter.$lte = end;
       }
-  
+
       // Build the query
       const query: any = {};
-  
-      if (Object.keys(dateFilter).length > 1) { // More than just referralCode exists check
+
+      if (Object.keys(dateFilter).length > 1) {
+        // More than just referralCode exists check
         query.createdAt = dateFilter;
       }
-  
+
       // Add location filters
       if (state) {
-        query['contactInfo.state'] = state;
+        query['storeDetail.contactInfo.state'] = state;
       }
       if (city) {
-        query['contactInfo.city'] = city;
+        query['storeDetail.contactInfo.city'] = city;
       }
 
       if (oemUserId) {
         query.oemUserName = oemUserId;
       }
-  
+
       if (role === AdminRole.OEM) {
         query.oemUserName = userName;
       }
-  
-      if (role === AdminRole.EMPLOYEE) {
+
+      if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
         query.oemUserName = oemId;
       }
 
-      console.log(query,"demkmdfrk")
-  
+      console.log(query, 'demkmdfrk');
+
       // Perform aggregation
       const result = await CustomerRedeemCoupon.aggregate([
+        {
+          $lookup: {
+            from: 'stores',
+            localField: 'storeId',
+            foreignField: 'storeId',
+            as: 'storeDetail'
+          }
+        },
+        {
+          $unwind: {
+            path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+            preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+          }
+        },
         { $match: query },
         // Ensure createdAt is properly formatted as Date
         {
@@ -1654,16 +1664,19 @@ export class CustomerService {
           }
         }
       ]);
-  
+
       // If no results, return empty array
       if (result.length === 0) {
         return [];
       }
-  
+
       // Return the data array
       return result[0].data || [];
     } catch (error) {
-      Logger.error('<Service>:<CustomerService>:<Error in getTotalCustomersReferred>', error);
+      Logger.error(
+        '<Service>:<CustomerService>:<Error in getTotalCustomersReferred>',
+        error
+      );
       throw new Error('Failed to fetch referral analytics');
     }
   }

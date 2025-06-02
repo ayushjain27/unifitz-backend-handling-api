@@ -3437,7 +3437,7 @@ export class AnalyticService {
       query.oemUserName = oemUserName;
     }
 
-    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICDPLUG') {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
     }
 

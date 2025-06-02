@@ -551,11 +551,11 @@ export class JobCardService {
     };
 
     if (role === AdminRole.OEM) {
-      query.oemUserName = userName;
+      query['storeDetail.oemUserName'] = userName;
     };
 
-    if (role === AdminRole.EMPLOYEE) {
-      query.oemUserName = oemId;
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
+      query['storeDetail.oemUserName'] = oemId;
     };
 
     const result = await JobCard.aggregate([
