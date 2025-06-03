@@ -43,6 +43,12 @@ router.get(
   adminController.getAll
 );
 
+router.get(
+  '/getB2BDistributors',
+  //  roleAuth(ACL.ADMIN_USER_CREATE),
+  adminController.getB2BDistributors
+);
+
 router.post(
   '/uploadProfileImage',
   uploadFiles.single('file'),

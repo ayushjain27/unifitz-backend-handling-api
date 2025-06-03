@@ -35,6 +35,7 @@ import { ProductService } from './product.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { InviteRetailerModel } from './../models/inviteRetailer';
 import EventAnalyticModel from './../models/CustomerEventAnalytic';
+import { SPEmployeeService } from './spEmployee.service';
 
 @injectable()
 export class AdminService {
@@ -45,6 +46,9 @@ export class AdminService {
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
   private productService = container.get<ProductService>(TYPES.ProductService);
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
+  );
 
   async create(reqBody: any): Promise<IAdmin> {
     const upAdminFields = Object.assign({}, reqBody) as IAdmin;
@@ -313,6 +317,46 @@ export class AdminService {
     }
     if (!createdOemUser) {
       delete query['createdOemUser'];
+    }
+
+    const admin: IAdmin[] = await Admin.find(query);
+
+    return admin;
+  }
+
+  async getB2BDistributors(
+    roleBase: string,
+    oemId: string,
+    createdOemUser: string,
+    employeeId: string
+  ): Promise<IAdmin[]> {
+    const query: any = {};
+    if (oemId) {
+      const userName = oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+    if (createdOemUser) {
+      query.createdOemUser = createdOemUser;
+    }
+    if (oemId !== 'SERVICEPLUG' && oemId !== '') {
+      query.createdOemUser = oemId;
+    }
+    if(oemId === 'SERVICEPLUG'){
+      delete query.createdOemUser
     }
 
     const admin: IAdmin[] = await Admin.find(query);
@@ -1720,13 +1764,13 @@ export class AdminService {
     // If filterParam is provided, apply it using $or
     if (requestPayload?.filterParam) {
       const rawParam = requestPayload.filterParam;
-      
+
       // Regex for partial phone number match
       const phonePattern = new RegExp(`^\\+91${rawParam}`);
-      
+
       // Regex for partial module match
       const modulePattern = new RegExp(`^${rawParam}`);
-    
+
       matchCondition['$or'] = [
         { 'userInformation.phoneNumber': { $regex: phonePattern } },
         { moduleInformation: { $regex: modulePattern } }
@@ -1761,7 +1805,7 @@ export class AdminService {
             path: '$customerDetails',
             preserveNullAndEmptyArrays: true // Keep records even if no customer found
           }
-        },  
+        },
         {
           $sort: { count: -1 }
         }

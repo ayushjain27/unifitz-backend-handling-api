@@ -699,76 +699,94 @@ const server = app.listen(port, () =>
 // });
 
 async function updateSlugs() {
-  try {
+   try {
     const today = new Date();
     const startOfToday = new Date(today.setUTCHours(0, 0, 0, 0));
-    const oneYearAgo = new Date('2024-05-01T00:00:00.000Z');
-    // oneYearAgo.setUTCFullYear(oneYearAgo.getUTCFullYear() - 2);
 
-    for (let d = new Date(oneYearAgo); d <= startOfToday; d.setUTCDate(d.getUTCDate() + 1)) {
-      const startDate = new Date(d.setUTCHours(0, 0, 0, 0));
-      const endDate = new Date(d.setUTCHours(23, 59, 59, 999));
+    const futureDate = new Date(startOfToday);
+    futureDate.setUTCDate(futureDate.getUTCDate() + 1); // Add 1 day
+    const oneYearAgo = new Date('2025-05-01T00:00:00.000Z');
+    console.log(futureDate,"dlrkek")
 
-      console.log(`Processing: ${startDate.toISOString().slice(0, 10)}`);
+    console.log('🔁 Starting monthly aggregation from EventAnalyticModel...');
 
-      const result = await EventAnalyticModel.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: startDate, $lte: endDate },
-            moduleInformation: { $exists: true, $ne: '' }
-          }
-        },
-        {
-          $group: {
-            _id: '$event',
-            count: { $sum: 1 }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            eventsArray: {
-              $push: {
-                k: '$_id',
-                v: '$count'
-              }
-            },
-            totalEvents: { $sum: '$count' }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            date: startDate,
-            events: { $arrayToObject: '$eventsArray' },
-            totalEvents: 1
-          }
+    const monthlyAgg = await EventAnalyticModel.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: oneYearAgo, $lte: futureDate },
+          module: 'STORE',
+          moduleInformation: { $exists: true, $ne: '' }
         }
-      ]);
-
-      // Prepare bulk update
-      if (result.length) {
-        const doc = result[0];
-
-        await StoreOverallEventCollectionPerDayPerStore.findOneAndUpdate(
-          { date: startDate },
-          {
-            $set: {
-              events: doc.events,
-              totalEvents: doc.totalEvents
+      },
+      {
+        $group: {
+          _id: {
+            storeId: '$moduleInformation',
+            month: { $month: '$createdAt' },
+            year: { $year: '$createdAt' },
+            event: '$event'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            storeId: '$_id.storeId',
+            month: '$_id.month',
+            year: '$_id.year'
+          },
+          eventsArray: {
+            $push: {
+              k: '$_id.event',
+              v: '$count'
             }
           },
-          { upsert: true }
-        );
-        // console.log(`Stored ${bulkOps.length} documents for ${startDate.toISOString().slice(0, 10)}`);
+          totalEvents: { $sum: '$count' }
+        }
+      },
+      {
+        $project: {
+          storeId: '$_id.storeId',
+          month: '$_id.month',
+          year: '$_id.year',
+          events: { $arrayToObject: '$eventsArray' },
+          totalEvents: 1
+        }
       }
+    ]);
+
+    const bulkOps = monthlyAgg.map((doc) => ({
+      updateOne: {
+        filter: {
+          storeId: doc.storeId,
+          month: doc.month,
+          year: doc.year
+        },
+        update: {
+          $set: {
+            events: doc.events,
+            totalEvents: doc.totalEvents
+          },
+          $setOnInsert: {
+            storeId: doc.storeId,
+            month: doc.month,
+            year: doc.year
+          }
+        },
+        upsert: true
+      }
+    }));
+
+    if (bulkOps.length) {
+      await StoreEventCollectionPerMonthPerStore.bulkWrite(bulkOps);
+      console.log(`✅ Stored ${bulkOps.length} monthly documents.`);
+    } else {
+      console.log('⚠️ No data to store.');
     }
-
-    console.log('✅ Done processing full year of data.');
   } catch (err) {
-    console.error('❌ Error in updateSlugs:', err);
+    console.error('❌ Error in updateSlugs (month-wise):', err);
   }
-
 }
 
 async function updateSlug() {

@@ -162,6 +162,35 @@ export class AdminController {
     }
   };
 
+  getB2BDistributors = async (req: Request, res: Response) => {
+    const roleBase = req.query.roleBase;
+    const oemId = req.query.oemId;
+    const createdOemUser = req.query.createdOemUser;
+    const employeeId = req.query.employeeId;
+
+    Logger.info(
+      '<Controller>:<AdminController>:<Get All request controller initiated>'
+    );
+    try {
+      const role = req?.role;
+      // if (role !== AdminRole.ADMIN) {
+      //   throw new Error('User not allowed');
+      // }
+      const result = await this.adminService.getB2BDistributors(
+        roleBase as string,
+        oemId as string,
+        createdOemUser as string,
+        employeeId as string
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
   getUser = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<AdminController>:<Getting user by user name>');
     try {
