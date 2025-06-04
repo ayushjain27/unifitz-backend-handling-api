@@ -433,6 +433,9 @@ const adminSchema: Schema = new Schema<IAdmin>(
     },
     createdOemUser: {
       type: String
+    },
+    employeeId: {
+      type: String
     }
   },
   { timestamps: true, strict: false }

@@ -359,6 +359,7 @@ export class AdminService {
       delete query.createdOemUser
     }
 
+    // console.log(query,"demkk")
     const admin: IAdmin[] = await Admin.find(query);
 
     return admin;
