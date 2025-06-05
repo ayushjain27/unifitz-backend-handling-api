@@ -48,6 +48,8 @@ export class DeliveryPartnerService {
         const newPartnerId = prefix + incrementedNumber;
 
         deliveryPatnerPayload.partnerId = newPartnerId;
+      }else{
+        deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
       }
 
       const newDeliveryPartner = await DeliveryPartners.create(
@@ -96,7 +98,7 @@ export class DeliveryPartnerService {
     );
     profileImageUrl = url;
 
-    const res = await SPEmployee.findOneAndUpdate(
+    const res = await DeliveryPartners.findOneAndUpdate(
       { _id: new Types.ObjectId(deliveryPartnerId) },
       { $set: { profileImageUrl } },
       { returnDocument: 'after' }
