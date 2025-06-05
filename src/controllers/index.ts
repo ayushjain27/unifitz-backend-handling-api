@@ -28,3 +28,4 @@ export * from './smcInsurance.controller';
 export * from './reportRoadAccident.controller';
 export * from './razorpay.controller';
 export * from './parkAssist.controller';
+export * from './deliveryPartner.controller';

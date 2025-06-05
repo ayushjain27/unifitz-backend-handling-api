@@ -95,5 +95,8 @@ export const TYPES = {
   RazorPayService: Symbol('RazorPayService'),
 
   ParkAssistController: Symbol('ParkAssistController'),
-  ParkAssistService: Symbol('ParkAssistService')
+  ParkAssistService: Symbol('ParkAssistService'),
+
+  DeliveryPartnerController: Symbol('DeliveryPartnerController'),
+  DeliveryPartnerService: Symbol('DeliveryPartnerService')
 };
