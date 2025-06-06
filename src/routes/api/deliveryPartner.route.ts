@@ -28,6 +28,19 @@ router.post(
   deliveryPartnerController.uploadDeliveryPartnerImage
 );
 
+router.post(
+  '/getDeliveryPartnersPaginated',
+  roleAuth(ACL.STORE_GET_ALL),
+  deliveryPartnerController.getDeliveryPartnersPaginated
+
+);
+
+router.get(
+  '/countAllDeliveryPartners',
+  roleAuth(ACL.STORE_GET_ALL),
+  deliveryPartnerController.countAllDeliveryPartners
+);
+
 // router.get(
 //   '/allEmployeesByUserName',
 //   // roleAuth(ACL.STORE_GET_ALL),

@@ -42,7 +42,7 @@ export class DeliveryPartnerController {
   uploadDeliveryPartnerImage = async (req: Request, res: Response) => {
     const { deliveryPartnerId } = req.body;
     Logger.info(
-      '<Controller>:<SPEmployeeController>:<Upload Employee request initiated>'
+      '<Controller>:<DeliveryPartnerController>:<Upload Delivery partner image request initiated>'
     );
     try {
       const result = await this.deliveryPartnerService.uploadDeliveryPartnerImage(
@@ -58,14 +58,19 @@ export class DeliveryPartnerController {
     }
   };
 
-  getAllEmployeesByUserName = async (req: Request, res: Response) => {
-    const userName = req.query.userName;
+  getDeliveryPartnersPaginated = async (req: Request, res: Response) => {
     Logger.info(
-      '<Controller>:<SPEmployeeController>:<Get All employees request controller initiated>'
+      '<Controller>:<DeliveryPartnerController>:<Get all delivery partners request controller initiated>'
     );
     try {
-      const result = await this.deliveryPartnerService.getAllEmployeesByUserName(
-        userName as string
+      const role = req?.role;
+      const userName = req?.userId;
+      const result = await this.deliveryPartnerService.getDeliveryPartnersPaginated(
+        req.body.pageNo,
+        req.body.pageSize,
+        req.body,
+        role,
+        userName,
       );
       res.send({
         result
@@ -76,117 +81,23 @@ export class DeliveryPartnerController {
     }
   };
 
-  getEmployeeByEmployeeId = async (req: Request, res: Response) => {
-    const employeeId = req.query.employeeId;
-    const userName = req.query.userName;
+  countAllDeliveryPartners = async (req: Request, res: Response) => {
+    const query = req.query;
+    const role = req?.role;
+    const userName = req?.userId;
     Logger.info(
-      '<Controller>:<SPEmployeeController>:<Get employee by employeeID request controller initiated>'
+      '<Controller>:<DeliveryPartnerController>:<Count all delivery partner request controller initiated>'
     );
     try {
-      const result = await this.deliveryPartnerService.getEmployeeByEmployeeId(
-        employeeId as string,
-        userName as string
+      Logger.info(
+        '<Controller>:<DeliveryPartnerController>:<Count all delivery partners request controller initiated>'
+      );
+      const result: any = await this.deliveryPartnerService.countAllDeliveryPartners(
+        query,
+        role,
+        userName
       );
       res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
-  updateEmployee = async (req: Request, res: Response) => {
-    const employeeRequest = req.body;
-    Logger.info(
-      '<Controller>:<SPEmployeeController>:<Onboarding request controller initiated>'
-    );
-    try {
-      const result = await this.deliveryPartnerService.update(employeeRequest);
-      res.send({
-        message: 'Employee Updation Successful',
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: err.message });
-    }
-  };
-
-  deleteEmployee = async (req: Request, res: Response) => {
-    const employeeId = req.query.employeeId;
-    const userName = req.query.userName;
-    Logger.info(
-      '<Controller>:<SPEmployeeController>:<Delete employeee by employeeID request controller initiated>'
-    );
-    try {
-      const result = await this.deliveryPartnerService.deleteEmployee(
-        employeeId as string,
-        userName as string
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
-  resetPassword = async (req: Request, res: Response) => {
-    const employeeId = req.query.employeeId;
-    const oemId = req.query.userName;
-    Logger.info(
-      '<Controller>:<SPEmployeeController>:<Reset employee password by  request controller initiated>'
-    );
-    try {
-      const result = await this.deliveryPartnerService.resetPassword(
-        employeeId as string,
-        oemId as string
-      );
-      res.send({
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-    }
-  };
-
-  updatePermission = async (req: Request, res: Response) => {
-    const employeeRequest = req.body;
-    Logger.info(
-      '<Controller>:<SPEmployeeController>:<Onboarding request controller initiated>'
-    );
-    try {
-      const result = await this.deliveryPartnerService.updatePermission(
-        employeeRequest
-      );
-      res.send({
-        message: 'Employee Updation Successful',
-        result
-      });
-    } catch (err) {
-      Logger.error(err.message);
-      res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: err.message });
-    }
-  };
-
-  updateUserPermission = async (req: Request, res: Response) => {
-    const employeeRequest = req.body;
-    Logger.info(
-      '<Controller>:<SPEmployeeController>:<Onboarding request controller initiated>'
-    );
-    try {
-      const result = await this.deliveryPartnerService.updateUserPermission(
-        employeeRequest
-      );
-      res.send({
-        message: 'Employee Updation Successful',
         result
       });
     } catch (err) {

@@ -8,7 +8,7 @@ import { Types } from 'mongoose';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
-import Admin, { IAdmin } from '../models/Admin';
+import Admin, { AdminRole, IAdmin } from '../models/Admin';
 import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
 import { permissions } from '../config/permissions';
 import { StaticIds } from '../models/StaticId';
@@ -48,7 +48,7 @@ export class DeliveryPartnerService {
         const newPartnerId = prefix + incrementedNumber;
 
         deliveryPatnerPayload.partnerId = newPartnerId;
-      }else{
+      } else {
         deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
       }
 
@@ -74,8 +74,13 @@ export class DeliveryPartnerService {
     return hashed;
   }
 
-  async uploadDeliveryPartnerImage(deliveryPartnerId: string, req: Request | any) {
-    Logger.info('<Service>:<DeliveryPartnerService>:<Delivery Partner image uploading>');
+  async uploadDeliveryPartnerImage(
+    deliveryPartnerId: string,
+    req: Request | any
+  ) {
+    Logger.info(
+      '<Service>:<DeliveryPartnerService>:<Delivery Partner image uploading>'
+    );
     const deliveryPartner: IDeliveryPartners = await DeliveryPartners.findOne({
       _id: new Types.ObjectId(deliveryPartnerId)
     });
@@ -106,253 +111,72 @@ export class DeliveryPartnerService {
     return res;
   }
 
-  getAllEmployeesByUserName = async (
-    userName: string
-  ): Promise<ISPEmployee[]> => {
+  async getDeliveryPartnersPaginated(
+    pageNo: number,
+    pageSize: number,
+    reqPayload: any,
+    role?: string,
+    userName?: string
+  ): Promise<any> {
     Logger.info(
-      '<Controller>:<SPEmployeeService>:<Get All employees request controller initiated>'
+      '<Service>:<DeliveryPartnerService>:<Get all delivery partners>'
     );
-    const employees: ISPEmployee[] = await SPEmployee.aggregate([
-      {
-        $match: { userName: userName }
-      },
-      {
-        $lookup: {
-          from: 'admin_users',
-          localField: 'employeeId',
-          foreignField: 'employeeId',
-          as: 'employeeAuthDetails'
-        }
-      }
-    ]);
-    Logger.info(
-      '<Service>:<SPEmployeeService>:<Employee fetched successfully>'
-    );
-    return employees;
-  };
 
-  getEmployeeByEmployeeId = async (
-    employeeId: string,
-    userName: string
-  ): Promise<ISPEmployee> => {
-    Logger.info(
-      '<Controller>:<SPEmployeeService>:<Get All employees request controller initiated>'
-    );
-    const employee: ISPEmployee = await SPEmployee.findOne({
-      employeeId,
-      userName
-    });
-    Logger.info(
-      '<Service>:<SPEmployeeService>:<Employee fetched successfully>'
-    );
-    return employee;
-  };
-
-  async update(employeePayload: any): Promise<ISPEmployee> {
-    Logger.info('<Service>:<SPEmployeeService>:<Update employee initiated>');
-    const { userName, employeeId } = employeePayload;
-
-    Logger.info(
-      '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
-    );
-    const query: any = {};
-    query.userName = userName;
-    query.employeeId = employeeId;
-    const employee: ISPEmployee = await SPEmployee.findOne({
-      userName,
-      employeeId
-    });
-    const adminUser: IAdmin = await Admin.findOne({
-      oemId: userName,
-      employeeId
-    });
-    if (_.isEmpty(employee)) {
-      throw new Error('Employee does not exist');
+    let query: any = {};
+    if (reqPayload?.state) {
+      query['state.name'] = reqPayload?.state;
     }
-    const updatedEmployee = await SPEmployee.findOneAndUpdate(
-      query,
-      employeePayload,
-      {
-        returnDocument: 'after'
-      }
-    );
-
-    const updatedAdmin = await Admin.findOneAndUpdate(
-      { oemId: userName, employeeId: employeeId },
-      {
-        $set: {
-          nameSalutation: employeePayload?.nameSalutation,
-          ownerName: employeePayload?.name
-        }
-      },
-      {
-        returnDocument: 'after'
-      }
-    );
-
-    Logger.info(
-      '<Service>:<SPEmployeeService>: <Employee: update employee successfully>'
-    );
-    return updatedEmployee;
-  }
-
-  async deleteEmployee(employeeId: string, userName?: string): Promise<any> {
-    Logger.info(
-      '<Service>:<SPEmployeeService>:<Delete employee by Id service initiated>'
-    );
-    const query: any = {};
-    query.employeeId = employeeId;
-    query.userName = userName;
-    console.log(query, 'dlfme');
-    const res = await SPEmployee.findOneAndDelete(query);
-    const adminDelete = await Admin.findOneAndDelete({
-      employeeId: employeeId,
-      oemId: userName
-    });
-    return res;
-  }
-
-  async resetPassword(employeeId: string, oemId?: string): Promise<any> {
-    Logger.info(
-      '<Service>:<SPEmployeeService>:<Delete employee by Id service initiated>'
-    );
-    const query: any = {};
-    query.employeeId = employeeId;
-    query.oemId = oemId;
-
-    let employee: ISPEmployee;
-    if (employeeId) {
-      employee = await SPEmployee.findOne({ employeeId, userName: oemId });
+    if (reqPayload?.city) {
+      query['city.name'] = reqPayload?.city;
     }
-    const oemUserDetails: IAdmin = await Admin.findOne({
-      oemId,
-      employeeId
-    });
-
-    // const password = secureRandomPassword.randomPassword();
-    const password = secureRandomPassword.randomPassword({
-      characters: [
-        { characters: secureRandomPassword.upper, exactly: 3 },
-        { characters: secureRandomPassword.symbols, exactly: 3 },
-        { characters: secureRandomPassword.lower, exactly: 4 },
-        { characters: secureRandomPassword.digits, exactly: 2 }
-      ]
-    });
-    const updatedPassword = await this.encryptPassword(password);
-    const res = await Admin.findOneAndUpdate(
-      { employeeId: employeeId, oemId: oemId },
-      {
-        $set: {
-          password: updatedPassword,
-          generatedPassword: password,
-          isFirstTimeLoggedIn: true
-        }
-      },
-      { returnDocument: 'after' }
-    );
-    const templateData = {
-      name: employee?.name,
-      userName: oemUserDetails?.userName,
-      password: password
-    };
-    const data = {
-      to: employee?.email,
-      templateData: templateData,
-      templateName: 'EmployeeResetPassword'
-    };
-    const sqsMessage = await this.sqsService.createMessage(
-      SQSEvent.EMAIL_NOTIFICATION,
-      data
-    );
-    console.log(sqsMessage, 'Message');
-    // sendEmail(
-    //   templateData,
-    //   employee?.email,
-    //   'support@serviceplug.in',
-    //   'EmployeeResetPassword'
-    // );
-    return 'res';
-  }
-
-  async updatePermission(employeePayload: any): Promise<ISPEmployee> {
-    Logger.info('<Service>:<SPEmployeeService>:<Update employee initiated>');
-    const { userName, employeeId, permission } = employeePayload;
-
-    Logger.info(
-      '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
-    );
-    const query: any = {};
-    query.userName = userName;
-    query.employeeId = employeeId;
-
-    let permissionList: any = {};
-    if (permission === 'STORE_LEAD_GENERATION') {
-      permissionList = {
-        $set: {
-          'accessPolicy.STORE_LEAD_GENERATION': {
-            APPROVE: 'ENABLED'
-          }
-        }
-      };
-    }
-    if (permission === 'VIDEOUPLOAD') {
-      permissionList = {
-        $set: {
-          'accessList.VIDEOUPLOAD': {
-            STATUS: 'ALL',
-            CREATE: true,
-            READ: true,
-            UPDATE: true,
-            DELETE: true
-          }
-        }
-      };
+    if (reqPayload?.selectedPartner) {
+      query.userName = reqPayload?.selectedPartner;
     }
 
-    const updatedAdmin: any = await Admin.findOneAndUpdate(
-      { oemId: userName, employeeId: employeeId },
-      permissionList,
-      {
-        returnDocument: 'after'
-      }
-    );
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
 
-    Logger.info(
-      '<Service>:<SPEmployeeService>: <Employee: update employee successfully>'
-    );
-    return updatedAdmin;
+    if (role === AdminRole.EMPLOYEE && reqPayload?.oemId !== 'SERVICEPLUG') {
+      query.userName = reqPayload.oemId;
+    }
+
+    const deliveryParntersResponse = await DeliveryPartners.find(query)
+      .skip(pageNo * pageSize)
+      .limit(pageSize);
+    return deliveryParntersResponse;
   }
 
-  async updateUserPermission(employeePayload: any): Promise<ISPEmployee> {
-    Logger.info('<Service>:<SPEmployeeService>:<Update employee initiated>');
-    const { userName, role } = employeePayload;
-
+  async countAllDeliveryPartners(
+    reqPayload: any,
+    role?: string,
+    userName?: string
+  ): Promise<any> {
     Logger.info(
-      '<Service>:<SPEmployeeService>: <Employee: updating new employee>'
+      '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>'
     );
-    const query: any = {
-      role,
-      companyType: userName
-    };
 
-    let permissionList: any = {};
-    permissionList = {
-      $set: {
-        'accessList.B2B_DISTRIBUTORS': {
-          STATUS: 'OEM & EMPLOYEE',
-          CREATE: false,
-          READ: false,
-          UPDATE: false,
-          DELETE: false
-        }
-      }
-    };
+    const query: any = {};
+    if (reqPayload?.state) {
+      query['state.name'] = reqPayload?.state;
+    }
+    if (reqPayload?.city) {
+      query['city.name'] = reqPayload?.city;
+    }
+    if (reqPayload?.selectedPartner) {
+      query.userName = reqPayload?.selectedPartner;
+    }
 
-    const updatedAdmin: any = await Admin.updateMany(query, permissionList);
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
 
-    Logger.info(
-      '<Service>:<SPEmployeeService>: <Employee: update employee successfully>'
-    );
-    return updatedAdmin;
+    if (role === AdminRole.EMPLOYEE) {
+      query.userName = reqPayload.oemId;
+    }
+
+    const count = await DeliveryPartners.countDocuments(query);
+
+    return { count: count };
   }
 }
