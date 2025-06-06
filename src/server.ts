@@ -392,6 +392,23 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
           data.endDate = new Date(
             new Date().setFullYear(new Date().getFullYear() + 1)
           );
+        } else if (note?.subscriptionPackage === '1 Year Package Plan') {
+          if (
+            partner?.basicInfo?.subCategory?.some(
+              (item) =>
+                item.name === 'Cars' || item.name === 'Commercial Vehicle'
+            )
+          ) {
+            data.amount = '1999';
+            data.endDate = new Date(
+              new Date().setFullYear(new Date().getFullYear() + 1)
+            );
+          } else {
+            data.amount = '999';
+            data.endDate = new Date(
+              new Date().setFullYear(new Date().getFullYear() + 1)
+            );
+          }
         }
         console.log(data, 'Demdkmk');
 
@@ -399,7 +416,23 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
           let partnerDetails = await Store.findOneAndUpdate(
             { storeId: storeId },
             {
-              $push: { paymentDetails: data }
+              $push: { paymentDetails: data },
+              $set: {
+                'accessList.BUY_SELL': {
+                  STATUS: 'ALL',
+                  CREATE: true,
+                  READ: true,
+                  UPDATE: true,
+                  DELETE: true
+                },
+                'accessList.JOB_CARD': {
+                  STATUS: 'ALL',
+                  CREATE: true,
+                  READ: true,
+                  UPDATE: true,
+                  DELETE: true
+                }
+              }
             },
             { new: true } // Returns the updated document
           );
@@ -409,7 +442,23 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
             { storeId: storeId },
             {
               preferredServicePlugStore: true,
-              $set: { paymentDetails: data }
+              $set: {
+                paymentDetails: data,
+                'accessList.BUY_SELL': {
+                  STATUS: 'ALL',
+                  CREATE: true,
+                  READ: true,
+                  UPDATE: true,
+                  DELETE: true
+                },
+                'accessList.JOB_CARD': {
+                  STATUS: 'ALL',
+                  CREATE: true,
+                  READ: true,
+                  UPDATE: true,
+                  DELETE: true
+                }
+              }
             },
             { new: true } // Returns the updated document
           );
@@ -701,14 +750,14 @@ const server = app.listen(port, () =>
 // });
 
 async function updateSlugs() {
-   try {
+  try {
     const today = new Date();
     const startOfToday = new Date(today.setUTCHours(0, 0, 0, 0));
 
     const futureDate = new Date(startOfToday);
     futureDate.setUTCDate(futureDate.getUTCDate() + 1); // Add 1 day
     const oneYearAgo = new Date('2025-05-01T00:00:00.000Z');
-    console.log(futureDate,"dlrkek")
+    console.log(futureDate, 'dlrkek');
 
     console.log('🔁 Starting monthly aggregation from EventAnalyticModel...');
 

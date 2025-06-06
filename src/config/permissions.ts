@@ -752,6 +752,18 @@ export const permissions: any = {
       READ: false,
       UPDATE: false,
       DELETE: false
+    },
+    JOB_CARD: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
+    },
+    BUY_SELL: {
+      CREATE: false,
+      READ: false,
+      UPDATE: false,
+      DELETE: false
     }
   }
 };
