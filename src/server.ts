@@ -756,7 +756,7 @@ async function updateSlugs() {
 
     const futureDate = new Date(startOfToday);
     futureDate.setUTCDate(futureDate.getUTCDate() + 1); // Add 1 day
-    const oneYearAgo = new Date('2025-05-01T00:00:00.000Z');
+    const oneYearAgo = new Date('2025-06-01T00:00:00.000Z');
     console.log(futureDate, 'dlrkek');
 
     console.log('🔁 Starting monthly aggregation from EventAnalyticModel...');
