@@ -37,19 +37,36 @@ export class DeliveryPartnerService {
         userName
       }).sort({ createdAt: -1 });
 
-      if (latestPartner && latestPartner.partnerId) {
-        const prefix = latestPartner.partnerId.substring(0, 6); // Get "SP2245"
-        const numericPart = latestPartner.partnerId.substring(6); // Get "01"
+      if (userName === 'SERVICEPLUG') {
+        if (latestPartner && latestPartner.partnerId) {
+          const prefix = latestPartner.partnerId.substring(0, 11); // Get "SP2245"
+          const numericPart = latestPartner.partnerId.substring(11); // Get "01"
 
-        // Increment the numeric part and pad with leading zeros
-        const incrementedNumber = String(
-          parseInt(numericPart, 10) + 1
-        ).padStart(numericPart.length, '0');
-        const newPartnerId = prefix + incrementedNumber;
+          // Increment the numeric part and pad with leading zeros
+          const incrementedNumber = String(
+            parseInt(numericPart, 10) + 1
+          ).padStart(numericPart.length, '0');
+          const newPartnerId = prefix + incrementedNumber;
 
-        deliveryPatnerPayload.partnerId = newPartnerId;
+          deliveryPatnerPayload.partnerId = newPartnerId;
+        } else {
+          deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
+        }
       } else {
-        deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
+        if (latestPartner && latestPartner.partnerId) {
+          const prefix = latestPartner.partnerId.substring(0, 6); // Get "SP2245"
+          const numericPart = latestPartner.partnerId.substring(6); // Get "01"
+
+          // Increment the numeric part and pad with leading zeros
+          const incrementedNumber = String(
+            parseInt(numericPart, 10) + 1
+          ).padStart(numericPart.length, '0');
+          const newPartnerId = prefix + incrementedNumber;
+
+          deliveryPatnerPayload.partnerId = newPartnerId;
+        } else {
+          deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
+        }
       }
 
       const newDeliveryPartner = await DeliveryPartners.create(
@@ -171,7 +188,7 @@ export class DeliveryPartnerService {
       query.userName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE) {
+    if (role === AdminRole.EMPLOYEE && reqPayload.oemId !== "SERVICEPLUG") {
       query.userName = reqPayload.oemId;
     }
 
