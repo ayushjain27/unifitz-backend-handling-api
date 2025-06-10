@@ -107,4 +107,31 @@ export class DeliveryPartnerController {
         .json({ message: err.message });
     }
   };
+
+  getAllDeliveryPartnersByUserName = async (req: Request, res: Response) => {
+    const oemId = req.query?.oemId;
+    const role = req?.role;
+    const userName = req?.userId;
+    Logger.info(
+      '<Controller>:<DeliveryPartnerController>:<Get all delivery partner by username request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<DeliveryPartnerController>:<Count all delivery partners by username request controller initiated>'
+      );
+      const result: any = await this.deliveryPartnerService.getAllDeliveryPartnersByUserName(
+        oemId as string,
+        role,
+        userName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

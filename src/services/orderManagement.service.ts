@@ -391,7 +391,11 @@ export class OrderManagementService {
       'items.$[item].status': requestBody.status, // Update the status
       'items.$[item].cancelReason': requestBody.cancelReason,
       'items.$[item].courierCompanyName': requestBody?.courierCompanyName,
-      'items.$[item].trackingNumber': requestBody?.trackingNumber
+      'items.$[item].trackingNumber': requestBody?.trackingNumber,
+      'items.$[item].deliveryPartner': requestBody?.deliveryPartner,
+      'items.$[item].deliveryType': requestBody?.deliveryType,
+      'items.$[item].selectedVehicleType': requestBody?.selectedVehicleType,
+      'items.$[item].trackingLink': requestBody?.trackingLink
     };
 
     // Dynamically add date fields based on status

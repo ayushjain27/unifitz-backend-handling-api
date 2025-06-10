@@ -41,11 +41,11 @@ router.get(
   deliveryPartnerController.countAllDeliveryPartners
 );
 
-// router.get(
-//   '/allEmployeesByUserName',
-//   // roleAuth(ACL.STORE_GET_ALL),
-//   spEmployeeController.getAllEmployeesByUserName
-// );
+router.get(
+  '/getAllDeliveryPartnersByUserName',
+  roleAuth(ACL.STORE_GET_ALL),
+  deliveryPartnerController.getAllDeliveryPartnersByUserName
+);
 
 // router.get(
 //   '/',

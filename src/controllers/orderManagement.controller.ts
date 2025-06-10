@@ -105,6 +105,10 @@ export class OrderManagementController {
         cancelReason: req.body?.cancelReason,
         courierCompanyName: req.body?.courierCompanyName,
         trackingNumber: req.body?.trackingNumber,
+        trackingLink: req.body?.trackingLink,
+        deliveryPartner: req.body?.deliveryPartner,
+        deliveryType: req.body?.deliveryType,
+        selectedVehicleType: req.body?.selectedVehicleType,
         status: req.body.status,
         employeeStatus: req.body.employeeStatus
       };

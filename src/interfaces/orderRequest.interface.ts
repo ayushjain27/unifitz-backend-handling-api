@@ -15,7 +15,11 @@ export interface OrderStatusRequest {
   cartId: string;
   status: string;
   cancelReason: string;
-  courierCompanyName: string;
-  trackingNumber: string;
+  courierCompanyName?: string;
+  trackingNumber?: string;
+  deliveryPartner?: string;
+  deliveryType?: string;
+  trackingLink?: string;
+  selectedVehicleType?: string;
   employeeStatus: IEmployeeStatus;
 }

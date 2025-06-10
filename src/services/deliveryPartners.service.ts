@@ -170,7 +170,7 @@ export class DeliveryPartnerService {
     userName?: string
   ): Promise<any> {
     Logger.info(
-      '<Service>:<StoreService>:<Search and Filter sponsored stores service initiated>'
+      '<Service>:<DeliveryPartnerService>:<Count all delivery partners  service initiated>'
     );
 
     const query: any = {};
@@ -195,5 +195,29 @@ export class DeliveryPartnerService {
     const count = await DeliveryPartners.countDocuments(query);
 
     return { count: count };
+  }
+
+  async getAllDeliveryPartnersByUserName(
+    oemId: string,
+    role?: string,
+    userName?: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<DeliveryPartnerService>:<Count all delivery partners by username service initiated>'
+    );
+
+    const query: any = {};
+
+    if (role === AdminRole.OEM) {
+      query.userName = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE && oemId !== "SERVICEPLUG") {
+      query.userName = oemId;
+    }
+
+    const result = await DeliveryPartners.find(query);
+
+    return result;
   }
 }
