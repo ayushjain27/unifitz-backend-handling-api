@@ -118,13 +118,36 @@ export class DeliveryPartnerController {
     );
     try {
       Logger.info(
-        '<Controller>:<DeliveryPartnerController>:<Count all delivery partners by username request controller initiated>'
+        '<Controller>:<DeliveryPartnerController>:<Get all delivery partners by username request controller initiated>'
       );
       const result: any = await this.deliveryPartnerService.getAllDeliveryPartnersByUserName(
         oemId as string,
         vehicleType as string,
         role,
         userName
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getDeliveryPartnerDetailsByPartnerId = async (req: Request, res: Response) => {
+    const partnerId = req.query?.partnerId;
+    Logger.info(
+      '<Controller>:<DeliveryPartnerController>:<Get delivery partner detail by partner id request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<DeliveryPartnerController>:<Get delivery partner detail by partner id request controller initiated>'
+      );
+      const result: any = await this.deliveryPartnerService.getDeliveryPartnerDetailsByPartnerId(
+        partnerId as string
       );
       res.send({
         result

@@ -204,7 +204,7 @@ export class DeliveryPartnerService {
     userName?: string
   ): Promise<any> {
     Logger.info(
-      '<Service>:<DeliveryPartnerService>:<Count all delivery partners by username service initiated>'
+      '<Service>:<DeliveryPartnerService>:<Get all delivery partners by username service initiated>'
     );
 
     const query: any = {
@@ -220,6 +220,18 @@ export class DeliveryPartnerService {
     }
 
     const result = await DeliveryPartners.find(query);
+
+    return result;
+  }
+
+  async getDeliveryPartnerDetailsByPartnerId(
+    partnerId: string
+  ): Promise<any> {
+    Logger.info(
+      '<Service>:<DeliveryPartnerService>:<Count all delivery partners by username service initiated>'
+    );
+
+    const result = await DeliveryPartners.findOne({ partnerId });
 
     return result;
   }
