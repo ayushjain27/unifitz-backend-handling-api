@@ -199,6 +199,7 @@ export class DeliveryPartnerService {
 
   async getAllDeliveryPartnersByUserName(
     oemId: string,
+    vehicleType: string,
     role?: string,
     userName?: string
   ): Promise<any> {
@@ -206,7 +207,9 @@ export class DeliveryPartnerService {
       '<Service>:<DeliveryPartnerService>:<Count all delivery partners by username service initiated>'
     );
 
-    const query: any = {};
+    const query: any = {
+      vehicleType: vehicleType
+    };
 
     if (role === AdminRole.OEM) {
       query.userName = userName;

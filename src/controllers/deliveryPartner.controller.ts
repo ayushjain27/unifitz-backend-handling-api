@@ -110,6 +110,7 @@ export class DeliveryPartnerController {
 
   getAllDeliveryPartnersByUserName = async (req: Request, res: Response) => {
     const oemId = req.query?.oemId;
+    const vehicleType = req.query?.vehicleType;
     const role = req?.role;
     const userName = req?.userId;
     Logger.info(
@@ -121,6 +122,7 @@ export class DeliveryPartnerController {
       );
       const result: any = await this.deliveryPartnerService.getAllDeliveryPartnersByUserName(
         oemId as string,
+        vehicleType as string,
         role,
         userName
       );
