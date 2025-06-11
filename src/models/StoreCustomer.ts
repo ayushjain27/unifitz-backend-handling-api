@@ -4,14 +4,6 @@ import { Document, model, Schema, Types } from 'mongoose';
  * Interface to model the Customer Schema for TypeScript.
  */
 
-export enum VehicleType {
-  CYCLE = 'CYCLE',
-  TWO_WHEELER = 'TWO_WHEELER',
-  THREE_WHEELER = 'THREE_WHEELER',
-  FOUR_WHEELER = 'FOUR_WHEELER',
-  COMMERCIAL_VEHICLE = 'COMMERCIAL_VEHICLE'
-}
-
 export const vehicleImageSchema: Schema = new Schema<IVehicleImage>({
   docURL: {
     type: String
@@ -42,11 +34,7 @@ export interface IStoreCustomerVehicleInfo {
   fuelType: string;
   totalKmsRun: string;
   vehicleNumber: string;
-  ownerType: string;
   employeeName: string;
-  registrationYear: Date;
-  insurance: string;
-  registeredVehicle: string;
   insuranceExpiryDate: Date;
   vehicleImageList: IVehicleImageList;
 }
@@ -54,8 +42,7 @@ export interface IStoreCustomerVehicleInfo {
 export const storeCustomerVehicleInfoSchema: Schema = new Schema(
   {
     vehicleType: {
-      type: String,
-      enum: VehicleType
+      type: String
     },
     vehicleImageList: {
       type: {
@@ -79,22 +66,10 @@ export const storeCustomerVehicleInfoSchema: Schema = new Schema(
     fuelType: {
       type: String
     },
-    ownerType: {
-      type: String
-    },
     totalKmsRun: {
       type: String
     },
     employeeName: {
-      type: String
-    },
-    registrationYear: {
-      type: Date
-    },
-    insurance: {
-      type: String
-    },
-    registeredVehicle: {
       type: String
     },
     insuranceExpiryDate: {

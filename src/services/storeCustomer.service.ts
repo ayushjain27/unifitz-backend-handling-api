@@ -104,10 +104,6 @@ export class StoreCustomerService {
       throw new Error('Customer does not exist');
     }
 
-    if (_.isEmpty(storeCustomerVehiclePayload?.vehicleNumber)) {
-      storeCustomerVehiclePayload.vehicleNumber = uuidv4();
-    }
-
     const { vehicleNumber } = storeCustomerVehiclePayload;
 
     let vehicleIndex = -1;
