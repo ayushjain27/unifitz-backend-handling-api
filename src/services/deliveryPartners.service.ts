@@ -68,7 +68,11 @@ export class DeliveryPartnerService {
           deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
         }
       }
-
+      console.log(deliveryPatnerPayload?.security, 'Demkm');
+      const updatedPassword = await this.encryptPassword(
+        deliveryPatnerPayload?.security
+      );
+      deliveryPatnerPayload.password = updatedPassword;
       const newDeliveryPartner = await DeliveryPartners.create(
         deliveryPatnerPayload
       );
@@ -188,7 +192,7 @@ export class DeliveryPartnerService {
       query.userName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE && reqPayload.oemId !== "SERVICEPLUG") {
+    if (role === AdminRole.EMPLOYEE && reqPayload.oemId !== 'SERVICEPLUG') {
       query.userName = reqPayload.oemId;
     }
 
@@ -215,7 +219,7 @@ export class DeliveryPartnerService {
       query.userName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE && oemId !== "SERVICEPLUG") {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.userName = oemId;
     }
 
@@ -224,9 +228,7 @@ export class DeliveryPartnerService {
     return result;
   }
 
-  async getDeliveryPartnerDetailsByPartnerId(
-    partnerId: string
-  ): Promise<any> {
+  async getDeliveryPartnerDetailsByPartnerId(partnerId: string): Promise<any> {
     Logger.info(
       '<Service>:<DeliveryPartnerService>:<Count all delivery partners by username service initiated>'
     );
@@ -234,5 +236,20 @@ export class DeliveryPartnerService {
     const result = await DeliveryPartners.findOne({ partnerId });
 
     return result;
+  }
+
+  async login(userName: string, password: string): Promise<any> {
+    Logger.info('<Service>:<DeliveryPartnerService>:<login service initiated>');
+    const deliveryPartnerDetails = await DeliveryPartners.findOne({
+      partnerId: userName
+    });
+    if (!deliveryPartnerDetails) {
+      throw new Error('Delivery Partner not found');
+    }
+    if (!(await bcrypt.compare(password, deliveryPartnerDetails.password))) {
+      throw new Error('Password validation failed');
+    }
+      const result = deliveryPartnerDetails;
+      return result;
   }
 }

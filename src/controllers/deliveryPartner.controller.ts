@@ -159,4 +159,28 @@ export class DeliveryPartnerController {
         .json({ message: err.message });
     }
   };
+
+  login = async (req: Request, res: Response) => {
+    const { userName, password } = req.body;
+    Logger.info(
+      '<Controller>:<DeliveryPartnerController>:<login as a delivery partner request controller initiated>'
+    );
+    try {
+      Logger.info(
+        '<Controller>:<DeliveryPartnerController>:<login as a delivery partner request controller initiated>'
+      );
+      const result: any = await this.deliveryPartnerService.login(
+        userName,
+        password
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
 }

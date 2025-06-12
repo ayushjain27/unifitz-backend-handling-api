@@ -53,6 +53,12 @@ router.get(
   deliveryPartnerController.getDeliveryPartnerDetailsByPartnerId
 );
 
+router.post(
+  '/login',
+  roleAuth(ACL.STORE_GET_ALL),
+  deliveryPartnerController.login
+);
+
 // router.get(
 //   '/',
 //   // roleAuth(ACL.STORE_GET_SINGLE),

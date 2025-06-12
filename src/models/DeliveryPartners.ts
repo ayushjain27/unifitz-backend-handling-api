@@ -25,7 +25,6 @@ export interface IDeliveryPartners {
   firstName: string;
   lastName: string;
   partnerId: string;
-  password: string;
   phoneNumber: { primary: string; secondary: string };
   emergencyDetails: {
     primary: {
@@ -40,6 +39,8 @@ export interface IDeliveryPartners {
   address: string;
   employeeId: string;
   userName: string;
+  password: string;
+  security: string;
   profileImageUrl: string;
   vehicleType: string;
   wareHouseInfo: string;
@@ -66,6 +67,9 @@ const deliveryPartnersSchema: Schema = new Schema(
       required: true
     },
     password: {
+      type: String
+    },
+    security: {
       type: String
     },
     vehicleType: {
