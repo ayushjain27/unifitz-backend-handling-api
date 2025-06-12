@@ -197,6 +197,60 @@ export class CreateInvoiceController {
     }
   };
 
+  getTotalInvoiceRevenueByStoreId = async (req: Request, res: Response) => {
+    const query = req.query;
+    try {
+      Logger.info(
+        '<Controller>:<CreateInvoiceController>:<get total invoice revenues by storeid request controller initiated>'
+      );
+      const result = await this.createInvoiceService.getTotalInvoiceRevenueByStoreId(query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getInvoiceRevenueByStoreId = async (req: Request, res: Response) => {
+    const query = req.query;
+    try {
+      Logger.info(
+        '<Controller>:<CreateInvoiceController>:<get invoice revenues by storeid request controller initiated>'
+      );
+      const result = await this.createInvoiceService.getInvoiceRevenueByStoreId(query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getInvoiceRevenuePerDayByStoreId = async (req: Request, res: Response) => {
+    const query = req.query;
+    try {
+      Logger.info(
+        '<Controller>:<CreateInvoiceController>:<get invoice revenues per day by storeid request controller initiated>'
+      );
+      const result = await this.createInvoiceService.getInvoiceRevenuePerDayByStoreId(query);
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   //   validate = (method: string) => {
   //     switch (method) {
   //       case 'createJobCard':

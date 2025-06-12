@@ -53,5 +53,22 @@ router.get(
   createInvoiceController.getHighestInvoice
 );
 
+router.get(
+  '/getTotalInvoiceRevenueByStoreId',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getTotalInvoiceRevenueByStoreId
+)
+
+router.get(
+  '/getInvoiceRevenueByStoreId',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getInvoiceRevenueByStoreId
+)
+
+router.get(
+  '/getInvoiceRevenuePerDayByStoreId',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getInvoiceRevenuePerDayByStoreId
+)
 
 export default router;

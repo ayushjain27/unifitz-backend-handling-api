@@ -344,7 +344,7 @@ export class CreateInvoiceService {
       },
       {
         $addFields: {
-          convertedJobCardId: { $toObjectId: "$jobCardId" } // Convert string to ObjectId
+          convertedJobCardId: { $toObjectId: '$jobCardId' } // Convert string to ObjectId
         }
       },
       {
@@ -355,16 +355,16 @@ export class CreateInvoiceService {
           as: 'jobCardDetails'
         }
       },
-      { 
+      {
         $unwind: {
           path: '$jobCardDetails',
           preserveNullAndEmptyArrays: false
-        } 
+        }
       },
       { $project: { convertedJobCardId: 0 } } // Remove temporary field
     ]);
     return invoices;
-  };
+  }
 
   async getInvoiceTotalPaymentAnalytics(
     startDate: string,
@@ -375,7 +375,7 @@ export class CreateInvoiceService {
     oemUserId: string,
     role?: string,
     userName?: string,
-    oemId?: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice analytics service initiated>'
@@ -421,17 +421,17 @@ export class CreateInvoiceService {
       ];
     }
 
-    if(oemUserId){
+    if (oemUserId) {
       query['storeDetail.oemUserName'] = oemUserId;
-    };
+    }
 
     if (role === AdminRole.OEM) {
-     query['storeDetail.oemUserName'] = userName;
-    };
+      query['storeDetail.oemUserName'] = userName;
+    }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query['storeDetail.oemUserName'] = oemId;
-    };
+    }
 
     const result = await CreateInvoice.aggregate([
       {
@@ -442,10 +442,7 @@ export class CreateInvoiceService {
             {
               $match: {
                 $expr: {
-                  $eq: [
-                    { $toString: '$_id' },
-                    '$$jobCardIdStr'
-                  ]
+                  $eq: [{ $toString: '$_id' }, '$$jobCardIdStr']
                 }
               }
             }
@@ -530,36 +527,36 @@ export class CreateInvoiceService {
         end.setUTCHours(23, 59, 59, 999);
         dateFilter.$lte = new Date(end);
       }
-  
+
       const matchQuery: any = {};
       if (Object.keys(dateFilter).length) {
         matchQuery.createdAt = dateFilter;
       }
-  
+
       // Common pipeline stages
       const commonStages = [
         { $match: matchQuery },
         {
           $lookup: {
-            from: "stores",
-            localField: "storeId",
-            foreignField: "storeId",
-            as: "storeDetails"
+            from: 'stores',
+            localField: 'storeId',
+            foreignField: 'storeId',
+            as: 'storeDetails'
           }
         },
-        { $unwind: "$storeDetails" }
+        { $unwind: '$storeDetails' }
       ];
-  
+
       // 1. Top Stores Pipeline
       const topStoresPipeline: any = [
         ...commonStages,
         {
           $group: {
             _id: {
-              storeId: "$storeDetails.storeId",
-              storeName: "$storeDetails.name"
+              storeId: '$storeDetails.storeId',
+              storeName: '$storeDetails.name'
             },
-            invoiceCount: { $sum: 1 },
+            invoiceCount: { $sum: 1 }
           }
         },
         { $sort: { invoiceCount: -1 } },
@@ -567,23 +564,23 @@ export class CreateInvoiceService {
         {
           $project: {
             _id: 0,
-            storeId: "$_id.storeId",
-            storeName: "$_id.storeName",
+            storeId: '$_id.storeId',
+            storeName: '$_id.storeName',
             city: 1,
             state: 1,
             invoiceCount: 1
           }
         }
       ];
-  
+
       // 2. Top Cities Pipeline
       const topCitiesPipeline: any = [
         ...commonStages,
         {
           $group: {
             _id: {
-              city: "$storeDetails.contactInfo.city",
-              state: "$storeDetails.contactInfo.state"
+              city: '$storeDetails.contactInfo.city',
+              state: '$storeDetails.contactInfo.state'
             },
             invoiceCount: { $sum: 1 }
           }
@@ -593,20 +590,20 @@ export class CreateInvoiceService {
         {
           $project: {
             _id: 0,
-            city: "$_id.city",
-            state: "$_id.state",
+            city: '$_id.city',
+            state: '$_id.state',
             invoiceCount: 1
           }
         }
       ];
-  
+
       // 3. Top States Pipeline
       const topStatesPipeline: any = [
         ...commonStages,
         {
           $group: {
             _id: {
-              state: "$storeDetails.contactInfo.state"
+              state: '$storeDetails.contactInfo.state'
             },
             invoiceCount: { $sum: 1 }
           }
@@ -616,27 +613,163 @@ export class CreateInvoiceService {
         {
           $project: {
             _id: 0,
-            state: "$_id.state",
+            state: '$_id.state',
             invoiceCount: 1
           }
         }
       ];
-  
+
       // Execute all pipelines in parallel
       const [topStores, topCities, topStates] = await Promise.all([
         CreateInvoice.aggregate(topStoresPipeline),
         CreateInvoice.aggregate(topCitiesPipeline),
         CreateInvoice.aggregate(topStatesPipeline)
       ]);
-  
+
       return {
         topStores,
         topCities,
         topStates
       };
-      
     } catch (error: any) {
-      Logger.error('<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:', error);
+      Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  async getTotalInvoiceRevenueByStoreId(reqPayload: any) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>:<Get total invoice revenues by storeid initiated>'
+    );
+    try {
+      const query: any = {
+        storeId: reqPayload.storeId
+      }
+
+      const pipeline = [
+        { $match: query },
+        {
+          $group: {
+            _id: 0,
+            totalAmount: { $sum: '$totalAmount' }
+          }
+        },
+        { $project: { _id: 0, totalAmount: 1 } }
+      ];
+
+      const result = await CreateInvoice.aggregate(pipeline);
+
+      return {
+        totalAmount: result[0]?.totalAmount || 0
+      };
+    } catch (error: any) {
+      Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  async getInvoiceRevenueByStoreId(reqPayload: any) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>:<Get total invoice revenues by storeid initiated>'
+    );
+    try {
+      const dateFilter: any = {};
+      if (reqPayload.startDate) {
+        const start = new Date(reqPayload.startDate);
+        start.setUTCHours(0, 0, 0, 0);
+        dateFilter.$gte = new Date(start);
+      }
+      if (reqPayload.endDate) {
+        const end = new Date(reqPayload.endDate);
+        end.setUTCHours(23, 59, 59, 999);
+        dateFilter.$lte = new Date(end);
+      }
+
+      const matchQuery: any = {
+        storeId: reqPayload?.storeId
+      };
+      if (Object.keys(dateFilter).length) {
+        matchQuery.createdAt = dateFilter;
+      }
+
+      const pipeline = [
+        { $match: matchQuery },
+        {
+          $group: {
+            _id: 0,
+            totalAmount: { $sum: '$totalAmount' }
+          }
+        },
+        { $project: { _id: 0, totalAmount: 1 } }
+      ];
+
+      const result = await CreateInvoice.aggregate(pipeline);
+
+      return {
+        totalAmount: result[0]?.totalAmount || 0
+      };
+    } catch (error: any) {
+      Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  async getInvoiceRevenuePerDayByStoreId(reqPayload: any) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>:<Get total invoice revenues by storeid initiated>'
+    );
+    try {
+      const dateFilter: any = {};
+      if (reqPayload.startDate) {
+        const start = new Date(reqPayload.startDate);
+        start.setUTCHours(0, 0, 0, 0);
+        dateFilter.$gte = new Date(start);
+      }
+      if (reqPayload.endDate) {
+        const end = new Date(reqPayload.endDate);
+        end.setUTCHours(23, 59, 59, 999);
+        dateFilter.$lte = new Date(end);
+      }
+
+      console.log(dateFilter,"Demkm")
+
+      const matchQuery: any = {
+        storeId: reqPayload?.storeId
+      };
+      if (Object.keys(dateFilter).length) {
+        matchQuery.createdAt = dateFilter;
+      }
+
+      const pipeline = [
+        { $match: matchQuery },
+        {
+          $group: {
+            _id: 0,
+            totalAmount: { $sum: '$totalAmount' }
+          }
+        },
+        { $project: { _id: 0, totalAmount: 1 } }
+      ];
+
+      const result = await CreateInvoice.aggregate(pipeline);
+
+      return {
+        totalAmount: result[0]?.totalAmount || 0
+      };
+    } catch (error: any) {
+      Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:',
+        error
+      );
       throw error;
     }
   }
