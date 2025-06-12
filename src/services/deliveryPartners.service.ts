@@ -2,21 +2,18 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
-import secureRandomPassword from 'secure-random-password';
+import Payload from '../types/payload';
 import container from '../config/inversify.container';
 import { Types } from 'mongoose';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import { S3Service } from './s3.service';
-import Admin, { AdminRole, IAdmin } from '../models/Admin';
-import SPEmployee, { ISPEmployee } from '../models/SPEmployee';
-import { permissions } from '../config/permissions';
-import { StaticIds } from '../models/StaticId';
-import { SQSEvent } from '../enum/sqsEvent.enum';
+import { AdminRole } from '../models/Admin';
 import { SQSService } from './sqs.service';
 import DeliveryPartners, {
   IDeliveryPartners
 } from '../models/DeliveryPartners';
+import { generateToken } from '../utils';
 
 @injectable()
 export class DeliveryPartnerService {
@@ -249,7 +246,11 @@ export class DeliveryPartnerService {
     if (!(await bcrypt.compare(password, deliveryPartnerDetails.password))) {
       throw new Error('Password validation failed');
     }
-      const result = deliveryPartnerDetails;
-      return result;
+    const payload: Payload = {
+      userId: deliveryPartnerDetails.partnerId,
+      role: deliveryPartnerDetails.role
+    };
+    const token = await generateToken(payload);
+    return { user: deliveryPartnerDetails, token };
   }
 }

@@ -44,6 +44,7 @@ export interface IDeliveryPartners {
   profileImageUrl: string;
   vehicleType: string;
   wareHouseInfo: string;
+  role: string;
   state?: IState[];
   city?: ICity[];
 }
@@ -107,6 +108,10 @@ const deliveryPartnersSchema: Schema = new Schema(
     },
     wareHouseInfo: {
       type: String
+    },
+    role: {
+      type: String,
+      default: "DELIVERY_PARTNER"
     }
   },
   { timestamps: true }
