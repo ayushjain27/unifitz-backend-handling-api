@@ -75,7 +75,7 @@ export class AnalyticController {
     const userName = req?.userId;
     const role = req?.role;
     try {
-      const result = await this.analyticService.getTotalUsers(userName, role);
+      const result = await this.analyticService.getTotalUsers(userName, role, req.query);
       res.send({
         result
       });

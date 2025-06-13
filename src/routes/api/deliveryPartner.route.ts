@@ -55,7 +55,6 @@ router.get(
 
 router.post(
   '/login',
-  roleAuth(ACL.STORE_GET_ALL),
   deliveryPartnerController.login
 );
 

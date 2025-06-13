@@ -7,7 +7,7 @@ import { StoreResponse } from '../interfaces';
 //   CategoryResponse,
 //   CategoryRequest
 // } from '../interfaces/category.interface';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import Store from '../models/Store';
 import Customer from '../models/Customer';
 import Admin from '../models/Admin';
@@ -29,10 +29,14 @@ import EventAnalyticModel, {
 } from '../models/CustomerEventAnalytic';
 import PartnerAnalyticModel from '../models/PartnerAnalytic';
 import PlusFeatureAnalyticModel from '../models/PlusFeaturesAnalytic';
+import { SPEmployeeService } from './spEmployee.service';
 
 @injectable()
 export class AnalyticService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
+  );
 
   async getTotalCustomers(searchReqBody: {
     startDate: string;
@@ -47,7 +51,7 @@ export class AnalyticService {
     const query: any = {};
     let startDate;
     let endDate;
-    if(searchReqBody?.startDate && searchReqBody?.endDate){
+    if (searchReqBody?.startDate && searchReqBody?.endDate) {
       startDate = new Date(searchReqBody.startDate);
       startDate.setDate(startDate.getDate() + 1);
       startDate.setUTCHours(0, 0, 0, 0);
@@ -56,14 +60,14 @@ export class AnalyticService {
       endDate.setDate(endDate.getDate() + 1);
       endDate.setUTCHours(23, 59, 59, 999);
       query.createdAt = { $gte: startDate, $lte: endDate };
-    };
+    }
 
     if (searchReqBody.state) {
       query['contactInfo.state'] = { $in: searchReqBody.state };
-    };
+    }
     if (searchReqBody.city) {
       query['contactInfo.city'] = { $in: searchReqBody.city };
-    };
+    }
     Logger.debug(query);
     const result = await Customer.find(query).countDocuments();
     return { total: result };
@@ -98,13 +102,45 @@ export class AnalyticService {
     return { gstVerified: gstVerStores, aadharVerified: aadharVerStores };
   }
 
-  async getTotalUsers(userName: string, role: string) {
+  async getTotalUsers(userName: string, role: string, payload: any) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all users service initiated>'
     );
     const query: any = {};
     if (role === AdminRole.OEM) {
-      query.userName = userName;
+      query.$or = [
+        { userName: userName },
+        { createdOemUser: userName }
+      ];
+    }
+    console.log(payload?.oemId,"dmekm")
+    if (role === AdminRole.EMPLOYEE && payload?.oemId !== 'SERVICEPLUG') {
+      query.userName = payload?.oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          payload.employeeId,
+          userName
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+
+    if(payload?.state){
+      query['contactInfo.state'] = payload.state
+    }
+    if(payload?.city){
+      query['contactInfo.city'] = payload.city
+    }
+    if(payload?.oemUserId){
+      query.userName = payload?.oemUserId;
     }
     const queryFilter: any = await Admin.find(query, {
       'verificationDetails.verifyObj': 0
@@ -149,7 +185,7 @@ export class AnalyticService {
 
     let startDate;
     let endDate;
-    if(searchReqBody?.startDate && searchReqBody?.endDate){
+    if (searchReqBody?.startDate && searchReqBody?.endDate) {
       startDate = new Date(searchReqBody.startDate);
       startDate.setDate(startDate.getDate() + 1);
       startDate.setUTCHours(0, 0, 0, 0);
@@ -195,8 +231,8 @@ export class AnalyticService {
       delete query['oemUserName'];
     }
     const res = await Store.find(query, {
-      '_id': 1,  // Keep _id (optional)
-      'contactInfo.geoLocation.coordinates': 1  // Include only coordinates
+      _id: 1, // Keep _id (optional)
+      'contactInfo.geoLocation.coordinates': 1 // Include only coordinates
     });
     return res;
   }
@@ -941,7 +977,7 @@ export class AnalyticService {
           _id: 0
         }
       },
-      { $sort: { users: -1 } },
+      { $sort: { users: -1 } }
       // { $limit: 1000 }
     ]);
     return queryFilter;
@@ -973,15 +1009,15 @@ export class AnalyticService {
       const start = new Date(firstDate);
       start.setUTCHours(0, 0, 0, 0);
       dateFilter.$gte = new Date(start);
-    };
+    }
     if (lastDate) {
       const end = new Date(lastDate);
       end.setUTCHours(23, 59, 59, 999);
       dateFilter.$lte = new Date(end);
-    };
+    }
 
-     // 3. Optimized field filtering
-     const filterFields = {
+    // 3. Optimized field filtering
+    const filterFields = {
       'userInformation.state': state,
       'userInformation.city': city,
       moduleInformation: storeId,
@@ -995,19 +1031,19 @@ export class AnalyticService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
-    };
+    }
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
-    };
+    }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
-    };
+    }
 
     try {
       const startTime = Date.now();
-      
+
       const combinedResult = await EventAnalyticModel.aggregate([
         { $match: query },
         {
@@ -1030,7 +1066,7 @@ export class AnalyticService {
     } catch (error) {
       Logger.error('Error in getTrafficAnalytic:', error);
       throw error;
-    };
+    }
   }
 
   async getOverallTrafficAnalaytic(
@@ -1069,11 +1105,11 @@ export class AnalyticService {
 
     if (role === AdminRole.OEM) {
       query.oemUserName = userName;
-    };
+    }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
-    };
+    }
 
     const combinedResult = await EventAnalyticModel.aggregate([
       {
@@ -1082,7 +1118,7 @@ export class AnalyticService {
       {
         $group: {
           _id: '$event',
-          initialCount: { $sum: 1 },
+          initialCount: { $sum: 1 }
         }
       },
       {
@@ -1666,19 +1702,19 @@ export class AnalyticService {
       module === 'EVENT'
         ? 'events'
         : module === 'OFFERS'
-        ? 'offers'
-        : module === 'BUSINESS_OPPORTUNITIES'
-        ? 'businesses'
-        : '';
+          ? 'offers'
+          : module === 'BUSINESS_OPPORTUNITIES'
+            ? 'businesses'
+            : '';
 
     const moduleId =
       module === 'EVENT'
         ? 'eventId'
         : module === 'OFFERS'
-        ? 'offerId'
-        : module === 'BUSINESS_OPPORTUNITIES'
-        ? 'businessId'
-        : '';
+          ? 'offerId'
+          : module === 'BUSINESS_OPPORTUNITIES'
+            ? 'businessId'
+            : '';
 
     if (!state) {
       delete query['userInformation.state'];
@@ -3080,7 +3116,7 @@ export class AnalyticService {
         { 'marketingDetails.employeeUserName': oemUserName },
         { 'marketingDetails.oemUserName': oemUserName }
       ];
-    };
+    }
 
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       { $match: query },
@@ -3619,7 +3655,7 @@ export class AnalyticService {
         { employeeUserName: userName },
         { oemUserName: userName }
       ];
-    };
+    }
 
     const response = await Marketing.aggregate([
       {
@@ -3830,43 +3866,47 @@ export class AnalyticService {
 
     const data = [];
     const hourMap: any = {};
-    
+
     if (dateDifference <= 15) {
       let currentDate = new Date(lastDate);
       let firstDateTime = firstDate.getTime();
-      
+
       while (currentDate.getTime() <= firstDateTime) {
         for (let hour = 0; hour < 24; hour++) {
           const hourData = result.find(
             (r) => r._id.day === currentDate.getDate() && r._id.hour === hour
           );
-          hourMap[`${currentDate.getDate()}-${hour}`] = hourData ? hourData.uniqueUsers : 0;
+          hourMap[`${currentDate.getDate()}-${hour}`] = hourData
+            ? hourData.uniqueUsers
+            : 0;
         }
-      
+
         currentDate.setDate(currentDate.getDate() + 1);
       }
-      
+
       currentDate = new Date(lastDate);
       while (currentDate.getTime() <= firstDateTime) {
         for (let hour = 0; hour < 24; hour += 2) {
           const hour1 = `${currentDate.getDate()}-${hour}`;
           const hour2 = `${currentDate.getDate()}-${hour + 1}`;
-      
+
           const uniqueUsersInFirstHour = hourMap[hour1] || 0;
           const uniqueUsersInSecondHour = hourMap[hour2] || 0;
-      
-          const totalUniqueUsers = uniqueUsersInFirstHour + uniqueUsersInSecondHour;
-      
+
+          const totalUniqueUsers =
+            uniqueUsersInFirstHour + uniqueUsersInSecondHour;
+
           data.push({
             day: currentDate.getDate(),
             month: result.find((r) => r._id.day === currentDate.getDate())
-              ? result.find((r) => r._id.day === currentDate.getDate())._id.month
+              ? result.find((r) => r._id.day === currentDate.getDate())._id
+                  .month
               : firstDate.getMonth() + 1,
             x: `${hour}-${hour + 2}`,
             y: totalUniqueUsers
           });
         }
-      
+
         currentDate.setDate(currentDate.getDate() + 1);
       }
     } else {
@@ -3990,8 +4030,8 @@ export class AnalyticService {
 
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
-    };
-    
+    }
+
     const queryFilter: any = await MarketingAnalyticModel.aggregate([
       {
         $match: query
