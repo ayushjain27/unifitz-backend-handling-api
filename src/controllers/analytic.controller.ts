@@ -53,11 +53,19 @@ export class AnalyticController {
     const userName = req?.userId;
     const role = req?.role;
     const oemId = req?.query?.oemId;
+    const oemUserId = req?.query?.oemUserId;
+    const state = req?.query?.state;
+    const city = req?.query?.city;
+    const employeeId = req?.query?.employeeId;
     try {
       const result = await this.analyticService.getVerifiedStores(
         userName,
         role,
-        oemId as string
+        oemId as string,
+        oemUserId as string,
+        state as string,
+        city as string,
+        employeeId as string,
       );
       res.send({
         result

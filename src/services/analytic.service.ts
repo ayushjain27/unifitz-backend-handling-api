@@ -73,7 +73,15 @@ export class AnalyticService {
     return { total: result };
   }
 
-  async getVerifiedStores(userName: string, role: string, oemId?: string) {
+  async getVerifiedStores(
+    userName: string,
+    role: string,
+    oemId?: string,
+    oemUserId?: string,
+    state?: string,
+    city?: string,
+    employeeId?: string
+  ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
     );
@@ -83,12 +91,40 @@ export class AnalyticService {
     }
 
     if (role === AdminRole.EMPLOYEE) {
+      if(oemId !== 'SERVICEPLUG'){
       query.oemUserName = oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+        console.log(employeeDetails,"demdkmkd")
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+      console.log(query,"dmkemk")
     }
 
-    if (oemId === 'SERVICEPLUG') {
-      delete query['oemUserName'];
+    if (state) {
+      query['contactInfo.state'] = state;
     }
+    if (city) {
+      query['contactInfo.city'] = city;
+    }
+    if (oemUserId) {
+      query.oemUserName = oemUserId;
+    }
+
+    console.log(query,"Demkm")
+
     const gstVerStores = await Store.countDocuments({
       'verificationDetails.documentType': 'GST',
       profileStatus: 'ONBOARDED',
@@ -108,18 +144,16 @@ export class AnalyticService {
     );
     const query: any = {};
     if (role === AdminRole.OEM) {
-      query.$or = [
-        { userName: userName },
-        { createdOemUser: userName }
-      ];
+      query.$or = [{ userName: userName }, { createdOemUser: userName }];
     }
-    console.log(payload?.oemId,"dmekm")
-    if (role === AdminRole.EMPLOYEE && payload?.oemId !== 'SERVICEPLUG') {
+    if (role === AdminRole.EMPLOYEE) {
+      if(payload?.oemId !== 'SERVICEPLUG'){
       query.userName = payload?.oemId;
+      }
       const employeeDetails =
         await this.spEmployeeService.getEmployeeByEmployeeId(
           payload.employeeId,
-          userName
+          payload.oemId
         );
       if (employeeDetails) {
         query['contactInfo.state'] = {
@@ -133,13 +167,13 @@ export class AnalyticService {
       }
     }
 
-    if(payload?.state){
-      query['contactInfo.state'] = payload.state
+    if (payload?.state) {
+      query['contactInfo.state'] = payload.state;
     }
-    if(payload?.city){
-      query['contactInfo.city'] = payload.city
+    if (payload?.city) {
+      query['contactInfo.city'] = payload.city;
     }
-    if(payload?.oemUserId){
+    if (payload?.oemUserId) {
       query.userName = payload?.oemUserId;
     }
     const queryFilter: any = await Admin.find(query, {
