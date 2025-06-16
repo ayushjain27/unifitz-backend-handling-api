@@ -8,7 +8,7 @@ import VehicleInfo, { IVehiclesInfo } from './../models/Vehicle';
 import User, { IUser } from './../models/User';
 import Customer, { ICustomer } from './../models/Customer';
 import { Types, ObjectId } from 'mongoose';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { S3Service } from './s3.service';
 import Admin, { AdminRole } from './../models/Admin';
 import { TYPES } from '../config/inversify.types';
@@ -16,6 +16,7 @@ import container from '../config/inversify.container';
 import { SurepassService } from './surepass.service';
 import SPEmployee from '../models/SPEmployee';
 import { StoreProfileStatus } from '../models/Store';
+import { SPEmployeeService } from './spEmployee.service';
 
 @injectable()
 export class BuySellService {
@@ -23,6 +24,10 @@ export class BuySellService {
     TYPES.SurepassService
   );
   private s3Client = container.get<S3Service>(TYPES.S3Service);
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
+  );
+
   async addSellVehicle(buySellVehicle?: any, role?: string) {
     Logger.info('<Service>:<BuySellService>:<Adding Sell Vehicle initiated>');
     const { userId } = buySellVehicle;
@@ -769,7 +774,8 @@ export class BuySellService {
       state,
       city,
       oemId,
-      oemUserId
+      oemUserId,
+      employeeId
     } = req || {};
     const query: any = {
        status: "ACTIVE"
@@ -789,6 +795,38 @@ export class BuySellService {
 
     if (!query.updatedAt) delete query['updatedAt'];
 
+    if ( role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query.$or = [
+          { 'sellerDetails.contactInfo.state':  {
+            $in: employeeDetails.state.map((stateObj) => stateObj.name)
+          } },
+          {
+            'storeDetails.contactInfo.state':  {
+              $in: employeeDetails.state.map((stateObj) => stateObj.name)
+            }
+          }
+        ];
+        if (!isEmpty(employeeDetails?.city)) {
+          query.$or = [
+            { 'sellerDetails.contactInfo.city':  {
+              $in: employeeDetails.city.map((cityObj) => cityObj.name)
+            } },
+            {
+              'storeDetails.contactInfo.city':  {
+                $in: employeeDetails.city.map((cityObj) => cityObj.name)
+              }
+            }
+          ];
+        }
+      }
+    }
+
     if (state) {
       query.$or = [
         { 'sellerDetails.contactInfo.state': state },
@@ -805,9 +843,6 @@ export class BuySellService {
         }
       ];
     }
-
-    console.log(state, city,"demkdm")
-    console.log(query,"dlemfkem")
 
     const vehicleResponse: IBuySell[] = await buySellVehicleInfo.aggregate([
       { $set: { VehicleInfo: { $toObjectId: '$vehicleId' } } },

@@ -9,12 +9,14 @@ import Logger from '../config/winston';
 import JobCard, { IJobCard, ILineItem, JobStatus } from './../models/JobCard';
 import Store, { IStore } from '../models/Store';
 import { S3Service } from './s3.service';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import CreateInvoice from '../models/CreateInvoice';
 import { AdminRole } from '../models/Admin';
+import { SPEmployeeService } from './spEmployee.service';
+import { UserDefinedMessageSubscriptionInstance } from 'twilio/lib/rest/api/v2010/account/call/userDefinedMessageSubscription';
 
 require('dotenv').config();
 
@@ -29,6 +31,9 @@ require('dotenv').config();
 @injectable()
 export class JobCardService {
   private sqsService = container.get<SQSService>(TYPES.SQSService);
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
+  );
 
   async create(jobCardPayload: IJobCard, req: Request): Promise<IJobCard> {
     Logger.info(
@@ -502,6 +507,7 @@ export class JobCardService {
     role?: string,
     userName?: string,
     oemId?: string,
+    employeeId?: string,
   ) {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter job card analytics service initiated>'
@@ -522,13 +528,6 @@ export class JobCardService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
-    }
-
-    if (state) {
-      query['storeDetail.contactInfo.state'] = state;
-    }
-    if (city) {
-      query['storeDetail.contactInfo.city'] = city;
     }
 
     if (searchText) {
@@ -557,6 +556,31 @@ export class JobCardService {
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query['storeDetail.oemUserName'] = oemId;
     };
+
+    if ( role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+
+    if (state) {
+      query['storeDetail.contactInfo.state'] = state;
+    }
+    if (city) {
+      query['storeDetail.contactInfo.city'] = city;
+    }
 
     const result = await JobCard.aggregate([
       {

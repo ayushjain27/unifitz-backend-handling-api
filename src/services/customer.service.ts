@@ -23,6 +23,7 @@ import Store from '../models/Store';
 import { StoreService } from './store.service';
 import { TwoFactorService } from './twoFactor.service';
 import CustomerRedeemCoupon from '../models/CustomerRedeemCoupon';
+import { SPEmployeeService } from './spEmployee.service';
 
 @injectable()
 export class CustomerService {
@@ -33,6 +34,9 @@ export class CustomerService {
   );
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
+  );
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
   );
 
   async create(customerPayload: ICustomer): Promise<ICustomer> {
@@ -1325,11 +1329,36 @@ export class CustomerService {
     return inviteUsers;
   }
 
-  async countAllCustomers(state: string, city: string) {
+  async countAllCustomers(
+    state: string,
+    city: string,
+    employeeId: string,
+    oemId: string,
+    role: string,
+    userName: string
+  ) {
     Logger.info(
       '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
     );
     const query: any = {};
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
 
     if (state) {
       query['contactInfo.state'] = state;
@@ -1346,7 +1375,11 @@ export class CustomerService {
     startDate: string,
     endDate: string,
     state: string,
-    city: string
+    city: string,
+    employeeId: string,
+    role: string,
+    userName: string,
+    oemId: string
   ) {
     Logger.info(
       '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
@@ -1368,6 +1401,24 @@ export class CustomerService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
+    }
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
     }
 
     if (state) {
@@ -1421,7 +1472,11 @@ export class CustomerService {
     startDate: string,
     endDate: string,
     state: string,
-    city: string
+    city: string,
+    employeeId: string,
+    role?: string,
+    userName?: string,
+    oemId?: string
   ) {
     Logger.info(
       '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
@@ -1453,6 +1508,24 @@ export class CustomerService {
         query.createdAt = dateFilter;
       }
 
+      if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+        const employeeDetails =
+          await this.spEmployeeService.getEmployeeByEmployeeId(
+            employeeId,
+            oemId
+          );
+        if (employeeDetails) {
+          query['contactInfo.state'] = {
+            $in: employeeDetails.state.map((stateObj) => stateObj.name)
+          };
+          if (!isEmpty(employeeDetails?.city)) {
+            query['contactInfo.city'] = {
+              $in: employeeDetails.city.map((cityObj) => cityObj.name)
+            };
+          }
+        }
+      }
+
       // Add location filters
       if (state) {
         query['contactInfo.state'] = state;
@@ -1460,7 +1533,7 @@ export class CustomerService {
       if (city) {
         query['contactInfo.city'] = city;
       }
-      
+
       // Perform aggregation
       const result = await Customer.aggregate([
         { $match: query },
@@ -1542,7 +1615,8 @@ export class CustomerService {
     oemUserId: string,
     oemId: string,
     userName: string,
-    role: string
+    role: string,
+    employeeId: string
   ) {
     Logger.info(
       '<Service>:<CustomerService>:<Get Customers analytics service initiated>'
@@ -1572,14 +1646,6 @@ export class CustomerService {
         query.createdAt = dateFilter;
       }
 
-      // Add location filters
-      if (state) {
-        query['storeDetail.contactInfo.state'] = state;
-      }
-      if (city) {
-        query['storeDetail.contactInfo.city'] = city;
-      }
-
       if (oemUserId) {
         query.oemUserName = oemUserId;
       }
@@ -1592,7 +1658,31 @@ export class CustomerService {
         query.oemUserName = oemId;
       }
 
-      console.log(query, 'demkmdfrk');
+      if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+        const employeeDetails =
+          await this.spEmployeeService.getEmployeeByEmployeeId(
+            employeeId,
+            oemId
+          );
+        if (employeeDetails) {
+          query['storeDetail.contactInfo.state'] = {
+            $in: employeeDetails.state.map((stateObj) => stateObj.name)
+          };
+          if (!isEmpty(employeeDetails?.city)) {
+            query['storeDetail.contactInfo.city'] = {
+              $in: employeeDetails.city.map((cityObj) => cityObj.name)
+            };
+          }
+        }
+      }
+
+      // Add location filters
+      if (state) {
+        query['storeDetail.contactInfo.state'] = state;
+      }
+      if (city) {
+        query['storeDetail.contactInfo.city'] = city;
+      }
 
       // Perform aggregation
       const result = await CustomerRedeemCoupon.aggregate([

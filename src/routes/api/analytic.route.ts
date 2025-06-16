@@ -12,7 +12,7 @@ const analyticController = container.get<AnalyticController>(
   TYPES.AnalyticController
 );
 
-router.post('/getTotalConsumers', analyticController.getTotalCustomers);
+router.post('/getTotalConsumers', roleAuth(ACL.STORE_GET_ALL), analyticController.getTotalCustomers);
 router.get(
   '/getTotalUsers',
   roleAuth(ACL.STORE_GET_ALL),

@@ -731,17 +731,27 @@ export class CustomerController {
     const {
       state,
       city,
+      employeeId,
+      oemId
     }: {
       state: string;
       city: string;
+      employeeId: string;
+      oemId: string;
     } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<CustomerController>:<get total stores onboarded analytic request controller initiated>'
       );
       const result = await this.customerService.countAllCustomers(
         state,
-        city
+        city,
+        employeeId,
+        oemId,
+        role,
+        userName
       );
       res.send({
         result
@@ -759,13 +769,19 @@ export class CustomerController {
       startDate,
       endDate,
       state,
-      city
+      city,
+      employeeId,
+      oemId
     }: {
       startDate: string;
       endDate: string;
       state: string;
       city: string;
+      employeeId: string;
+      oemId: string;
     } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<CustomerController>:<get total customers onboarded analytic request controller initiated>'
@@ -774,7 +790,11 @@ export class CustomerController {
         startDate,
         endDate,
         state,
-        city
+        city,
+        employeeId,
+        role,
+        userName,
+        oemId
       );
       res.send({
         result
@@ -792,13 +812,19 @@ export class CustomerController {
       startDate,
       endDate,
       state,
-      city
+      city,
+      employeeId,
+      oemId
     }: {
       startDate: string;
       endDate: string;
       state: string;
       city: string;
+      employeeId: string;
+      oemId: string;
     } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<CustomerController>:<get total customers onboarded analytic request controller initiated>'
@@ -807,7 +833,11 @@ export class CustomerController {
         startDate,
         endDate,
         state,
-        city
+        city,
+        employeeId,
+        role,
+        userName,
+        oemId
       );
       res.send({
         result
@@ -827,7 +857,8 @@ export class CustomerController {
       state,
       city,
       oemUserId,
-      oemId
+      oemId,
+      employeeId
     }: {
       startDate: string;
       endDate: string;
@@ -835,6 +866,7 @@ export class CustomerController {
       city: string;
       oemUserId: string;
       oemId: string;
+      employeeId: string;
     } = req.body;
     const userName = req?.userId;
       const role = req?.role;
@@ -850,7 +882,8 @@ export class CustomerController {
         oemUserId,
         oemId,
         userName,
-        role
+        role,
+        employeeId
       );
       res.send({
         result

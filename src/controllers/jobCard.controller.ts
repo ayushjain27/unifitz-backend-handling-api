@@ -244,7 +244,8 @@ export class JobCardController {
       city,
       searchText,
       oemUserId,
-      oemId
+      oemId,
+      employeeId
     } = req.body;
     const role = req?.role;
       const userName = req?.userId;
@@ -261,7 +262,8 @@ export class JobCardController {
         oemUserId,
         role,
         userName,
-        oemId
+        oemId,
+        employeeId
       );
       res.send({
         result

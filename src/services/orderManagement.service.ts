@@ -928,7 +928,7 @@ export class OrderManagementService {
       delete query['oemUserName'];
     }
 
-    if(oemUserId){
+    if (oemUserId) {
       query.oemUserName = oemUserId;
     }
 
@@ -938,25 +938,6 @@ export class OrderManagementService {
     if (!status) {
       delete query['status'];
       delete overallStatus['status'];
-    }
-
-    if (role === 'EMPLOYEE') {
-      const userName = oemId;
-      const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          userName
-        );
-      // if (employeeDetails) {
-      //   query['contactInfo.state'] = {
-      //     $in: employeeDetails.state.map((stateObj) => stateObj.name)
-      //   };
-      //   if (!isEmpty(employeeDetails?.city)) {
-      //     query['contactInfo.city'] = {
-      //       $in: employeeDetails.city.map((cityObj) => cityObj.name)
-      //     };
-      //   }
-      // }
     }
 
     const firstDay = new Date(firstDate);
@@ -970,9 +951,7 @@ export class OrderManagementService {
         $lte: nextDate
       },
       'storeDetails.storeId': storeId,
-      oemUserName: adminFilterOemId,
-      'storeDetails.contactInfo.state': state,
-      'storeDetails.contactInfo.city': city
+      oemUserName: adminFilterOemId
     };
     if (!firstDate || !lastDate) {
       delete queryTwo['createdAt'];
@@ -983,11 +962,31 @@ export class OrderManagementService {
     if (!adminFilterOemId) {
       delete queryTwo['oemUserName'];
     }
-    if (!state) {
-      delete queryTwo['storeDetails.contactInfo.state'];
+
+    if (role === 'EMPLOYEE') {
+      const userName = oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      if (employeeDetails) {
+        queryTwo['storeDetails.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          queryTwo['storeDetails.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
     }
-    if (!city) {
-      delete queryTwo['storeDetails.contactInfo.city'];
+
+    if (state) {
+      queryTwo['storeDetails.contactInfo.state'] = state;
+    }
+    if (city) {
+      queryTwo['storeDetails.contactInfo.city'] = city;
     }
 
     const aggregatedFilter = [
@@ -2047,40 +2046,40 @@ export class OrderManagementService {
       '<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>'
     );
 
-    console.log(spareRequirementId,"frmk")
+    console.log(spareRequirementId, 'frmk');
     try {
       const spareRequirementDetail = await SparePost.aggregate([
         {
-          $match: { _id: new Types.ObjectId(spareRequirementId) },
+          $match: { _id: new Types.ObjectId(spareRequirementId) }
         },
         {
           $lookup: {
-            from: "stores", // Matches your Store collection
-            localField: "storeId", // `storeId` from SparePost
-            foreignField: "storeId", // Matching field in Stores (as per schema)
-            as: "storeDetails",
-          },
+            from: 'stores', // Matches your Store collection
+            localField: 'storeId', // `storeId` from SparePost
+            foreignField: 'storeId', // Matching field in Stores (as per schema)
+            as: 'storeDetails'
+          }
         },
         {
           $unwind: {
-            path: "$storeDetails",
-            preserveNullAndEmptyArrays: true, // If no store found, keep the document
-          },
+            path: '$storeDetails',
+            preserveNullAndEmptyArrays: true // If no store found, keep the document
+          }
         },
         {
           $lookup: {
-            from: "customers",
-            localField: "customerId",
-            foreignField: "customerId",
-            as: "customerDetails",
-          },
+            from: 'customers',
+            localField: 'customerId',
+            foreignField: 'customerId',
+            as: 'customerDetails'
+          }
         },
         {
           $unwind: {
-            path: "$customerDetails",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            path: '$customerDetails',
+            preserveNullAndEmptyArrays: true
+          }
+        }
       ]);
 
       if (!spareRequirementDetail) {

@@ -149,7 +149,8 @@ export class CreateInvoiceController {
       city,
       searchText,
       oemUserId,
-      oemId
+      oemId,
+      employeeId
     } = req.body;
     try {
       Logger.info(
@@ -166,7 +167,8 @@ export class CreateInvoiceController {
         oemUserId,
         role,
         userName,
-        oemId
+        oemId,
+        employeeId
       );
       res.send({
         result

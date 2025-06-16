@@ -2362,7 +2362,8 @@ export class StoreService {
     oemUserId: string,
     role?: string,
     userName?: string,
-    oemId?: string
+    oemId?: string,
+    employeeId?: string
   ) {
     const startDate = firstDate
       ? new Date(firstDate).setUTCHours(0, 0, 0, 0)
@@ -2372,21 +2373,11 @@ export class StoreService {
       : null;
 
     const query: any = {
-      'contactInfo.state': state,
-      'contactInfo.city': city,
       'basicInfo.category.name': category,
       'basicInfo.subCategory.name': subCategory,
       storeId: storeId,
       preferredServicePlugStore: true
     };
-
-    if (!state) {
-      delete query['contactInfo.state'];
-    }
-
-    if (!city) {
-      delete query['contactInfo.city'];
-    }
 
     if (!category) {
       delete query['basicInfo.category.name'];
@@ -2410,6 +2401,28 @@ export class StoreService {
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
+    }
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+
+    if (state) {
+      query['contactInfo.state'] = state;
+    }
+    if (city) {
+      query['contactInfo.city'] = city;
     }
 
     const result = await Store.aggregate([
@@ -2776,7 +2789,8 @@ export class StoreService {
     userName?: string,
     oemId?: string,
     oemUserId?: string,
-    brandName?: string
+    brandName?: string,
+    employeeId?: string,
   ) {
     Logger.info(
       '<Service>:<StoreService>:<Get Store Onboarded analytics service initiated>'
@@ -2800,6 +2814,24 @@ export class StoreService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
+    }
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
     }
 
     if (state) {
@@ -2877,7 +2909,8 @@ export class StoreService {
     role?: string,
     userName?: string,
     oemId?: string,
-    oemUserId?: string
+    oemUserId?: string,
+    employeeId?: string
   ) {
     Logger.info(
       '<Service>:<StoreService>:<Get Store Onboarded analytics service initiated>'
@@ -2885,6 +2918,24 @@ export class StoreService {
     const query: any = {
       profileStatus: 'ONBOARDED'
     };
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
 
     if (state) {
       query['contactInfo.state'] = state;
@@ -2901,7 +2952,7 @@ export class StoreService {
       query.oemUserName = userName;
     }
 
-    if (role === AdminRole.EMPLOYEE && oemId !== "SERVICEPLUG") {
+    if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.oemUserName = oemId;
     }
 

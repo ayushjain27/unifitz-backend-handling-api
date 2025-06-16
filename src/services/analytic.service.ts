@@ -43,6 +43,10 @@ export class AnalyticService {
     endDate: string;
     state: string;
     city: string;
+    employeeId: string;
+    role: string;
+    userName: string;
+    oemId: string;
   }) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all Category service initiated>'
@@ -53,13 +57,33 @@ export class AnalyticService {
     let endDate;
     if (searchReqBody?.startDate && searchReqBody?.endDate) {
       startDate = new Date(searchReqBody.startDate);
-      startDate.setDate(startDate.getDate() + 1);
+      startDate.setDate(startDate.getDate());
       startDate.setUTCHours(0, 0, 0, 0);
 
       endDate = new Date(searchReqBody.endDate);
-      endDate.setDate(endDate.getDate() + 1);
+      endDate.setDate(endDate.getDate());
       endDate.setUTCHours(23, 59, 59, 999);
       query.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE && !isEmpty(searchReqBody?.employeeId)) {
+      const employeeId = searchReqBody?.employeeId;
+      const userName = searchReqBody?.oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
     }
 
     if (searchReqBody.state) {
@@ -68,6 +92,7 @@ export class AnalyticService {
     if (searchReqBody.city) {
       query['contactInfo.city'] = { $in: searchReqBody.city };
     }
+
     Logger.debug(query);
     const result = await Customer.find(query).countDocuments();
     return { total: result };
@@ -208,10 +233,13 @@ export class AnalyticService {
     oemUserId?: string;
     brandName?: string;
     storeId?: string;
+    employeeId?: string;
   }) {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
+
+    console.log(searchReqBody,"Dlemkfmkrk")
 
     const query: any = {
       profileStatus: 'ONBOARDED'
@@ -245,6 +273,26 @@ export class AnalyticService {
     if (searchReqBody.brandName) {
       query['basicInfo.brand.name'] = { $in: searchReqBody.brandName };
     }
+
+    if (searchReqBody.role === AdminRole.EMPLOYEE && !isEmpty(searchReqBody?.employeeId)) {
+      const employeeId = searchReqBody?.employeeId;
+      const userName = searchReqBody?.oemId;
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          userName
+        );
+      if (employeeDetails) {
+        query['contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
     if (searchReqBody.state) {
       query['contactInfo.state'] = { $in: searchReqBody.state };
     }
@@ -264,6 +312,7 @@ export class AnalyticService {
     if (searchReqBody.oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
+
     const res = await Store.find(query, {
       _id: 1, // Keep _id (optional)
       'contactInfo.geoLocation.coordinates': 1 // Include only coordinates
@@ -1028,7 +1077,8 @@ export class AnalyticService {
     platform: string,
     oemId?: string,
     adminFilterOemId?: string,
-    oemUserId?: string
+    oemUserId?: string,
+    employeeId?: string,
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -1048,6 +1098,24 @@ export class AnalyticService {
       const end = new Date(lastDate);
       end.setUTCHours(23, 59, 59, 999);
       dateFilter.$lte = new Date(end);
+    }
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['userInformation.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['userInformation.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
     }
 
     // 3. Optimized field filtering
@@ -1112,7 +1180,8 @@ export class AnalyticService {
     platform: string,
     oemId?: string,
     adminFilterOemId?: string,
-    oemUserId?: string
+    oemUserId?: string,
+    employeeId?: string,
   ) {
     Logger.info(
       '<Service>:<CategoryService>:<Get all analytic service initiated>'
@@ -1126,12 +1195,35 @@ export class AnalyticService {
 
     // 3. Optimized field filtering
     const filterFields = {
-      'userInformation.state': state,
-      'userInformation.city': city,
       moduleInformation: storeId,
       platform: platform,
       oemUserName: adminFilterOemId || oemUserId
     };
+
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['userInformation.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['userInformation.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+
+    if (state) {
+      query['userInformation.state'] = state;
+    }
+    if (city) {
+      query['userInformation.city'] = city;
+    }
 
     Object.entries(filterFields).forEach(([key, value]) => {
       if (value) query[key] = value;
@@ -1145,6 +1237,7 @@ export class AnalyticService {
       query.oemUserName = oemId;
     }
 
+    console.log(query,"kfmrnnfeknf")
     const combinedResult = await EventAnalyticModel.aggregate([
       {
         $match: query
@@ -3447,10 +3540,6 @@ export class AnalyticService {
     );
     let query: any = {};
     Logger.debug(`${role} ${oemUserName} getTrafficAnalaytic`);
-    // const c_Date = new Date();
-    // const firstDay = new Date(firstDate);
-    // const lastDay = new Date(lastDate);
-    // const nextDate = new Date(lastDay);
     const firstDay = firstDate
       ? new Date(
           Date.UTC(

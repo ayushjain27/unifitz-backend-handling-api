@@ -859,7 +859,8 @@ export class StoreController {
       category,
       subCategory,
       oemUserId,
-      oemId
+      oemId,
+      employeeId
     } = req.body;
     try {
       Logger.info(
@@ -878,7 +879,8 @@ export class StoreController {
         oemUserId,
         role,
         userName,
-        oemId
+        oemId,
+        employeeId
       );
       res.send({
         result
@@ -994,7 +996,8 @@ export class StoreController {
       city,
       oemId,
       oemUserId,
-      brandName
+      brandName,
+      employeeId
     }: {
       startDate: string;
       endDate: string;
@@ -1005,6 +1008,7 @@ export class StoreController {
       oemId: string;
       oemUserId: string;
       brandName: string;
+      employeeId: string;
     } = req.body;
     try {
       Logger.info(
@@ -1023,7 +1027,8 @@ export class StoreController {
         userName,
         oemId,
         oemUserId,
-        brandName
+        brandName,
+        employeeId
       );
       res.send({
         result
@@ -1041,12 +1046,14 @@ export class StoreController {
       state,
       city,
       oemId,
-      oemUserId
+      oemUserId,
+      employeeId,
     }: {
       state: string;
       city: string;
       oemId: string;
       oemUserId: string;
+      employeeId: string;
     } = req.body;
     try {
       Logger.info(
@@ -1060,7 +1067,8 @@ export class StoreController {
         role,
         userName,
         oemId,
-        oemUserId
+        oemUserId,
+        employeeId
       );
       res.send({
         result

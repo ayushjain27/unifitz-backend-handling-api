@@ -20,13 +20,19 @@ export class AnalyticController {
       startDate,
       endDate,
       state,
-      city
+      city,
+      employeeId,
+      oemId
     }: {
       startDate: string;
       endDate: string;
       state: string;
       city: string;
+      employeeId: string;
+      oemId: string;
     } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     Logger.info(
       '<Controller>:<AnalyticController>:<Get All customers request controller initiated>'
     );
@@ -35,7 +41,11 @@ export class AnalyticController {
         startDate,
         endDate,
         state,
-        city
+        city,
+        employeeId,
+        role,
+        userName,
+        oemId
       });
       res.send({
         result
@@ -65,7 +75,7 @@ export class AnalyticController {
         oemUserId as string,
         state as string,
         city as string,
-        employeeId as string,
+        employeeId as string
       );
       res.send({
         result
@@ -83,7 +93,11 @@ export class AnalyticController {
     const userName = req?.userId;
     const role = req?.role;
     try {
-      const result = await this.analyticService.getTotalUsers(userName, role, req.query);
+      const result = await this.analyticService.getTotalUsers(
+        userName,
+        role,
+        req.query
+      );
       res.send({
         result
       });
@@ -104,7 +118,8 @@ export class AnalyticController {
       oemId,
       oemUserId,
       brandName,
-      storeId
+      storeId,
+      employeeId
     }: {
       startDate: string;
       endDate: string;
@@ -116,6 +131,7 @@ export class AnalyticController {
       oemUserId: string;
       brandName: string;
       storeId: string;
+      employeeId: string;
     } = req.body;
     const role = req?.role;
     const userName = req?.userId;
@@ -138,7 +154,8 @@ export class AnalyticController {
         oemId,
         oemUserId,
         brandName,
-        storeId
+        storeId,
+        employeeId
       });
       res.send({
         result
@@ -442,7 +459,8 @@ export class AnalyticController {
       platform,
       oemId,
       adminFilterOemId,
-      oemUserId
+      oemUserId,
+      employeeId
     } = req.body;
     try {
       Logger.info(
@@ -459,7 +477,8 @@ export class AnalyticController {
         platform,
         oemId,
         adminFilterOemId,
-        oemUserId
+        oemUserId,
+        employeeId
       );
       res.send({
         result
@@ -482,7 +501,8 @@ export class AnalyticController {
       platform,
       oemId,
       adminFilterOemId,
-      oemUserId
+      oemUserId,
+      employeeId
     } = req.body;
     try {
       Logger.info(
@@ -497,7 +517,8 @@ export class AnalyticController {
         platform,
         oemId,
         adminFilterOemId,
-        oemUserId
+        oemUserId,
+        employeeId
       );
       res.send({
         result

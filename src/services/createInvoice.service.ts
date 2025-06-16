@@ -7,30 +7,26 @@ import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import JobCard, { IJobCard } from './../models/JobCard';
 import { S3Service } from './s3.service';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import CreateInvoice, { ICreateInvoice } from './../models/CreateInvoice';
 import { SurepassService } from './surepass.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from '../models/Admin';
+import { SPEmployeeService } from './spEmployee.service';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// AWS.config.update({
-//   accessKeyId: s3Config.AWS_KEY_ID,
-//   secretAccessKey: s3Config.ACCESS_KEY,
-//   region: 'ap-south-1'
-// });
-
-// const sqs = new AWS.SQS();
-// const ses = new AWS.SES();
 @injectable()
 export class CreateInvoiceService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   private surepassService = container.get<SurepassService>(
     TYPES.SurepassService
+  );
+  private spEmployeeService = container.get<SPEmployeeService>(
+    TYPES.SPEmployeeService
   );
   private sqsService = container.get<SQSService>(TYPES.SQSService);
 
@@ -243,7 +239,7 @@ export class CreateInvoiceService {
     endDate?: string,
     searchText?: string,
     state?: string,
-    city?: string
+    city?: string,
   ): Promise<any> {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice service initiated>'
@@ -375,7 +371,8 @@ export class CreateInvoiceService {
     oemUserId: string,
     role?: string,
     userName?: string,
-    oemId?: string
+    oemId?: string,
+    employeeId?: string,
   ) {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice analytics service initiated>'
@@ -396,13 +393,6 @@ export class CreateInvoiceService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
-    }
-
-    if (state) {
-      query['storeDetail.contactInfo.state'] = state;
-    }
-    if (city) {
-      query['storeDetail.contactInfo.city'] = city;
     }
 
     if (searchText) {
@@ -431,6 +421,31 @@ export class CreateInvoiceService {
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query['storeDetail.oemUserName'] = oemId;
+    }
+
+    if ( role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+
+    if (state) {
+      query['storeDetail.contactInfo.state'] = state;
+    }
+    if (city) {
+      query['storeDetail.contactInfo.city'] = city;
     }
 
     const result = await CreateInvoice.aggregate([
