@@ -1237,7 +1237,6 @@ export class AnalyticService {
       query.oemUserName = oemId;
     }
 
-    console.log(query,"kfmrnnfeknf")
     const combinedResult = await EventAnalyticModel.aggregate([
       {
         $match: query
@@ -3590,10 +3589,6 @@ export class AnalyticService {
     if (!city) delete query['userInformation.city'];
     if (!platform) {
       delete query['platform'];
-    }
-
-    if (role === AdminRole.OEM) {
-      query.oemUserName = oemUserName;
     }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
