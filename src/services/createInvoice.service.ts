@@ -16,6 +16,7 @@ import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from '../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
 import Invoice, { IInvoice } from '../models/Invoice';
+import { AnyNsRecord } from 'dns';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -185,22 +186,24 @@ export class CreateInvoiceService {
     if (endDate) {
       const end = new Date(endDate);
       end.setUTCHours(23, 59, 59, 999);
-      console.log(end, 'dmerkfm');
-      console.log(new Date(end), 'dmerkfm');
       dateFilter.$lte = new Date(end);
     }
 
     const query: any = {};
+    const newInvoiceQuery: any = {};
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
+      newInvoiceQuery.createdAt = dateFilter;
     }
 
     if (state) {
       query['storeDetail.contactInfo.state'] = state;
+      newInvoiceQuery['storeDetail.contactInfo.state'] = state;
     }
     if (city) {
       query['storeDetail.contactInfo.city'] = city;
+      newInvoiceQuery['storeDetail.contactInfo.city'] = city;
     }
 
     if (searchText) {
@@ -215,6 +218,15 @@ export class CreateInvoiceService {
         {
           'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
             new RegExp(searchText, 'i')
+        }
+      ];
+      newInvoiceQuery.$or = [
+        { storeId: new RegExp(searchText, 'i') },
+        {
+          phoneNumber: new RegExp(searchText, 'i')
+        },
+        {
+          vehicleNumber: new RegExp(searchText, 'i')
         }
       ];
     }
@@ -264,12 +276,6 @@ export class CreateInvoiceService {
       },
       { $sort: { createdAt: -1 } }, // Sort in descending order
       {
-        $skip: pageNo * pageSize
-      },
-      {
-        $limit: pageSize
-      },
-      {
         $addFields: {
           convertedJobCardId: { $toObjectId: '$jobCardId' } // Convert string to ObjectId
         }
@@ -290,7 +296,39 @@ export class CreateInvoiceService {
       },
       { $project: { convertedJobCardId: 0 } } // Remove temporary field
     ]);
-    return invoices;
+    let newInvoices: any = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: newInvoiceQuery
+      },
+      {
+        $limit: pageSize
+      }
+    ]);
+
+    const combined = [...invoices, ...newInvoices].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    // 4. Apply pagination
+    const startIdx = pageNo * pageSize;
+    const paginatedResults = combined.slice(startIdx, startIdx + pageSize);
+
+    return paginatedResults;
   }
 
   async getInvoiceTotalPaymentAnalytics(
@@ -321,9 +359,11 @@ export class CreateInvoiceService {
     }
 
     const query: any = {};
+    const invoiceQuery: any = {};
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
+      invoiceQuery.createdAt = dateFilter;
     }
 
     if (searchText) {
@@ -340,18 +380,30 @@ export class CreateInvoiceService {
             new RegExp(searchText, 'i')
         }
       ];
+      invoiceQuery.$or = [
+        { storeId: new RegExp(searchText, 'i') },
+        {
+          phoneNumber: new RegExp(searchText, 'i')
+        },
+        {
+          vehicleNumber: new RegExp(searchText, 'i')
+        }
+      ];
     }
 
     if (oemUserId) {
       query['storeDetail.oemUserName'] = oemUserId;
+      invoiceQuery['storeDetail.oemUserName'] = oemUserId;
     }
 
     if (role === AdminRole.OEM) {
       query['storeDetail.oemUserName'] = userName;
+      invoiceQuery['storeDetail.oemUserName'] = userName;
     }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query['storeDetail.oemUserName'] = oemId;
+      invoiceQuery['storeDetail.oemUserName'] = oemId;
     }
 
     if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
@@ -361,8 +413,14 @@ export class CreateInvoiceService {
         query['storeDetail.contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
         };
+        invoiceQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
         if (!isEmpty(employeeDetails?.city)) {
           query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          invoiceQuery['storeDetail.contactInfo.city'] = {
             $in: employeeDetails.city.map((cityObj) => cityObj.name)
           };
         }
@@ -371,9 +429,11 @@ export class CreateInvoiceService {
 
     if (state) {
       query['storeDetail.contactInfo.state'] = state;
+      invoiceQuery['storeDetail.contactInfo.state'] = state;
     }
     if (city) {
       query['storeDetail.contactInfo.city'] = city;
+      invoiceQuery['storeDetail.contactInfo.city'] = city;
     }
 
     const result = await CreateInvoice.aggregate([
@@ -450,8 +510,90 @@ export class CreateInvoiceService {
       },
       { $sort: { date: 1 } }
     ]);
+    const newInvoice = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'jobCardDetail.storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $match: query },
+      // Handle date field (fixing potential string/Date issues)
+      {
+        $addFields: {
+          formattedDate: {
+            $cond: {
+              if: { $eq: [{ $type: '$createdAt' }, 'string'] },
+              then: { $dateFromString: { dateString: '$createdAt' } },
+              else: '$createdAt'
+            }
+          }
+        }
+      },
+      // Group by day and calculate totals
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$formattedDate'
+            }
+          },
+          totalData: { $sum: 1 },
+          totalAmount: { $sum: '$totalAmount' }
+        }
+      },
+      // Format output
+      {
+        $project: {
+          date: '$_id',
+          totalData: 1,
+          totalAmount: 1,
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
 
-    return result;
+    const combinedResults = this.combineByDate(newInvoice, result);
+    return combinedResults;
+  }
+
+  async combineByDate(arr1: any, arr2: any) {
+    const combined: { [key: string]: any } = {};
+
+    // Process first array
+    arr1.forEach((item: any) => {
+      if (!combined[item.date]) {
+        combined[item.date] = { ...item };
+      } else {
+        combined[item.date].totalData += item.totalData;
+        combined[item.date].totalAmount += item.totalAmount;
+      }
+    });
+
+    // Process second array
+    arr2.forEach((item: any) => {
+      if (!combined[item.date]) {
+        combined[item.date] = { ...item };
+      } else {
+        combined[item.date].totalData += item.totalData;
+        combined[item.date].totalAmount += item.totalAmount;
+      }
+    });
+
+    // Convert back to array and sort by date
+    return Object.values(combined).sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
   }
 
   async getHighestInvoice(reqPayload: any) {
@@ -568,11 +710,58 @@ export class CreateInvoiceService {
         CreateInvoice.aggregate(topCitiesPipeline),
         CreateInvoice.aggregate(topStatesPipeline)
       ]);
+      const [newInvocieTopStores, newInvoiceTopCities, newInvoiceTopStates] =
+        await Promise.all([
+          Invoice.aggregate(topStoresPipeline),
+          Invoice.aggregate(topCitiesPipeline),
+          Invoice.aggregate(topStatesPipeline)
+        ]);
+
+      const combinedStores = [...topStores, ...newInvocieTopStores]
+        .reduce((acc, curr) => {
+          const existing = acc.find((item: any) => item.storeId === curr.storeId);
+          if (existing) {
+            existing.invoiceCount += curr.invoiceCount;
+          } else {
+            acc.push({ ...curr });
+          }
+          return acc;
+        }, [])
+        .sort((a: any, b: any) => b.invoiceCount - a.invoiceCount);
+
+      // Combine city data
+      const combinedCities = [...topCities, ...newInvoiceTopCities]
+        .reduce((acc, curr) => {
+          const key = `${curr.city}|${curr.state}`;
+          const existing = acc.find(
+            (item: any) => `${item.city}|${item.state}` === key
+          );
+          if (existing) {
+            existing.invoiceCount += curr.invoiceCount;
+          } else {
+            acc.push({ ...curr });
+          }
+          return acc;
+        }, [])
+        .sort((a: any, b: any) => b.invoiceCount - a.invoiceCount);
+
+      // Combine state data
+      const combinedStates = [...topStates, ...newInvoiceTopStates]
+        .reduce((acc, curr) => {
+          const existing = acc.find((item: any) => item.state === curr.state);
+          if (existing) {
+            existing.invoiceCount += curr.invoiceCount;
+          } else {
+            acc.push({ ...curr });
+          }
+          return acc;
+        }, [])
+        .sort((a: any, b: any) => b.invoiceCount - a.invoiceCount);
 
       return {
-        topStores,
-        topCities,
-        topStates
+        combinedStores,
+        combinedCities,
+        combinedStates
       };
     } catch (error: any) {
       Logger.error(
@@ -607,7 +796,8 @@ export class CreateInvoiceService {
       const newInvoiceResult = await Invoice.aggregate(pipeline);
 
       return {
-        totalAmount: (result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount) || 0
+        totalAmount:
+          result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount || 0
       };
     } catch (error: any) {
       Logger.error(
@@ -657,7 +847,8 @@ export class CreateInvoiceService {
       const newInvoiceResult = await Invoice.aggregate(pipeline);
 
       return {
-        totalAmount: (result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount) || 0
+        totalAmount:
+          result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount || 0
       };
     } catch (error: any) {
       Logger.error(
@@ -685,8 +876,6 @@ export class CreateInvoiceService {
         dateFilter.$lte = new Date(end);
       }
 
-      console.log(dateFilter, 'Demkm');
-
       const matchQuery: any = {
         storeId: reqPayload?.storeId
       };
@@ -709,7 +898,8 @@ export class CreateInvoiceService {
       const newInvoiceResult = await Invoice.aggregate(pipeline);
 
       return {
-        totalAmount: (result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount) || 0
+        totalAmount:
+          result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount || 0
       };
     } catch (error: any) {
       Logger.error(
@@ -718,7 +908,7 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  };
+  }
 
   async createInvoice(payload: any) {
     Logger.info(
@@ -802,7 +992,7 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  };
+  }
 
   async getNewInvoicesByStoreId(payload: any) {
     Logger.info(
@@ -811,14 +1001,14 @@ export class CreateInvoiceService {
     const { pageNo, pageSize, searchText, storeId } = payload;
     let query: any = {
       storeId
-    }
-    if(searchText){
-      query.phoneNumber = `+91${searchText?.slice(-10)}`
+    };
+    if (searchText) {
+      query.phoneNumber = `+91${searchText?.slice(-10)}`;
     }
     try {
       const invoices = await Invoice.find(query)
-      .skip(pageNo * pageSize)
-      .limit(pageSize);
+        .skip(pageNo * pageSize)
+        .limit(pageSize);
       return invoices;
     } catch (error) {
       Logger.error(
@@ -827,7 +1017,7 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  };
+  }
 
   async getNewInvoicesByInvoiceId(invoiceId: string) {
     Logger.info(
@@ -836,7 +1026,7 @@ export class CreateInvoiceService {
     try {
       const invoice = await Invoice.findOne({
         _id: new Types.ObjectId(invoiceId)
-      })
+      });
       return invoice;
     } catch (error) {
       Logger.error(
@@ -845,5 +1035,5 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  };
+  }
 }

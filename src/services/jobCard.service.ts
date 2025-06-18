@@ -16,7 +16,7 @@ import { SQSEvent } from '../enum/sqsEvent.enum';
 import CreateInvoice from '../models/CreateInvoice';
 import { AdminRole } from '../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
-import { UserDefinedMessageSubscriptionInstance } from 'twilio/lib/rest/api/v2010/account/call/userDefinedMessageSubscription';
+import Invoice from '../models/Invoice';
 
 require('dotenv').config();
 
@@ -285,26 +285,28 @@ export class JobCardService {
     if (reqPayload.endDate) {
       const end = new Date(reqPayload.endDate);
       end.setUTCHours(23, 59, 59, 999);
-      console.log(end, 'dmerkfm');
-      console.log(new Date(end), 'dmerkfm');
       dateFilter.$lte = new Date(end);
     }
 
     const query: any = {};
     const matchQuery: any = {};
+    const newInvoiceQuery: any = {};
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
       matchQuery.createdAt = dateFilter;
+      newInvoiceQuery.createdAt = dateFilter;
     }
 
     if (reqPayload?.state) {
       query['storeDetail.contactInfo.state'] = reqPayload.state;
       matchQuery['storeDetail.contactInfo.state'] = reqPayload.state;
+      newInvoiceQuery['storeDetail.contactInfo.state'] = reqPayload.state;
     }
     if (reqPayload?.city) {
       query['storeDetail.contactInfo.city'] = reqPayload.city;
       matchQuery['storeDetail.contactInfo.city'] = reqPayload.city;
+      newInvoiceQuery['storeDetail.contactInfo.city'] = reqPayload.city;
     }
     if (reqPayload.searchText) {
       query.$or = [
@@ -330,6 +332,15 @@ export class JobCardService {
         {
           'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
             new RegExp(reqPayload.searchText, 'i')
+        }
+      ];
+      newInvoiceQuery.$or = [
+        { storeId: new RegExp(reqPayload.searchText, 'i') },
+        {
+          phoneNumber: new RegExp(reqPayload.searchText, 'i')
+        },
+        {
+          vehicleNumber: new RegExp(reqPayload.searchText, 'i')
         }
       ];
     }
@@ -404,12 +415,31 @@ export class JobCardService {
         $count: 'total' // Proper way to count in aggregation
       }
     ]);
-    // const totalInvoice = await JobCard.find({
-    //   isInvoice: true
-    // }).countDocuments();
+    const totalNewInvoice = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: newInvoiceQuery
+      },
+      {
+        $count: 'total' // Proper way to count in aggregation
+      }
+    ]);
     const totalCount = {
       totalJobCard: totalJobCard[0]?.total || 0,
-      totalInvoice: totalInvoice[0]?.total || 0
+      totalInvoice: (totalInvoice[0]?.total + totalNewInvoice[0]?.total) || 0
     };
     return totalCount;
   }
@@ -507,7 +537,7 @@ export class JobCardService {
     role?: string,
     userName?: string,
     oemId?: string,
-    employeeId?: string,
+    employeeId?: string
   ) {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter job card analytics service initiated>'
@@ -545,24 +575,21 @@ export class JobCardService {
       ];
     }
 
-    if(oemUserId){
+    if (oemUserId) {
       query['storeDetail.oemUserName'] = oemUserId;
-    };
+    }
 
     if (role === AdminRole.OEM) {
       query['storeDetail.oemUserName'] = userName;
-    };
+    }
 
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query['storeDetail.oemUserName'] = oemId;
-    };
+    }
 
-    if ( role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
       const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          oemId
-        );
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
       if (employeeDetails) {
         query['storeDetail.contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -691,8 +718,6 @@ export class JobCardService {
         }
       }
     ]);
-
-    console.log(invoiceResult, 'derfre', jobCardResult);
     let result = {
       ...jobCardResult[0],
       ...invoiceResult[0]
@@ -757,26 +782,28 @@ export class JobCardService {
     if (reqPayload.endDate) {
       const end = new Date(reqPayload.endDate);
       end.setUTCHours(23, 59, 59, 999);
-      console.log(end, 'dmerkfm');
-      console.log(new Date(end), 'dmerkfm');
       dateFilter.$lte = new Date(end);
     }
 
     const query: any = {};
     const matchQuery: any = {};
+    const newInvoiceQuery: any = {};
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
       matchQuery.createdAt = dateFilter;
+      newInvoiceQuery.createdAt = dateFilter;
     }
 
     if (reqPayload?.state) {
       query['storeDetail.contactInfo.state'] = reqPayload.state;
       matchQuery['storeDetail.contactInfo.state'] = reqPayload.state;
+      newInvoiceQuery['storeDetail.contactInfo.state'] = reqPayload.state;
     }
     if (reqPayload?.city) {
       query['storeDetail.contactInfo.city'] = reqPayload.city;
       matchQuery['storeDetail.contactInfo.city'] = reqPayload.city;
+      newInvoiceQuery['storeDetail.contactInfo.city'] = reqPayload.city;
     }
     if (reqPayload.searchText) {
       query.$or = [
@@ -801,6 +828,19 @@ export class JobCardService {
         },
         {
           'jobCardDetail.customerDetails.storeCustomerVehicleInfo.vehicleNumber':
+            new RegExp(reqPayload.searchText, 'i')
+        }
+      ];
+      newInvoiceQuery.$or = [
+        { storeId: new RegExp(reqPayload.searchText, 'i') },
+        {
+          phoneNumber: new RegExp(
+            reqPayload.searchText,
+            'i'
+          )
+        },
+        {
+          vehicleNumber:
             new RegExp(reqPayload.searchText, 'i')
         }
       ];
@@ -883,17 +923,50 @@ export class JobCardService {
           // If you need to group by store name instead, use "$storeName" or similar
         }
       },
+      // {
+      //   $count: 'invoiceUniqueStores'
+      // }
+    ]);
+    const newInvoiceUniqueStores = await Invoice.aggregate([
+
       {
-        $count: 'invoiceUniqueStores'
-      }
+        $lookup: {
+          from: 'stores',
+          localField: 'storeId',
+          foreignField: 'storeId',
+          as: 'storeDetail'
+        }
+      },
+      {
+        $unwind: {
+          path: '$storeDetail', // Fixed from 'partnerDetail' to 'storeDetail'
+          preserveNullAndEmptyArrays: true // Added to include docs even if lookup fails
+        }
+      },
+      {
+        $match: newInvoiceQuery
+      },
+      {
+        $group: {
+          _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
+          // If you need to group by store name instead, use "$storeName" or similar
+        }
+      },
+      // {
+      //   $count: 'invoiceUniqueStores'
+      // }
     ]);
 
-    console.log(jobCardUniqueStores, 'jobCardUniqueStores');
-    console.log(invoiceUniqueStores, 'dmkemfkdmr');
+    const allUniqueStores = [...invoiceUniqueStores, ...newInvoiceUniqueStores].reduce((acc, curr) => {
+      if (!acc.some((item: any) => item._id === curr._id)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
 
     const result = {
       jobCardUniqueStores: jobCardUniqueStores[0]?.jobCardUniqueStores || 0,
-      invoiceUniqueStores: invoiceUniqueStores[0]?.invoiceUniqueStores || 0
+      invoiceUniqueStores: allUniqueStores?.length || 0
       // If you want total unique stores across both collections, you would need a different approach
       // totalUniqueStores: ... (see note below)
     };
@@ -906,7 +979,7 @@ export class JobCardService {
     Logger.info(
       '<Service>:<JobCardService>:<Get highest job cards service initiated>'
     );
-  
+
     try {
       const dateFilter: any = {};
       if (reqPayload.startDate) {
@@ -919,36 +992,36 @@ export class JobCardService {
         end.setUTCHours(23, 59, 59, 999);
         dateFilter.$lte = new Date(end);
       }
-  
+
       const matchQuery: any = {};
       if (Object.keys(dateFilter).length) {
         matchQuery.createdAt = dateFilter;
       }
-  
+
       // Common pipeline stages
       const commonStages = [
         { $match: matchQuery },
         {
           $lookup: {
-            from: "stores",
-            localField: "storeId",
-            foreignField: "storeId",
-            as: "storeDetails"
+            from: 'stores',
+            localField: 'storeId',
+            foreignField: 'storeId',
+            as: 'storeDetails'
           }
         },
-        { $unwind: "$storeDetails" }
+        { $unwind: '$storeDetails' }
       ];
-  
+
       // 1. Top Stores Pipeline
       const topStoresPipeline: any = [
         ...commonStages,
         {
           $group: {
             _id: {
-              storeId: "$storeDetails.storeId",
-              storeName: "$storeDetails.name"
+              storeId: '$storeDetails.storeId',
+              storeName: '$storeDetails.name'
             },
-            jobCardCount: { $sum: 1 },
+            jobCardCount: { $sum: 1 }
           }
         },
         { $sort: { jobCardCount: -1 } },
@@ -956,23 +1029,23 @@ export class JobCardService {
         {
           $project: {
             _id: 0,
-            storeId: "$_id.storeId",
-            storeName: "$_id.storeName",
+            storeId: '$_id.storeId',
+            storeName: '$_id.storeName',
             city: 1,
             state: 1,
             jobCardCount: 1
           }
         }
       ];
-  
+
       // 2. Top Cities Pipeline
       const topCitiesPipeline: any = [
         ...commonStages,
         {
           $group: {
             _id: {
-              city: "$storeDetails.contactInfo.city",
-              state: "$storeDetails.contactInfo.state"
+              city: '$storeDetails.contactInfo.city',
+              state: '$storeDetails.contactInfo.state'
             },
             jobCardCount: { $sum: 1 }
           }
@@ -982,20 +1055,20 @@ export class JobCardService {
         {
           $project: {
             _id: 0,
-            city: "$_id.city",
-            state: "$_id.state",
+            city: '$_id.city',
+            state: '$_id.state',
             jobCardCount: 1
           }
         }
       ];
-  
+
       // 3. Top States Pipeline
       const topStatesPipeline: any = [
         ...commonStages,
         {
           $group: {
             _id: {
-              state: "$storeDetails.contactInfo.state"
+              state: '$storeDetails.contactInfo.state'
             },
             jobCardCount: { $sum: 1 }
           }
@@ -1005,27 +1078,29 @@ export class JobCardService {
         {
           $project: {
             _id: 0,
-            state: "$_id.state",
+            state: '$_id.state',
             jobCardCount: 1
           }
         }
       ];
-  
+
       // Execute all pipelines in parallel
       const [topStores, topCities, topStates] = await Promise.all([
         JobCard.aggregate(topStoresPipeline),
         JobCard.aggregate(topCitiesPipeline),
         JobCard.aggregate(topStatesPipeline)
       ]);
-  
+
       return {
         topStores,
         topCities,
         topStates
       };
-      
     } catch (error: any) {
-      Logger.error('<Service>:<JobCardService>:<Error in getHighestJobCards>:', error);
+      Logger.error(
+        '<Service>:<JobCardService>:<Error in getHighestJobCards>:',
+        error
+      );
       throw error;
     }
   }
