@@ -47,6 +47,7 @@ import orderManagement from './routes/api/orderManagement';
 import smcInsurance from './routes/api/smcInsurance';
 import Customer from './models/Customer';
 import StatePermission from './models/StatePermission';
+const PDFDocument = require('pdfkit');
 import {
   API_VERSION,
   razorpayKey,
@@ -994,6 +995,40 @@ cron.schedule('0 * * * *', () => {
 // const ses = new AWS.SES();
 const path = require('path');
 const sesClient = new SESClient({ region: 'ap-south-1' });
+
+app.post('/generate-pdf', (req, res) => {
+  try {
+      // Create a document
+      const doc = new PDFDocument();
+      const chunks: any = [];
+      
+      doc.on('data', (chunk: any) => chunks.push(chunk));
+      doc.on('end', () => {
+          const pdfBuffer = Buffer.concat(chunks);
+          res.json({ pdf: pdfBuffer.toString('base64') });
+      });
+      
+      // Set response headers
+      // res.setHeader('Content-Type', 'application/pdf');
+      // res.setHeader('Content-Disposition', 'attachment; filename=generated.pdf');
+      
+      // // Pipe PDF to response
+      // doc.pipe(res);
+      
+      // Add content to PDF
+      doc.fontSize(25).text('Your PDF Title', 100, 80);
+      doc.fontSize(14).text('This is some sample text for your PDF document.', 100, 120);
+      
+      // Add more content as needed
+      // doc.image('path/to/image.png', 100, 150, {width: 300});
+      
+      // Finalize the PDF and end the stream
+      doc.end();
+  } catch (error) {
+      console.error('Error generating PDF:', error);
+      res.status(500).send('Error generating PDF');
+  }
+});
 
 app.get('/createTemplate', async (req, res) => {
   const params = {

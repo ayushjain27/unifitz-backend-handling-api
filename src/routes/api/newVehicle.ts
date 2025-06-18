@@ -21,12 +21,6 @@ router.post(
   newVehicleController.create
 );
 
-// router.post(
-//   '/uploadVehicleImages',
-//   uploadFiles.array('files'),
-//   newVehicleController.uploadVehicleImages
-// );
-
 router.post(
   '/uploadNewVehicleImages',
   uploadFiles.array('files'),

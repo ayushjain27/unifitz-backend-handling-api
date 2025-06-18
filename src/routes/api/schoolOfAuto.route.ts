@@ -1,14 +1,9 @@
 import { Router } from 'express';
-import multer from 'multer';
-
 import container from '../../config/inversify.container';
 import { TYPES } from '../../config/inversify.types';
 import { roleAuth } from '../middleware/rbac';
 import { ACL } from '../../enum/rbac.enum';
 import { SchoolOfAutoController } from '../../controllers';
-
-const storage = multer.memoryStorage();
-const uploadFile = multer({ storage: storage });
 
 const router: Router = Router();
 const schoolOfAutoController = container.get<SchoolOfAutoController>(
@@ -16,12 +11,6 @@ const schoolOfAutoController = container.get<SchoolOfAutoController>(
 );
 
 router.post('/', schoolOfAutoController.create);
-
-// router.post(
-//   '/uploadImage',
-//   uploadFile.single('file'),
-//   schoolOfAutoController.uploadImage
-// );
 
 router.get('/getAll', schoolOfAutoController.getAll);
 
