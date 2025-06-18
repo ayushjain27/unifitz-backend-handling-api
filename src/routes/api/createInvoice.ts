@@ -69,6 +69,12 @@ router.get(
   '/getInvoiceRevenuePerDayByStoreId',
   roleAuth(ACL.STORE_CREATE),
   createInvoiceController.getInvoiceRevenuePerDayByStoreId
-)
+);
+
+router.post(
+  '/',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.createInvoice
+);
 
 export default router;

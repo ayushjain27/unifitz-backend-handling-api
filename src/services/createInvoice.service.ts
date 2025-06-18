@@ -15,6 +15,7 @@ import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from '../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
+import Invoice, { IInvoice } from '../models/Invoice';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -111,76 +112,6 @@ export class CreateInvoiceService {
       throw error;
     }
   }
-
-  // async createOrUpdateUser(phoneNumber: string, jobCard: any) {
-  //   const updatedPhoneNumber = `+91${phoneNumber}`;
-  //   const userFields = {
-  //     updatedPhoneNumber,
-  //     role: 'USER'
-  //   };
-  //   const newUser = await User.findOneAndUpdate(
-  //     { phoneNumber: updatedPhoneNumber, role: 'USER' },
-  //     userFields,
-  //     { upsert: true, new: true }
-  //   );
-  //   await this.createCustomer(updatedPhoneNumber, jobCard);
-  // }
-
-  // async createCustomer(updatedPhoneNumber: string, jobCard: any) {
-  //   const customer = await Customer.findOne({
-  //     phoneNumber: updatedPhoneNumber
-  //   });
-  //   console.log(customer, 'wlekr');
-  //   let newCustomer;
-  //   if (!customer) {
-  //     const customerDetails = {
-  //       fullName: jobCard?.customerDetails[0]?.name,
-  //       email: jobCard?.customerDetails[0]?.email,
-  //       phoneNumber: updatedPhoneNumber
-  //     };
-  //     newCustomer = await Customer.create(customerDetails);
-  //   }
-
-  //   console.log(newCustomer, 'wfr;ekl');
-  //   await this.createVehicle(jobCard, customer, newCustomer);
-  // }
-
-  // async createVehicle(jobCard: any, customer: any, newCustomer: any) {
-  //   const vehicleDetailsFetch =
-  //     jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0];
-  //   if (vehicleDetailsFetch?.registeredVehicle === 'registered') {
-  //     const checkExistingVehicle: IVehiclesInfo = await VehicleInfo.findOne({
-  //       vehicleNumber: vehicleDetailsFetch?.vehicleNumber,
-  //       userId: newCustomer?._id || customer?._id
-  //     });
-  //     if (!checkExistingVehicle) {
-  //       const vehicleNumber = vehicleDetailsFetch?.vehicleNumber;
-  //       const vehicleDetails = await this.surepassService.getRcDetails(
-  //         vehicleNumber
-  //       );
-  //       const addVehicleDetails = {
-  //         userId: newCustomer?._id || customer?._id,
-  //         brand: vehicleDetails?.maker_description,
-  //         fuelType: vehicleDetails?.fuel_type,
-  //         vehicleType:
-  //           jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
-  //             ?.vehicleType,
-  //         vehicleNumber: vehicleDetails?.rc_number,
-  //         purpose: 'OWNED',
-  //         modelName: vehicleDetails?.maker_model,
-  //         manufactureYear: vehicleDetails?.manufacturing_date,
-  //         ownership: vehicleDetails?.owner_number,
-  //         vehicleImageList:
-  //           jobCard?.customerDetails[0]?.storeCustomerVehicleInfo[0]
-  //             ?.vehicleImageList,
-  //         lastInsuanceDate: new Date(vehicleDetails?.insurance_upto)
-  //       };
-  //       const newVehicle: IVehiclesInfo = await VehicleInfo.create(
-  //         addVehicleDetails
-  //       );
-  //     }
-  //   }
-  // }
 
   async getInvoiceById(id: string): Promise<ICreateInvoice> {
     Logger.info(
@@ -783,6 +714,90 @@ export class CreateInvoiceService {
     } catch (error: any) {
       Logger.error(
         '<Service>:<CreateInvoiceService>:<Error in getHighestInvoices>:',
+        error
+      );
+      throw error;
+    }
+  };
+
+  async createInvoice(payload: any) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>: <Invoice Creation: creating invoice>'
+    );
+
+    let amount = 0;
+
+    // Calculate amount based on line items
+    if (payload?.vehiclePartsDetails?.lineItems) {
+      payload?.vehiclePartsDetails?.lineItems.map((item: any) => {
+        amount += item.quantity * item.rate;
+      });
+    }
+
+    // Adjust amount based on additional items payload
+    if (payload?.extraCharges?.additionalItems) {
+      payload?.extraCharges?.additionalItems.map((item: any) => {
+        if (item.operation === 'discount') {
+          if (item.format === 'percentage') {
+            amount -= Number((amount * item.value) / 100);
+          } else {
+            amount -= Number(item.value);
+          }
+        } else {
+          if (item.format === 'percentage') {
+            amount += Number((amount * item.value) / 100);
+          } else {
+            amount += Number(item.value);
+          }
+        }
+      });
+    }
+
+    let newInvoice: any = {
+      name: payload?.customerDetails?.name,
+      phoneNumber: payload?.customerDetails?.phoneNumber,
+      email: payload?.customerDetails?.email,
+      address: payload?.customerDetails?.billingAddress,
+      storeId: payload?.storeId,
+      vehicleNumber: payload?.vehicleNumber,
+      lineItems: payload?.vehiclePartsDetails?.lineItems,
+      additionalItems: payload?.extraCharges?.additionalItems
+    };
+
+    const lastCreatedInvoice = await Invoice.find({ storeId: payload?.storeId })
+    .sort({ createdAt: 'desc' })
+    .limit(1)
+    .exec();
+
+    const invoiceNumber = isEmpty(lastCreatedInvoice)
+    ? 1
+    : Number(+lastCreatedInvoice[0].invoiceNumber) + 1;
+
+    try {
+      newInvoice.invoiceNumber = invoiceNumber;
+      newInvoice.totalAmount = amount;
+
+      Logger.info(
+        '<Service>:<CreateInvoiceService>:<Invoice created successfully>'
+      );
+      newInvoice = await Invoice.create(newInvoice);
+      // const { phoneNumber } = jobCard?.customerDetails[0];
+      // const customPhoneNumber = `+91${phoneNumber}`;
+      // const data = {
+      //   title: 'Invoice Generated',
+      //   body: 'Your invoice has been generated',
+      //   phoneNumber: customPhoneNumber,
+      //   role: 'USER',
+      //   type: 'INVOICE'
+      // };
+      // const sqsMessage = await this.sqsService.createMessage(
+      //   SQSEvent.NOTIFICATION,
+      //   data
+      // );
+      return newInvoice;
+    } catch (error) {
+      Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error creating invoice>',
         error
       );
       throw error;
