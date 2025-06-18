@@ -755,17 +755,18 @@ async function updateSlugs() {
     const today = new Date();
     const startOfToday = new Date(today.setUTCHours(0, 0, 0, 0));
 
+    const presentDate = new Date(startOfToday);
+    presentDate.setUTCDate(presentDate.getUTCDate() - 1); // Add 1 day
     const futureDate = new Date(startOfToday);
     futureDate.setUTCDate(futureDate.getUTCDate() + 1); // Add 1 day
-    const oneYearAgo = new Date('2025-06-01T00:00:00.000Z');
-    console.log(futureDate, 'dlrkek');
+    console.log(futureDate, 'dlrkek', presentDate);
 
     console.log('🔁 Starting monthly aggregation from EventAnalyticModel...');
 
     const monthlyAgg = await EventAnalyticModel.aggregate([
       {
         $match: {
-          createdAt: { $gte: oneYearAgo, $lte: futureDate },
+          createdAt: { $gte: presentDate, $lte: futureDate },
           module: 'STORE',
           moduleInformation: { $exists: true, $ne: '' }
         }
@@ -990,6 +991,10 @@ cron.schedule('0 * * * *', () => {
   console.log('⏳ Running hourly orderNo reshuffle...');
   shuffleOrderNumbers();
   shufflePartnersProductNumber();
+});
+
+cron.schedule('0 23 * * *', () => {
+  updateSlugs();
 });
 
 // const ses = new AWS.SES();

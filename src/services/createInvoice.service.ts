@@ -604,9 +604,10 @@ export class CreateInvoiceService {
       ];
 
       const result = await CreateInvoice.aggregate(pipeline);
+      const newInvoiceResult = await Invoice.aggregate(pipeline);
 
       return {
-        totalAmount: result[0]?.totalAmount || 0
+        totalAmount: (result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount) || 0
       };
     } catch (error: any) {
       Logger.error(
@@ -653,9 +654,10 @@ export class CreateInvoiceService {
       ];
 
       const result = await CreateInvoice.aggregate(pipeline);
+      const newInvoiceResult = await Invoice.aggregate(pipeline);
 
       return {
-        totalAmount: result[0]?.totalAmount || 0
+        totalAmount: (result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount) || 0
       };
     } catch (error: any) {
       Logger.error(
@@ -704,9 +706,10 @@ export class CreateInvoiceService {
       ];
 
       const result = await CreateInvoice.aggregate(pipeline);
+      const newInvoiceResult = await Invoice.aggregate(pipeline);
 
       return {
-        totalAmount: result[0]?.totalAmount || 0
+        totalAmount: (result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount) || 0
       };
     } catch (error: any) {
       Logger.error(
@@ -715,7 +718,7 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  }
+  };
 
   async createInvoice(payload: any) {
     Logger.info(
@@ -799,11 +802,11 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  }
+  };
 
   async getNewInvoicesByStoreId(payload: any) {
     Logger.info(
-      '<Service>:<CreateInvoiceService>: <Invoice Creation: creating invoice>'
+      '<Service>:<CreateInvoiceService>: <Invoice Fetching: Fetchind invoice>'
     );
     const { pageNo, pageSize, searchText, storeId } = payload;
     let query: any = {
@@ -819,10 +822,28 @@ export class CreateInvoiceService {
       return invoices;
     } catch (error) {
       Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error fetching invoices>',
+        error
+      );
+      throw error;
+    }
+  };
+
+  async getNewInvoicesByInvoiceId(invoiceId: string) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>: <Invoice Fetching: Fetching invoice>'
+    );
+    try {
+      const invoice = await Invoice.findOne({
+        _id: new Types.ObjectId(invoiceId)
+      })
+      return invoice;
+    } catch (error) {
+      Logger.error(
         '<Service>:<CreateInvoiceService>:<Error creating invoice>',
         error
       );
       throw error;
     }
-  }
+  };
 }

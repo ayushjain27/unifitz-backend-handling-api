@@ -272,11 +272,29 @@ export class CreateInvoiceController {
 
   getNewInvoicesByStoreId = async (req: Request, res: Response) => {
     Logger.info(
-      '<Controller>:<CreateInvoiceController>:<Create invoice request initiated>'
+      '<Controller>:<CreateInvoiceController>:<Get invoices by storeid request initiated>'
     );
     try {
       const result = await this.createInvoiceService.getNewInvoicesByStoreId(
         req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  getNewInvoicesByInvoiceId = async (req: Request, res: Response) => {
+    const invoiceId = req.query.invoiceId;
+    Logger.info(
+      '<Controller>:<CreateInvoiceController>:<Get invoice by invoiceId request initiated>'
+    );
+    try {
+      const result = await this.createInvoiceService.getNewInvoicesByInvoiceId(
+        invoiceId as string
       );
       res.send({
         result
