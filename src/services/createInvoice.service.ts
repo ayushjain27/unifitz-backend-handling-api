@@ -170,7 +170,7 @@ export class CreateInvoiceService {
     endDate?: string,
     searchText?: string,
     state?: string,
-    city?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice service initiated>'
@@ -303,7 +303,7 @@ export class CreateInvoiceService {
     role?: string,
     userName?: string,
     oemId?: string,
-    employeeId?: string,
+    employeeId?: string
   ) {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice analytics service initiated>'
@@ -354,12 +354,9 @@ export class CreateInvoiceService {
       query['storeDetail.oemUserName'] = oemId;
     }
 
-    if ( role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
+    if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
       const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          oemId
-        );
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
       if (employeeDetails) {
         query['storeDetail.contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -593,7 +590,7 @@ export class CreateInvoiceService {
     try {
       const query: any = {
         storeId: reqPayload.storeId
-      }
+      };
 
       const pipeline = [
         { $match: query },
@@ -686,7 +683,7 @@ export class CreateInvoiceService {
         dateFilter.$lte = new Date(end);
       }
 
-      console.log(dateFilter,"Demkm")
+      console.log(dateFilter, 'Demkm');
 
       const matchQuery: any = {
         storeId: reqPayload?.storeId
@@ -718,7 +715,7 @@ export class CreateInvoiceService {
       );
       throw error;
     }
-  };
+  }
 
   async createInvoice(payload: any) {
     Logger.info(
@@ -765,13 +762,13 @@ export class CreateInvoiceService {
     };
 
     const lastCreatedInvoice = await Invoice.find({ storeId: payload?.storeId })
-    .sort({ createdAt: 'desc' })
-    .limit(1)
-    .exec();
+      .sort({ createdAt: 'desc' })
+      .limit(1)
+      .exec();
 
     const invoiceNumber = isEmpty(lastCreatedInvoice)
-    ? 1
-    : Number(+lastCreatedInvoice[0].invoiceNumber) + 1;
+      ? 1
+      : Number(+lastCreatedInvoice[0].invoiceNumber) + 1;
 
     try {
       newInvoice.invoiceNumber = invoiceNumber;
@@ -795,6 +792,31 @@ export class CreateInvoiceService {
       //   data
       // );
       return newInvoice;
+    } catch (error) {
+      Logger.error(
+        '<Service>:<CreateInvoiceService>:<Error creating invoice>',
+        error
+      );
+      throw error;
+    }
+  }
+
+  async getNewInvoicesByStoreId(payload: any) {
+    Logger.info(
+      '<Service>:<CreateInvoiceService>: <Invoice Creation: creating invoice>'
+    );
+    const { pageNo, pageSize, searchText, storeId } = payload;
+    let query: any = {
+      storeId
+    }
+    if(searchText){
+      query.phoneNumber = `+91${searchText?.slice(-10)}`
+    }
+    try {
+      const invoices = await Invoice.find(query)
+      .skip(pageNo * pageSize)
+      .limit(pageSize);
+      return invoices;
     } catch (error) {
       Logger.error(
         '<Service>:<CreateInvoiceService>:<Error creating invoice>',

@@ -77,4 +77,10 @@ router.post(
   createInvoiceController.createInvoice
 );
 
+router.post(
+  '/getNewInvoicesByStoreId',
+  roleAuth(ACL.STORE_CREATE),
+  createInvoiceController.getNewInvoicesByStoreId
+);
+
 export default router;

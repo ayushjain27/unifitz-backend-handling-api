@@ -269,4 +269,21 @@ export class CreateInvoiceController {
       res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
     }
   };
+
+  getNewInvoicesByStoreId = async (req: Request, res: Response) => {
+    Logger.info(
+      '<Controller>:<CreateInvoiceController>:<Create invoice request initiated>'
+    );
+    try {
+      const result = await this.createInvoiceService.getNewInvoicesByStoreId(
+        req.body
+      );
+      res.send({
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }
