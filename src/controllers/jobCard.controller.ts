@@ -277,11 +277,12 @@ export class JobCardController {
   };
 
   overallPayment = async (req: Request, res: Response) => {
+    const query = req.query;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard overall payment analytic request controller initiated>'
       );
-      const result = await this.jobCardService.overallPayment();
+      const result = await this.jobCardService.overallPayment(query);
       res.send({
         result
       });
@@ -294,11 +295,12 @@ export class JobCardController {
   };
 
   getOverallUniqueStores = async (req: Request, res: Response) => {
+    const query = req.query;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard overall unique stores request controller initiated>'
       );
-      const result = await this.jobCardService.getOverallUniqueStores();
+      const result = await this.jobCardService.getOverallUniqueStores(query);
       res.send({
         result
       });
