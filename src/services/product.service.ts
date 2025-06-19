@@ -8,7 +8,6 @@ import Request from '../types/request';
 import { TYPES } from '../config/inversify.types';
 import Logger from '../config/winston';
 import Product, {
-  IImage,
   IProduct,
   IProductImageList
 } from './../models/Product';
@@ -21,10 +20,7 @@ import {
   PartnersProductStoreRatingResponse
 } from '../interfaces';
 import Admin, {
-  AdminRole,
-  productCategorySchema,
-  productSubCateoryMapSchema
-} from '../models/Admin';
+  AdminRole} from '../models/Admin';
 import { IPrelistProduct } from '../models/PrelistProduct';
 import { PrelistPoduct } from '../models/PrelistProduct';
 import ProductCartModel from '../models/ProductCart';
@@ -39,10 +35,8 @@ import ProductOrderAddress, {
 } from '../models/ProductOrderAddress';
 import { StaticIds } from '../models/StaticId';
 import ExcelJS from 'exceljs';
-import { IMasterProducts } from '../models/MasterProducts';
 import Category from '../models/Category';
 import { vehicleModelList, vehicleResult } from '../enum/docType.enum';
-import { CompositionHookListInstance } from 'twilio/lib/rest/video/v1/compositionHook';
 
 @injectable()
 export class ProductService {
@@ -1106,7 +1100,6 @@ export class ProductService {
     oemUserName: string
   ): Promise<any> {
     Logger.info('<Service>:<ProductService>:<Upload bulk products initiated>');
-    console.log(oemUserName, 'oemUserName');
 
     const oemDetails = await Admin.findOne({
       userName: oemUserName
@@ -2498,8 +2491,6 @@ export class ProductService {
       }
     ]);
 
-    console.log(product,"kemdk")
-
     return product;
   }
 
@@ -2614,8 +2605,6 @@ export class ProductService {
 
     const uniqueCategories = Array.from(categorySet);
     const uniqueSubCategories = Array.from(subCategorySet);
-
-    console.log(uniqueCategories,"meffr", uniqueSubCategories)
 
     const total = {
       uniqueProductCategory: uniqueCategories,

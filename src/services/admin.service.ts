@@ -359,7 +359,6 @@ export class AdminService {
       delete query.createdOemUser
     }
 
-    // console.log(query,"demkk")
     const admin: IAdmin[] = await Admin.find(query);
 
     return admin;
@@ -722,7 +721,6 @@ export class AdminService {
     );
     const query: any = {};
     query.userName = userName;
-    console.log(query, 'dlfme');
 
     const oemUserDetails: IAdmin = await Admin.findOne({
       userName
@@ -766,7 +764,6 @@ export class AdminService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
-      console.log(sqsMessage, 'Message');
       // sendEmail(
       //   templateData,
       //   oemUserDetails?.contactInfo?.email,
@@ -800,13 +797,6 @@ export class AdminService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
-      console.log(sqsMessage, 'Message');
-      // sendEmail(
-      //   templateData,
-      //   newSeller?.email,
-      //   'support@serviceplug.in',
-      //   'NewSellerOnboarded'
-      // );
     }
     return newSeller;
   }
@@ -954,7 +944,6 @@ export class AdminService {
     if (oemId === 'SERVICEPLUG') {
       delete query['employeeUserName'];
     }
-    // console.log(query, userName, 'queryyyyyyyyyyyy');
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
     const marketingResponse: any = await Marketing.aggregate([
@@ -1128,7 +1117,6 @@ export class AdminService {
     if (_.isEmpty(jsonResult)) {
       throw new Error('marketing does not exist');
     }
-    console.log(jsonResult, 'flnjr');
     const query: any = {};
     query._id = reqBody._id;
     const res = await Marketing.findOneAndUpdate(query, reqBody, {
@@ -1188,7 +1176,6 @@ export class AdminService {
       queryTwo['state.name'] = { $in: [store[0]?.contactInfo?.state || null] };
       queryTwo['city.name'] = { $in: [store[0]?.contactInfo?.city || null] };
       stateFilter = store[0]?.contactInfo?.state || null;
-      console.log(stateFilter, 'Dekm');
       cityFilter = store[0]?.contactInfo?.city || null;
     }
 
@@ -1209,7 +1196,6 @@ export class AdminService {
       };
       queryTwo['city.name'] = { $in: [oemUser[0]?.contactInfo?.city || null] };
       stateFilter = oemUser[0]?.contactInfo?.state || null;
-      console.log(stateFilter, 'Dekm');
       cityFilter = oemUser[0]?.contactInfo?.city || null;
       locationQuery['geoLocation'] =
         oemUser[0]?.contactInfo?.geoLocation?.coordinates;
@@ -1220,7 +1206,6 @@ export class AdminService {
       queryTwo['city.name'] = { $in: [city] };
       locationQuery['geoLocation'] = coordinates;
       stateFilter = state || null;
-      console.log(stateFilter, 'Dekm');
       cityFilter = city || null;
 
       if (!state) delete queryTwo['state.name'];
@@ -1254,19 +1239,7 @@ export class AdminService {
           { $in: [stateFilter, '$state.name'] }
         ]
       };
-    }
-    console.log(
-      query,
-      matchStage,
-      locationQuery,
-      matchStage['category.name'],
-      matchStage['subCategory.name'],
-      matchStage['brand.name'],
-      matchStage['state.name'],
-      matchStage['city.name'],
-
-      'matchStage'
-    );
+    };
 
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
@@ -1557,7 +1530,6 @@ export class AdminService {
     //     $limit: pageSize
     //   }
     // ]);
-    // console.log(fileUrlResponse,"fmreklmf")
 
     const finalData: any = [...marketingResponse];
     const result: any = finalData.sort((a: any, b: any) => {
@@ -1568,7 +1540,6 @@ export class AdminService {
       }
       return dateB - dateA;
     });
-    console.log(result, 'sf mre m');
     return result;
   }
 
@@ -1724,7 +1695,6 @@ export class AdminService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
-      console.log(sqsMessage, 'Message');
     }
     return 'Email sent';
   }

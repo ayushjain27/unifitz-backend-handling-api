@@ -41,7 +41,6 @@ export class RazorPayService {
 
       return subscription;
     } catch (err) {
-      console.log(err, 'frmkfnk');
       throw new Error(err);
     }
   }
@@ -84,7 +83,6 @@ export class RazorPayService {
       const newPayment = await Payment.create(paymentRequest);
       return newPayment;
     } catch (err) {
-      console.error(err, 'Error in createPayment');
       throw new Error(err);
     }
   }
@@ -105,7 +103,6 @@ export class RazorPayService {
       const order = await razorpay.orders.create(options);
       return order;
     } catch (err) {
-      console.error(err, 'Error in createPayment');
       throw new Error(err);
     }
   }
@@ -146,7 +143,6 @@ export class RazorPayService {
       );
       return updatedPayment;
     } catch (err) {
-      console.error(err, 'Error in createPayment');
       throw new Error(err);
     }
   }
@@ -167,23 +163,7 @@ export class RazorPayService {
 
       return getPaymentDetails;
     } catch (err) {
-      console.error(err, 'Error in createPayment');
       throw new Error(err);
     }
-  }
-
-  // async createSubscriptionData(
-  //   subscriptionRequest: any
-  // ): Promise<ISubscription> {
-  //   Logger.info('<Service>:<RazorPAyService>:<RazorPay subsription initiated>');
-
-  //   try {
-  //     // get the store data
-  //     const subscription = await Subscription.create(subscriptionRequest);
-  //     return subscription;
-  //   } catch (err) {
-  //     console.log(err, 'frmkfnk');
-  //     throw new Error(err);
-  //   }
-  // }
+  };
 }

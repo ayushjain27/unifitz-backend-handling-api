@@ -526,7 +526,6 @@ export class OrderManagementController {
   getSparePostRequirementDetailById = async (req: Request, res: Response) => {
     Logger.info('<Controller>:<OrderManagementController>:<Getting ID>');
     try {
-      console.log("demkfmk")
       const spareRequirementId = req.query.spareRequirementId;
       if (!spareRequirementId) {
         throw new Error('Id is required')

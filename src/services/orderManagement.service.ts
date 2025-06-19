@@ -127,7 +127,6 @@ export class OrderManagementService {
         SQSEvent.CREATE_DISTRIBUTOR_ORDER,
         userOrderRequest?._id
       );
-      console.log(sqsMessage, 'Message');
 
       let userDetailsForNotification = {};
       if (requestBody.userRole === 'STORE_OWNER') {
@@ -142,7 +141,6 @@ export class OrderManagementService {
 
       const result = JSON.stringify(userDetailsForNotification);
       const dataSend = JSON.parse(result);
-      // console.log(customerDetails,"fmerkmdf")
 
       const data = {
         title: `Order Created! #ORD${newOrderId}`,
@@ -154,7 +152,6 @@ export class OrderManagementService {
         role: requestBody.userRole === 'STORE_OWNER' ? 'STORE_OWNER' : 'USER',
         type: 'ORDER_STATUS'
       };
-      console.log(data, 'data send');
       const notificationMessage = await this.sqsService.createMessage(
         SQSEvent.NOTIFICATION,
         data
@@ -186,7 +183,6 @@ export class OrderManagementService {
             ? dataSend?.contactInfo?.email
             : dataSend?.email;
 
-        console.log(email, 'dlemrfn');
         if (!isEmpty(email)) {
           const templateData = {
             orderId: newOrderId,
@@ -194,7 +190,6 @@ export class OrderManagementService {
             amount: userOrderRequest?.totalAmount,
             itemsOrdered: userOrderRequest?.items?.length
           };
-          console.log(templateData, 'emfkmrk');
           const emailNotificationData = {
             to: email,
             templateData: templateData,
@@ -541,7 +536,6 @@ export class OrderManagementService {
       ) {
         let email = storeDetails[0]?.contactInfo?.email;
 
-        console.log(email, 'dlemrfn');
         if (!isEmpty(email)) {
           const templateData = {
             productId: cartDetails.productOrderId,
@@ -551,7 +545,6 @@ export class OrderManagementService {
             quantity: cartDetails?.qty,
             body: body
           };
-          console.log(templateData, 'emjnfwejknfjkefkmrk');
           const emailNotificationData = {
             to: email,
             templateData: templateData,
@@ -612,7 +605,6 @@ export class OrderManagementService {
         "Your order is currently being processed. We'll notify you once it is shipped.";
     }
 
-    console.log(storeDetails, 'storeDetails');
     const data = {
       title: `Order Status! #ORD${updatedOrderStatus.customerOrderId}`,
       body: body,
@@ -644,7 +636,6 @@ export class OrderManagementService {
     ) {
       let email = storeDetails[0]?.contactInfo?.email;
 
-      console.log(email, 'dlemrfn');
       if (!isEmpty(email)) {
         const templateData = {
           orderId: updatedOrderStatus?.customerOrderId,
@@ -653,7 +644,6 @@ export class OrderManagementService {
           quantity: updatedOrderStatus?.items?.length,
           body: body
         };
-        console.log(templateData, 'kdjfwenkjfbkewb');
         const emailNotificationData = {
           to: email,
           templateData: templateData,
@@ -756,74 +746,10 @@ export class OrderManagementService {
           employeeId,
           userName
         );
-      // console.log(employeeDetails, 'dfwklm');
-      // if (employeeDetails) {
-      //   query['contactInfo.state'] = {
-      //     $in: employeeDetails.state.map((stateObj) => stateObj.name)
-      //   };
-      //   if (!isEmpty(employeeDetails?.city)) {
-      //     query['contactInfo.city'] = {
-      //       $in: employeeDetails.city.map((cityObj) => cityObj.name)
-      //     };
-      //   }
-      // }
     }
 
     const orders: any = await DistributorOrder.aggregate([
-      // Match the query
       { $match: query },
-
-      // Unwind the items array
-      // { $unwind: { path: '$items', preserveNullAndEmptyArrays: true } },
-
-      // // Lookup cart details
-      // {
-      //   $lookup: {
-      //     from: 'productcarts',
-      //     localField: 'items.cartId',
-      //     foreignField: '_id',
-      //     as: 'items.cartDetails'
-      //   }
-      // },
-
-      // // Lookup product details
-      // {
-      //   $lookup: {
-      //     from: 'partnersproducts',
-      //     localField: 'items.productId',
-      //     foreignField: '_id',
-      //     as: 'items.productDetails'
-      //   }
-      // },
-
-      // // Unwind lookup results
-      // {
-      //   $unwind: {
-      //     path: '$items.cartDetails',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$items.productDetails',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
-      // // Group data back into a single document
-      // {
-      //   $group: {
-      //     _id: '$_id',
-      //     items: { $push: '$items' },
-      //     customerOrderId: { $first: '$customerOrderId' },
-      //     status: { $first: '$status' },
-      //     totalAmount: { $first: '$totalAmount' },
-      //     oemUserName: { $first: '$oemUserName' },
-      //     createdAt: { $first: '$createdAt' },
-      //     updatedAt: { $first: '$updatedAt' }
-      //   }
-      // },
-
-      // Lookup customer order details
       {
         $lookup: {
           from: 'orders', // Collection name for customer orders
@@ -832,7 +758,6 @@ export class OrderManagementService {
           as: 'customerOrderDetails'
         }
       },
-
       // Unwind customerOrderDetails
       {
         $unwind: {
@@ -1125,16 +1050,6 @@ export class OrderManagementService {
         0
       )
     };
-    console.log(
-      (pending.length > 0 ? pending[0].pendingCount : 0,
-      shipped.length > 0 ? shipped[0].shippedCount : 0,
-      processing.length > 0 ? processing[0].processingCount : 0,
-      partialDelivered.length > 0 ? partialDelivered[0].partialCount : 0,
-      delivered.length > 0 ? delivered[0].deliveredCount : 0,
-      cancelled.length > 0 ? cancelled[0].cancelledCount : 0),
-      'numbersss'
-    );
-    console.log(totalRes, 'totalRes');
     return totalRes;
   }
 
@@ -1274,8 +1189,6 @@ export class OrderManagementService {
         delivered +
         cancelled
     };
-
-    console.log(totalAmounts, 'Total Amounts');
 
     return totalAmounts;
   }
@@ -1488,14 +1401,12 @@ export class OrderManagementService {
       ) {
         let email = storeDetails[0]?.contactInfo?.email;
 
-        console.log(email, 'dlemrfn');
         if (!isEmpty(email)) {
           const templateData = {
             orderId: checkUserOrder?.customerOrderId,
             customerName: storeDetails[0]?.basicInfo?.ownerName,
             body: 'Kindly review the payment status for your recent order. Please contact support if you need assistance.'
           };
-          console.log(templateData, 'fewfrefe');
           const emailNotificationData = {
             to: email,
             templateData: templateData,
@@ -1547,7 +1458,6 @@ export class OrderManagementService {
           { new: true } // Return the updated document
         );
         // Log success or proceed with further logic
-        console.log('Payment updated successfully:', updatedPaymentDetails);
       }
 
       const checkUserOrderPaymentDetails = await UserOrder.findOne({
@@ -1562,8 +1472,6 @@ export class OrderManagementService {
       if (isEmpty(checkUserOrderPaymentDetails)) {
         throw new Error('Order not Found');
       }
-
-      console.log(checkPaymentDetails?.paymentMode?.[0]?._id, 'dekmkm');
 
       const updatedUserPaymentDetails = await UserOrder.findOneAndUpdate(
         {
@@ -1631,8 +1539,6 @@ export class OrderManagementService {
     const queryJson = {
       audioUrl
     };
-
-    console.log(queryJson, sparePostInfo, 'sparePostInfo');
 
     if (!audioUrl) delete queryJson['audioUrl'];
 
@@ -1813,15 +1719,11 @@ export class OrderManagementService {
       }
     };
 
-    console.log(platform, 'de ms');
-
     if (platform === 'partner app') {
       query.platform = { $in: ['PARTNER_APP_ANDROID', 'PARTNER_APP_IOS'] };
     } else if (platform === 'customer app') {
       query.platform = { $in: ['CUSTOMER_APP_ANDROID', 'CUSTOMER_APP_IOS'] };
     }
-
-    console.log(query, 'frmkml');
 
     const queryTwo: any = {};
 
@@ -1869,7 +1771,6 @@ export class OrderManagementService {
         { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } }
       ];
     }
-    console.log(query, 'queryJson', role);
 
     const sparePostLists = await SparePost.aggregate([
       {
@@ -1939,8 +1840,6 @@ export class OrderManagementService {
       }
     };
 
-    console.log(platform, ';mfkermk');
-
     if (platform === 'partner app') {
       query.platform = { $in: ['PARTNER_APP_ANDROID', 'PARTNER_APP_IOS'] };
     } else if (platform === 'customer app') {
@@ -1993,7 +1892,6 @@ export class OrderManagementService {
         { $unwind: { path: '$lastStatus', preserveNullAndEmptyArrays: true } }
       ];
     }
-    // console.log(query, 'queryJson', role);
 
     const totalCountQuery = await SparePost.aggregate([
       {
@@ -2045,8 +1943,6 @@ export class OrderManagementService {
     Logger.info(
       '<Service>:<OrderManagementService>:<get sparePost Detail By Id initiated>'
     );
-
-    console.log(spareRequirementId, 'frmk');
     try {
       const spareRequirementDetail = await SparePost.aggregate([
         {

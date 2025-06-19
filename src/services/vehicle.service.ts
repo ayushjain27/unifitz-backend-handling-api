@@ -388,7 +388,6 @@ export class VehicleInfoService {
 
       end = new Date(Date.UTC(req.year, 12, 0));
       end.setUTCHours(23, 59, 59, 999);
-      console.log(start.toISOString(), end.toISOString(), 'fdwrasfefdwr');
 
       query.createdAt = { $gte: start, $lte: end };
     }

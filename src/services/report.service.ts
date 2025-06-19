@@ -52,7 +52,6 @@ export class ReportService {
 
   async update(reportPayload: IReport, reportId: string): Promise<IReport> {
     Logger.info('<Service>:<ReportService>: <Report Update: updating report>');
-    console.log(reportPayload);
     // check if store id exist
     const { storeId, customerId } = reportPayload;
     let store: IStore;
@@ -115,7 +114,6 @@ export class ReportService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId);
     const report: IReport[] = await Report.find(query);
 
     return report;

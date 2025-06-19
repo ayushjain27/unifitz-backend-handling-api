@@ -20,7 +20,6 @@ export class SQSService {
         QueueUrl: this.queueUrl,
         MessageBody: message
       });
-      // console.log(command,"dkm")
       await this.client.send(command);
     } catch (err) {
       throw new Error('There is some problem with sending message');
@@ -29,7 +28,6 @@ export class SQSService {
 
   async createMessage(event: string, data: any): Promise<void> {
     const message = JSON.stringify({ event, data });
-    console.log(message,"Cdw")
     await this.sendMessage(message);
   }
 }

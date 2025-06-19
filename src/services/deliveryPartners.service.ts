@@ -65,7 +65,6 @@ export class DeliveryPartnerService {
           deliveryPatnerPayload.partnerId = `${deliveryPatnerPayload?.userName}00`;
         }
       }
-      console.log(deliveryPatnerPayload?.security, 'Demkm');
       const updatedPassword = await this.encryptPassword(
         deliveryPatnerPayload?.security
       );

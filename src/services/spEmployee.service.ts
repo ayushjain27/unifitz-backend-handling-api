@@ -72,11 +72,6 @@ export class SPEmployeeService {
     });
 
     upAdminFields.password = await this.encryptPassword(password);
-
-    console.log(String(employeeIdUser).slice(-4), 'adflkw');
-
-    // const employeePassword = await this.encryptPassword(employeePayload);
-
     upAdminFields.userId = String(employeeIdUser);
     upAdminFields.userName = `EMP${String(employeeIdUser).slice(-4)}`;
     upAdminFields.role = 'EMPLOYEE';
@@ -109,13 +104,6 @@ export class SPEmployeeService {
       SQSEvent.EMAIL_NOTIFICATION,
       data
     );
-    console.log(sqsMessage, 'Message');
-    // sendEmail(
-    //   templateData,
-    //   employeePayload?.email,
-    //   'support@serviceplug.in',
-    //   'EmployeeOnboarded'
-    // );
     Logger.info(
       '<Service>:<SPEmployeeService>:<Employee created successfully>'
     );
@@ -257,7 +245,6 @@ export class SPEmployeeService {
     const query: any = {};
     query.employeeId = employeeId;
     query.userName = userName;
-    console.log(query, 'dlfme');
     const res = await SPEmployee.findOneAndDelete(query);
     const adminDelete = await Admin.findOneAndDelete({
       employeeId: employeeId,
@@ -318,13 +305,6 @@ export class SPEmployeeService {
       SQSEvent.EMAIL_NOTIFICATION,
       data
     );
-    console.log(sqsMessage, 'Message');
-    // sendEmail(
-    //   templateData,
-    //   employee?.email,
-    //   'support@serviceplug.in',
-    //   'EmployeeResetPassword'
-    // );
     return 'res';
   }
 

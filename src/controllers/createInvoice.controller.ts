@@ -112,7 +112,9 @@ export class CreateInvoiceController {
   };
 
   getAllInvoicePaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, startDate, endDate, searchText, state, city } = req.body;
+    const { pageNo, pageSize, startDate, endDate, searchText, state, city, oemId, employeeId } = req.body;
+    const role = req?.role;
+    const userName = req?.userId;
     Logger.info(
       '<Controller>:<CreateInvoiceController>:<Get Paginated Invoice Initiated>'
     );
@@ -128,7 +130,11 @@ export class CreateInvoiceController {
           endDate,
           searchText,
           state,
-          city
+          city,
+          role,
+          userName,
+          oemId,
+          employeeId
         );
       res.send({
         result

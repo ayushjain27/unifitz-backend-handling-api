@@ -1010,7 +1010,6 @@ export const vehicleModelList = [
 ];
 
 export function isValidEmail(email: any) {
-  console.log(email,"adkl")
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/;
 
     // if (!email || !emailRegex.test(email)) {

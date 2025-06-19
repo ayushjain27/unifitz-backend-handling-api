@@ -249,13 +249,6 @@ export class BusinessService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
-      console.log(sqsMessage, 'Message');
-      // sendEmail(
-      //   templateData,
-      //   business?.email,
-      //   'support@serviceplug.in',
-      //   'EventsOfferscheme'
-      // );
     }
     if (!_.isEmpty(store?.contactInfo?.email) || !_.isEmpty(customer?.email)) {
       const data = {
@@ -267,13 +260,6 @@ export class BusinessService {
         SQSEvent.EMAIL_NOTIFICATION,
         data
       );
-      console.log(sqsMessage, 'Message');
-      // sendEmail(
-      //   templateDataUsers,
-      //   store?.contactInfo?.email || customer?.email,
-      //   'support@serviceplug.in',
-      //   'EventsOffersUsersScheme'
-      // );
     }
     return newInterest;
   }

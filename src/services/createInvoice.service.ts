@@ -171,7 +171,11 @@ export class CreateInvoiceService {
     endDate?: string,
     searchText?: string,
     state?: string,
-    city?: string
+    city?: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
+    employeeId?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<CreateInvoiceService>:<Search and Filter invoice service initiated>'
@@ -195,6 +199,35 @@ export class CreateInvoiceService {
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
       newInvoiceQuery.createdAt = dateFilter;
+    }
+
+    if (role === AdminRole.OEM) {
+      query['storeDetail.oemUserName'] = userName;
+      newInvoiceQuery['storeDetail.oemUserName'] = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      if (oemId !== 'SERVICEPLUG') {
+        query['storeDetail.oemUserName'] = oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        newInvoiceQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          newInvoiceQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
     }
 
     if (state) {
@@ -514,7 +547,7 @@ export class CreateInvoiceService {
       {
         $lookup: {
           from: 'stores',
-          localField: 'jobCardDetail.storeId',
+          localField: 'storeId',
           foreignField: 'storeId',
           as: 'storeDetail'
         }
@@ -719,7 +752,9 @@ export class CreateInvoiceService {
 
       const combinedStores = [...topStores, ...newInvocieTopStores]
         .reduce((acc, curr) => {
-          const existing = acc.find((item: any) => item.storeId === curr.storeId);
+          const existing = acc.find(
+            (item: any) => item.storeId === curr.storeId
+          );
           if (existing) {
             existing.invoiceCount += curr.invoiceCount;
           } else {

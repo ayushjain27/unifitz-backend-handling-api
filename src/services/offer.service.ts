@@ -20,21 +20,11 @@ export class OfferService {
     userName: string,
     role: string
   ): Promise<any> {
-    console.log(offerRequest, 'ewl;kjr');
     Logger.info(
       '<Service>:<OfferService>: <Offer onboarding: creating new offer>'
     );
-    // const { store, oemUserName, oemOfferType } = offerRequest;
     let newOffer: IOffer = offerRequest;
-    // let storeData: IStore;
-    // let user: IAdmin;
-    // const defaultLocation = {
-    //   type: 'Point',
-    //   coordinates: [0, 0]
-    // };
-    // if (storeId) {
-    //   storeData = await Store.findOne({ storeId }, { verificationDetails: 0 });
-    // }
+
     if (role === AdminRole.OEM) {
       newOffer.oemOfferStatus = OemOfferProfileStatus.DRAFT;
     }
@@ -146,7 +136,6 @@ export class OfferService {
     if (!subCategory || subCategory.length === 0) {
       delete query['subCategory.name'];
     }
-    console.log(query, 'queryyyyyyyyyyyyyyyyyy');
     
     if (
       _.isEmpty(coordinates) &&
@@ -312,7 +301,6 @@ export class OfferService {
     if (oemId === 'SERVICEPLUG') {
       delete query['oemUserName'];
     }
-    console.log(userName, role, oemId);
 
     const eventResult = await OfferModel.aggregate([
       { $match: query },
@@ -352,7 +340,6 @@ export class OfferService {
     if (_.isEmpty(offerResult)) {
       throw new Error('Offer does not exist');
     }
-    console.log(offerResult, 'flnjr');
     const query: any = {};
     query._id = reqBody._id;
     const res = await OfferModel.findOneAndUpdate(query, reqBody, {

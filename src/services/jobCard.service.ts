@@ -273,7 +273,11 @@ export class JobCardService {
     return storeJobCard;
   }
 
-  async countAllJobCard(reqPayload: any): Promise<any> {
+  async countAllJobCard(
+    reqPayload: any,
+    role: string,
+    userName: string
+  ): Promise<any> {
     Logger.info('<Service>:<JobCardService>:<count all Job Cards>');
 
     const dateFilter: any = {};
@@ -291,6 +295,47 @@ export class JobCardService {
     const query: any = {};
     const matchQuery: any = {};
     const newInvoiceQuery: any = {};
+
+    if (role === AdminRole.OEM) {
+      query['storeDetail.oemUserName'] = userName;
+      matchQuery['storeDetail.oemUserName'] = userName;
+      newInvoiceQuery['storeDetail.oemUserName'] = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      if (reqPayload.oemId !== 'SERVICEPLUG') {
+        query['storeDetail.oemUserName'] = reqPayload.oemId;
+        matchQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+        newInvoiceQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          reqPayload.employeeId,
+          reqPayload.oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        matchQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        newInvoiceQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          matchQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          newInvoiceQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
@@ -439,7 +484,7 @@ export class JobCardService {
     ]);
     const totalCount = {
       totalJobCard: totalJobCard[0]?.total || 0,
-      totalInvoice: (totalInvoice[0]?.total + totalNewInvoice[0]?.total) || 0
+      totalInvoice: totalInvoice[0]?.total + totalNewInvoice[0]?.total || 0
     };
     return totalCount;
   }
@@ -451,7 +496,11 @@ export class JobCardService {
     endDate?: string,
     searchText?: string,
     state?: string,
-    city?: string
+    city?: string,
+    role?: string,
+    userName?: string,
+    oemId?: string,
+    employeeId?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter job card service initiated>'
@@ -473,14 +522,40 @@ export class JobCardService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
-    }
+    };
+
+    if (role === AdminRole.OEM) {
+      query['storeDetail.oemUserName'] = userName;
+    };
+
+    if (role === AdminRole.EMPLOYEE) {
+      if (oemId !== 'SERVICEPLUG') {
+        query['storeDetail.oemUserName'] = oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          employeeId,
+          oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    };
 
     if (state) {
       query['storeDetail.contactInfo.state'] = state;
-    }
+    };
+
     if (city) {
       query['storeDetail.contactInfo.city'] = city;
-    }
+    };
 
     if (searchText) {
       query.$or = [
@@ -495,7 +570,7 @@ export class JobCardService {
           )
         }
       ];
-    }
+    };
 
     let jobCards: any = await JobCard.aggregate([
       {
@@ -666,7 +741,7 @@ export class JobCardService {
     return result;
   }
 
-  async overallPayment(reqPayload: any) {
+  async overallPayment(reqPayload: any, role?: string, userName?: string) {
     Logger.info(
       '<Service>:<JobCardService>:<Search and Filter overall payments service initiated>'
     );
@@ -674,6 +749,47 @@ export class JobCardService {
     const query: any = {};
     const matchQuery: any = {};
     const newInvoiceQuery: any = {};
+
+    if (role === AdminRole.OEM) {
+      query['storeDetail.oemUserName'] = userName;
+      matchQuery['storeDetail.oemUserName'] = userName;
+      newInvoiceQuery['storeDetail.oemUserName'] = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      if (reqPayload.oemId !== 'SERVICEPLUG') {
+        query['storeDetail.oemUserName'] = reqPayload.oemId;
+        matchQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+        newInvoiceQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          reqPayload.employeeId,
+          reqPayload.oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        matchQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        newInvoiceQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          matchQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          newInvoiceQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
 
     if (reqPayload?.state) {
       query['storeDetail.contactInfo.state'] = reqPayload.state;
@@ -715,14 +831,10 @@ export class JobCardService {
       newInvoiceQuery.$or = [
         { storeId: new RegExp(reqPayload.searchText, 'i') },
         {
-          phoneNumber: new RegExp(
-            reqPayload.searchText,
-            'i'
-          )
+          phoneNumber: new RegExp(reqPayload.searchText, 'i')
         },
         {
-          vehicleNumber:
-            new RegExp(reqPayload.searchText, 'i')
+          vehicleNumber: new RegExp(reqPayload.searchText, 'i')
         }
       ];
     }
@@ -871,16 +983,22 @@ export class JobCardService {
     const result = {
       totalJobCards: jobCardResult[0]?.totalJobCards || 0,
       jobCardAmount: jobCardResult[0]?.totalAmount || 0,
-      totalInvoices: (invoiceResult[0]?.totalInvoices || 0) + (newInvoiceResult[0]?.totalInvoices || 0),
-      totalAmounts: (invoiceResult[0]?.totalAmounts || 0) + (newInvoiceResult[0]?.totalAmounts || 0)
+      totalInvoices:
+        (invoiceResult[0]?.totalInvoices || 0) +
+        (newInvoiceResult[0]?.totalInvoices || 0),
+      totalAmounts:
+        (invoiceResult[0]?.totalAmounts || 0) +
+        (newInvoiceResult[0]?.totalAmounts || 0)
     };
-
-    console.log(result,"result")
 
     return result;
   }
 
-  async getOverallUniqueStores(reqPayload: any) {
+  async getOverallUniqueStores(
+    reqPayload: any,
+    role?: string,
+    userName?: string
+  ) {
     Logger.info(
       '<Service>:<JobCardService>:<Get overall unique stores service initiated>'
     );
@@ -888,6 +1006,47 @@ export class JobCardService {
     const query: any = {};
     const matchQuery: any = {};
     const newInvoiceQuery: any = {};
+
+    if (role === AdminRole.OEM) {
+      query['storeDetail.oemUserName'] = userName;
+      matchQuery['storeDetail.oemUserName'] = userName;
+      newInvoiceQuery['storeDetail.oemUserName'] = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      if (reqPayload.oemId !== 'SERVICEPLUG') {
+        query['storeDetail.oemUserName'] = reqPayload.oemId;
+        matchQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+        newInvoiceQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          reqPayload.employeeId,
+          reqPayload.oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        matchQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        newInvoiceQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          matchQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          newInvoiceQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
 
     if (reqPayload?.state) {
       query['storeDetail.contactInfo.state'] = reqPayload.state;
@@ -929,14 +1088,10 @@ export class JobCardService {
       newInvoiceQuery.$or = [
         { storeId: new RegExp(reqPayload.searchText, 'i') },
         {
-          phoneNumber: new RegExp(
-            reqPayload.searchText,
-            'i'
-          )
+          phoneNumber: new RegExp(reqPayload.searchText, 'i')
         },
         {
-          vehicleNumber:
-            new RegExp(reqPayload.searchText, 'i')
+          vehicleNumber: new RegExp(reqPayload.searchText, 'i')
         }
       ];
     }
@@ -1020,7 +1175,6 @@ export class JobCardService {
       }
     ]);
     const newInvoiceUniqueStores = await Invoice.aggregate([
-
       {
         $lookup: {
           from: 'stores',
@@ -1043,16 +1197,18 @@ export class JobCardService {
           _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
           // If you need to group by store name instead, use "$storeName" or similar
         }
-      },
+      }
     ]);
 
-    const allUniqueStores = [...invoiceUniqueStores, ...newInvoiceUniqueStores].reduce((acc, curr) => {
+    const allUniqueStores = [
+      ...invoiceUniqueStores,
+      ...newInvoiceUniqueStores
+    ].reduce((acc, curr) => {
       if (!acc.some((item: any) => item._id === curr._id)) {
         acc.push(curr);
       }
       return acc;
     }, []);
-
 
     const result = {
       jobCardUniqueStores: jobCardUniqueStores[0]?.jobCardUniqueStores || 0,
@@ -1063,7 +1219,11 @@ export class JobCardService {
     return result;
   }
 
-  async getUniqueStores(reqPayload: any): Promise<any> {
+  async getUniqueStores(
+    reqPayload: any,
+    role?: string,
+    userName?: string
+  ): Promise<any> {
     Logger.info(
       '<Service>:<JobCardService>:<Get overall unique stores service initiated>'
     );
@@ -1090,6 +1250,47 @@ export class JobCardService {
       newInvoiceQuery.createdAt = dateFilter;
     }
 
+    if (role === AdminRole.OEM) {
+      query['storeDetail.oemUserName'] = userName;
+      matchQuery['storeDetail.oemUserName'] = userName;
+      newInvoiceQuery['storeDetail.oemUserName'] = userName;
+    }
+
+    if (role === AdminRole.EMPLOYEE) {
+      if (reqPayload.oemId !== 'SERVICEPLUG') {
+        query['storeDetail.oemUserName'] = reqPayload.oemId;
+        matchQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+        newInvoiceQuery['storeDetail.oemUserName'] = reqPayload.oemId;
+      }
+      const employeeDetails =
+        await this.spEmployeeService.getEmployeeByEmployeeId(
+          reqPayload.employeeId,
+          reqPayload.oemId
+        );
+      if (employeeDetails) {
+        query['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        matchQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        newInvoiceQuery['storeDetail.contactInfo.state'] = {
+          $in: employeeDetails.state.map((stateObj) => stateObj.name)
+        };
+        if (!isEmpty(employeeDetails?.city)) {
+          query['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          matchQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+          newInvoiceQuery['storeDetail.contactInfo.city'] = {
+            $in: employeeDetails.city.map((cityObj) => cityObj.name)
+          };
+        }
+      }
+    }
+
     if (reqPayload?.state) {
       query['storeDetail.contactInfo.state'] = reqPayload.state;
       matchQuery['storeDetail.contactInfo.state'] = reqPayload.state;
@@ -1129,14 +1330,10 @@ export class JobCardService {
       newInvoiceQuery.$or = [
         { storeId: new RegExp(reqPayload.searchText, 'i') },
         {
-          phoneNumber: new RegExp(
-            reqPayload.searchText,
-            'i'
-          )
+          phoneNumber: new RegExp(reqPayload.searchText, 'i')
         },
         {
-          vehicleNumber:
-            new RegExp(reqPayload.searchText, 'i')
+          vehicleNumber: new RegExp(reqPayload.searchText, 'i')
         }
       ];
     }
@@ -1217,13 +1414,12 @@ export class JobCardService {
           _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
           // If you need to group by store name instead, use "$storeName" or similar
         }
-      },
+      }
       // {
       //   $count: 'invoiceUniqueStores'
       // }
     ]);
     const newInvoiceUniqueStores = await Invoice.aggregate([
-
       {
         $lookup: {
           from: 'stores',
@@ -1246,13 +1442,16 @@ export class JobCardService {
           _id: '$storeId' // Assuming 'storeId' is the field that identifies stores
           // If you need to group by store name instead, use "$storeName" or similar
         }
-      },
+      }
       // {
       //   $count: 'invoiceUniqueStores'
       // }
     ]);
 
-    const allUniqueStores = [...invoiceUniqueStores, ...newInvoiceUniqueStores].reduce((acc, curr) => {
+    const allUniqueStores = [
+      ...invoiceUniqueStores,
+      ...newInvoiceUniqueStores
+    ].reduce((acc, curr) => {
       if (!acc.some((item: any) => item._id === curr._id)) {
         acc.push(curr);
       }

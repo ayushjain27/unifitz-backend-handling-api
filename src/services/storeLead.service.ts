@@ -728,8 +728,6 @@ export class StoreLeadService {
     if (!employeeId) {
       delete query['store.employeeId'];
     }
-    console.log(query, 'FEWFmssss');
-
     if (role === AdminRole.OEM) {
       query = {
         ...query,

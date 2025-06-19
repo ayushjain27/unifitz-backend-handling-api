@@ -71,7 +71,6 @@ export class NotificationService {
           role: 'USER',
           type: 'SMC_INSURANCE',
         };
-        console.log(data,"data send");
         const sqsMessage = await this.sqsService.createMessage(
           SQSEvent.NOTIFICATION,
           data
@@ -102,7 +101,6 @@ export class NotificationService {
     
     try {
       let notification = await Notification.findOne({ _id: params.notificationId });
-      console.log(params, "dlfrmf");
   
       if (!isEmpty(notification)) {
         let response = await Notification.findOneAndUpdate(

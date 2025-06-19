@@ -93,7 +93,6 @@ export class CustomerService {
           customerId: customerPayload?.customerId,
           referralCode: customerPayload?.referralCode
         });
-        console.log(customerReferrals, 'wemkfmlr');
         if (customerReferrals) {
           await CustomerReferralCode.findOneAndUpdate(
             {
@@ -459,13 +458,7 @@ export class CustomerService {
       phoneNumber: customerPayload?.phoneNumber,
       customerId: customerPayload?.customerId
     });
-    console.log(checkInviteUsersExists, 'Dlr,fm');
     if (checkInviteUsersExists) {
-      console.log(
-        checkInviteUsersExists?.count,
-        'checkInviteUsersExists?.count'
-      );
-
       const updateInviteDetails = await InviteUsers.findOneAndUpdate(
         {
           phoneNumber: customerPayload?.phoneNumber,
@@ -754,8 +747,6 @@ export class CustomerService {
       inActive: counts[0]?.inactive[0]?.count || 0
     };
 
-    console.log(result, 'result');
-
     return result;
   }
 
@@ -776,8 +767,6 @@ export class CustomerService {
       status
     };
 
-    console.log(selectedPartner, 'dlmerk');
-
     if (selectedPartner) {
       query.$or = [
         { userName: selectedPartner },
@@ -792,8 +781,6 @@ export class CustomerService {
     if (role === AdminRole.EMPLOYEE && oemId !== 'SERVICEPLUG') {
       query.$or = [{ userName: oemId }, { selectedUserName: oemId }];
     }
-
-    console.log(query, 'mrfm');
 
     let sosNotifications: any = await Rewards.aggregate([
       { $match: query },

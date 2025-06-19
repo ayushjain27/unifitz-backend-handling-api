@@ -56,8 +56,6 @@ router.post(
       return res.status(HttpStatusCodes.BAD_REQUEST).send('No files uploaded');
     }
 
-    console.log(files, 'lefmkmrk');
-
     try {
       // Upload all files and collect links
       for (const file of files) {
@@ -105,8 +103,6 @@ router.post(
           uploadedLinks.push({ link: result });
         }
       }
-
-      console.log(uploadedLinks, 'uploadedLinks');
       // Create Excel file with the links using ExcelJS
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Uploaded Links');

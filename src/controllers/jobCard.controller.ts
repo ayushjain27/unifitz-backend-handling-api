@@ -43,7 +43,7 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Upload Store Customer request initiated>'
     );
     try {
-      const result = await this.jobCardService.createStoreLineItems (
+      const result = await this.jobCardService.createStoreLineItems(
         jobCardId,
         lineItems
       );
@@ -70,7 +70,10 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Get store job Card by store id controller initiated>'
     );
     try {
-      const result = await this.jobCardService.getStoreJobCardsByStoreId(storeId, searchValue as string);
+      const result = await this.jobCardService.getStoreJobCardsByStoreId(
+        storeId,
+        searchValue as string
+      );
       res.send({
         message: 'Store Job Card Fetch Successful',
         result
@@ -83,7 +86,7 @@ export class JobCardController {
 
   getJobCardById = async (req: Request, res: Response) => {
     const jobCardId = req.query.id;
-   
+
     if (!jobCardId) {
       res
         .status(HttpStatusCodes.BAD_REQUEST)
@@ -94,7 +97,9 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Get job card by id controller initiated>'
     );
     try {
-      const result = await this.jobCardService.getJobCardById(jobCardId as string);
+      const result = await this.jobCardService.getJobCardById(
+        jobCardId as string
+      );
       res.send({
         message: 'Job Card Fetch Successful',
         result
@@ -124,7 +129,10 @@ export class JobCardController {
     );
 
     try {
-      const result = await this.jobCardService.updateJobCard(jobCardRequest, jobCardId);
+      const result = await this.jobCardService.updateJobCard(
+        jobCardRequest,
+        jobCardId
+      );
       res.send({
         message: 'Job Card Update Successful',
         result
@@ -148,7 +156,9 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Get job card email controller initiated>'
     );
     try {
-      const result = await this.jobCardService.jobCardEmail(jobCardId as string);
+      const result = await this.jobCardService.jobCardEmail(
+        jobCardId as string
+      );
       res.send({
         message: 'Job Card Fetch Successful',
         result
@@ -174,7 +184,11 @@ export class JobCardController {
       '<Controller>:<JobCardController>:<Get store job Card by phone number controller initiated>'
     );
     try {
-      const result = await this.jobCardService.filterJobCards(phoneNumber as string, modelName as string, year as string);
+      const result = await this.jobCardService.filterJobCards(
+        phoneNumber as string,
+        modelName as string,
+        year as string
+      );
       res.send({
         message: 'Store Job Card Fetch Successful',
         result
@@ -187,14 +201,18 @@ export class JobCardController {
 
   countAllJobCard = async (req: Request, res: Response) => {
     const query = req.query;
-    Logger.info(
-      '<Controller>:<JobCardController>:<Count Job Card Initiated>'
-    );
+    const role = req?.role;
+    const userName = req?.userId;
+    Logger.info('<Controller>:<JobCardController>:<Count Job Card Initiated>');
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<Count Job Card Initiated>'
       );
-      const result = await this.jobCardService.countAllJobCard(query);
+      const result = await this.jobCardService.countAllJobCard(
+        query,
+        role,
+        userName
+      );
       res.send({
         result
       });
@@ -207,7 +225,10 @@ export class JobCardController {
   };
 
   getAllJobCardPaginated = async (req: Request, res: Response) => {
-    const { pageNo, pageSize, startDate, endDate, searchText, state, city } = req.body;
+    const { pageNo, pageSize, startDate, endDate, searchText, state, city, oemId, employeeId } =
+      req.body;
+      const role = req?.role;
+    const userName = req?.userId;
     Logger.info(
       '<Controller>:<JobCardController>:<Get Paginated Job Card Initiated>'
     );
@@ -215,16 +236,19 @@ export class JobCardController {
       Logger.info(
         '<Controller>:<JobCardController>:<Get Paginated Job Card Initiated>'
       );
-      const result =
-        await this.jobCardService.getAllJobCardPaginated(
-          pageNo,
-          pageSize,
-          startDate,
-          endDate,
-          searchText,
-          state,
-          city
-        );
+      const result = await this.jobCardService.getAllJobCardPaginated(
+        pageNo,
+        pageSize,
+        startDate,
+        endDate,
+        searchText,
+        state,
+        city,
+        role,
+        userName,
+        oemId,
+        employeeId
+      );
       res.send({
         result
       });
@@ -248,7 +272,7 @@ export class JobCardController {
       employeeId
     } = req.body;
     const role = req?.role;
-      const userName = req?.userId;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard payment analytic request controller initiated>'
@@ -278,11 +302,17 @@ export class JobCardController {
 
   overallPayment = async (req: Request, res: Response) => {
     const query = req.query;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard overall payment analytic request controller initiated>'
       );
-      const result = await this.jobCardService.overallPayment(query);
+      const result = await this.jobCardService.overallPayment(
+        query,
+        role,
+        userName
+      );
       res.send({
         result
       });
@@ -296,11 +326,17 @@ export class JobCardController {
 
   getOverallUniqueStores = async (req: Request, res: Response) => {
     const query = req.query;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard overall unique stores request controller initiated>'
       );
-      const result = await this.jobCardService.getOverallUniqueStores(query);
+      const result = await this.jobCardService.getOverallUniqueStores(
+        query,
+        role,
+        userName
+      );
       res.send({
         result
       });
@@ -314,11 +350,17 @@ export class JobCardController {
 
   getUniqueStores = async (req: Request, res: Response) => {
     const query = req.query;
+    const role = req?.role;
+    const userName = req?.userId;
     try {
       Logger.info(
         '<Controller>:<JobCardController>:<get jobcard unique stores request controller initiated>'
       );
-      const result = await this.jobCardService.getUniqueStores(query);
+      const result = await this.jobCardService.getUniqueStores(
+        query,
+        role,
+        userName
+      );
       res.send({
         result
       });
@@ -351,8 +393,7 @@ export class JobCardController {
   validate = (method: string) => {
     switch (method) {
       case 'createJobCard':
-        return [
-          body('storeId', 'Store Id does not exist').exists().isString()];
+        return [body('storeId', 'Store Id does not exist').exists().isString()];
     }
   };
 }

@@ -92,7 +92,6 @@ export class StoreService {
     storePayload.profileStatus = storeStatus;
     const businessName = storeRequest.storePayload.basicInfo.businessName;
     const baseSlug = slugify(businessName, { lower: true, strict: true });
-    console.log(baseSlug, 'dsklk');
 
     const slug = `${baseSlug}-${newStoreId}`;
     storePayload.slug = slug;
@@ -149,14 +148,11 @@ export class StoreService {
 
     if (!isEmpty(newStore?.storeId)) {
       let email = newStore?.contactInfo?.email;
-
-      console.log(email, 'dlemrfn');
       if (!isEmpty(email)) {
         const templateData = {
           storeId: newStore?.storeId,
           customerName: newStore?.basicInfo?.ownerName
         };
-        console.log(templateData, 'fewfrefe');
         const emailNotificationData = {
           to: email,
           templateData: templateData,
@@ -228,13 +224,11 @@ export class StoreService {
     if (!isEmpty(updatedStore?.storeId)) {
       let email = updatedStore?.contactInfo?.email;
 
-      console.log(email, 'dlemrfn');
       if (!isEmpty(email)) {
         const templateData = {
           storeId: updatedStore?.storeId,
           customerName: updatedStore?.basicInfo?.ownerName
         };
-        console.log(templateData, 'fewfrefe');
         const emailNotificationData = {
           to: email,
           templateData: templateData,
@@ -301,7 +295,6 @@ export class StoreService {
     role?: string
   ): Promise<IStore> {
     Logger.info('<Service>:<StoreService>:<Update store status>');
-    console.log(userName, role, 'dfwl;k');
     const query: any = {};
     query.storeId = statusRequest.storeId;
     let store: IStore;
@@ -399,7 +392,6 @@ export class StoreService {
     if (!isEmpty(updatedStore?.storeId)) {
       let email = updatedStore?.contactInfo?.email;
 
-      console.log(email, 'dlemrfn');
       if (!isEmpty(email)) {
         const templateData = {
           storeId: updatedStore?.storeId,
@@ -414,7 +406,6 @@ export class StoreService {
               : `rejected due to this reason: ${statusRequest.rejectionReason}`
           }`
         };
-        console.log(templateData, 'fewfrefe');
         const emailNotificationData = {
           to: email,
           templateData: templateData,
@@ -1282,14 +1273,12 @@ export class StoreService {
       if (!isEmpty(storeDetails?.storeId)) {
         let email = storeDetails?.contactInfo?.email;
 
-        console.log(email, 'dlemrfn');
         if (!isEmpty(email)) {
           const templateData = {
             storeId: storeDetails?.storeId,
             customerName: storeDetails?.basicInfo?.ownerName,
             body: `Your store is verified with ${payload.documentType}`
           };
-          console.log(templateData, 'fewfrefe');
           const emailNotificationData = {
             to: email,
             templateData: templateData,
@@ -1424,14 +1413,12 @@ export class StoreService {
       if (!isEmpty(storeDetails?.storeId)) {
         let email = storeDetails?.contactInfo?.email;
 
-        console.log(email, 'dlemrfn');
         if (!isEmpty(email)) {
           const templateData = {
             storeId: storeDetails?.storeId,
             customerName: storeDetails?.basicInfo?.ownerName,
             body: `Your store is verified with Aadhar`
           };
-          console.log(templateData, 'fewfrefe');
           const emailNotificationData = {
             to: email,
             templateData: templateData,
@@ -1458,7 +1445,6 @@ export class StoreService {
   ): Promise<IStoreReview[]> {
     Logger.info('<Service>:<StoreService>:<Get all stores reviews>');
     let reviewResponse: any = [];
-    console.log(userName, role, oemId);
 
     if (role === 'ADMIN' || oemId === 'SERVICEPLUG') {
       reviewResponse = await StoreReview.find({});
@@ -1773,7 +1759,6 @@ export class StoreService {
           employeeId,
           userName
         );
-      console.log(employeeDetails, 'dfwklm');
       if (employeeDetails) {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -1784,9 +1769,7 @@ export class StoreService {
           };
         }
       }
-    }
-
-    console.log(query, 'FEWFm');
+    };
 
     let stores: any = await Store.aggregate([
       {
@@ -1870,7 +1853,6 @@ export class StoreService {
           employeeId,
           userName
         );
-      console.log(employeeDetails, 'dfwklm');
       if (employeeDetails) {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -2553,7 +2535,6 @@ export class StoreService {
       },
       { new: true } // Returns the updated document
     );
-    console.log(partnerDetails, 'demkd');
     return partnerDetails;
   }
 

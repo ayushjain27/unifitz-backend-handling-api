@@ -61,7 +61,6 @@ export class ParkAssistService {
       const newData = await ParkAssistChatUser.create(parkAssistUserPayload);
       return newData;
     } catch (err) {
-      console.error(err, 'Error in creating user');
       throw new Error(err);
     }
   }
@@ -76,7 +75,6 @@ export class ParkAssistService {
     const customer = await Customer.findOne({
       customerId: parkAssistUserChatPayload?.receiverId
     });
-    console.log(customer, 'cusotmer');
 
     if (!customer) {
       throw new Error('Customer not found');
@@ -113,7 +111,6 @@ export class ParkAssistService {
 
       return parkAssistChatMessage;
     } catch (err) {
-      console.error(err, 'Error in creating user');
       throw new Error(err);
     }
   }
@@ -137,15 +134,12 @@ export class ParkAssistService {
       ]
     };
 
-    console.log(query, 'crmkmk');
-
     try {
       const parkAssistChatMessage = await ParkAssistChatMessage.find(
         query
       ).sort({ createdAt: 1 });
       return parkAssistChatMessage;
     } catch (err) {
-      console.error(err, 'Error in creating user');
       throw new Error(err);
     }
   }
@@ -186,7 +180,6 @@ export class ParkAssistService {
 
       return uniqueUsers;
     } catch (err) {
-      console.error(err, 'Error in creating user');
       throw new Error(err);
     }
   }
@@ -210,10 +203,8 @@ export class ParkAssistService {
 
     try {
       const result = await ParkAssistChatMessage.deleteMany(query);
-
       return [];
     } catch (err) {
-      console.error(err, 'Error in creating user');
       throw new Error(err);
     }
   }
@@ -296,10 +287,8 @@ Tap to open Map
         }
       };
       let newSOSNotifications = await SOSNotifications.create(newData);
-      console.log(newSOSNotifications, 'newSOSNotifications');
       return newSOSNotifications;
     } catch (err) {
-      console.error(err, 'Error in creating user');
       throw new Error(err);
     }
   }

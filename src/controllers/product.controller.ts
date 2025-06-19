@@ -944,7 +944,6 @@ export class ProductController {
     try {
       const storeId = req?.query?.storeId;
       const userType = req?.query?.userType;
-      console.log(userType,"efrk", storeId)
       const result = await this.productService.getAllCategoriesAndSubCategories(
         storeId as string,
         userType as string,

@@ -483,7 +483,6 @@ export class BuySellController {
         '<Controller>:<BuySellController>:<Get All Buy Sell aggregation request controller initiated>'
       );
       const storeId = req?.query?.storeId;
-      console.log(storeId,"d,rel,l")
       const result = await this.buySellService.getVehiclesByStoreId(
        storeId
       );
@@ -505,8 +504,6 @@ export class BuySellController {
       );
       const vehType = req?.body?.vehType;
       const coordinates = req?.body?.coordinates;
-      console.log(vehType,"d,rel,l")
-      console.log(coordinates,"kfenkr,rel,l")
       const result = await this.buySellService.getSimilarBuySellVehicle(
         vehType,
        coordinates

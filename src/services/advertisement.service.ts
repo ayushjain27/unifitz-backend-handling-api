@@ -133,7 +133,6 @@ export class AdvertisementService {
         
       });
     } else {
-      // console.log('Dwrlkjj');
       const customerResponse = await Customer.aggregate([
         {
           $project: {
@@ -178,8 +177,6 @@ export class AdvertisementService {
         }
       ]);
 
-      // console.log(customerResponse, 'sad;lkwm');
-
       await customerResponse.forEach(async(item, index) => {
         // sendNotification(
         //   addBanner.title,
@@ -200,7 +197,6 @@ export class AdvertisementService {
           data
         );
 
-        console.log(item,"flmrkfm")
         const notificationData = {
           title:  addBanner.title,
           body: addBanner.description,
@@ -209,7 +205,6 @@ export class AdvertisementService {
           role: "USER",
           customerId: item?.customerId
         }
-        console.log(notificationData,"notificationData")
     
         let notification = await this.notificationService.createNotification(notificationData)
       });

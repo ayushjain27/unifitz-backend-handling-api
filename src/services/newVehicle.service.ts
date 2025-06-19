@@ -278,8 +278,6 @@ export class NewVehicleInfoService {
       delete query['vehicle'];
     }
 
-    console.log(query,"flrmk")
-
     const vehicle = await NewVehicle.aggregate([{ $match: query }]);
     return vehicle;
   }
@@ -425,7 +423,6 @@ export class NewVehicleInfoService {
     if (_.isEmpty(vehicleResult)) {
       throw new Error('Vehicle does not exist');
     }
-    console.log(vehicleResult, 'flnjr');
     const query: any = {};
     query._id = reqBody._id;
     const res = await NewVehicle.findOneAndUpdate(query, reqBody, {
@@ -470,8 +467,6 @@ export class NewVehicleInfoService {
         vehicleId: reqBody?.vehicleId,
         'storeDetails.storeId': reqBody?.storeDetails?.storeId
       });
-      console.log(lastTestDrive, 'sf');
-      console.log(query, 'ssdff');
       const date = new Date();
       if (lastTestDrive.length > 0) {
         const changeType = reqBody?.changeType || '';
@@ -495,17 +490,9 @@ export class NewVehicleInfoService {
           },
           { returnDocument: 'after' }
         );
-        console.log(updatedVehicle, 'elknfnj');
         const storeDetails = await Store.findOne({
           storeId: reqBody?.storeDetails?.storeId
         });
-        // sendNotification(
-        //   'New Enquiry',
-        //   `You've received a new inquiry`,
-        //   storeDetails?.contactInfo?.phoneNumber?.primary,
-        //   'STORE_OWNER',
-        //   ''
-        // );
         const data = {
           title: 'New Enquiry',
           body: `You've received a new inquiry`,
@@ -534,14 +521,12 @@ export class NewVehicleInfoService {
         if (!isEmpty(storeDetails?.storeId)) {
           let email = storeDetails?.contactInfo?.email;
 
-          console.log(email, 'dlemrfn');
           if (!isEmpty(email)) {
             const templateData = {
               storeId: storeDetails?.storeId,
               customerName: storeDetails?.basicInfo?.ownerName,
               body: `You've received a new inquiry`
             };
-            console.log(templateData, 'fewfrefe');
             const emailNotificationData = {
               to: email,
               templateData: templateData,
@@ -585,13 +570,6 @@ export class NewVehicleInfoService {
                 SQSEvent.EMAIL_NOTIFICATION,
                 data
               );
-              console.log(sqsMessage, 'Message');
-              // await sendEmail(
-              //   templateData,
-              //   adminDetails?.contactInfo?.email,
-              //   'support@serviceplug.in',
-              //   'NewVehicleEnquiryOemUserPartner'
-              // );
             }
           }
           if (!_.isEmpty(storeDetails?.contactInfo?.email)) {
@@ -615,13 +593,6 @@ export class NewVehicleInfoService {
               SQSEvent.EMAIL_NOTIFICATION,
               data
             );
-            console.log(sqsMessage, 'Message');
-            // await sendEmail(
-            //   templateDataToStore,
-            //   storeDetails?.contactInfo?.email,
-            //   'support@serviceplug.in',
-            //   'NewVehicleTestDriveStore'
-            // );
           }
         }
         return updatedVehicle;
@@ -634,13 +605,6 @@ export class NewVehicleInfoService {
       const storeDetails = await Store.findOne({
         storeId: reqBody?.storeDetails?.storeId
       });
-      // sendNotification(
-      //   'New Enquiry',
-      //   `You've received a new inquiry`,
-      //   storeDetails?.contactInfo?.phoneNumber?.primary,
-      //   'STORE_OWNER',
-      //   ''
-      // );
       const data = {
         title: 'New Enquiry',
         body: `You've received a new inquiry`,
@@ -667,14 +631,12 @@ export class NewVehicleInfoService {
       if (!isEmpty(storeDetails?.storeId)) {
         let email = storeDetails?.contactInfo?.email;
 
-        console.log(email, 'dlemrfn');
         if (!isEmpty(email)) {
           const templateData = {
             storeId: storeDetails?.storeId,
             customerName: storeDetails?.basicInfo?.ownerName,
             body: `You've received a new inquiry`
           };
-          console.log(templateData, 'fewfrefe');
           const emailNotificationData = {
             to: email,
             templateData: templateData,
@@ -988,8 +950,6 @@ export class NewVehicleInfoService {
     if (!vehicleType || _.isEmpty(vehicleType)) delete filterParams['vehicle'];
     if (!minPrice || !maxPrice)
       delete filterParams['vehicleInfo.expectedPrice'];
-
-    console.log(query, filterParams);
 
     const result = await NewVehicle.aggregate([
       {

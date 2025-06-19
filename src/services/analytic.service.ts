@@ -124,7 +124,6 @@ export class AnalyticService {
           employeeId,
           oemId
         );
-        console.log(employeeDetails,"demdkmkd")
       if (employeeDetails) {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -135,7 +134,6 @@ export class AnalyticService {
           };
         }
       }
-      console.log(query,"dmkemk")
     }
 
     if (state) {
@@ -147,8 +145,6 @@ export class AnalyticService {
     if (oemUserId) {
       query.oemUserName = oemUserId;
     }
-
-    console.log(query,"Demkm")
 
     const gstVerStores = await Store.countDocuments({
       'verificationDetails.documentType': 'GST',
@@ -238,8 +234,6 @@ export class AnalyticService {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated>'
     );
-
-    console.log(searchReqBody,"Dlemkfmkrk")
 
     const query: any = {
       profileStatus: 'ONBOARDED'

@@ -62,7 +62,6 @@ router.post('/otp/send', async (req: Request, res: Response) => {
       phoneNumber,
       channel
     };
-    console.log(phoneNumber, 'Del');
     const startsWith = ['3', '4', '5'];
     const isMatchingCondition = startsWith.includes(phoneNumber.charAt(3));
 
