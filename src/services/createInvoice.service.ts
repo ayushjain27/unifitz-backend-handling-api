@@ -91,19 +91,6 @@ export class CreateInvoiceService {
         data
       );
 
-      // const notificationData = {
-      //   title: 'Invoice Generated',
-      //   body: `Your invoice has been generated`,
-      //   phoneNumber: customPhoneNumber,
-      //   type: "NEW_VEHICLE",
-      //   role: "USER",
-      //   customerId: reqBody?.storeDetails?.storeId
-      // }
-
-      // let notification = await this.notificationService.createNotification(notificationData)
-
-      // this.createOrUpdateUser(phoneNumber, jobCard);
-      //  "category": "", "fuel": "", "fuelType": "PETROL", "gearType": "MANUAL", "kmsDriven": "2000", "lastInsuanceDate": "2020-10-22T18:30:00.000Z", "lastServiceDate": "2023-11-14T07:03:33.476Z", "manufactureYear": "8/2019", "modelName": "ACCESS 125", "ownerShip": "1", "purpose": "OWNED", "userId": "63aadcd071f7e310475492f1", "vehicleImageList": [], "vehicleNumber": "DL8SCS6791"}
       return newInvoice;
     } catch (error) {
       Logger.error(
@@ -146,8 +133,6 @@ export class CreateInvoiceService {
     Logger.info(
       '<Service>:<CreateInvoiceService>: <Invoice Fetch: Get invoice by invoice id>'
     );
-
-    const uniqueMessageId = uuidv4();
 
     const invoiceCard: ICreateInvoice = await CreateInvoice.findOne({
       _id: new Types.ObjectId(invoiceId)
@@ -1006,19 +991,13 @@ export class CreateInvoiceService {
         '<Service>:<CreateInvoiceService>:<Invoice created successfully>'
       );
       newInvoice = await Invoice.create(newInvoice);
-      // const { phoneNumber } = jobCard?.customerDetails[0];
-      // const customPhoneNumber = `+91${phoneNumber}`;
-      // const data = {
-      //   title: 'Invoice Generated',
-      //   body: 'Your invoice has been generated',
-      //   phoneNumber: customPhoneNumber,
-      //   role: 'USER',
-      //   type: 'INVOICE'
-      // };
-      // const sqsMessage = await this.sqsService.createMessage(
-      //   SQSEvent.NOTIFICATION,
-      //   data
-      // );
+      console.log(newInvoice,"newInvoice");
+      if(payload?.customerDetails?.email){
+        const sqsMessage = await this.sqsService.createMessage(
+          SQSEvent.NEW_INVOICE,
+          newInvoice
+        );
+      }
       return newInvoice;
     } catch (error) {
       Logger.error(
