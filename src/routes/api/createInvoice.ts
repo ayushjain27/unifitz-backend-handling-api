@@ -85,7 +85,7 @@ router.post(
 
 router.get(
   '/getNewInvoicesByInvoiceId',
-  roleAuth(ACL.STORE_CREATE),
+  roleAuth(ACL.STORE_GET_ALL),
   createInvoiceController.getNewInvoicesByInvoiceId
 );
 
