@@ -838,11 +838,28 @@ export class CustomerService {
       '<Service>:<CustomerService>:<Get all active rewards list initiated>'
     );
 
-    const result = await Rewards.find({
-      status: 'ACTIVE'
-    })
-      .sort({ eligibleUsers: 1 })
-      .exec();
+    const result = await Rewards.aggregate([
+      { 
+        $match: { 
+          status: 'ACTIVE' 
+        } 
+      },
+      {
+        $lookup: {
+          from: 'admin_users',
+          localField: 'selectedUserName',
+          foreignField: 'userName',
+          as: 'adminDetails'
+        }
+      },
+      { $unwind: { path: '$adminDetails', preserveNullAndEmptyArrays: true } },
+      {
+        $sort: {
+          eligibleUsers: 1
+        }
+      }
+    ]);
+    
     return result;
   }
 

@@ -171,7 +171,7 @@ export class JobCardController {
 
   filterJobCards = async (req: Request, res: Response) => {
     const phoneNumber = req.query.phoneNumber;
-    const modelName = req.query.modelName;
+    const vehicleNumber = req.query.vehicleNumber;
     const year = req.query.year;
 
     if (!phoneNumber) {
@@ -186,7 +186,7 @@ export class JobCardController {
     try {
       const result = await this.jobCardService.filterJobCards(
         phoneNumber as string,
-        modelName as string,
+        vehicleNumber as string,
         year as string
       );
       res.send({

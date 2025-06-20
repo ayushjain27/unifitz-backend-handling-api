@@ -203,21 +203,31 @@ export class JobCardService {
 
   async filterJobCards(
     phoneNumber: string,
-    modelName: string,
+    vehicleNumber: string,
     year: string
-  ): Promise<IJobCard[]> {
+  ): Promise<any> {
     Logger.info(
       '<Service>:<JobCardService>: <Store Job Card Fetch: getting all the store job cards by store id>'
     );
     let query: any = {};
+    let matchQuery: any = {
+      phoneNumber: `+91${phoneNumber.slice(-10)}`,
+    };
     query = {
-      'customerDetails.phoneNumber': phoneNumber,
+      'customerDetails.phoneNumber': `+91${phoneNumber.slice(-10)}`,
       isInvoice: true,
-      'customerDetails.storeCustomerVehicleInfo.modelName': new RegExp(
-        modelName,
+      'customerDetails.storeCustomerVehicleInfo.vehicleNumber': new RegExp(
+        vehicleNumber,
         'i'
       )
     };
+
+    if(vehicleNumber){
+      matchQuery.vehicleNumber = new RegExp(
+        vehicleNumber,
+        'i'
+      )
+    }
 
     if (!_.isEmpty(year)) {
       const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);
@@ -228,20 +238,18 @@ export class JobCardService {
         $gte: yearStart,
         $lte: yearEnd
       };
+      matchQuery.createdAt = {
+        $gte: yearStart,
+        $lte: yearEnd
+      };
     }
 
     if (!phoneNumber) {
       delete query['customerDetails.phoneNumber'];
     }
-    if (!modelName) {
-      delete query['customerDetails.storeCustomerVehicleInfo.modelName'];
-    }
     Logger.debug(query);
 
-    // Aggregate pipeline to calculate total amount
-
-    // const storeJobCard: IJobCard[] = await JobCard.find(query);
-    const storeJobCard: IJobCard[] = await JobCard.aggregate([
+    const storeJobCard: any = await JobCard.aggregate([
       {
         $match: query
       },
@@ -267,10 +275,18 @@ export class JobCardService {
         }
       }
     ]);
+    const invoice = await Invoice.find(matchQuery);
+
+    console.log(storeJobCard,"storeJobCard")
+    console.log(invoice,"invoice")
+    const combinedResult = [...storeJobCard, ...invoice].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
     Logger.info(
       '<Service>:<JobCardService>:<Store Job Cards fetched successfully>'
     );
-    return storeJobCard;
+    return combinedResult;
   }
 
   async countAllJobCard(
@@ -522,21 +538,18 @@ export class JobCardService {
 
     if (Object.keys(dateFilter).length) {
       query.createdAt = dateFilter;
-    };
+    }
 
     if (role === AdminRole.OEM) {
       query['storeDetail.oemUserName'] = userName;
-    };
+    }
 
     if (role === AdminRole.EMPLOYEE) {
       if (oemId !== 'SERVICEPLUG') {
         query['storeDetail.oemUserName'] = oemId;
       }
       const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          oemId
-        );
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
       if (employeeDetails) {
         query['storeDetail.contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -547,15 +560,15 @@ export class JobCardService {
           };
         }
       }
-    };
+    }
 
     if (state) {
       query['storeDetail.contactInfo.state'] = state;
-    };
+    }
 
     if (city) {
       query['storeDetail.contactInfo.city'] = city;
-    };
+    }
 
     if (searchText) {
       query.$or = [
@@ -570,7 +583,7 @@ export class JobCardService {
           )
         }
       ];
-    };
+    }
 
     let jobCards: any = await JobCard.aggregate([
       {
