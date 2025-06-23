@@ -17,6 +17,7 @@ import { AdminRole } from '../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
 import Invoice, { IInvoice } from '../models/Invoice';
 import { AnyNsRecord } from 'dns';
+import { query } from 'express';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -815,9 +816,11 @@ export class CreateInvoiceService {
       const result = await CreateInvoice.aggregate(pipeline);
       const newInvoiceResult = await Invoice.aggregate(pipeline);
 
+      const resultAmount = result[0]?.totalAmount || 0;
+      const newInvoiceAmount = newInvoiceResult[0]?.totalAmount || 0;
+      
       return {
-        totalAmount:
-          result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount || 0
+        totalAmount: resultAmount + newInvoiceAmount
       };
     } catch (error: any) {
       Logger.error(
@@ -866,9 +869,11 @@ export class CreateInvoiceService {
       const result = await CreateInvoice.aggregate(pipeline);
       const newInvoiceResult = await Invoice.aggregate(pipeline);
 
+      const resultAmount = result[0]?.totalAmount || 0;
+      const newInvoiceAmount = newInvoiceResult[0]?.totalAmount || 0;
+
       return {
-        totalAmount:
-          result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount || 0
+        totalAmount: resultAmount + newInvoiceAmount
       };
     } catch (error: any) {
       Logger.error(
@@ -903,6 +908,8 @@ export class CreateInvoiceService {
         matchQuery.createdAt = dateFilter;
       }
 
+      console.log(matchQuery, 'matchQuery');
+
       const pipeline = [
         { $match: matchQuery },
         {
@@ -917,9 +924,11 @@ export class CreateInvoiceService {
       const result = await CreateInvoice.aggregate(pipeline);
       const newInvoiceResult = await Invoice.aggregate(pipeline);
 
+      const resultAmount = result[0]?.totalAmount || 0;
+      const newInvoiceAmount = newInvoiceResult[0]?.totalAmount || 0;
+
       return {
-        totalAmount:
-          result[0]?.totalAmount + newInvoiceResult[0]?.totalAmount || 0
+        totalAmount: resultAmount + newInvoiceAmount
       };
     } catch (error: any) {
       Logger.error(
@@ -991,8 +1000,8 @@ export class CreateInvoiceService {
         '<Service>:<CreateInvoiceService>:<Invoice created successfully>'
       );
       newInvoice = await Invoice.create(newInvoice);
-      console.log(newInvoice,"newInvoice");
-      if(payload?.customerDetails?.email){
+      console.log(newInvoice, 'newInvoice');
+      if (payload?.customerDetails?.email) {
         const sqsMessage = await this.sqsService.createMessage(
           SQSEvent.NEW_INVOICE,
           newInvoice

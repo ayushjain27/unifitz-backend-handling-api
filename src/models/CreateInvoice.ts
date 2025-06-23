@@ -10,25 +10,27 @@ export interface IAdditionalItems {
   value: number;
 }
 export interface ICreateInvoice {
-    storeId: string;
-    invoiceNumber: string;
-    jobCardId: string;
-    additionalItems: IAdditionalItems[];
-    totalAmount: number;
+  storeId: string;
+  invoiceNumber: string;
+  jobCardId: string;
+  additionalItems: IAdditionalItems[];
+  totalAmount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const createInvoiceSchema: Schema = new Schema(
   {
     storeId: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     jobCardId: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     invoiceNumber: {
-        type: String
+      type: String
     },
     additionalItems: {
       type: [
@@ -47,6 +49,9 @@ export const createInvoiceSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const CreateInvoice = model<ICreateInvoice>('createInvoice', createInvoiceSchema);
+const CreateInvoice = model<ICreateInvoice>(
+  'createInvoice',
+  createInvoiceSchema
+);
 
 export default CreateInvoice;

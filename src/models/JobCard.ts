@@ -35,6 +35,8 @@ export interface IJobCard {
   isInvoice: boolean;
   invoiceId: string;
   customerDetails?: IStoreCustomer[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const jobCardSchema: Schema = new Schema(
@@ -76,7 +78,7 @@ export const jobCardSchema: Schema = new Schema(
       default: JobStatus.CREATED,
       required: true
     },
-    customerDetails: [storeCustomerSchema],
+    customerDetails: [storeCustomerSchema]
   },
   { timestamps: true }
 );
