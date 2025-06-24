@@ -29,6 +29,8 @@ export interface IInvoice {
   lineItems: ILineItem[];
   additionalItems: IAdditionalItems[];
   totalAmount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const invoiceSchema: Schema = new Schema(
