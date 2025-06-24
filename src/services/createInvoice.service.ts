@@ -8,16 +8,13 @@ import Logger from '../config/winston';
 import JobCard, { IJobCard } from './../models/JobCard';
 import { S3Service } from './s3.service';
 import _, { isEmpty } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import CreateInvoice, { ICreateInvoice } from './../models/CreateInvoice';
 import { SurepassService } from './surepass.service';
 import { SQSService } from './sqs.service';
 import { SQSEvent } from '../enum/sqsEvent.enum';
 import { AdminRole } from '../models/Admin';
 import { SPEmployeeService } from './spEmployee.service';
-import Invoice, { IInvoice } from '../models/Invoice';
-import { AnyNsRecord } from 'dns';
-import { query } from 'express';
+import Invoice from '../models/Invoice';
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();

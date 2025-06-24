@@ -1,5 +1,4 @@
 import express from 'express';
-import puppeteer from 'puppeteer';
 import helmet from 'helmet';
 import cors from 'cors';
 import _, { isEmpty } from 'lodash';
@@ -197,9 +196,7 @@ app.get('/category', async (req, res) => {
         };
       }
     );
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 app.get('/productCategory', async (req: any, res: any) => {
   const catalogType = 'productCategory';
@@ -236,9 +233,7 @@ app.get('/productCategory', async (req: any, res: any) => {
         };
       }
     );
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 app.post('/productBrand', async (req, res) => {
   const { subCategoryList, category } = req.body;
@@ -263,9 +258,7 @@ app.post('/productBrand', async (req, res) => {
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 
 // TODO: Remove this API once app is launced to new v2
@@ -279,9 +272,7 @@ app.get('/subCategory', async (req, res) => {
   const result = categoryList.map(({ _id, catalogName }) => {
     return { _id, catalogName };
   });
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 
 app.post('/subCategory', async (req, res) => {
@@ -312,9 +303,7 @@ app.post('/subCategory', async (req, res) => {
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 
 const razorpay = new Razorpay({
@@ -342,9 +331,7 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
     if (userType === 'CUSTOMER') {
       let customerId = req.body.payload.payment.entity.notes?.customer_id;
       console.log(customerId, 'fmrkmfk');
-      let customer = await Customer.findOne({
-        customerId: customerId
-      });
+      let customer = await Customer.findOne({ customerId: customerId });
       console.log(customer, 'customer');
       let customerDetails = await Customer.findOneAndUpdate(
         { customerId: customerId },
@@ -366,9 +353,7 @@ app.post('/api/webhooks/razorpay', async (req: any, res: any) => {
     } else {
       let storeId = req.body.payload.payment.entity.notes?.storeId;
       let note = req.body.payload.payment.entity.notes;
-      let partner = await Store.findOne({
-        storeId: storeId
-      });
+      let partner = await Store.findOne({ storeId: storeId });
       console.log(note, 'D;lemlkfm');
       console.log(partner, 'partner');
 
@@ -508,9 +493,7 @@ app.post('/productSubCategory', async (req, res) => {
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 
 // TODO: Remove this api once app is launched to  production
@@ -521,9 +504,7 @@ app.get('/brand', async (req, res) => {
   // const result = categoryList.map(({ _id, catalogName }) => {
   //   return { _id, catalogName };
   // });
-  res.json({
-    list: categoryList
-  });
+  res.json({ list: categoryList });
 });
 
 app.post('/brandLists', async (req, res) => {
@@ -548,23 +529,11 @@ app.post('/brandLists', async (req, res) => {
     });
 
     const categoryList = await Catalog.aggregate([
-      {
-        $match: {
-          tree: { $in: treePaths }
-        }
-      },
-      {
-        $project: {
-          _id: 1,
-          catalogName: 1,
-          catalogType: 1
-        }
-      }
+      { $match: { tree: { $in: treePaths } } },
+      { $project: { _id: 1, catalogName: 1, catalogType: 1 } }
     ]);
 
-    res.json({
-      list: categoryList
-    });
+    res.json({ list: categoryList });
   } catch (err) {
     // console.error('Error fetching categories:', err);
     res.status(500).json({ error: 'Server error' });
@@ -594,9 +563,7 @@ app.post('/brand', async (req, res) => {
   result = _.uniqBy(result, (e: ICatalog) => {
     return e.catalogName;
   });
-  res.json({
-    list: result
-  });
+  res.json({ list: result });
 });
 
 app.get('/stateCityList', async (req, res) => {
@@ -793,12 +760,7 @@ async function updateSlugs() {
             month: '$_id.month',
             year: '$_id.year'
           },
-          eventsArray: {
-            $push: {
-              k: '$_id.event',
-              v: '$count'
-            }
-          },
+          eventsArray: { $push: { k: '$_id.event', v: '$count' } },
           totalEvents: { $sum: '$count' }
         }
       },
@@ -815,16 +777,9 @@ async function updateSlugs() {
 
     const bulkOps = monthlyAgg.map((doc) => ({
       updateOne: {
-        filter: {
-          storeId: doc.storeId,
-          month: doc.month,
-          year: doc.year
-        },
+        filter: { storeId: doc.storeId, month: doc.month, year: doc.year },
         update: {
-          $set: {
-            events: doc.events,
-            totalEvents: doc.totalEvents
-          },
+          $set: { events: doc.events, totalEvents: doc.totalEvents },
           $setOnInsert: {
             storeId: doc.storeId,
             month: doc.month,
@@ -1124,17 +1079,20 @@ app.get('/generate-pdfs', async (req, res) => {
       doc.moveDown();
       doc.fontSize(16);
       doc.moveUp(2);
-      doc.fontSize(24).text(title.toUpperCase(), 390, doc.y - 3, {
-        width: 200
-      });
+      doc
+        .fontSize(24)
+        .text(title.toUpperCase(), 390, doc.y - 3, { width: 200 });
       doc
         .fontSize(12)
-        .text(`${title} No: ${title === 'invoice' ? invoiceCard?.invoiceNumber : jobCard?.jobCardNumber}`, 390, doc.y, {
-          width: 150
-        });
-      doc.fontSize(12).text(`${title} Date: ${invoiceDate}`, 390, doc.y, {
-        width: 150
-      });
+        .text(
+          `${title} No: ${title === 'invoice' ? invoiceCard?.invoiceNumber : jobCard?.jobCardNumber}`,
+          390,
+          doc.y,
+          { width: 150 }
+        );
+      doc
+        .fontSize(12)
+        .text(`${title} Date: ${invoiceDate}`, 390, doc.y, { width: 150 });
       doc
         .moveTo(35, doc.y)
         .lineTo(580, doc.y)
@@ -1225,10 +1183,7 @@ app.get('/generate-pdfs', async (req, res) => {
       width: 180,
       align: 'left'
     });
-    doc.text(store?.storeId, 40, doc.y + 5, {
-      width: 300,
-      align: 'left'
-    });
+    doc.text(store?.storeId, 40, doc.y + 5, { width: 300, align: 'left' });
 
     // Customer information
     doc
@@ -1284,7 +1239,7 @@ app.get('/generate-pdfs', async (req, res) => {
     let rowHeight = 30; // Fixed row height
     let y = doc.y;
 
-    if (jobCard?.lineItems) {
+    if (!isEmpty(jobCard?.lineItems)) {
       for (const values of jobCard.lineItems) {
         const { item, quantity, rate } = values;
 
@@ -1330,104 +1285,155 @@ app.get('/generate-pdfs', async (req, res) => {
         doc.y = y;
       }
     }
+    if (!isEmpty(invoiceCard?.additionalItems)) {
+      doc.font('Helvetica-Bold');
+      doc.text(`Sub Total:`, 400, y, { width: 200, align: 'left' });
+      doc.text(`Rs ${totalAmount?.toFixed(2)}`, 500, y, {
+        width: 200,
+        align: 'left'
+      });
+      doc
+        .moveTo(300, doc.y + 10)
+        .lineTo(580, doc.y + 10)
+        .lineWidth(0.5) // Thinner line
+        .stroke();
+    }
 
     // Calculate totals
     let totalBill = totalAmount;
 
     // Additional items (discounts/taxes)
-    if (invoiceCard?.additionalItems) {
-      for (const values of invoiceCard.additionalItems) {
-        const { title, operation, format, value } = values;
+    if (!isEmpty(invoiceCard?.additionalItems)) {
+      // Add some space before additional items
+      y += 40;
 
+      for (const values of invoiceCard.additionalItems) {
         if (y + rowHeight > doc.page.height - 50) {
           addFooter();
           doc.addPage();
           addHeader();
-          doc.moveDown();
-          y = 100; // Reset Y position after new page
+          y = 150;
         }
+
+        const { title, operation, format, value } = values;
         doc.font('Helvetica');
+
+        // Left-align the title in the "NAME" column
+        doc.text(title + ':', 400, y, { width: 200 });
+
+        // Calculate and display the adjustment in TOTAL column
+        let adjustmentText = '';
+        let adjustmentValue = 0;
+
         if (operation === 'discount') {
           if (format === 'percentage') {
-            doc.text(
-              `${title}:`,
-              300,
-              y + 10,
-              { width: 100, align: 'left' }
-            );
-            doc.text(
-              `- Rs ${value}%`,
-              400,
-              y + 10,
-              { width: 100, align: 'left' }
-            );
-            totalBill -= (totalBill * value) / 100;
+            adjustmentValue = (totalBill * value) / 100;
+            adjustmentText = `- ${value}%`;
           } else {
-            doc.text(
-              `${title}:                     - Rs ${value}`,
-              350,
-              y + 10,
-              { width: 200, align: 'left' }
-            );
-            totalBill -= value;
+            adjustmentValue = value;
+            adjustmentText = `- Rs ${value.toFixed(2)}`;
           }
+          totalBill -= adjustmentValue;
         } else {
           if (format === 'percentage') {
-            doc.text(`${title}:                     +  ${value}%`, 370, y + 10, {
-              width: '100%',
-              align: 'left'
-            });
-            totalBill += (totalBill * value) / 100;
+            adjustmentValue = (totalBill * value) / 100;
+            adjustmentText = `+ ${value}%`;
           } else {
-            doc.text(`${title}:                     +${value}`, 370, y + 10, {
-              width: '100%',
-              align: 'left'
-            });
-            totalBill += value;
+            adjustmentValue = value;
+            adjustmentText = `+ Rs ${value.toFixed(2)}`;
           }
+          totalBill += adjustmentValue;
         }
+
+        doc.text(adjustmentText, 480, y, { width: 100, align: 'right' });
+
         doc
-          .moveTo(35, doc.y + 5)
-          .lineTo(580, doc.y + 5)
-          .lineWidth(0.5) // Thinner line
+          .moveTo(35, y + 15)
+          .lineTo(580, y + 15)
+          .lineWidth(0.5)
           .stroke();
-        y += 20;
+        y += rowHeight;
       }
     }
 
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
+
     doc.font('Helvetica-Bold');
-    doc.text(`Total:                     Rs ${totalBill?.toFixed(2)}`, 380, y, {
+    doc.text(`Total:`, 400, y, { width: 200, align: 'left' });
+    doc.text(`Rs ${totalBill?.toFixed(2)}`, 500, y, {
       width: 200,
-      align: 'right'
+      align: 'left'
     });
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
     doc
-      .moveTo(400, doc.y + 10)
+      .moveTo(300, doc.y + 10)
       .lineTo(580, doc.y + 10)
       .lineWidth(0.5) // Thinner line
       .stroke();
     y += 30;
 
-    doc.font('Helvetica-Bold');
-    doc.fontSize(24).text('Thank You!', 350, y + 120, {
-      width: 200,
-      align: 'right'
-    });
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
 
+    doc.font('Helvetica-Bold');
+    doc
+      .fontSize(24)
+      .text('Thank You!', 350, y + 120, { width: 200, align: 'right' });
+
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
     doc
       .moveTo(35, y + 120)
       .lineTo(300, y + 120)
       .lineWidth(0.5) // Thinner line
       .stroke();
-    doc.font('Helvetica-Bold')
-    doc.fontSize(16).text(store?.basicInfo?.ownerName, 0, y + 130, {
-      width: 150,
-      align: 'right'
-    });
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
+    doc.font('Helvetica-Bold');
+    doc
+      .fontSize(16)
+      .text(store?.basicInfo?.ownerName, 0, y + 130, {
+        width: 150,
+        align: 'right'
+      });
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
 
-    doc.fontSize(12).text('Declaration :', 40, y + 40, {
-      width: 500,
-      align: 'left'
-    });
+    doc
+      .fontSize(12)
+      .text('Declaration :', 40, y + 40, { width: 500, align: 'left' });
+    if (y + rowHeight > doc.page.height - 50) {
+      addFooter();
+      doc.addPage();
+      addHeader();
+      y = 150;
+    }
     doc.font('Helvetica');
     doc
       .fontSize(12)
@@ -1580,11 +1586,7 @@ cron.schedule('0 0 * * *', async () => {
               $type: 'date' // Check if `activeDate` is a date type
             }
           },
-          {
-            createdAt: {
-              $lt: cutoffDate
-            }
-          },
+          { createdAt: { $lt: cutoffDate } },
           {
             activeDate: {
               $exists: false // Check if `activeDate` is missing
