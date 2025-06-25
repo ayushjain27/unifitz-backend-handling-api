@@ -571,6 +571,32 @@ app.get('/stateCityList', async (req, res) => {
   res.json(stateCityList);
 });
 
+app.get('/companyType', async (req, res) => {
+  const companyNameSalOpts = [
+    {
+      "label": "Manufacturer",
+      "value": "Manufacturer"
+    },
+    {
+      "label": "Importer",
+      "value": "Importer"
+    },
+    {
+      "label": "Distributor",
+      "value": "Distributor"
+    },
+    {
+      "label": "Dealer",
+      "value": "Dealer"
+    },
+    {
+      "label": "Media / institutions",
+      "value": "Media / institutions"
+    }
+  ]
+  res.json({ companyNameSalOpts: companyNameSalOpts});
+});
+
 app.get('/cityPincodeList', async (req, res) => {
   const jsonData: any = cityPincodeList;
 
