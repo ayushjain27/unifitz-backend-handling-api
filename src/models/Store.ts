@@ -278,6 +278,7 @@ export interface IStore {
   _id?: Types.ObjectId;
   userId: Types.ObjectId;
   oemUserName?: string;
+  employeeId?: string;
   storeId: string; // 6 digit unique value
   profileStatus: string;
   rejectionReason: string;
@@ -311,6 +312,9 @@ const storeSchema: Schema = new Schema<IStore>(
       unique: true
     },
     oemUserName: {
+      type: String
+    },
+    employeeId: {
       type: String
     },
     videoUrl: {

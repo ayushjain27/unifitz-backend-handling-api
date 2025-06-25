@@ -13,6 +13,7 @@ export interface OrderStatusRequest {
   distributorId: string;
   orderId: string;
   cartId: string;
+  productId: string;
   status: string;
   cancelReason: string;
   courierCompanyName?: string;

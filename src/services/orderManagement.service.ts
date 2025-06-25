@@ -28,6 +28,8 @@ import { StaticIds } from '../models/StaticId';
 import { SparePost } from '../models/SparePostRequirement';
 import { SparePostStatus } from '../models/SparePostStatus';
 import { NotificationService } from './notification.service';
+import DeliveryOrderModel from './../models/DeliveryOrder';
+import DeliveryPartners from './../models/DeliveryPartners';
 
 @injectable()
 export class OrderManagementService {
@@ -369,7 +371,7 @@ export class OrderManagementService {
     return orderResponse;
   }
 
-  async updateCartStatus(requestBody: OrderStatusRequest): Promise<any> {
+  async updateCartStatus(requestBody: OrderStatusRequest, userName: string): Promise<any> {
     Logger.info(
       '<Service>:<OrderManagementService>: <Order Request Cart Status initiated>'
     );
@@ -380,7 +382,11 @@ export class OrderManagementService {
 
     if (isEmpty(distributorOrder)) {
       throw new Error('Order not found');
-    }
+    };
+
+    const deliveryPartnerDetail = await DeliveryPartners.findOne({
+      partnerId: requestBody.deliveryPartner
+    });
 
     const updateFields: any = {
       'items.$[item].status': requestBody.status, // Update the status
@@ -389,6 +395,7 @@ export class OrderManagementService {
       'items.$[item].trackingNumber': requestBody?.trackingNumber,
       'items.$[item].deliveryPartner': requestBody?.deliveryPartner,
       'items.$[item].deliveryType': requestBody?.deliveryType,
+      'items.$[item].deliveryPhoneNumber': deliveryPartnerDetail?.phoneNumber?.primary,
       'items.$[item].selectedVehicleType': requestBody?.selectedVehicleType,
       'items.$[item].trackingLink': requestBody?.trackingLink
     };
@@ -427,6 +434,18 @@ export class OrderManagementService {
     const order = await UserOrder.findOne({
       _id: new Types.ObjectId(requestBody.orderId)
     });
+
+    if(requestBody?.deliveryType === 'OWN_DELIVERY'){
+      const data = {
+        deliveryId: requestBody.deliveryPartner,
+        deliveryPhoneNumber: deliveryPartnerDetail.phoneNumber.primary,
+        userName: requestBody?.employeeStatus?.oemUserName ? requestBody?.employeeStatus?.oemUserName : userName,
+        address: order?.shippingAddress,
+        orderId: distributorOrder?.distributorOrderId,
+        productId: requestBody?.productId
+      }
+      const newDeliveryPartnerData = await DeliveryOrderModel.create(data);
+    }
 
     if (isEmpty(order)) {
       throw new Error('Order not found');

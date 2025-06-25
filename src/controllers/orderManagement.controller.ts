@@ -102,6 +102,7 @@ export class OrderManagementController {
         distributorId: req.body.distributorId,
         orderId: req.body.orderId,
         cartId: req.body?.cartId,
+        productId: req.body?.productId,
         cancelReason: req.body?.cancelReason,
         courierCompanyName: req.body?.courierCompanyName,
         trackingNumber: req.body?.trackingNumber,
@@ -112,8 +113,10 @@ export class OrderManagementController {
         status: req.body.status,
         employeeStatus: req.body.employeeStatus
       };
+      const userName = req?.userId;
       const result = await this.orderManagementService.updateCartStatus(
-        reqBody
+        reqBody,
+        userName
       );
       res.send({
         message: 'Create Order Request Successful',

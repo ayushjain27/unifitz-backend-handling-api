@@ -32,6 +32,7 @@ export interface ICartInfo {
   trackingLink?: string;
   deliveryPartner?: string;
   deliveryType?: string;
+  deliveryPhoneNumber?: string;
   selectedVehicleType?: string;
   employeeStatus?: IEmployeeStatus[];
 }
@@ -79,6 +80,9 @@ export const cartSchema: Schema = new Schema(
       type: String
     },
     deliveryType: {
+      type: String
+    },
+    deliveryPhoneNumber: {
       type: String
     },
     selectedVehicleType: {

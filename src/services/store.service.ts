@@ -1818,9 +1818,6 @@ export class StoreService {
     if (!userType) {
       delete query['oemUserName'];
     }
-    // if (status === 'PARTNERDRAFT') {
-    //   query.oemUserName = { $exists: true };
-    // }
     if (status === 'DRAFT') {
       query.oemUserName = { $exists: userRoleType };
     }
