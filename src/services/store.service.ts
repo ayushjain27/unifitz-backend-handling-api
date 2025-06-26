@@ -1786,10 +1786,10 @@ export class StoreService {
       query['basicInfo.brand.name'] = brand;
     }
     if(state){
-      query['contactInfo.state.name'] = state;
+      query['contactInfo.state'] = state;
     }
     if(city){
-      query['contactInfo.city.name'] = city;
+      query['contactInfo.city'] = city;
     }
 
     let stores: any = await Store.aggregate([
@@ -1898,10 +1898,10 @@ export class StoreService {
       query['basicInfo.brand.name'] = brand;
     }
     if(state){
-      query['contactInfo.state.name'] = state;
+      query['contactInfo.state'] = state;
     }
     if(city){
-      query['contactInfo.city.name'] = city;
+      query['contactInfo.city'] = city;
     }
 
     const total = await Store.countDocuments({ ...overallStatus, ...query });
