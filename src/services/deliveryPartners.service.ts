@@ -15,12 +15,15 @@ import DeliveryPartners, {
 } from '../models/DeliveryPartners';
 import { generateToken } from '../utils';
 import DeliveryOrderModel from '../models/DeliveryOrder';
-import DistributorOrder from '../models/DistributorOrderManagement';
+import DistributorOrder, { IEmployeeStatus } from '../models/DistributorOrderManagement';
+import ProductCartModel from '../models/ProductCart';
+import { OrderManagementService } from './orderManagement.service';
 
 @injectable()
 export class DeliveryPartnerService {
   private s3Client = container.get<S3Service>(TYPES.S3Service);
   private sqsService = container.get<SQSService>(TYPES.SQSService);
+  private orderManagementService = container.get<OrderManagementService>(TYPES.OrderManagementService);
 
   async create(deliveryPatnerPayload: IDeliveryPartners): Promise<any> {
     Logger.info(
@@ -258,7 +261,7 @@ export class DeliveryPartnerService {
   async getAllDeliveryOrders(
     deliveryId?: string,
   ): Promise<any> {
-    Logger.info('<Service>:<OrderManagementService>:<Get all delivery orders initiated>');
+    Logger.info('<Service>:<DeliveryPartnerService>:<Get all delivery orders initiated>');
 
     console.log(deliveryId,"Sdlemkd")
 
@@ -290,33 +293,60 @@ export class DeliveryPartnerService {
     ]);
 
     Logger.info(
-      '<Service>:<OrderManagementService>:<get SparePost successful>'
+      '<Service>:<DeliveryPartnerService>:<get SparePost successful>'
     );
 
     return result;
   }
 
-  // async postDeliveryDone(
-  //   requestPayload?: any,
-  // ): Promise<any> {
-  //   Logger.info('<Service>:<OrderManagementService>:<Post Delivery Done initiated>');
+  async postDeliveryDone(
+    requestPayload?: any,
+  ): Promise<any> {
+    Logger.info('<Service>:<DeliveryPartnerService>:<Post Delivery Done initiated>');
 
-  //   const { items } = requestPayload;
+    const { items } = requestPayload;
 
-  //   const result = await items.map(async(item: any)=>{
-  //     const checkOrderId = await DistributorOrder.findOne({
-  //       distributorOrderId: item?.orderId
-  //     });
-  //     console.log(checkOrderId,"checkOrderId")
-  //     if(!checkOrderId){
-  //       throw new Error('This order not exists');
-  //     }
-  //   })
+    const result = await items.map(async(item: any)=>{
+      const checkOrderId = await DistributorOrder.findOne({
+        distributorOrderId: item?.orderId
+      });
+      if(!checkOrderId){
+        throw new Error('This order not exists');
+      }
+      const checkProducts = await ProductCartModel.findOne({
+        productOrderId: item?.productId
+      })
+      if(!checkProducts){
+        throw new Error('This product not exists');
+      };
+      const data = checkOrderId.items.filter((orderItem) => 
+        orderItem?.productId?.toString() === checkProducts.productId?.toString()
+      );
+      const userName = `${item?.deliveryId?.slice(0, 6)}`;
+      const updateStatusData = {
+        distributorId: checkOrderId?._id?.toString(),
+        orderId: checkOrderId?.customerOrderId?.toString(),
+        cartId: data[0]?.cartId?.toString(),
+        productId: item?.productId,
+        cancelReason: '',
+        courierCompanyName: data[0]?.courierCompanyName || '',
+        trackingNumber: data[0]?.trackingNumber || '',
+        trackingLink: data[0]?.trackingLink || '',
+        deliveryPartner: data[0]?.deliveryPartner || '',
+        deliveryType: data[0]?.deliveryType || '',
+        selectedVehicleType: data[0]?.selectedVehicleType || '',
+        status: 'DELIVERED',
+        employeeStatus: data[0]?.employeeStatus ?  data[0]?.employeeStatus : {}
+      };
+      const updateOrder = this.orderManagementService.updateCartStatus(updateStatusData, userName)
+    })
 
-  //   Logger.info(
-  //     '<Service>:<OrderManagementService>:<get SparePost successful>'
-  //   );
+    Logger.info(
+      '<Service>:<DeliveryPartnerService>:<get SparePost successful>'
+    );
 
-  //   return result;
-  // }
+    return {
+      message: 'Delivered'
+    };
+  }
 }

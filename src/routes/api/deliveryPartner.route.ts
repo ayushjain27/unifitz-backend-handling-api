@@ -64,10 +64,10 @@ router.get(
   deliveryPartnerController.getAllDeliveryOrders
 );
 
-// router.post(
-//   '/postDeliveryDone',
-//   roleAuth(ACL.STORE_GET_ALL),
-//   deliveryPartnerController.postDeliveryDone
-// );
+router.post(
+  '/postDeliveryDone',
+  roleAuth(ACL.STORE_GET_ALL),
+  deliveryPartnerController.postDeliveryDone
+);
 
 export default router;

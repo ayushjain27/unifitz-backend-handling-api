@@ -207,21 +207,21 @@ export class DeliveryPartnerController {
     }
   };
 
-  // postDeliveryDone = async (req: Request, res: Response) => {
-  //   Logger.info('<Controller>:<DeliveryPartnerController>:<Post Delivery Done>');
-  //   try {
-  //     const request = req.body;
-  //     const result =
-  //       await this.deliveryPartnerService.postDeliveryDone(
-  //         request
-  //       );
-  //     res.send({
-  //       message: 'Details obtained successfully',
-  //       result
-  //     });
-  //   } catch (err) {
-  //     Logger.error(err.message);
-  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-  //   }
-  // };
+  postDeliveryDone = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<DeliveryPartnerController>:<Post Delivery Done>');
+    try {
+      const request = req.body;
+      const result =
+        await this.deliveryPartnerService.postDeliveryDone(
+          request
+        );
+      res.send({
+        message: 'Details obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
 }

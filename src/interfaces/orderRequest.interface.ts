@@ -22,5 +22,5 @@ export interface OrderStatusRequest {
   deliveryType?: string;
   trackingLink?: string;
   selectedVehicleType?: string;
-  employeeStatus: IEmployeeStatus;
+  employeeStatus: any;
 }
