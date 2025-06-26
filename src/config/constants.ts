@@ -46,6 +46,7 @@ export const surepassConfig: SurepassConfig = {
 export const testUsers = [
   { phoneNo: '7777777777', role: UserRole.STORE_OWNER, otp: '7777' },
   { phoneNo: '9999999999', role: UserRole.USER, otp: '9999' },
+  { phoneNo: '9945300700', role: UserRole.STORE_OWNER, otp: '1234' },
   { phoneNo: '3344553455', role: UserRole.STORE_OWNER, otp: '654321' },
   { phoneNo: '3344553455', role: UserRole.USER, otp: '654321' }
 ];

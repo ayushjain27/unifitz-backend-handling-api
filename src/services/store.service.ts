@@ -1704,7 +1704,12 @@ export class StoreService {
     pageNo?: number,
     pageSize?: number,
     employeeId?: string,
-    searchQuery?: string
+    searchQuery?: string,
+    category?: string,
+    subCategory?: string,
+    brand?: string,
+    state?: string,
+    city?: string
   ): Promise<StoreResponse[]> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -1771,6 +1776,22 @@ export class StoreService {
       }
     };
 
+    if(category){
+      query['basicInfo.category.name'] = category;
+    }
+    if(subCategory){
+      query['basicInfo.subCategory.name'] = subCategory;
+    }
+    if(brand){
+      query['basicInfo.brand.name'] = brand;
+    }
+    if(state){
+      query['contactInfo.state.name'] = state;
+    }
+    if(city){
+      query['contactInfo.city.name'] = city;
+    }
+
     let stores: any = await Store.aggregate([
       {
         $match: query
@@ -1795,7 +1816,12 @@ export class StoreService {
     userType?: string,
     status?: string,
     verifiedStore?: string,
-    employeeId?: string
+    employeeId?: string,
+    category?: string,
+    subCategory?: string,
+    brand?: string,
+    state?: string,
+    city?: string
   ): Promise<any> {
     Logger.info(
       '<Service>:<StoreService>:<Search and Filter stores service initiated 111111>'
@@ -1860,6 +1886,22 @@ export class StoreService {
           };
         }
       }
+    };
+
+    if(category){
+      query['basicInfo.category.name'] = category;
+    }
+    if(subCategory){
+      query['basicInfo.subCategory.name'] = subCategory;
+    }
+    if(brand){
+      query['basicInfo.brand.name'] = brand;
+    }
+    if(state){
+      query['contactInfo.state.name'] = state;
+    }
+    if(city){
+      query['contactInfo.city.name'] = city;
     }
 
     const total = await Store.countDocuments({ ...overallStatus, ...query });
@@ -2768,7 +2810,7 @@ export class StoreService {
     oemId?: string,
     oemUserId?: string,
     brandName?: string,
-    employeeId?: string,
+    employeeId?: string
   ) {
     Logger.info(
       '<Service>:<StoreService>:<Get Store Onboarded analytics service initiated>'
@@ -2796,10 +2838,7 @@ export class StoreService {
 
     if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
       const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          oemId
-        );
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
       if (employeeDetails) {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)
@@ -2899,10 +2938,7 @@ export class StoreService {
 
     if (role === AdminRole.EMPLOYEE && !isEmpty(employeeId)) {
       const employeeDetails =
-        await this.spEmployeeService.getEmployeeByEmployeeId(
-          employeeId,
-          oemId
-        );
+        await this.spEmployeeService.getEmployeeByEmployeeId(employeeId, oemId);
       if (employeeDetails) {
         query['contactInfo.state'] = {
           $in: employeeDetails.state.map((stateObj) => stateObj.name)

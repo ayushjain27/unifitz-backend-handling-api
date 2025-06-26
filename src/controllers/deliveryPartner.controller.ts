@@ -183,4 +183,45 @@ export class DeliveryPartnerController {
         .json({ message: err.message });
     }
   };
+
+  getAllDeliveryOrders = async (req: Request, res: Response) => {
+    Logger.info('<Controller>:<DeliveryPartnerController>:<Getting all delivery orders>');
+    try {
+      const deliveryId = req.query.deliveryId;
+      if(!deliveryId){
+        res.send({
+          message: 'Delivery Id not found'
+        })
+      }
+      const result =
+        await this.deliveryPartnerService.getAllDeliveryOrders(
+          deliveryId as string
+        );
+      res.send({
+        message: 'Details obtained successfully',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    }
+  };
+
+  // postDeliveryDone = async (req: Request, res: Response) => {
+  //   Logger.info('<Controller>:<DeliveryPartnerController>:<Post Delivery Done>');
+  //   try {
+  //     const request = req.body;
+  //     const result =
+  //       await this.deliveryPartnerService.postDeliveryDone(
+  //         request
+  //       );
+  //     res.send({
+  //       message: 'Details obtained successfully',
+  //       result
+  //     });
+  //   } catch (err) {
+  //     Logger.error(err.message);
+  //     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  //   }
+  // };
 }

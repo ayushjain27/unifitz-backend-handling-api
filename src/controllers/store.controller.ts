@@ -602,7 +602,12 @@ export class StoreController {
       pageSize,
       oemId,
       employeeId,
-      searchQuery
+      searchQuery,
+      category,
+      subCategory,
+      brand,
+      state,
+      city
     } = req.body;
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
@@ -622,7 +627,12 @@ export class StoreController {
           pageNo,
           pageSize,
           employeeId,
-          searchQuery
+          searchQuery,
+          category,
+          subCategory,
+          brand,
+          state,
+          city
         );
       res.send({
         result
@@ -643,6 +653,11 @@ export class StoreController {
     const userType = req?.query?.userType;
     const verifiedStore = req?.query?.verifiedStore;
     const employeeId = req?.query?.employeeId;
+    const category = req?.query?.category;
+    const subCategory = req?.query?.subCategory;
+    const brand = req?.query?.brand;
+    const state = req?.query?.state;
+    const city = req?.query?.city;
 
     Logger.info(
       '<Controller>:<StoreController>:<Search and Filter Stores pagination request controller initiated>'
@@ -659,7 +674,12 @@ export class StoreController {
           userType as string,
           status as string,
           verifiedStore as string,
-          employeeId as string
+          employeeId as string,
+          category as string,
+          subCategory as string,
+          brand as string,
+          state as string,
+          city as string,
         );
       res.send({
         result

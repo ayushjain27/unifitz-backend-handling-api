@@ -58,19 +58,16 @@ router.post(
   deliveryPartnerController.login
 );
 
-// router.get(
-//   '/',
-//   // roleAuth(ACL.STORE_GET_SINGLE),
-//   spEmployeeController.getEmployeeByEmployeeId
+router.get(
+  '/getAllDeliveryOrders',
+  roleAuth(ACL.STORE_GET_ALL),
+  deliveryPartnerController.getAllDeliveryOrders
+);
+
+// router.post(
+//   '/postDeliveryDone',
+//   roleAuth(ACL.STORE_GET_ALL),
+//   deliveryPartnerController.postDeliveryDone
 // );
-
-// router.put('/', spEmployeeController.updateEmployee);
-
-// router.delete('/', spEmployeeController.deleteEmployee);
-
-// router.get('/resetPassword', spEmployeeController.resetPassword);
-
-// router.put('/updatePermission', spEmployeeController.updatePermission);
-// router.put('/updateUserPermission', spEmployeeController.updateUserPermission);
 
 export default router;

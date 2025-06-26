@@ -14,6 +14,8 @@ import DeliveryPartners, {
   IDeliveryPartners
 } from '../models/DeliveryPartners';
 import { generateToken } from '../utils';
+import DeliveryOrderModel from '../models/DeliveryOrder';
+import DistributorOrder from '../models/DistributorOrderManagement';
 
 @injectable()
 export class DeliveryPartnerService {
@@ -251,5 +253,70 @@ export class DeliveryPartnerService {
     };
     const token = await generateToken(payload);
     return { user: deliveryPartnerDetails, token };
+  };
+
+  async getAllDeliveryOrders(
+    deliveryId?: string,
+  ): Promise<any> {
+    Logger.info('<Service>:<OrderManagementService>:<Get all delivery orders initiated>');
+
+    console.log(deliveryId,"Sdlemkd")
+
+    const result = await DeliveryOrderModel.aggregate([
+      {
+        $match: {
+          deliveryId: deliveryId // Filter for pending orders (corrected from "PERUDING")
+        }
+      },
+      {
+        $group: {
+          _id: {
+            status: "$status",
+            address: "$address"
+          },
+          count: { $sum: 1 },
+          orders: { $push: "$$ROOT" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          status: "$_id.status",
+          address: "$_id.address",
+          count: 1,
+          orders: 1
+        }
+      }
+    ]);
+
+    Logger.info(
+      '<Service>:<OrderManagementService>:<get SparePost successful>'
+    );
+
+    return result;
   }
+
+  // async postDeliveryDone(
+  //   requestPayload?: any,
+  // ): Promise<any> {
+  //   Logger.info('<Service>:<OrderManagementService>:<Post Delivery Done initiated>');
+
+  //   const { items } = requestPayload;
+
+  //   const result = await items.map(async(item: any)=>{
+  //     const checkOrderId = await DistributorOrder.findOne({
+  //       distributorOrderId: item?.orderId
+  //     });
+  //     console.log(checkOrderId,"checkOrderId")
+  //     if(!checkOrderId){
+  //       throw new Error('This order not exists');
+  //     }
+  //   })
+
+  //   Logger.info(
+  //     '<Service>:<OrderManagementService>:<get SparePost successful>'
+  //   );
+
+  //   return result;
+  // }
 }

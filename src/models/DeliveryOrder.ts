@@ -2,8 +2,8 @@ import { model, Schema } from 'mongoose';
 
 export enum Status {
   PENDING = 'PENDING',
-  ONGOING = 'ONGOING',
-  COMPLETED = 'COMPLETED'
+  OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY',
+  DELIVERED = 'DELIVERED'
 }
 
 export interface IDeliveryOrder {
