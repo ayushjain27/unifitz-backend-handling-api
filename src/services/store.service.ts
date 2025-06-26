@@ -1728,7 +1728,7 @@ export class StoreService {
       ];
     }
     if (role === AdminRole.ADMIN) {
-      query.oemUserName = { $exists: userRoleType };
+      query.oemUserName = { $exists: userRoleType, $ne: '' };
     }
     if (!userType) {
       delete query['oemUserName'];
@@ -1839,7 +1839,7 @@ export class StoreService {
       // profileStatus: status === 'PARTNERDRAFT' ? 'DRAFT' : status
     };
     if (role === AdminRole.ADMIN) {
-      query.oemUserName = { $exists: userRoleType };
+      query.oemUserName = { $exists: userRoleType,  $ne: '' };
     }
     if (!userType) {
       delete query['oemUserName'];
