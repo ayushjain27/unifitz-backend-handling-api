@@ -21,4 +21,29 @@ router.post(
   deleteAccountController.createStudioInfo
 );
 
+router.post(
+  '/createHeroContent',
+  deleteAccountController.createHeroContent
+);
+
+router.post(
+  '/aboutContent',
+  deleteAccountController.aboutContent
+);
+
+router.post(
+  '/benefits',
+  deleteAccountController.benefits
+);
+
+router.post(
+  '/classes',
+  deleteAccountController.classes
+);
+
+router.post(
+  '/uploadImage',
+  deleteAccountController.uploadImage
+);
+
 export default router;
