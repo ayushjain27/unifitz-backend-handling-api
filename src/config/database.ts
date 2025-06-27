@@ -5,7 +5,7 @@ import Logger from './winston';
 
 const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI: string = config.get('MONGO_URI');
+    const mongoURI: string = "mongodb+srv://ayushjain201574:3pDgXUtWqGw8eoNq@cluster0.pbg1y4t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
     // const options: ConnectOptions = {
     //   useNewUrlParser: true,
     //   useCreateIndex: true,
@@ -15,7 +15,7 @@ const connectDB = async (): Promise<void> => {
     // eslint-disable-next-line no-console
     connect(mongoURI, { maxPoolSize: 25 });
     mongoose.connection.on('error', (err) => {
-      throw new Error(`unable to connect to database: ${mongoURI}`);
+      throw new Error(`unable to connect to database: mongodb+srv://ayushjain201574:3pDgXUtWqGw8eoNq@cluster0.pbg1y4t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
     });
 
     mongoose.connection.on('connected', () => {
