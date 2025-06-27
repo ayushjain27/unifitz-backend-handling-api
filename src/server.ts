@@ -156,7 +156,7 @@ app.use(`/offer`, offer);
 app.use('/storeCustomer', storeCustomer);
 app.use('/spEmployee', spEmployee);
 app.use('/reportRoadAccident', reportRoadAccident);
-app.use('/account', deleteAccount);
+app.use('/unifitz', deleteAccount);
 app.use('/orderManagement', orderManagement);
 app.use('/smcInsurance', smcInsurance);
 app.use('/razorpay', razorpayData);

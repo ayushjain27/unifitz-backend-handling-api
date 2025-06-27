@@ -10,6 +10,7 @@ import { AccountDeleteRequest } from '../interfaces/accountDeleteRequest.interfa
 import { UserService } from './user.service';
 import { StoreService } from './store.service';
 import { CustomerService } from './customer.service';
+import StudioInfo from '../models/StudioInfo';
 
 @injectable()
 export class DeleteAccountService {
@@ -20,83 +21,23 @@ export class DeleteAccountService {
     TYPES.CustomerService
   );
 
-  async create(requestBody: AccountDeleteRequest): Promise<IDeleteAccount> {
-    Logger.info('<Service>:<DeleteAccountService>: <Deleted Account created>');
-
-    // Complete the delete request body
-
-    const params: IDeleteAccount = {
-      ...requestBody,
-      app: requestBody.userRole === 'STORE_OWNER' ? 'PARTNER' : 'CUSTOMER',
-      userId: new Types.ObjectId()
-    };
-
-    // Check if the request exist
-    const accountRequest = await this.getDeleteRequest(
-      requestBody.phoneNumber,
-      requestBody.userRole
+  async createStudioIndo(storeRequest: any): Promise<any> {
+    let studioInfoPayload = storeRequest;
+    studioInfoPayload.contact.phoneNumber = `+91${storeRequest?.contact?.phoneNumber?.slice(-10)}`;
+    Logger.info(
+      '<Route>:<StoreService>: <Store onboarding: creating new studio info>'
     );
+    console.log(studioInfoPayload, 'emkfmkr');
 
-    if (!isEmpty(accountRequest)) {
-      throw new Error('Request already exist');
+    let newStudioInfo;
+    try {
+      newStudioInfo = await StudioInfo.create(studioInfoPayload);
+    } catch (err) {
+      throw new Error(err);
     }
-
-    // Get the user and attach the user id
-    const userPayload = {
-      phoneNumber: `+91${requestBody.phoneNumber?.slice(-10)}`,
-      role: requestBody.userRole
-    };
-
-    // Get the user details
-    const user = await this.userService.getUserByPhoneNumber(userPayload);
-
-    if (isEmpty(user)) {
-      throw new Error('User not found');
-    }
-
-    params.userId = user._id;
-
-    // If user role is store owner then get store id, else get customer id if available.
-
-    if (requestBody.userRole === 'STORE_OWNER') {
-      const store = await this.storeService.getStoreByUserId(user._id);
-
-      if (isEmpty(store)) {
-        throw new Error('Store not found');
-      }
-      params.storeId = store?.storeId;
-    } else {
-      const phoneNumber = requestBody.phoneNumber.slice(-10);
-      const customer = await this.customerService.getByPhoneNumber(phoneNumber);
-      params.customerId = String(customer?._id);
-    }
-
-    const deleteRequest = await DeleteAccount.create(params);
-    return deleteRequest;
-  }
-
-  async getDeleteRequest(
-    phoneNumber: string,
-    userRole: string
-  ): Promise<IDeleteAccount> {
-    Logger.info('<Service>:<DeleteAccountService>:<Get deleted account by id>');
-    const deleteAccountResponse: IDeleteAccount = await DeleteAccount.findOne({
-      phoneNumber: `+91${phoneNumber?.slice(-10)}`,
-      userRole
-    });
-    return deleteAccountResponse;
-  }
-
-  async getRestoreRequest(
-    phoneNumber: string,
-    userRole: string
-  ): Promise<IDeleteAccount> {
-    Logger.info('<Service>:<DeleteAccountService>:<Get deleted account by id>');
-    const deleteAccountResponse: IDeleteAccount =
-      await DeleteAccount.findOneAndDelete({
-        phoneNumber: `+91${phoneNumber?.slice(-10)}`,
-        userRole
-      });
-    return deleteAccountResponse;
+    Logger.info(
+      '<Service>:<StoreService>: <StudioInfo onboarding: created new studioinfo successfully>'
+    );
+    return newStudioInfo;
   }
 }
