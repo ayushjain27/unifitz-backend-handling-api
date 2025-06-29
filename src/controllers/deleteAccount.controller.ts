@@ -65,12 +65,44 @@ export class DeleteAccountController {
     }
   };
 
+  getAllStudioInfo = async (req: any, res: Response) => {
+    try {
+      const userName  = req.query.userName;
+      const result = await this.deleteAccountService.getAllStudioInfo(userName);
+      res.send({
+        message: 'Get all Studio Info Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   createHeroContent = async (req: any, res: Response) => {
     try {
       const request  = req.body;
       const result = await this.deleteAccountService.createHeroContent(request);
       res.send({
         message: 'Creation Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllHeroContent = async (req: any, res: Response) => {
+    try {
+      const userName  = req.query.userName;
+      const result = await this.deleteAccountService.getAllHeroContent(userName);
+      res.send({
+        message: 'Get all Studio Info Request Successful',
         result
       });
     } catch (err) {
@@ -97,6 +129,22 @@ export class DeleteAccountController {
     }
   };
 
+  getAllAboutContent = async (req: any, res: Response) => {
+    try {
+      const userName  = req.query.userName;
+      const result = await this.deleteAccountService.getAllStudioInfo(userName);
+      res.send({
+        message: 'Get all Studio Info Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   benefits = async (req: any, res: Response) => {
     try {
       const request  = req.body;
@@ -113,12 +161,44 @@ export class DeleteAccountController {
     }
   };
 
+  getAllBenefits = async (req: any, res: Response) => {
+    try {
+      const userName  = req.query.userName;
+      const result = await this.deleteAccountService.getAllStudioInfo(userName);
+      res.send({
+        message: 'Get all Studio Info Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   classes = async (req: any, res: Response) => {
     try {
       const request  = req.body;
       const result = await this.deleteAccountService.classes(request);
       res.send({
         message: 'Creation Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  getAllClasses = async (req: any, res: Response) => {
+    try {
+      const userName  = req.query.userName;
+      const result = await this.deleteAccountService.getAllStudioInfo(userName);
+      res.send({
+        message: 'Get all Studio Info Request Successful',
         result
       });
     } catch (err) {

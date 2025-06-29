@@ -1,7 +1,7 @@
 import { model, ObjectId, Schema, Types } from 'mongoose';
 
 export interface ISignUp {
-  name?: string;
+  email?: string;
   password?: string;
   role?: string;
   userName?: string
@@ -9,7 +9,7 @@ export interface ISignUp {
 
 const signUpSchema: Schema = new Schema<ISignUp>(
   {
-    name: {
+    email: {
       type: String
     },
     password: {

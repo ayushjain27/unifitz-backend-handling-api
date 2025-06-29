@@ -19,6 +19,7 @@ import { StaticIds } from '../models/StaticId';
 import bcrypt from 'bcryptjs';
 import SignUp from '../models/SignUp';
 import { generateToken } from '../utils';
+import Benefits from 'src/models/Benefits';
 
 @injectable()
 export class DeleteAccountService {
@@ -115,6 +116,15 @@ export class DeleteAccountService {
     return newStudioInfo;
   };
 
+  async getAllStudioInfo(userName: any): Promise<any> {
+    try {
+      const result = StudioInfo.find({ userName })
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
   async createHeroContent(heroContentRequest: any): Promise<any> {
     let heroContentPayload = heroContentRequest;
     Logger.info(
@@ -130,7 +140,17 @@ export class DeleteAccountService {
       '<Service>:<StoreService>: <StudioInfo onboarding: created new studioinfo successfully>'
     );
     return newHeroContentInfo;
-  }
+  };
+
+
+  async getAllHeroContent(userName: any): Promise<any> {
+    try {
+      const result = HeroContent.find({ userName })
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
 
   async aboutContent(aboutContentRequest: any): Promise<any> {
     let aboutContentPayload = aboutContentRequest;
@@ -141,7 +161,17 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return aboutContentInfo;
-  }
+  };
+
+
+  async getAllAboutContent(userName: any): Promise<any> {
+    try {
+      const result = AboutContent.find({ userName })
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
 
   async benefits(benefitsRequest: any): Promise<any> {
     let benefitsPayload = benefitsRequest;
@@ -152,7 +182,17 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return benefits;
-  }
+  };
+
+
+  async getAllBenefits(userName: any): Promise<any> {
+    try {
+      const result = Benefits.find({ userName })
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
 
   async classes(classesRequest: any): Promise<any> {
     let classesPayload = classesRequest;
@@ -163,5 +203,15 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return classes;
-  }
+  };
+
+
+  async getAllClasses(userName: any): Promise<any> {
+    try {
+      const result = Classes.find({ userName })
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
 }

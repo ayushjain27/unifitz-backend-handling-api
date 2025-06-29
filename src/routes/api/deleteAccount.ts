@@ -31,9 +31,19 @@ router.post(
   deleteAccountController.createStudioInfo
 );
 
+router.get(
+  '/getAllStudioInfo',
+  deleteAccountController.getAllStudioInfo
+);
+
 router.post(
   '/createHeroContent',
   deleteAccountController.createHeroContent
+);
+
+router.get(
+  '/getAllHeroContent',
+  deleteAccountController.getAllHeroContent
 );
 
 router.post(
@@ -41,14 +51,29 @@ router.post(
   deleteAccountController.aboutContent
 );
 
+router.get(
+  '/getAllAboutContent',
+  deleteAccountController.getAllAboutContent
+);
+
 router.post(
   '/benefits',
   deleteAccountController.benefits
 );
 
+router.get(
+  '/getAllBenefits',
+  deleteAccountController.getAllBenefits
+);
+
 router.post(
   '/classes',
   deleteAccountController.classes
+);
+
+router.get(
+  '/getAllClasses',
+  deleteAccountController.getAllClasses
 );
 
 router.post(
