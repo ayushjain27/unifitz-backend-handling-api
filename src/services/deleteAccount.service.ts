@@ -19,7 +19,7 @@ import { StaticIds } from '../models/StaticId';
 import bcrypt from 'bcryptjs';
 import SignUp from '../models/SignUp';
 import { generateToken } from '../utils';
-import Benefits from 'src/models/Benefits';
+import Benefits from '../models/Benefits';
 
 @injectable()
 export class DeleteAccountService {
@@ -54,6 +54,12 @@ export class DeleteAccountService {
 
   async signup(profileRequest: any): Promise<any> {
     let profilePayload = profileRequest;
+    let checkEmail = await SignUp.findOne({
+      email: profilePayload?.email
+    });
+    if(!isEmpty(checkEmail)){
+      throw new Error('Email already exists');
+    }
     const lastCreatedInstructorId = await StaticIds.find({}).limit(1).exec();
 
     const newInstructorId = String(parseInt(lastCreatedInstructorId[0].instructorId) + 1);
@@ -64,7 +70,7 @@ export class DeleteAccountService {
     );
     profilePayload.password = updatedPassword;
     profilePayload.role = "INSTRUCTOR";
-    profilePayload.userName = newInstructorId;
+    profilePayload.userName = `#INS${newInstructorId}`;
     let newSignUp;
     try {
       newSignUp = await SignUp.create(profilePayload);
@@ -76,18 +82,18 @@ export class DeleteAccountService {
 
   async login(profileRequest: any): Promise<any> {
     let profilePayload = profileRequest;
-    const { userName } = profilePayload;
-    const loginDetails = await SignUp.findOneAndUpdate({
-      userName
+    const { email } = profilePayload;
+    const loginDetails = await SignUp.findOne({
+      email
     });
     if(isEmpty(loginDetails)){
       throw new Error('User not Found');
     }
-    if (!(await bcrypt.compare(profilePayload.password, userName.password))) {
+    if (!(await bcrypt.compare(profilePayload.password, loginDetails.password))) {
       throw new Error('Password validation failed');
     }
     const payload = {
-      userId: userName,
+      userId: loginDetails,
       role: profilePayload?.role
     };
     try {
@@ -177,7 +183,7 @@ export class DeleteAccountService {
     let benefitsPayload = benefitsRequest;
     let benefits;
     try {
-      benefits = await HeroContent.create(benefitsPayload);
+      benefits = await Benefits.create(benefitsPayload);
     } catch (err) {
       throw new Error(err);
     }
