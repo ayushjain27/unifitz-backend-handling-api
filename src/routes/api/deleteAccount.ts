@@ -17,6 +17,16 @@ const deleteAccountController = container.get<DeleteAccountController>(
 );
 
 router.post(
+  '/signup',
+  deleteAccountController.signup
+);
+
+router.post(
+  '/login',
+  deleteAccountController.login
+);
+
+router.post(
   '/createStudioInfo',
   deleteAccountController.createStudioInfo
 );

@@ -17,6 +17,38 @@ export class DeleteAccountController {
     this.deleteAccountService = deleteAccountService;
   }
 
+  signup = async (req: any, res: Response) => {
+  try {
+      const request  = req.body;
+      const result = await this.deleteAccountService.signup(request);
+      res.send({
+        message: 'Profile Creation Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
+  login = async (req: any, res: Response) => {
+  try {
+      const request  = req.body;
+      const result = await this.deleteAccountService.login(request);
+      res.send({
+        message: 'Profile Login Request Successful',
+        result
+      });
+    } catch (err) {
+      Logger.error(err.message);
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    }
+  };
+
   createStudioInfo = async (req: any, res: Response) => {
     try {
       const request  = req.body;

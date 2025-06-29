@@ -15,6 +15,10 @@ import StudioInfo from '../models/StudioInfo';
 import HeroContent from '../models/HeroContent';
 import AboutContent from '../models/AboutContent';
 import Classes from '../models/Classes';
+import { StaticIds } from '../models/StaticId';
+import bcrypt from 'bcryptjs';
+import SignUp from '../models/SignUp';
+import { generateToken } from '../utils';
 
 @injectable()
 export class DeleteAccountService {
@@ -45,6 +49,58 @@ export class DeleteAccountService {
       Logger.error('Cloudinary upload failed:', error);
       throw new Error('Image upload failed');
     }
+  }
+
+  async signup(profileRequest: any): Promise<any> {
+    let profilePayload = profileRequest;
+    const lastCreatedInstructorId = await StaticIds.find({}).limit(1).exec();
+
+    const newInstructorId = String(parseInt(lastCreatedInstructorId[0].instructorId) + 1);
+
+    await StaticIds.findOneAndUpdate({}, { instructorId: newInstructorId });
+    const updatedPassword = await this.encryptPassword(
+      profilePayload.password
+    );
+    profilePayload.password = updatedPassword;
+    profilePayload.role = "INSTRUCTOR";
+    profilePayload.userName = newInstructorId;
+    let newSignUp;
+    try {
+      newSignUp = await SignUp.create(profilePayload);
+    } catch (err) {
+      throw new Error(err);
+    }
+    return newSignUp;
+  };
+
+  async login(profileRequest: any): Promise<any> {
+    let profilePayload = profileRequest;
+    const { userName } = profilePayload;
+    const loginDetails = await SignUp.findOneAndUpdate({
+      userName
+    });
+    if(isEmpty(loginDetails)){
+      throw new Error('User not Found');
+    }
+    if (!(await bcrypt.compare(profilePayload.password, userName.password))) {
+      throw new Error('Password validation failed');
+    }
+    const payload = {
+      userId: userName,
+      role: profilePayload?.role
+    };
+    try {
+      const token = await generateToken(payload);
+      return { user: loginDetails, token };
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
+  private async encryptPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, salt);
+    return hashed;
   }
 
   async createStudioIndo(studioInfoRequest: any): Promise<any> {
