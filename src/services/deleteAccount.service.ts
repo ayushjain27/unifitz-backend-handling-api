@@ -47,7 +47,7 @@ export class DeleteAccountService {
       const uploadResult = await cloudinary.uploader.upload(imagePath, {
         public_id: `img_${Date.now()}`
       });
-      if (type === 'Classes') {
+      if (type === 'classes') {
         const result = Classes.findOneAndUpdate(
           {
             _id: new Types.ObjectId(id)
