@@ -313,7 +313,6 @@ export class DeleteAccountController {
       }
        // Get the path to the uploaded file
        const imagePath = req.file.path;
-       const options = req.body.options ? JSON.parse(req.body.options) : {};
        const result = await this.deleteAccountService.uploadImage(imagePath, req.body.type, req.body.id);
        console.log(result,"sd;lmekm")
        fs.unlinkSync(imagePath);
