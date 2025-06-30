@@ -20,6 +20,9 @@ import bcrypt from 'bcryptjs';
 import SignUp from '../models/SignUp';
 import { generateToken } from '../utils';
 import Benefits from '../models/Benefits';
+import Instructors from '../models/Instructors';
+import PricingPlans from '../models/PricingPlans';
+import Testimonials from '../models/Testimonials copy 3';
 
 @injectable()
 export class DeleteAccountService {
@@ -29,22 +32,58 @@ export class DeleteAccountService {
   private customerService = container.get<CustomerService>(
     TYPES.CustomerService
   );
-  
+
   constructor() {
     // Initialize Cloudinary configuration
-    cloudinary.config({ 
-      cloud_name: 'du028g1cr', 
-      api_key: '677771287652153', 
+    cloudinary.config({
+      cloud_name: 'du028g1cr',
+      api_key: '677771287652153',
       api_secret: 'yunkSLXGEhDrn2W-kYc-s26qWVI' // Use environment variable
     });
   }
 
-  async uploadImage(imagePath: string, options: any = {}): Promise<any> {
+  async uploadImage(imagePath: string, type: string, id: string): Promise<any> {
     try {
       const uploadResult = await cloudinary.uploader.upload(imagePath, {
-        public_id: options.public_id || `img_${Date.now()}`,
-        ...options
+        public_id: `img_${Date.now()}`
       });
+      if (type === 'Classes') {
+        const result = Classes.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(id)
+          },
+          {
+            $set: { image: uploadResult?.secure_url }
+          },
+          {
+            new: true
+          }
+        );
+      }else if (type === 'instructors') {
+        const result = Instructors.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(id)
+          },
+          {
+            $set: { image: uploadResult?.secure_url }
+          },
+          {
+            new: true
+          }
+        );
+      }else if (type === 'testimonials') {
+        const result = Testimonials.findOneAndUpdate(
+          {
+            _id: new Types.ObjectId(id)
+          },
+          {
+            $set: { image: uploadResult?.secure_url }
+          },
+          {
+            new: true
+          }
+        );
+      }
       return uploadResult;
     } catch (error) {
       Logger.error('Cloudinary upload failed:', error);
@@ -57,19 +96,19 @@ export class DeleteAccountService {
     let checkEmail = await SignUp.findOne({
       email: profilePayload?.email
     });
-    if(!isEmpty(checkEmail)){
+    if (!isEmpty(checkEmail)) {
       throw new Error('Email already exists');
     }
     const lastCreatedInstructorId = await StaticIds.find({}).limit(1).exec();
 
-    const newInstructorId = String(parseInt(lastCreatedInstructorId[0].instructorId) + 1);
+    const newInstructorId = String(
+      parseInt(lastCreatedInstructorId[0].instructorId) + 1
+    );
 
     await StaticIds.findOneAndUpdate({}, { instructorId: newInstructorId });
-    const updatedPassword = await this.encryptPassword(
-      profilePayload.password
-    );
+    const updatedPassword = await this.encryptPassword(profilePayload.password);
     profilePayload.password = updatedPassword;
-    profilePayload.role = "INSTRUCTOR";
+    profilePayload.role = 'INSTRUCTOR';
     profilePayload.userName = `#INS${newInstructorId}`;
     let newSignUp;
     try {
@@ -78,7 +117,7 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return newSignUp;
-  };
+  }
 
   async login(profileRequest: any): Promise<any> {
     let profilePayload = profileRequest;
@@ -86,10 +125,12 @@ export class DeleteAccountService {
     const loginDetails = await SignUp.findOne({
       email
     });
-    if(isEmpty(loginDetails)){
+    if (isEmpty(loginDetails)) {
       throw new Error('User not Found');
     }
-    if (!(await bcrypt.compare(profilePayload.password, loginDetails.password))) {
+    if (
+      !(await bcrypt.compare(profilePayload.password, loginDetails.password))
+    ) {
       throw new Error('Password validation failed');
     }
     const payload = {
@@ -102,7 +143,7 @@ export class DeleteAccountService {
     } catch (err) {
       throw new Error(err);
     }
-  };
+  }
 
   private async encryptPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
@@ -120,16 +161,16 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return newStudioInfo;
-  };
+  }
 
   async getAllStudioInfo(userName: any): Promise<any> {
     try {
-      const result = StudioInfo.find({ userName })
+      const result = StudioInfo.find({ userName });
       return result;
     } catch (err) {
       throw new Error(err);
     }
-  };
+  }
 
   async createHeroContent(heroContentRequest: any): Promise<any> {
     let heroContentPayload = heroContentRequest;
@@ -146,17 +187,16 @@ export class DeleteAccountService {
       '<Service>:<StoreService>: <StudioInfo onboarding: created new studioinfo successfully>'
     );
     return newHeroContentInfo;
-  };
-
+  }
 
   async getAllHeroContent(userName: any): Promise<any> {
     try {
-      const result = HeroContent.find({ userName })
+      const result = HeroContent.find({ userName });
       return result;
     } catch (err) {
       throw new Error(err);
     }
-  };
+  }
 
   async aboutContent(aboutContentRequest: any): Promise<any> {
     let aboutContentPayload = aboutContentRequest;
@@ -167,17 +207,16 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return aboutContentInfo;
-  };
-
+  }
 
   async getAllAboutContent(userName: any): Promise<any> {
     try {
-      const result = AboutContent.find({ userName })
+      const result = AboutContent.find({ userName });
       return result;
     } catch (err) {
       throw new Error(err);
     }
-  };
+  }
 
   async benefits(benefitsRequest: any): Promise<any> {
     let benefitsPayload = benefitsRequest;
@@ -188,17 +227,16 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return benefits;
-  };
-
+  }
 
   async getAllBenefits(userName: any): Promise<any> {
     try {
-      const result = Benefits.find({ userName })
+      const result = Benefits.find({ userName });
       return result;
     } catch (err) {
       throw new Error(err);
     }
-  };
+  }
 
   async classes(classesRequest: any): Promise<any> {
     let classesPayload = classesRequest;
@@ -209,15 +247,74 @@ export class DeleteAccountService {
       throw new Error(err);
     }
     return classes;
-  };
-
+  }
 
   async getAllClasses(userName: any): Promise<any> {
     try {
-      const result = Classes.find({ userName })
+      const result = Classes.find({ userName });
       return result;
     } catch (err) {
       throw new Error(err);
     }
-  };
+  }
+
+  async instructors(instructorRequest: any): Promise<any> {
+    let instructorPayload = instructorRequest;
+    let instructors;
+    try {
+      instructors = await Instructors.create(instructorPayload);
+    } catch (err) {
+      throw new Error(err);
+    }
+    return instructorPayload;
+  }
+
+  async getAllInstructors(userName: any): Promise<any> {
+    try {
+      const result = Instructors.find({ userName });
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async pricingPlans(pricingPlansRequest: any): Promise<any> {
+    let pricingPlansPayload = pricingPlansRequest;
+    let pricingPlans;
+    try {
+      pricingPlans = await PricingPlans.create(pricingPlansPayload);
+    } catch (err) {
+      throw new Error(err);
+    }
+    return pricingPlans;
+  }
+
+  async getAllPricingPlans(userName: any): Promise<any> {
+    try {
+      const result = PricingPlans.find({ userName });
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async testimonials(testimonialsRequest: any): Promise<any> {
+    let testimonialsPayload = testimonialsRequest;
+    let testimonials;
+    try {
+      testimonials = await Testimonials.create(testimonialsPayload);
+    } catch (err) {
+      throw new Error(err);
+    }
+    return testimonials;
+  }
+
+  async getAllTestimonials(userName: any): Promise<any> {
+    try {
+      const result = Testimonials.find({ userName });
+      return result;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
 }

@@ -9,7 +9,7 @@ import { roleAuth } from '../middleware/rbac';
 import { validationHandler } from '../middleware/auth';
 
 const storage = multer.memoryStorage();
-const uploadFile = multer({ storage: storage });
+const upload = multer({ dest: 'uploads/' });
 
 const router: Router = Router();
 const deleteAccountController = container.get<DeleteAccountController>(
@@ -77,7 +77,38 @@ router.get(
 );
 
 router.post(
+  '/instructors',
+  deleteAccountController.instructors
+);
+
+router.get(
+  '/getAllInstructors',
+  deleteAccountController.getAllInstructors
+);
+
+router.post(
+  '/pricingPlans',
+  deleteAccountController.pricingPlans
+);
+
+router.get(
+  '/getAllPricingPlans',
+  deleteAccountController.getAllPricingPlans
+);
+
+router.post(
+  '/testimonials',
+  deleteAccountController.testimonials
+);
+
+router.get(
+  '/getAllTestimonials',
+  deleteAccountController.getAllTestimonials
+);
+
+router.post(
   '/uploadImage',
+  upload.single('image'), // 'image' is the field name in the form-data
   deleteAccountController.uploadImage
 );
 
